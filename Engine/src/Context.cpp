@@ -1,4 +1,5 @@
 #include <Yngin/Yngin.h>
+#include <Yngin/Scenes.h>
 #include <glad/glad.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -39,6 +40,10 @@ namespace Yngin {
 	Context::~Context() {
 		glfwDestroyWindow(glfwWindow);
 		contexts.erase(std::find(contexts.begin(), contexts.end(), this));
+		for (Scene* scene : scenes) {
+			delete scene;
+		}
+		scenes.clear();
 	}
 
 	void Yngin::Context::deleteAllContexts() {
@@ -61,5 +66,17 @@ namespace Yngin {
 
 	bool Context::windowShouldClose() {
 		return glfwWindowShouldClose(glfwWindow);
+	}
+
+	void Context::swapBuffers() {
+		glfwSwapBuffers(glfwWindow);
+	}
+
+	void Context::addScene(Scene* scene) {
+		if (scene->getContext() == this) {
+			scenes.push_back(scene);
+		} else {
+			throw std::exception("Cannot add a scene linked to another context");
+		}
 	}
 }

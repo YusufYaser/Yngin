@@ -19,10 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Yngin\Scenes.h" />
     <ClInclude Include="include\Yngin\Yngin.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c" />
+    <ClCompile Include="src\Scenes.cpp" />
     <ClCompile Include="src\Context.cpp" />
     <ClCompile Include="src\Engine.cpp" />
   </ItemGroup>

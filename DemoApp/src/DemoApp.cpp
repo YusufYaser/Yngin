@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <Yngin/Yngin.h>
+#include <Yngin/Scenes.h>
 
 int main() {
 	Yngin::init();
@@ -8,7 +9,13 @@ int main() {
 
 	printf("Context: %p\n", ctx);
 
-	while (!ctx->windowShouldClose()) ctx->updateWindow();
+	Yngin::Scene* scene = Yngin::createScene(ctx);
+
+	while (!ctx->windowShouldClose()) {
+		ctx->updateWindow();
+		scene->render();
+		ctx->swapBuffers();
+	}
 
 	Yngin::terminate();
 

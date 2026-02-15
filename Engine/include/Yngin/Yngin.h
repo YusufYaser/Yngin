@@ -9,6 +9,8 @@ namespace Yngin {
 	bool init();
 	void terminate();
 
+	class Scene;
+
 	class Context {
 	public:
 		Context();
@@ -19,11 +21,16 @@ namespace Yngin {
 
 		void updateWindow();
 		bool windowShouldClose();
+		void swapBuffers();
+
+		void addScene(Scene* scene);
 
 	private:
 		static std::vector<Context*> contexts;
 
 		GLFWwindow* glfwWindow;
+
+		std::vector<Scene*> scenes;
 	};
 
 	Context* createContext();
