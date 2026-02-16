@@ -49,9 +49,9 @@ namespace Yngin {
 		}
 		contexts.push_back(this);
 
-		glfwWindow = glfwCreateWindow(800, 600, "Game", nullptr, nullptr);
-		glfwSetFramebufferSizeCallback(glfwWindow, fb_resize_callback);
+		glfwWindow = glfwCreateWindow(800, 600, "Yngin Game", nullptr, nullptr);
 		makeCurrent();
+		glfwSetFramebufferSizeCallback(glfwWindow, fb_resize_callback);
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 		glViewport(0, 0, 800, 600);
@@ -60,8 +60,8 @@ namespace Yngin {
 
 		glfwSwapBuffers(glfwWindow);
 
-		modelsManager = new ModelsManager(this);
-		scenesManager = new ScenesManager(this);
+		modelsManager = std::make_unique<ModelsManager>(this);
+		scenesManager = std::make_unique<ScenesManager>(this);
 
 		// load initial shader
 		// TODO: show error logs
@@ -108,9 +108,10 @@ namespace Yngin {
 	void Context::cleanup() {
 		makeCurrent();
 
+		modelsManager.reset();
+		scenesManager.reset();
+
 		contexts.erase(std::find(contexts.begin(), contexts.end(), this));
-		delete modelsManager;
-		delete scenesManager;
 		glUseProgram(0);
 		glDeleteProgram(shader);
 		glfwDestroyWindow(glfwWindow);
@@ -142,11 +143,17 @@ namespace Yngin {
 		glfwSwapBuffers(glfwWindow);
 	}
 
+	glm::ivec2 Context::getViewportSize() {
+		GLint viewportData[4];
+		glGetIntegerv(GL_VIEWPORT, viewportData);
+		return { viewportData[2], viewportData[3] };
+	}
+
 	ModelsManager* Context::getModelsManager() {
-		return modelsManager;
+		return modelsManager.get();
 	}
 
 	ScenesManager* Context::getScenesManager() {
-		return scenesManager;
+		return scenesManager.get();
 	}
 }

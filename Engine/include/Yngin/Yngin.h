@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <stdint.h>
+#include <glm/vec2.hpp>
 
 struct GLFWwindow;
 
@@ -12,9 +13,7 @@ namespace Yngin {
 	bool isInitialized();
 
 	class ModelsManager;
-	class Model;
 	class ScenesManager;
-	class Scene;
 	struct Vertex;
 
 	class Context {
@@ -28,9 +27,11 @@ namespace Yngin {
 		void updateWindow();
 		bool windowShouldClose();
 		void swapBuffers();
+		glm::ivec2 getViewportSize();
 
 		ModelsManager* getModelsManager();
 		ScenesManager* getScenesManager();
+
 
 	private:
 		static std::vector<Context*> contexts;
@@ -39,8 +40,8 @@ namespace Yngin {
 
 		GLFWwindow* glfwWindow;
 
-		ModelsManager* modelsManager;
-		ScenesManager* scenesManager;
+		std::unique_ptr<ModelsManager> modelsManager;
+		std::unique_ptr<ScenesManager> scenesManager;
 
 		// TODO: add a custom shader class
 		uint32_t shader;

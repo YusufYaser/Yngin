@@ -4,16 +4,6 @@
 #include "Models_Internal.h"
 
 namespace Yngin {
-	struct Model::StructureInfo {
-		GLsizei indicesCount;
-	};
-
-	struct Model::IDs {
-		GLuint VAO;
-		GLuint VBO;
-		GLuint EBO;
-	};
-
 	Model::Model(Context* ctx, std::vector<Vertex> vertices, std::vector<uint32_t> indices) : ctx(ctx) {
 		if (vertices.size() == 0 || indices.size() == 0) {
 			throw std::invalid_argument("Vertices and indices size cannot be zero");
@@ -77,11 +67,14 @@ namespace Yngin {
 	}
 
 	void ModelsManager::deleteModel(uint32_t modelId) {
+		assert(models.find(modelId) != models.end());
+
 		models.erase(modelId);
 	}
 
-	void ModelsManager::renderModel(uint32_t modelId) {
+	void ModelsManager::render(uint32_t modelId) {
 		auto it = models.find(modelId);
+		assert(it != models.end());
 		if (it == models.end()) return;
 
 		it->second->render();

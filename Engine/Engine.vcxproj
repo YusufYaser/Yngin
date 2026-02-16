@@ -19,14 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Yngin\Cameras.h" />
     <ClInclude Include="include\Yngin\Models.h" />
     <ClInclude Include="include\Yngin\Scenes.h" />
     <ClInclude Include="include\Yngin\Yngin.h" />
+    <ClInclude Include="src\Cameras\Cameras_Internal.h" />
     <ClInclude Include="src\Models\Models_Internal.h" />
     <ClInclude Include="src\Scenes\Scenes_Internal.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c" />
+    <ClCompile Include="src\Cameras\Cameras.cpp" />
     <ClCompile Include="src\Models\Models.cpp" />
     <ClCompile Include="src\Scenes\Scenes.cpp" />
     <ClCompile Include="src\Context\Context.cpp" />

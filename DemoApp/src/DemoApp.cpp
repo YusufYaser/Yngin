@@ -2,6 +2,7 @@
 #include <Yngin/Yngin.h>
 #include <Yngin/Scenes.h>
 #include <Yngin/Models.h>
+#include <Yngin/Cameras.h>
 
 int main() {
 	Yngin::init();
@@ -49,9 +50,12 @@ int main() {
 
 	uint32_t model = ctx->getModelsManager()->createModel(cubeVertices, cubeIndices);
 
+	ctx->getScenesManager()->getCamerasManager(0)->setPos(0, { 5, 5, 5 });
+	ctx->getScenesManager()->getCamerasManager(0)->lookAt(0, { 0, 0, 0 });
+
 	while (!ctx->windowShouldClose()) {
 		ctx->updateWindow();
-		ctx->getScenesManager()->renderScene(scene);
+		ctx->getScenesManager()->render(scene);
 		ctx->swapBuffers();
 	}
 

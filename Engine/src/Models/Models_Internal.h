@@ -12,8 +12,16 @@ namespace Yngin {
 	private:
 		Context* ctx;
 
-		struct IDs;
-		struct StructureInfo;
+		struct IDs {
+			GLuint VAO;
+			GLuint VBO;
+			GLuint EBO;
+		};
+
+		struct StructureInfo {
+			GLsizei indicesCount;
+		};
+
 		std::unique_ptr<IDs> ids;
 		std::unique_ptr<StructureInfo> structureInfo;
 	};

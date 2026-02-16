@@ -18,7 +18,7 @@ namespace Yngin {
 		uint32_t createModel(std::vector<Vertex> vertices, std::vector<uint32_t> indices);
 		void deleteModel(uint32_t modelId);
 
-		void renderModel(uint32_t modelId);
+		void render(uint32_t modelId);
 
 	private:
 		Context* ctx;

@@ -4,16 +4,19 @@
 
 namespace Yngin {
 	class Scene;
+	class CamerasManager;
 
 	class ScenesManager {
 	public:
 		ScenesManager(Context* ctx);
 		~ScenesManager();
 
+		CamerasManager* getCamerasManager(uint32_t sceneId);
+
 		uint32_t createScene();
 		void deleteScene(uint32_t sceneId);
 
-		void renderScene(uint32_t sceneId);
+		void render(uint32_t sceneId);
 
 	private:
 		Context* ctx;
