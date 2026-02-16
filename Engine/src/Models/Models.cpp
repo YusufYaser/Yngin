@@ -1,6 +1,7 @@
 #include <Yngin/Models.h>
 #include <glad/glad.h>
 #include <stdexcept>
+#include "Models_Internal.h"
 
 namespace Yngin {
 	struct Model::StructureInfo {
@@ -67,25 +68,22 @@ namespace Yngin {
 		this->ctx = ctx;
 	}
 
-	ModelsManager::~ModelsManager() {
-		for (const auto& kvp : models) {
-			delete kvp.second;
-		}
-		models.clear();
-	}
+	ModelsManager::~ModelsManager() = default;
 
 	uint32_t ModelsManager::createModel(std::vector<Vertex> vertices, std::vector<uint32_t> indices) {
-		Model* model = new Model(ctx, vertices, indices);
 		uint32_t modelId = nextModelId++;
-		models[modelId] = model;
+		models[modelId] = std::make_unique<Model>(ctx, vertices, indices);
 		return modelId;
 	}
 
-	void ModelsManager::renderModel(uint32_t modelId) {
-		if (!models.contains(modelId)) {
-			throw std::invalid_argument("Model ID doesn't exist");
-		}
+	void ModelsManager::deleteModel(uint32_t modelId) {
+		models.erase(modelId);
+	}
 
-		models[modelId]->render();
+	void ModelsManager::renderModel(uint32_t modelId) {
+		auto it = models.find(modelId);
+		if (it == models.end()) return;
+
+		it->second->render();
 	}
 }

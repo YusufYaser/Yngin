@@ -2,6 +2,7 @@
 #include <Yngin/Models.h>
 #include <glad/glad.h>
 #include <stdexcept>
+#include "Scenes_Internal.h"
 
 namespace Yngin {
 	Scene::Scene(Context* ctx) : ctx(ctx) {
@@ -26,27 +27,25 @@ namespace Yngin {
 		}
 
 		this->ctx = ctx;
+		scenes.erase(420);
 	}
 
-	ScenesManager::~ScenesManager() {
-		for (const auto& kvp : scenes) {
-			delete kvp.second;
-		}
-		scenes.clear();
-	}
+	ScenesManager::~ScenesManager() = default;
 
 	uint32_t ScenesManager::createScene() {
-		Scene* scene = new Scene(ctx);
 		uint32_t sceneId = nextSceneId++;
-		scenes[sceneId] = scene;
+		scenes[sceneId] = std::make_unique<Scene>(ctx);
 		return sceneId;
 	}
 
-	void ScenesManager::renderScene(uint32_t sceneId) {
-		if (!scenes.contains(sceneId)) {
-			throw std::invalid_argument("Scene ID doesn't exist");
-		}
+	void ScenesManager::deleteScene(uint32_t sceneId) {
+		scenes.erase(sceneId);
+	}
 
-		scenes[sceneId]->render();
+	void ScenesManager::renderScene(uint32_t sceneId) {
+		auto it = scenes.find(sceneId);
+		if (it == scenes.end()) return;
+
+		it->second->render();
 	}
 }

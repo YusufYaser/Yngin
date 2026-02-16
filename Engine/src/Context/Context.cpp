@@ -39,12 +39,12 @@ namespace Yngin {
 
 	Context* createContext() {
 		Context* ctx = nullptr;
-		if (initialized) ctx = new Context();
+		if (Yngin::isInitialized()) ctx = new Context();
 		return ctx;
 	}
 
 	Context::Context() {
-		if (!initialized) {
+		if (!Yngin::isInitialized()) {
 			throw std::exception("Cannot create new context before initialization");
 		}
 		contexts.push_back(this);

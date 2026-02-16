@@ -4,13 +4,12 @@
 #include <vector>
 #include <stdint.h>
 
-class GLFWwindow;
+struct GLFWwindow;
 
 namespace Yngin {
-	extern bool initialized;
-
 	bool init();
 	void terminate();
+	bool isInitialized();
 
 	class ModelsManager;
 	class Model;
@@ -20,8 +19,6 @@ namespace Yngin {
 
 	class Context {
 	public:
-		// Do not initialize a new context directly
-		// You should use Yngin::createContext() instead
 		Context();
 		~Context();
 		static void deleteAllContexts();

@@ -22,13 +22,15 @@
     <ClInclude Include="include\Yngin\Models.h" />
     <ClInclude Include="include\Yngin\Scenes.h" />
     <ClInclude Include="include\Yngin\Yngin.h" />
+    <ClInclude Include="src\Models\Models_Internal.h" />
+    <ClInclude Include="src\Scenes\Scenes_Internal.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c" />
-    <ClCompile Include="src\Models.cpp" />
-    <ClCompile Include="src\Scenes.cpp" />
-    <ClCompile Include="src\Context.cpp" />
-    <ClCompile Include="src\Engine.cpp" />
+    <ClCompile Include="src\Models\Models.cpp" />
+    <ClCompile Include="src\Scenes\Scenes.cpp" />
+    <ClCompile Include="src\Context\Context.cpp" />
+    <ClCompile Include="src\Engine\Engine.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -83,20 +85,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)</OutDir>
-    <IntDir>intermediates</IntDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>intermediates\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)</OutDir>
-    <IntDir>intermediates</IntDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>intermediates\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)</OutDir>
-    <IntDir>intermediates</IntDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>intermediates\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)</OutDir>
-    <IntDir>intermediates</IntDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>intermediates\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

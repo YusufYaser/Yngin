@@ -3,9 +3,9 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
-namespace Yngin {
-	bool initialized = false;
+bool initialized = false;
 
+namespace Yngin {
 	bool init() {
 		if (!glfwInit()) {
 			terminate();
@@ -19,6 +19,10 @@ namespace Yngin {
 		initialized = true;
 
 		return true;
+	}
+
+	bool isInitialized() {
+		return initialized;
 	}
 
 	void terminate() {

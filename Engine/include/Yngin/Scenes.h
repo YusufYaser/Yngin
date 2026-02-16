@@ -1,21 +1,9 @@
 #pragma once
 #include <Yngin/Yngin.h>
+#include <memory>
 
 namespace Yngin {
-	class Scene {
-	public:
-		// Do not initialize a new scene directly
-		// You should use Context::createScene() instead
-		Scene(Context* ctx);
-		~Scene();
-
-		Context* getContext() { return ctx; };
-
-		void render();
-
-	private:
-		Context* ctx;
-	};
+	class Scene;
 
 	class ScenesManager {
 	public:
@@ -23,13 +11,14 @@ namespace Yngin {
 		~ScenesManager();
 
 		uint32_t createScene();
+		void deleteScene(uint32_t sceneId);
 
 		void renderScene(uint32_t sceneId);
 
 	private:
 		Context* ctx;
 
-		std::map<uint32_t, Scene*> scenes;
+		std::map<uint32_t, std::unique_ptr<Scene>> scenes;
 		uint32_t nextSceneId = 0;
 	};
 }
