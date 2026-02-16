@@ -1,5 +1,8 @@
 #pragma once
+#include <map>
+#include <memory>
 #include <vector>
+#include <stdint.h>
 
 class GLFWwindow;
 
@@ -9,10 +12,16 @@ namespace Yngin {
 	bool init();
 	void terminate();
 
+	class ModelsManager;
+	class Model;
+	class ScenesManager;
 	class Scene;
+	struct Vertex;
 
 	class Context {
 	public:
+		// Do not initialize a new context directly
+		// You should use Yngin::createContext() instead
 		Context();
 		~Context();
 		static void deleteAllContexts();
@@ -23,14 +32,21 @@ namespace Yngin {
 		bool windowShouldClose();
 		void swapBuffers();
 
-		void addScene(Scene* scene);
+		ModelsManager* getModelsManager();
+		ScenesManager* getScenesManager();
 
 	private:
 		static std::vector<Context*> contexts;
 
+		void cleanup();
+
 		GLFWwindow* glfwWindow;
 
-		std::vector<Scene*> scenes;
+		ModelsManager* modelsManager;
+		ScenesManager* scenesManager;
+
+		// TODO: add a custom shader class
+		uint32_t shader;
 	};
 
 	Context* createContext();

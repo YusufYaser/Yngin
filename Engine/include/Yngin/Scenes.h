@@ -4,7 +4,9 @@
 namespace Yngin {
 	class Scene {
 	public:
-		Scene(Context* ctx) : ctx(ctx) {};
+		// Do not initialize a new scene directly
+		// You should use Context::createScene() instead
+		Scene(Context* ctx);
 		~Scene();
 
 		Context* getContext() { return ctx; };
@@ -15,5 +17,19 @@ namespace Yngin {
 		Context* ctx;
 	};
 
-	Scene* createScene(Context* ctx);
+	class ScenesManager {
+	public:
+		ScenesManager(Context* ctx);
+		~ScenesManager();
+
+		uint32_t createScene();
+
+		void renderScene(uint32_t sceneId);
+
+	private:
+		Context* ctx;
+
+		std::map<uint32_t, Scene*> scenes;
+		uint32_t nextSceneId = 0;
+	};
 }
