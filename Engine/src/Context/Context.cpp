@@ -12,8 +12,11 @@ const char* vertexShaderCode = R"(
 
 layout(location = 0) in vec3 pos;
 
+uniform mat4 projection;
+uniform mat4 view;
+
 void main() {
-	gl_Position = vec4(pos, 1.0f);
+	gl_Position = projection * view * vec4(pos, 1.0);
 }
 )";
 
@@ -91,6 +94,7 @@ namespace Yngin {
 		shader = glCreateProgram();
 		glAttachShader(shader, vertexShader);
 		glAttachShader(shader, fragmentShader);
+		glLinkProgram(shader);
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
 
@@ -155,5 +159,9 @@ namespace Yngin {
 
 	ScenesManager* Context::getScenesManager() {
 		return scenesManager.get();
+	}
+
+	uint32_t Context::getShaderId() {
+		return shader;
 	}
 }

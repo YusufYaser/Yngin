@@ -82,12 +82,6 @@ namespace Yngin {
 		if (camera == nullptr) return;
 
 		weight = newWeight;
-
-		assert(getTotalWeight() != 0);
-
-		if (getTotalWeight() == 0) {
-			setWeight(0, 1.0f);
-		}
 	}
 
 	void CamerasManager::setActive(uint32_t cameraId) {

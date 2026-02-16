@@ -32,6 +32,8 @@ namespace Yngin {
 		ModelsManager* getModelsManager();
 		ScenesManager* getScenesManager();
 
+		// will be replaced soon
+		uint32_t getShaderId();
 
 	private:
 		static std::vector<Context*> contexts;
