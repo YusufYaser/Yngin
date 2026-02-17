@@ -9,27 +9,29 @@ namespace Yngin {
 			throw std::invalid_argument("Context already has a model manager!");
 		}
 
-		this->ctx = ctx;
+		impl = std::make_unique<Impl>();
+
+		impl->ctx = ctx;
 	}
 
 	ModelsManager::~ModelsManager() = default;
 
 	uint32_t ModelsManager::createModel(std::vector<Vertex> vertices, std::vector<uint32_t> indices) {
-		uint32_t modelId = nextModelId++;
-		models[modelId] = std::make_unique<Model>(ctx, vertices, indices);
+		uint32_t modelId = impl->nextModelId++;
+		impl->models[modelId] = std::make_unique<Model>(impl->ctx, vertices, indices);
 		return modelId;
 	}
 
 	void ModelsManager::deleteModel(uint32_t modelId) {
-		assert(models.find(modelId) != models.end());
+		assert(impl->models.find(modelId) != impl->models.end());
 
-		models.erase(modelId);
+		impl->models.erase(modelId);
 	}
 
 	void ModelsManager::render(uint32_t modelId) {
-		auto it = models.find(modelId);
-		assert(it != models.end());
-		if (it == models.end()) return;
+		auto it = impl->models.find(modelId);
+		assert(it != impl->models.end());
+		if (it == impl->models.end()) return;
 
 		it->second->render();
 	}

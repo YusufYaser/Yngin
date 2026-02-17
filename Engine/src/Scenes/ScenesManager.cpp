@@ -9,35 +9,37 @@ namespace Yngin {
 			throw std::invalid_argument("Context already has a scene manager!");
 		}
 
-		this->ctx = ctx;
+		impl = std::make_unique<Impl>();
+
+		impl->ctx = ctx;
 	}
 
 	ScenesManager::~ScenesManager() = default;
 
 	CamerasManager* ScenesManager::getCamerasManager(uint32_t sceneId) {
-		auto it = scenes.find(sceneId);
-		assert(it != scenes.end());
-		if (it == scenes.end()) return nullptr;
+		auto it = impl->scenes.find(sceneId);
+		assert(it != impl->scenes.end());
+		if (it == impl->scenes.end()) return nullptr;
 
 		return it->second->getCamerasManager();
 	}
 
 	uint32_t ScenesManager::createScene() {
-		uint32_t sceneId = nextSceneId++;
-		scenes[sceneId] = std::make_unique<Scene>(ctx);
+		uint32_t sceneId = impl->nextSceneId++;
+		impl->scenes[sceneId] = std::make_unique<Scene>(impl->ctx);
 		return sceneId;
 	}
 
 	void ScenesManager::deleteScene(uint32_t sceneId) {
-		assert(scenes.find(sceneId) != scenes.end());
+		assert(impl->scenes.find(sceneId) != impl->scenes.end());
 
-		scenes.erase(sceneId);
+		impl->scenes.erase(sceneId);
 	}
 
 	void ScenesManager::render(uint32_t sceneId) {
-		auto it = scenes.find(sceneId);
-		assert(it != scenes.end());
-		if (it == scenes.end()) return;
+		auto it = impl->scenes.find(sceneId);
+		assert(it != impl->scenes.end());
+		if (it == impl->scenes.end()) return;
 
 		it->second->render();
 	}

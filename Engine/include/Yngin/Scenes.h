@@ -34,9 +34,7 @@ namespace Yngin {
 		void render(uint32_t sceneId);
 
 	private:
-		Context* ctx;
-
-		std::map<uint32_t, std::unique_ptr<Scene>> scenes;
-		uint32_t nextSceneId = 0;
+		struct Impl;
+		std::unique_ptr<Impl> impl;
 	};
 }

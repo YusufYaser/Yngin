@@ -11,4 +11,11 @@ namespace Yngin {
 
 		GLsizei indicesCount;
 	};
+
+	struct ModelsManager::Impl {
+		Context* ctx;
+
+		std::map<uint32_t, std::unique_ptr<Model>> models;
+		uint32_t nextModelId = 0;
+	};
 }

@@ -37,16 +37,10 @@ namespace Yngin {
 
 	private:
 		static std::vector<Context*> contexts;
-
 		void cleanup();
 
-		GLFWwindow* glfwWindow;
-
-		std::unique_ptr<ModelsManager> modelsManager;
-		std::unique_ptr<ScenesManager> scenesManager;
-
-		// TODO: add a custom shader class
-		uint32_t shader;
+		struct Impl;
+		std::unique_ptr<Impl> impl;
 	};
 
 	Context* createContext();

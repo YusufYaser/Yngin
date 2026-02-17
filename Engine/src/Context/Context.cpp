@@ -5,6 +5,7 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <stdexcept>
+#include "Context_Internal.h"
 
 // TODO: change this initial shader code
 const char* vertexShaderCode = R"(
@@ -52,19 +53,23 @@ namespace Yngin {
 		}
 		contexts.push_back(this);
 
-		glfwWindow = glfwCreateWindow(800, 600, "Yngin Game", nullptr, nullptr);
+		impl = std::make_unique<Impl>();
+
+		auto& m = *impl;
+
+		m.glfwWindow = glfwCreateWindow(800, 600, "Yngin Game", nullptr, nullptr);
 		makeCurrent();
-		glfwSetFramebufferSizeCallback(glfwWindow, fb_resize_callback);
+		glfwSetFramebufferSizeCallback(m.glfwWindow, fb_resize_callback);
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 		glViewport(0, 0, 800, 600);
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glfwSwapBuffers(glfwWindow);
+		glfwSwapBuffers(m.glfwWindow);
 
-		modelsManager = std::make_unique<ModelsManager>(this);
-		scenesManager = std::make_unique<ScenesManager>(this);
+		m.modelsManager = std::make_unique<ModelsManager>(this);
+		m.scenesManager = std::make_unique<ScenesManager>(this);
 
 		// load initial shader
 		// TODO: show error logs
@@ -91,10 +96,10 @@ namespace Yngin {
 			}
 		}
 
-		shader = glCreateProgram();
-		glAttachShader(shader, vertexShader);
-		glAttachShader(shader, fragmentShader);
-		glLinkProgram(shader);
+		m.shader = glCreateProgram();
+		glAttachShader(m.shader, vertexShader);
+		glAttachShader(m.shader, fragmentShader);
+		glLinkProgram(m.shader);
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
 
@@ -102,7 +107,7 @@ namespace Yngin {
 			throw std::exception("Failed to initialize shaders");
 		}
 
-		glUseProgram(shader);
+		glUseProgram(m.shader);
 	}
 
 	Context::~Context() {
@@ -110,15 +115,17 @@ namespace Yngin {
 	}
 
 	void Context::cleanup() {
+		auto& m = *impl;
+
 		makeCurrent();
 
-		modelsManager.reset();
-		scenesManager.reset();
+		m.modelsManager.reset();
+		m.scenesManager.reset();
 
 		contexts.erase(std::find(contexts.begin(), contexts.end(), this));
 		glUseProgram(0);
-		glDeleteProgram(shader);
-		glfwDestroyWindow(glfwWindow);
+		glDeleteProgram(m.shader);
+		glfwDestroyWindow(m.glfwWindow);
 	}
 
 	void Yngin::Context::deleteAllContexts() {
@@ -128,8 +135,8 @@ namespace Yngin {
 	}
 
 	void Context::makeCurrent() {
-		if (glfwGetCurrentContext() != glfwWindow) {
-			glfwMakeContextCurrent(glfwWindow);
+		if (glfwGetCurrentContext() != impl->glfwWindow) {
+			glfwMakeContextCurrent(impl->glfwWindow);
 		}
 	}
 
@@ -140,11 +147,11 @@ namespace Yngin {
 	}
 
 	bool Context::windowShouldClose() {
-		return glfwWindowShouldClose(glfwWindow);
+		return glfwWindowShouldClose(impl->glfwWindow);
 	}
 
 	void Context::swapBuffers() {
-		glfwSwapBuffers(glfwWindow);
+		glfwSwapBuffers(impl->glfwWindow);
 	}
 
 	glm::ivec2 Context::getViewportSize() {
@@ -154,14 +161,14 @@ namespace Yngin {
 	}
 
 	ModelsManager* Context::getModelsManager() {
-		return modelsManager.get();
+		return impl->modelsManager.get();
 	}
 
 	ScenesManager* Context::getScenesManager() {
-		return scenesManager.get();
+		return impl->scenesManager.get();
 	}
 
 	uint32_t Context::getShaderId() {
-		return shader;
+		return impl->shader;
 	}
 }

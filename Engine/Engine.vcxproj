@@ -24,6 +24,7 @@
     <ClInclude Include="include\Yngin\Scenes.h" />
     <ClInclude Include="include\Yngin\Yngin.h" />
     <ClInclude Include="src\Cameras\Cameras_Internal.h" />
+    <ClInclude Include="src\Context\Context_Internal.h" />
     <ClInclude Include="src\Models\Models_Internal.h" />
     <ClInclude Include="src\Scenes\Scenes_Internal.h" />
   </ItemGroup>

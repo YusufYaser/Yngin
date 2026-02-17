@@ -56,10 +56,7 @@ namespace Yngin {
 		glm::mat4 getFinalProjection();
 
 	private:
-		Context* ctx;
-		Scene* scene;
-
-		std::map<uint32_t, std::unique_ptr<Camera>> cameras;
-		uint32_t nextCameraId = 0;
+		struct Impl;
+		std::unique_ptr<Impl> impl;
 	};
 }

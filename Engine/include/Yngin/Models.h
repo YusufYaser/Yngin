@@ -31,9 +31,7 @@ namespace Yngin {
 		void render(uint32_t modelId);
 
 	private:
-		Context* ctx;
-
-		std::map<uint32_t, std::unique_ptr<Model>> models;
-		uint32_t nextModelId = 0;
+		struct Impl;
+		std::unique_ptr<Impl> impl;
 	};
 }

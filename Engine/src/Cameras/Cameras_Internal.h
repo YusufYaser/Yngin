@@ -12,4 +12,12 @@ namespace Yngin {
 
 		float weight;
 	};
+
+	struct CamerasManager::Impl {
+		Context* ctx;
+		Scene* scene;
+
+		std::map<uint32_t, std::unique_ptr<Camera>> cameras;
+		uint32_t nextCameraId = 0;
+	};
 }
