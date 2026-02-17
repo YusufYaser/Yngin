@@ -8,8 +8,7 @@ namespace Yngin {
 		impl->scene = scene;
 	}
 
-	Camera::~Camera() {
-	}
+	Camera::~Camera() = default;
 
 	glm::vec3 Camera::getPos() const {
 		return impl->pos;

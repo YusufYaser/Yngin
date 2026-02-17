@@ -8,7 +8,6 @@
 namespace Yngin {
 	class Camera {
 	public:
-		Camera(Context* ctx, Scene* scene);
 		~Camera();
 
 		glm::vec3 getPos() const;
@@ -28,6 +27,9 @@ namespace Yngin {
 		void setWeight(float newWeight);
 
 	private:
+		Camera(Context* ctx, Scene* scene);
+		friend class CamerasManager;
+
 		struct Impl;
 		std::unique_ptr<Impl> impl;
 	};

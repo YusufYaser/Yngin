@@ -8,18 +8,6 @@ namespace Yngin {
 		glm::vec3 pos;
 	};
 
-	class Model {
-	public:
-		Model(Context* ctx, std::vector<Vertex> vertices, std::vector<uint32_t> indices);
-		~Model();
-
-		void render();
-
-	private:
-		struct Impl;
-		std::unique_ptr<Impl> impl;
-	};
-
 	class ModelsManager {
 	public:
 		ModelsManager(Context* ctx);
@@ -31,6 +19,20 @@ namespace Yngin {
 		void render(uint32_t modelId);
 
 	private:
+		struct Impl;
+		std::unique_ptr<Impl> impl;
+	};
+
+	class Model {
+	public:
+		~Model();
+
+		void render();
+
+	private:
+		Model(Context* ctx, std::vector<Vertex> vertices, std::vector<uint32_t> indices);
+		friend class ModelsManager;
+
 		struct Impl;
 		std::unique_ptr<Impl> impl;
 	};

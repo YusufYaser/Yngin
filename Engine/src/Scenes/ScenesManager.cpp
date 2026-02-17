@@ -25,8 +25,10 @@ namespace Yngin {
 	}
 
 	uint32_t ScenesManager::createScene() {
+		auto scene = std::unique_ptr<Scene>(new Scene(impl->ctx));
+
 		uint32_t sceneId = impl->nextSceneId++;
-		impl->scenes[sceneId] = std::make_unique<Scene>(impl->ctx);
+		impl->scenes[sceneId] = std::move(scene);
 		return sceneId;
 	}
 

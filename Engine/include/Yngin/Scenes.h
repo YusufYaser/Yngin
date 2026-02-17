@@ -5,22 +5,6 @@
 namespace Yngin {
 	class CamerasManager;
 
-	class Scene {
-	public:
-		Scene(Context* ctx);
-		~Scene();
-
-		Context* getContext();
-
-		CamerasManager* getCamerasManager();
-
-		void render();
-
-	private:
-		struct Impl;
-		std::unique_ptr<Impl> impl;
-	};
-
 	class ScenesManager {
 	public:
 		ScenesManager(Context* ctx);
@@ -34,6 +18,24 @@ namespace Yngin {
 		void render(uint32_t sceneId);
 
 	private:
+		struct Impl;
+		std::unique_ptr<Impl> impl;
+	};
+
+	class Scene {
+	public:
+		~Scene();
+
+		Context* getContext();
+
+		CamerasManager* getCamerasManager();
+
+		void render();
+
+	private:
+		Scene(Context* ctx);
+		friend class ScenesManager;
+
 		struct Impl;
 		std::unique_ptr<Impl> impl;
 	};

@@ -23,8 +23,10 @@ namespace Yngin {
 	}
 
 	uint32_t CamerasManager::createCamera() {
+		auto camera = std::unique_ptr<Camera>(new Camera(impl->ctx, impl->scene));
+
 		uint32_t cameraId = impl->nextCameraId++;
-		impl->cameras[cameraId] = std::make_unique<Camera>(impl->ctx, impl->scene);
+		impl->cameras[cameraId] = std::move(camera);
 		return cameraId;
 	}
 

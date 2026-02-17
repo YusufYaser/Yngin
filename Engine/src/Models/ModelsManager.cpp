@@ -17,8 +17,10 @@ namespace Yngin {
 	ModelsManager::~ModelsManager() = default;
 
 	uint32_t ModelsManager::createModel(std::vector<Vertex> vertices, std::vector<uint32_t> indices) {
+		auto model = std::unique_ptr<Model>(new Model(impl->ctx, vertices, indices));
+
 		uint32_t modelId = impl->nextModelId++;
-		impl->models[modelId] = std::make_unique<Model>(impl->ctx, vertices, indices);
+		impl->models[modelId] = std::move(model);
 		return modelId;
 	}
 

@@ -13,8 +13,7 @@ namespace Yngin {
 		impl->camerasManager = std::make_unique<CamerasManager>(ctx, this);
 	}
 
-	Scene::~Scene() {
-	}
+	Scene::~Scene() = default;
 
 	Context* Scene::getContext() {
 		return impl->ctx;
