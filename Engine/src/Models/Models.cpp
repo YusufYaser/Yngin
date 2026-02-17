@@ -4,26 +4,29 @@
 #include "Models_Internal.h"
 
 namespace Yngin {
-	Model::Model(Context* ctx, std::vector<Vertex> vertices, std::vector<uint32_t> indices) : ctx(ctx) {
+	Model::Model(Context* ctx, std::vector<Vertex> vertices, std::vector<uint32_t> indices) {
 		if (vertices.size() == 0 || indices.size() == 0) {
 			throw std::invalid_argument("Vertices and indices size cannot be zero");
 		}
 
+		impl = std::make_unique<Impl>();
+
 		ctx->makeCurrent();
 
-		structureInfo = std::make_unique<StructureInfo>();
-		structureInfo->indicesCount = indices.size();
+		auto& m = *impl;
+		m.ctx = ctx;
 
-		ids = std::make_unique<IDs>();
-		glGenVertexArrays(1, &ids->VAO);
-		glBindVertexArray(ids->VAO);
+		m.indicesCount = indices.size();
 
-		glGenBuffers(1, &ids->VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, ids->VBO);
+		glGenVertexArrays(1, &m.VAO);
+		glBindVertexArray(m.VAO);
+
+		glGenBuffers(1, &m.VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, m.VBO);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STATIC_DRAW);
 
-		glGenBuffers(1, &ids->EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ids->EBO);
+		glGenBuffers(1, &m.EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW);
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
@@ -35,18 +38,18 @@ namespace Yngin {
 	}
 
 	Model::~Model() {
-		ctx->makeCurrent();
+		impl->ctx->makeCurrent();
 
-		glDeleteVertexArrays(1, &ids->VAO);
-		glDeleteBuffers(1, &ids->VBO);
-		glDeleteBuffers(1, &ids->VAO);
+		glDeleteVertexArrays(1, &impl->VAO);
+		glDeleteBuffers(1, &impl->VBO);
+		glDeleteBuffers(1, &impl->VAO);
 	}
 
 	void Model::render() {
-		ctx->makeCurrent();
+		impl->ctx->makeCurrent();
 
-		glBindVertexArray(ids->VAO);
-		glDrawElements(GL_TRIANGLES, structureInfo->indicesCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(impl->VAO);
+		glDrawElements(GL_TRIANGLES, impl->indicesCount, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 	}
 

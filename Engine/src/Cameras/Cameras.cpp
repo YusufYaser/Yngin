@@ -1,30 +1,64 @@
 #include <Yngin/Cameras.h>
 #include "Cameras_Internal.h"
+#include "../Scenes/Scenes_Internal.h"
 #include <assert.h>
 #include <stdexcept>
 
 namespace Yngin {
-	Camera::Camera(Context* ctx, Scene* scene) : ctx(ctx), scene(scene) {
-
+	Camera::Camera(Context* ctx, Scene* scene) {
+		impl = std::make_unique<Impl>();
+		impl->ctx = ctx;
+		impl->scene = scene;
 	}
 
 	Camera::~Camera() {
+	}
 
+	glm::vec3 Camera::getPos() const {
+		return impl->pos;
+	}
+
+	glm::vec3 Camera::getOrientation() const {
+		return impl->orientation;
+	}
+
+	float Camera::getFov() const {
+		return impl->fov;
+	}
+
+	void Camera::setPos(glm::vec3 newPos) {
+		impl->pos = newPos;
+	}
+
+	void Camera::setOrientation(glm::vec3 newOrientation) {
+		impl->orientation = newOrientation;
+	}
+
+	void Camera::setFov(float newFov) {
+		impl->fov = newFov;
 	}
 
 	void Camera::lookAt(glm::vec3 target) {
-		glm::vec3 diff = target - pos;
-		orientation = diff / glm::length(diff);
+		glm::vec3 diff = target - impl->pos;
+		impl->orientation = diff / glm::length(diff);
 	}
 
 	glm::mat4 Camera::getView() {
-		return glm::lookAt(pos, pos + orientation, { 0, 0, 1 });
+		return glm::lookAt(impl->pos, impl->pos + impl->orientation, { 0, 0, 1 });
 	}
 
 	glm::mat4 Camera::getProjection() {
-		glm::ivec2 viewportSize = ctx->getViewportSize();
+		glm::ivec2 viewportSize = impl->ctx->getViewportSize();
 		float aspectRatio = viewportSize.x * 1.0f / viewportSize.y;
-		return glm::perspective(fov, aspectRatio, 0.1f, 1000.0f);
+		return glm::perspective(impl->fov, aspectRatio, 0.1f, 1000.0f);
+	}
+
+	float Camera::getWeight() {
+		return impl->weight;
+	}
+
+	void Camera::setWeight(float newWeight) {
+		impl->weight = newWeight;
 	}
 
 	CamerasManager::CamerasManager(Context* ctx, Scene* scene) {
@@ -35,8 +69,8 @@ namespace Yngin {
 		this->ctx = ctx;
 		this->scene = scene;
 
-		createCamera();
-		setWeight(0, 1.0f);
+		uint32_t defaultCamera = createCamera();
+		getCamera(defaultCamera)->setWeight(1.0f);
 	}
 
 	CamerasManager::~CamerasManager() {
@@ -44,7 +78,7 @@ namespace Yngin {
 
 	uint32_t CamerasManager::createCamera() {
 		uint32_t cameraId = nextCameraId++;
-		cameras[cameraId] = std::make_pair(std::make_unique<Camera>(ctx, scene), 0);
+		cameras[cameraId] = std::make_unique<Camera>(ctx, scene);
 		return cameraId;
 	}
 
@@ -56,79 +90,41 @@ namespace Yngin {
 		cameras.erase(cameraId);
 	}
 
+	Camera* CamerasManager::getCamera(uint32_t cameraId) {
+		auto it = cameras.find(cameraId);
+		assert(it != cameras.end());
+
+		if (it == cameras.end()) return nullptr;
+
+		return it->second.get();
+	}
+
 	float CamerasManager::getTotalWeight() {
 		float totalWeight = 0.0f;
 
 		for (auto& kvp : cameras) {
-			totalWeight += kvp.second.second;
+			totalWeight += kvp.second->getWeight();
 		}
 
 		return totalWeight;
 	}
 
-	float CamerasManager::getWeight(uint32_t cameraId) {
-		auto& [camera, weight] = getCameraPair(cameraId);
-		if (camera == nullptr) return 0.0f;
-
-		return weight;
-	}
-
-	float CamerasManager::getRelativeWeight(uint32_t cameraId) {
-		return getWeight(cameraId) / getTotalWeight();
-	}
-
-	void CamerasManager::setWeight(uint32_t cameraId, float newWeight) {
-		auto& [camera, weight] = getCameraPair(cameraId);
-		if (camera == nullptr) return;
-
-		weight = newWeight;
-	}
-
 	void CamerasManager::setActive(uint32_t cameraId) {
-		auto& [camera, weight] = getCameraPair(cameraId);
+		Camera* camera = getCamera(cameraId);
 		if (camera == nullptr) return;
 
 		for (auto& kvp : cameras) {
-			kvp.second.second = 0;
+			kvp.second->setWeight(0.0f);
 		}
 
-		weight = 1.0f;
-	}
-
-	void CamerasManager::setPos(uint32_t cameraId, glm::vec3 newPos) {
-		auto& [camera, weight] = getCameraPair(cameraId);
-		if (camera == nullptr) return;
-
-		camera->setPos(newPos);
-	}
-
-	void CamerasManager::setOrientation(uint32_t cameraId, glm::vec3 newOrientation) {
-		auto& [camera, weight] = getCameraPair(cameraId);
-		if (camera == nullptr) return;
-
-		camera->setOrientation(newOrientation);
-	}
-
-	void CamerasManager::setFov(uint32_t cameraId, float newFov) {
-		auto& [camera, weight] = getCameraPair(cameraId);
-		if (camera == nullptr) return;
-
-		camera->setFov(newFov);
-	}
-
-	void CamerasManager::lookAt(uint32_t cameraId, glm::vec3 target) {
-		auto it = cameras.find(cameraId);
-		assert(it != cameras.end());
-		if (it == cameras.end()) return;
-
-		it->second.first->lookAt(target);
+		camera->setWeight(1.0f);
 	}
 
 	glm::vec3 CamerasManager::getFinalPos() {
 		glm::vec3 finalPos = {};
 		for (auto& kvp : cameras) {
 			// pos * weight
-			finalPos += kvp.second.first->getPos() * kvp.second.second;
+			finalPos += kvp.second->getPos() * kvp.second->getWeight();
 		}
 		finalPos /= getTotalWeight();
 		return finalPos;
@@ -138,7 +134,7 @@ namespace Yngin {
 		glm::vec3 finalOrientation = {};
 		for (auto& kvp : cameras) {
 			// orientation * weight
-			finalOrientation += kvp.second.first->getOrientation() * kvp.second.second;
+			finalOrientation += kvp.second->getOrientation() * kvp.second->getWeight();
 		}
 		finalOrientation /= getTotalWeight();
 		return finalOrientation;
@@ -148,7 +144,7 @@ namespace Yngin {
 		float finalFov = 0.0f;
 		for (auto& kvp : cameras) {
 			// fov * weight
-			finalFov += kvp.second.first->getFov() * kvp.second.second;
+			finalFov += kvp.second->getFov() * kvp.second->getWeight();
 		}
 		finalFov /= getTotalWeight();
 		return finalFov;
@@ -168,16 +164,5 @@ namespace Yngin {
 		float fov = getFinalFov();
 
 		return glm::perspective(fov, aspectRatio, 0.1f, 1000.0f);
-	}
-
-	std::pair<std::unique_ptr<Camera>, float>& CamerasManager::getCameraPair(uint32_t cameraId) {
-		auto it = cameras.find(cameraId);
-		assert(it != cameras.end());
-
-		static std::pair<std::unique_ptr<Camera>, float> nullPair{ nullptr, 0.0f };
-
-		if (it == cameras.end()) return nullPair;
-
-		return it->second;
 	}
 }

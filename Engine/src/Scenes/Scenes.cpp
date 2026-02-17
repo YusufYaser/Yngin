@@ -7,26 +7,32 @@
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Yngin {
-	Scene::Scene(Context* ctx) : ctx(ctx) {
-		camerasManager = std::make_unique<CamerasManager>(ctx, this);
+	Scene::Scene(Context* ctx) {
+		impl = std::make_unique<Impl>();
+		impl->ctx = ctx;
+		impl->camerasManager = std::make_unique<CamerasManager>(ctx, this);
 	}
 
 	Scene::~Scene() {
 	}
 
+	Context* Scene::getContext() {
+		return impl->ctx;
+	}
+
 	CamerasManager* Scene::getCamerasManager() {
-		return camerasManager.get();
+		return impl->camerasManager.get();
 	}
 
 	void Scene::render() {
-		ctx->makeCurrent();
+		impl->ctx->makeCurrent();
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glm::mat4 proj = getCamerasManager()->getFinalProjection();
 		glm::mat4 view = getCamerasManager()->getFinalView();
 
-		GLuint shaderId = ctx->getShaderId();
+		GLuint shaderId = impl->ctx->getShaderId();
 		glUseProgram(shaderId);
 		GLuint projLoc = glGetUniformLocation(shaderId, "projection");
 		GLuint viewLoc = glGetUniformLocation(shaderId, "view");
@@ -35,7 +41,7 @@ namespace Yngin {
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
 		// for now we'll render a test model
-		ctx->getModelsManager()->render(0);
+		impl->ctx->getModelsManager()->render(0);
 		// TODO: render all objects
 	}
 

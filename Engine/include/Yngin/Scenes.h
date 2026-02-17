@@ -3,8 +3,23 @@
 #include <memory>
 
 namespace Yngin {
-	class Scene;
 	class CamerasManager;
+
+	class Scene {
+	public:
+		Scene(Context* ctx);
+		~Scene();
+
+		Context* getContext();
+
+		CamerasManager* getCamerasManager();
+
+		void render();
+
+	private:
+		struct Impl;
+		std::unique_ptr<Impl> impl;
+	};
 
 	class ScenesManager {
 	public:

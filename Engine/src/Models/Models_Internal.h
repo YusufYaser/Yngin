@@ -2,27 +2,13 @@
 #include <Yngin/Yngin.h>
 
 namespace Yngin {
-	class Model {
-	public:
-		Model(Context* ctx, std::vector<Vertex> vertices, std::vector<uint32_t> indices);
-		~Model();
-
-		void render();
-
-	private:
+	struct Model::Impl {
 		Context* ctx;
 
-		struct IDs {
-			GLuint VAO;
-			GLuint VBO;
-			GLuint EBO;
-		};
+		GLuint VAO;
+		GLuint VBO;
+		GLuint EBO;
 
-		struct StructureInfo {
-			GLsizei indicesCount;
-		};
-
-		std::unique_ptr<IDs> ids;
-		std::unique_ptr<StructureInfo> structureInfo;
+		GLsizei indicesCount;
 	};
 }

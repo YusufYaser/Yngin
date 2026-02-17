@@ -4,40 +4,42 @@
 #include <Yngin/Models.h>
 #include <Yngin/Cameras.h>
 
+using namespace Yngin;
+
 int main() {
 	Yngin::init();
 
-	Yngin::Context* ctx = Yngin::createContext();
+	Context* ctx = createContext();
 
 	printf("Context: %p\n", ctx);
 
 	uint32_t scene = ctx->getScenesManager()->createScene();
 
-	std::vector<Yngin::Vertex> cubeVertices;
-	cubeVertices.push_back(Yngin::Vertex{ { 0.5f, -0.5f, 0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { -0.5f, -0.5f, 0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { -0.5f, 0.5f, 0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { 0.5f, 0.5f, 0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { -0.5f, -0.5f, -0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { 0.5f, -0.5f, -0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { 0.5f, 0.5f, -0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { -0.5f, 0.5f, -0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { 0.5f, -0.5f, -0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { 0.5f, -0.5f, 0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { 0.5f, 0.5f, 0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { 0.5f, 0.5f, -0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { -0.5f, -0.5f, 0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { -0.5f, -0.5f, -0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { -0.5f, 0.5f, -0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { -0.5f, 0.5f, 0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { -0.5f, -0.5f, 0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { 0.5f, -0.5f, 0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { 0.5f, -0.5f, -0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { -0.5f, -0.5f, -0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { 0.5f, 0.5f, 0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { -0.5f, 0.5f, 0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { -0.5f, 0.5f, -0.5f, } });
-	cubeVertices.push_back(Yngin::Vertex{ { 0.5f, 0.5f, -0.5 } });
+	std::vector<Vertex> cubeVertices;
+	cubeVertices.push_back(Vertex{ { 0.5f, -0.5f, 0.5f, } });
+	cubeVertices.push_back(Vertex{ { -0.5f, -0.5f, 0.5f, } });
+	cubeVertices.push_back(Vertex{ { -0.5f, 0.5f, 0.5f, } });
+	cubeVertices.push_back(Vertex{ { 0.5f, 0.5f, 0.5f, } });
+	cubeVertices.push_back(Vertex{ { -0.5f, -0.5f, -0.5f, } });
+	cubeVertices.push_back(Vertex{ { 0.5f, -0.5f, -0.5f, } });
+	cubeVertices.push_back(Vertex{ { 0.5f, 0.5f, -0.5f, } });
+	cubeVertices.push_back(Vertex{ { -0.5f, 0.5f, -0.5f, } });
+	cubeVertices.push_back(Vertex{ { 0.5f, -0.5f, -0.5f, } });
+	cubeVertices.push_back(Vertex{ { 0.5f, -0.5f, 0.5f, } });
+	cubeVertices.push_back(Vertex{ { 0.5f, 0.5f, 0.5f, } });
+	cubeVertices.push_back(Vertex{ { 0.5f, 0.5f, -0.5f, } });
+	cubeVertices.push_back(Vertex{ { -0.5f, -0.5f, 0.5f, } });
+	cubeVertices.push_back(Vertex{ { -0.5f, -0.5f, -0.5f, } });
+	cubeVertices.push_back(Vertex{ { -0.5f, 0.5f, -0.5f, } });
+	cubeVertices.push_back(Vertex{ { -0.5f, 0.5f, 0.5f, } });
+	cubeVertices.push_back(Vertex{ { -0.5f, -0.5f, 0.5f, } });
+	cubeVertices.push_back(Vertex{ { 0.5f, -0.5f, 0.5f, } });
+	cubeVertices.push_back(Vertex{ { 0.5f, -0.5f, -0.5f, } });
+	cubeVertices.push_back(Vertex{ { -0.5f, -0.5f, -0.5f, } });
+	cubeVertices.push_back(Vertex{ { 0.5f, 0.5f, 0.5f, } });
+	cubeVertices.push_back(Vertex{ { -0.5f, 0.5f, 0.5f, } });
+	cubeVertices.push_back(Vertex{ { -0.5f, 0.5f, -0.5f, } });
+	cubeVertices.push_back(Vertex{ { 0.5f, 0.5f, -0.5 } });
 
 	std::vector<uint32_t> cubeIndices = {
 		0, 1, 2, 0, 2, 3,
@@ -50,20 +52,24 @@ int main() {
 
 	uint32_t model = ctx->getModelsManager()->createModel(cubeVertices, cubeIndices);
 
-	Yngin::CamerasManager* camerasManager = ctx->getScenesManager()->getCamerasManager(0);
-	camerasManager->setPos(0, { 5, 5, 5 });
-	camerasManager->lookAt(0, { 0, 0, 0 });
+	CamerasManager* camerasManager = ctx->getScenesManager()->getCamerasManager(0);
 
-	uint32_t newCamera = camerasManager->createCamera();
-	camerasManager->setPos(newCamera, { -4, 5, 5 });
-	camerasManager->lookAt(newCamera, { 0, 0, 0 });
+	Camera* defaultCamera = camerasManager->getCamera(0);
+	defaultCamera->setPos({ 5, 5, 5 });
+	defaultCamera->lookAt({ 0, 0, 0 });
+
+	uint32_t newCameraId = camerasManager->createCamera();
+	Camera* newCamera = camerasManager->getCamera(newCameraId);
+
+	newCamera->setPos({ -4, 5, 5 });
+	newCamera->lookAt({ 0, 0, 0 });
 
 	uint64_t frameNum = 0;
 	while (!ctx->windowShouldClose()) {
 		ctx->updateWindow();
 
-		camerasManager->setWeight(0, (frameNum % 1000) / 1000.0f);
-		camerasManager->setWeight(1, 1 - (frameNum % 1000) / 1000.0f);
+		defaultCamera->setWeight((frameNum % 1000) / 1000.0f);
+		newCamera->setWeight(1 - (frameNum % 1000) / 1000.0f);
 
 		ctx->getScenesManager()->render(scene);
 		ctx->swapBuffers();
