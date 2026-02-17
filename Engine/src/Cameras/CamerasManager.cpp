@@ -103,7 +103,10 @@ namespace Yngin {
 
 	glm::mat4 CamerasManager::getFinalProjection() {
 		glm::ivec2 viewportSize = ctx->getViewportSize();
-		float aspectRatio = viewportSize.x * 1.0f / viewportSize.y;
+		float aspectRatio = 1.0f;
+		if (viewportSize.y != 0) {
+			aspectRatio = viewportSize.x * 1.0f / viewportSize.y;
+		}
 
 		float fov = getFinalFov();
 
