@@ -16,12 +16,12 @@ namespace Yngin {
 
 	ScenesManager::~ScenesManager() = default;
 
-	CamerasManager* ScenesManager::getCamerasManager(uint32_t sceneId) {
+	Scene* ScenesManager::getScene(uint32_t sceneId) {
 		auto it = impl->scenes.find(sceneId);
 		assert(it != impl->scenes.end());
 		if (it == impl->scenes.end()) return nullptr;
 
-		return it->second->getCamerasManager();
+		return it->second.get();
 	}
 
 	uint32_t ScenesManager::createScene() {
@@ -36,13 +36,5 @@ namespace Yngin {
 		assert(impl->scenes.find(sceneId) != impl->scenes.end());
 
 		impl->scenes.erase(sceneId);
-	}
-
-	void ScenesManager::render(uint32_t sceneId) {
-		auto it = impl->scenes.find(sceneId);
-		assert(it != impl->scenes.end());
-		if (it == impl->scenes.end()) return;
-
-		it->second->render();
 	}
 }

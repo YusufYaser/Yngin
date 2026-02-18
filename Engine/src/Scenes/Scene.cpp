@@ -11,6 +11,7 @@ namespace Yngin {
 		impl = std::make_unique<Impl>();
 		impl->ctx = ctx;
 		impl->camerasManager = std::make_unique<CamerasManager>(ctx, this);
+		impl->gameObjectsManager = std::make_unique<GameObjectsManager>(ctx, this);
 	}
 
 	Scene::~Scene() = default;
@@ -21,6 +22,10 @@ namespace Yngin {
 
 	CamerasManager* Scene::getCamerasManager() {
 		return impl->camerasManager.get();
+	}
+
+	GameObjectsManager* Scene::getGameObjectsManager() {
+		return impl->gameObjectsManager.get();
 	}
 
 	void Scene::render() {
@@ -39,8 +44,6 @@ namespace Yngin {
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-		// for now we'll render a test model
-		impl->ctx->getModelsManager()->render(0);
-		// TODO: render all objects
+		impl->gameObjectsManager->getRootGameObject()->render();
 	}
 }

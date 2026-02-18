@@ -4,18 +4,19 @@
 
 namespace Yngin {
 	class CamerasManager;
+	class GameObjectsManager;
+	class GameObject;
+	class Scene;
 
 	class ScenesManager {
 	public:
 		ScenesManager(Context* ctx);
 		~ScenesManager();
 
-		CamerasManager* getCamerasManager(uint32_t sceneId);
+		Scene* getScene(uint32_t sceneId);
 
 		uint32_t createScene();
 		void deleteScene(uint32_t sceneId);
-
-		void render(uint32_t sceneId);
 
 	private:
 		struct Impl;
@@ -29,6 +30,7 @@ namespace Yngin {
 		Context* getContext();
 
 		CamerasManager* getCamerasManager();
+		GameObjectsManager* getGameObjectsManager();
 
 		void render();
 

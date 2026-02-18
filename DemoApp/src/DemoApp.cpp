@@ -3,6 +3,7 @@
 #include <Yngin/Scenes.h>
 #include <Yngin/Models.h>
 #include <Yngin/Cameras.h>
+#include <Yngin/GameObject.h>
 
 using namespace Yngin;
 
@@ -13,7 +14,8 @@ int main() {
 
 	printf("Context: %p\n", ctx);
 
-	uint32_t scene = ctx->getScenesManager()->createScene();
+	uint32_t sceneId = ctx->getScenesManager()->createScene();
+	Scene* scene = ctx->getScenesManager()->getScene(sceneId);
 
 	std::vector<Vertex> cubeVertices;
 	cubeVertices.push_back(Vertex{ { 0.5f, -0.5f, 0.5f, } });
@@ -52,7 +54,13 @@ int main() {
 
 	uint32_t model = ctx->getModelsManager()->createModel(cubeVertices, cubeIndices);
 
-	CamerasManager* camerasManager = ctx->getScenesManager()->getCamerasManager(0);
+	uint32_t objId = scene->getGameObjectsManager()->getRootGameObject()->createChild();
+	uint32_t obj2Id = scene->getGameObjectsManager()->getRootGameObject()->createChild();
+	uint32_t obj3Id = scene->getGameObjectsManager()->getRootGameObject()->createChild();
+	scene->getGameObjectsManager()->getGameObject(obj2Id)->setPos({ 0, 0, 2 });
+	scene->getGameObjectsManager()->getGameObject(obj3Id)->setPos({ 0, 1, 1 });
+
+	CamerasManager* camerasManager = scene->getCamerasManager();
 
 	Camera* defaultCamera = camerasManager->getCamera(0);
 	defaultCamera->setPos({ 5, 5, 5 });
@@ -71,7 +79,7 @@ int main() {
 		defaultCamera->setWeight((frameNum % 1000) / 1000.0f);
 		newCamera->setWeight(1 - (frameNum % 1000) / 1000.0f);
 
-		ctx->getScenesManager()->render(scene);
+		scene->render();
 		ctx->swapBuffers();
 
 		frameNum++;

@@ -15,9 +15,10 @@ layout(location = 0) in vec3 pos;
 
 uniform mat4 projection;
 uniform mat4 view;
+uniform mat4 model;
 
 void main() {
-	gl_Position = projection * view * vec4(pos, 1.0);
+	gl_Position = projection * view * model * vec4(pos, 1.0);
 }
 )";
 
@@ -57,7 +58,7 @@ namespace Yngin {
 
 		auto& m = *impl;
 
-		m.glfwWindow = glfwCreateWindow(800, 600, "Yngin Game", nullptr, nullptr);
+		m.glfwWindow = glfwCreateWindow(800, 600, "Yngin Instance", nullptr, nullptr);
 		makeCurrent();
 		glfwSetFramebufferSizeCallback(m.glfwWindow, fb_resize_callback);
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);

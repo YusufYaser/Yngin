@@ -20,11 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Yngin\Cameras.h" />
+    <ClInclude Include="include\Yngin\GameObject.h" />
     <ClInclude Include="include\Yngin\Models.h" />
     <ClInclude Include="include\Yngin\Scenes.h" />
     <ClInclude Include="include\Yngin\Yngin.h" />
     <ClInclude Include="src\Cameras\Cameras_Internal.h" />
     <ClInclude Include="src\Context\Context_Internal.h" />
+    <ClInclude Include="src\GameObject\GameObject_Internal.h" />
     <ClInclude Include="src\Models\Models_Internal.h" />
     <ClInclude Include="src\Scenes\Scenes_Internal.h" />
   </ItemGroup>
@@ -32,6 +34,8 @@
     <ClCompile Include="deps\implementations\glad.c" />
     <ClCompile Include="src\Cameras\Camera.cpp" />
     <ClCompile Include="src\Cameras\CamerasManager.cpp" />
+    <ClCompile Include="src\GameObject\GameObject.cpp" />
+    <ClCompile Include="src\GameObject\GameObjectsManager.cpp" />
     <ClCompile Include="src\Models\Model.cpp" />
     <ClCompile Include="src\Models\ModelsManager.cpp" />
     <ClCompile Include="src\Scenes\Scene.cpp" />
