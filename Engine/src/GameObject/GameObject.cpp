@@ -1,5 +1,6 @@
 #include <Yngin/GameObject.h>
 #include <Yngin/Models.h>
+#include <Yngin/Textures.h>
 #include "GameObject_Internal.h"
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -81,7 +82,8 @@ namespace Yngin {
 
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-		// for now we'll render a test model
+		// for now we'll render a test model with a test texture
+		impl->ctx->getTexturesManager()->getTexture(0)->activate();
 		impl->ctx->getModelsManager()->render(0);
 
 		for (auto& kvp : impl->childs) {

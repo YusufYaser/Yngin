@@ -4,6 +4,7 @@
 #include <Yngin/Models.h>
 #include <Yngin/Cameras.h>
 #include <Yngin/GameObject.h>
+#include <Yngin/Textures.h>
 
 using namespace Yngin;
 
@@ -71,6 +72,8 @@ int main() {
 
 	newCamera->setPos({ -4, 5, 5 });
 	newCamera->lookAt({ 0, 0, 0 });
+
+	ctx->getTexturesManager()->createTexture(2, 1, 2, "\xff\xff\x0f\xff");
 
 	uint64_t frameNum = 0;
 	while (!ctx->windowShouldClose()) {

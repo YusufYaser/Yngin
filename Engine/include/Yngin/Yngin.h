@@ -14,6 +14,7 @@ namespace Yngin {
 
 	class ModelsManager;
 	class ScenesManager;
+	class TexturesManager;
 	struct Vertex;
 
 	class Context {
@@ -31,6 +32,7 @@ namespace Yngin {
 
 		ModelsManager* getModelsManager();
 		ScenesManager* getScenesManager();
+		TexturesManager* getTexturesManager();
 
 		// will be replaced soon
 		uint32_t getShaderId();

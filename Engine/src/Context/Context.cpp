@@ -1,6 +1,7 @@
 #include <Yngin/Yngin.h>
 #include <Yngin/Models.h>
 #include <Yngin/Scenes.h>
+#include <Yngin/Textures.h>
 #include <glad/glad.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -17,18 +18,26 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 
+out vec2 texCoords;
+
 void main() {
 	gl_Position = projection * view * model * vec4(pos, 1.0);
+
+	texCoords = pos.xy + vec2(0.5f);
 }
 )";
 
 const char* fragmentShaderCode = R"(
 #version 460 core
 
+in vec2 texCoords;
+
 out vec4 FragColor;
 
+uniform sampler2D tex0;
+
 void main() {
-	FragColor = vec4(1.0f);
+	FragColor = texture(tex0, texCoords);
 }
 )";
 
@@ -67,10 +76,14 @@ namespace Yngin {
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+
 		glfwSwapBuffers(m.glfwWindow);
 
 		m.modelsManager = std::make_unique<ModelsManager>(this);
 		m.scenesManager = std::make_unique<ScenesManager>(this);
+		m.texturesManager = std::make_unique<TexturesManager>(this);
 
 		// load initial shader
 		// TODO: show error logs
@@ -122,6 +135,7 @@ namespace Yngin {
 
 		m.modelsManager.reset();
 		m.scenesManager.reset();
+		m.texturesManager.reset();
 
 		contexts.erase(std::find(contexts.begin(), contexts.end(), this));
 		glUseProgram(0);
@@ -167,6 +181,10 @@ namespace Yngin {
 
 	ScenesManager* Context::getScenesManager() {
 		return impl->scenesManager.get();
+	}
+
+	TexturesManager* Context::getTexturesManager() {
+		return impl->texturesManager.get();
 	}
 
 	uint32_t Context::getShaderId() {

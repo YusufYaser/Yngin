@@ -31,7 +31,7 @@ namespace Yngin {
 	void Scene::render() {
 		impl->ctx->makeCurrent();
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::mat4 proj = getCamerasManager()->getFinalProjection();
 		glm::mat4 view = getCamerasManager()->getFinalView();
