@@ -24,6 +24,25 @@ namespace Yngin {
 		return modelId;
 	}
 
+	uint32_t ModelsManager::createModel(MODEL_FILE_TYPE type, const char* data, size_t length) {
+		std::vector<Vertex> vertices;
+		std::vector<uint32_t> indices;
+
+		switch (type) {
+		case MODEL_FILE_TYPE::OBJ:
+			impl->loadObj(data, length, vertices, indices);
+			break;
+		default:
+			throw std::invalid_argument("Invalid model type");
+		}
+
+		auto model = std::unique_ptr<Model>(new Model(impl->ctx, vertices, indices));
+
+		uint32_t modelId = impl->nextModelId++;
+		impl->models[modelId] = std::move(model);
+		return modelId;
+	}
+
 	void ModelsManager::deleteModel(uint32_t modelId) {
 		assert(impl->models.find(modelId) != impl->models.end());
 

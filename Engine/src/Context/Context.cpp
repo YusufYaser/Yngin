@@ -12,32 +12,38 @@
 const char* vertexShaderCode = R"(
 #version 460 core
 
-layout(location = 0) in vec3 pos;
+layout(location = 0) in vec3 inPos;
+layout(location = 1) in vec2 inTexCoord;
+layout(location = 2) in vec3 inNormal;
 
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
+uniform mat3 normalMatrix;
 
-out vec2 texCoords;
+out vec2 fTexCoord;
+out vec3 fNormal;
 
 void main() {
-	gl_Position = projection * view * model * vec4(pos, 1.0);
+	gl_Position = projection * view * model * vec4(inPos, 1.0);
 
-	texCoords = pos.xy + vec2(0.5f);
+	fTexCoord = inTexCoord;
+	fNormal = normalize(normalMatrix * inNormal);
 }
 )";
 
 const char* fragmentShaderCode = R"(
 #version 460 core
 
-in vec2 texCoords;
+in vec2 fTexCoord;
+in vec3 fNormal;
 
 out vec4 FragColor;
 
 uniform sampler2D tex0;
 
 void main() {
-	FragColor = texture(tex0, texCoords);
+	FragColor = vec4(fNormal, 1.0);
 }
 )";
 

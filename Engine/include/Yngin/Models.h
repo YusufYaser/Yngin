@@ -6,6 +6,12 @@
 namespace Yngin {
 	struct Vertex {
 		glm::vec3 pos;
+		glm::vec2 texCoord;
+		glm::vec3 normal;
+	};
+
+	enum class MODEL_FILE_TYPE : uint8_t {
+		OBJ
 	};
 
 	class ModelsManager {
@@ -14,6 +20,7 @@ namespace Yngin {
 		~ModelsManager();
 
 		uint32_t createModel(std::vector<Vertex> vertices, std::vector<uint32_t> indices);
+		uint32_t createModel(MODEL_FILE_TYPE type, const char* data, size_t length);
 		void deleteModel(uint32_t modelId);
 
 		void render(uint32_t modelId);

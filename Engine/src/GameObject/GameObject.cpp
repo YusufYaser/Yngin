@@ -75,12 +75,17 @@ namespace Yngin {
 		glm::mat4 model = glm::mat4(1.0f);
 
 		model = glm::translate(model, impl->pos);
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1, 0, 0));
 
 		GLuint shaderId = impl->ctx->getShaderId();
 		glUseProgram(shaderId);
 		GLuint modelLoc = glGetUniformLocation(shaderId, "model");
+		GLuint normalMatrizLoc = glGetUniformLocation(shaderId, "normalMatrix");
+
+		glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(model)));
 
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix3fv(normalMatrizLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
 		// for now we'll render a test model with a test texture
 		impl->ctx->getTexturesManager()->getTexture(0)->activate();

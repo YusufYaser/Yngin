@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <fstream>
+#include <sstream>
 #include <Yngin/Yngin.h>
 #include <Yngin/Scenes.h>
 #include <Yngin/Models.h>
@@ -18,54 +20,26 @@ int main() {
 	uint32_t sceneId = ctx->getScenesManager()->createScene();
 	Scene* scene = ctx->getScenesManager()->getScene(sceneId);
 
-	std::vector<Vertex> cubeVertices;
-	cubeVertices.push_back(Vertex{ { 0.5f, -0.5f, 0.5f, } });
-	cubeVertices.push_back(Vertex{ { -0.5f, -0.5f, 0.5f, } });
-	cubeVertices.push_back(Vertex{ { -0.5f, 0.5f, 0.5f, } });
-	cubeVertices.push_back(Vertex{ { 0.5f, 0.5f, 0.5f, } });
-	cubeVertices.push_back(Vertex{ { -0.5f, -0.5f, -0.5f, } });
-	cubeVertices.push_back(Vertex{ { 0.5f, -0.5f, -0.5f, } });
-	cubeVertices.push_back(Vertex{ { 0.5f, 0.5f, -0.5f, } });
-	cubeVertices.push_back(Vertex{ { -0.5f, 0.5f, -0.5f, } });
-	cubeVertices.push_back(Vertex{ { 0.5f, -0.5f, -0.5f, } });
-	cubeVertices.push_back(Vertex{ { 0.5f, -0.5f, 0.5f, } });
-	cubeVertices.push_back(Vertex{ { 0.5f, 0.5f, 0.5f, } });
-	cubeVertices.push_back(Vertex{ { 0.5f, 0.5f, -0.5f, } });
-	cubeVertices.push_back(Vertex{ { -0.5f, -0.5f, 0.5f, } });
-	cubeVertices.push_back(Vertex{ { -0.5f, -0.5f, -0.5f, } });
-	cubeVertices.push_back(Vertex{ { -0.5f, 0.5f, -0.5f, } });
-	cubeVertices.push_back(Vertex{ { -0.5f, 0.5f, 0.5f, } });
-	cubeVertices.push_back(Vertex{ { -0.5f, -0.5f, 0.5f, } });
-	cubeVertices.push_back(Vertex{ { 0.5f, -0.5f, 0.5f, } });
-	cubeVertices.push_back(Vertex{ { 0.5f, -0.5f, -0.5f, } });
-	cubeVertices.push_back(Vertex{ { -0.5f, -0.5f, -0.5f, } });
-	cubeVertices.push_back(Vertex{ { 0.5f, 0.5f, 0.5f, } });
-	cubeVertices.push_back(Vertex{ { -0.5f, 0.5f, 0.5f, } });
-	cubeVertices.push_back(Vertex{ { -0.5f, 0.5f, -0.5f, } });
-	cubeVertices.push_back(Vertex{ { 0.5f, 0.5f, -0.5 } });
+	std::ifstream modelFile("test_model.obj");
 
-	std::vector<uint32_t> cubeIndices = {
-		0, 1, 2, 0, 2, 3,
-		4, 5, 6, 4, 6, 7,
-		8, 9, 10, 8, 10, 11,
-		12, 13, 14, 12, 14, 15,
-		16, 17, 18, 16, 18, 19,
-		20, 21, 22, 20, 22, 23
-	};
+	if (!modelFile.is_open()) {
+		printf("Test model not found\n");
+		Yngin::terminate();
+		return 1;
+	}
 
-	uint32_t model = ctx->getModelsManager()->createModel(cubeVertices, cubeIndices);
+	std::stringstream modelFileData;
+	modelFileData << modelFile.rdbuf();
+
+	modelFile.close();
+
+	uint32_t model = ctx->getModelsManager()->createModel(MODEL_FILE_TYPE::OBJ, modelFileData.str().c_str(), modelFileData.str().length());
 
 	uint32_t objId = scene->getGameObjectsManager()->getRootGameObject()->createChild();
-	uint32_t obj2Id = scene->getGameObjectsManager()->getRootGameObject()->createChild();
-	uint32_t obj3Id = scene->getGameObjectsManager()->getRootGameObject()->createChild();
-	scene->getGameObjectsManager()->getGameObject(obj2Id)->setPos({ 0, 0, 2 });
-	scene->getGameObjectsManager()->getGameObject(obj3Id)->setPos({ 0, 1, 1 });
 
 	CamerasManager* camerasManager = scene->getCamerasManager();
 
 	Camera* defaultCamera = camerasManager->getCamera(0);
-	defaultCamera->setPos({ 5, 5, 5 });
-	defaultCamera->lookAt({ 0, 0, 0 });
 
 	uint32_t newCameraId = camerasManager->createCamera();
 	Camera* newCamera = camerasManager->getCamera(newCameraId);
@@ -79,8 +53,11 @@ int main() {
 	while (!ctx->windowShouldClose()) {
 		ctx->updateWindow();
 
-		defaultCamera->setWeight((frameNum % 1000) / 1000.0f);
-		newCamera->setWeight(1 - (frameNum % 1000) / 1000.0f);
+		//defaultCamera->setWeight((frameNum % 1000) / 1000.0f);
+		//newCamera->setWeight(1 - (frameNum % 1000) / 1000.0f);
+
+		defaultCamera->setPos(glm::vec3(sin(frameNum / 1000.0), cos(frameNum / 1000.0), 1) * 5.0f);
+		defaultCamera->lookAt(glm::vec3());
 
 		scene->render();
 		ctx->swapBuffers();

@@ -1,5 +1,6 @@
 #pragma once
 #include <Yngin/Yngin.h>
+#include <glad/glad.h>
 
 namespace Yngin {
 	struct Model::Impl {
@@ -17,5 +18,7 @@ namespace Yngin {
 
 		std::map<uint32_t, std::unique_ptr<Model>> models;
 		uint32_t nextModelId = 0;
+
+		void loadObj(const char* data, size_t length, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
 	};
 }
