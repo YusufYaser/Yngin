@@ -78,6 +78,8 @@ namespace Yngin {
 		m.scenesManager = std::unique_ptr<ScenesManager>(new ScenesManager(this));
 		m.texturesManager = std::unique_ptr<TexturesManager>(new TexturesManager(this));
 
+		m.texturesManager->createTexture(1, 1, 1, "\x00");
+
 		// load initial shader
 		// TODO: show error logs
 		bool shadersFailed = false;
