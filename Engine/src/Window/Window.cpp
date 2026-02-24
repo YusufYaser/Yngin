@@ -29,17 +29,17 @@ namespace Yngin {
 		glfwDestroyWindow(impl->glfwWindow);
 	}
 
-	void Window::update() {
-		impl->ctx->makeCurrent();
+	void Window::Impl::update() {
+		ctx->makeCurrent();
 		glfwPollEvents();
 	}
 
-	void Window::swapBuffers() {
-		glfwSwapBuffers(impl->glfwWindow);
+	void Window::Impl::swapBuffers() {
+		glfwSwapBuffers(glfwWindow);
 	}
 
-	bool Window::shouldClose() {
-		return glfwWindowShouldClose(impl->glfwWindow);
+	bool Window::Impl::shouldClose() {
+		return glfwWindowShouldClose(glfwWindow);
 	}
 
 	void Window::Impl::makeCurrent() {

@@ -11,5 +11,7 @@ namespace Yngin {
 
 		// TODO: add a custom shader class
 		uint32_t shader;
+
+		uint64_t frame;
 	};
 }

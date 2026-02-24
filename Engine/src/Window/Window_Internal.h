@@ -11,6 +11,9 @@ namespace Yngin {
 
 		Window* owner;
 
+		void swapBuffers();
+		bool shouldClose();
+		void update();
 		void makeCurrent();
 	};
 }

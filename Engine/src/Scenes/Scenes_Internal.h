@@ -18,6 +18,7 @@ namespace Yngin {
 
 	struct ScenesManager::Impl {
 		Context* ctx;
+		Scene* activeScene = 0;
 
 		uint32_t nextId = 0;
 

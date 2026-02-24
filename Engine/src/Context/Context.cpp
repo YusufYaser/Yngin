@@ -74,8 +74,6 @@ namespace Yngin {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 
-		m.window->swapBuffers();
-
 		m.modelsManager = std::unique_ptr<ModelsManager>(new ModelsManager(this));
 		m.scenesManager = std::unique_ptr<ScenesManager>(new ScenesManager(this));
 		m.texturesManager = std::unique_ptr<TexturesManager>(new TexturesManager(this));
@@ -145,6 +143,32 @@ namespace Yngin {
 
 	void Context::makeCurrent() {
 		impl->window->impl->makeCurrent();
+	}
+
+	bool Context::isClosing() {
+		return impl->window->impl->shouldClose();
+	}
+
+	void Context::update() {
+		assert(!isClosing());
+
+		auto& m = *impl;
+
+		m.window->impl->update();
+
+		Scene* scene = m.scenesManager->getActive();
+		assert(scene);
+		if (scene) {
+			m.scenesManager->getActive()->render();
+		}
+
+		m.window->impl->swapBuffers();
+
+		m.frame++;
+	}
+
+	uint64_t Context::getFrame() {
+		return impl->frame;
 	}
 
 	Window* Context::getWindow() {

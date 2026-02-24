@@ -19,8 +19,11 @@ int main() {
 
 	printf("Context: %p\n", ctx);
 
-	uint32_t sceneId = ctx->getScenesManager()->createScene();
-	Scene* scene = ctx->getScenesManager()->getScene(sceneId);
+	ScenesManager* scenesManager = ctx->getScenesManager();
+	uint32_t sceneId = scenesManager->createScene();
+	Scene* scene = scenesManager->getScene(sceneId);
+
+	scenesManager->setActive(sceneId);
 
 	std::ifstream modelFile("test_model.obj");
 
@@ -54,20 +57,13 @@ int main() {
 	GameObject* obj = scene->getGameObjectsManager()->getGameObject(objId);
 	obj->createComponent<Components::Mesh>();
 
-	uint64_t frameNum = 0;
-	while (!ctx->getWindow()->shouldClose()) {
-		ctx->getWindow()->update();
-
-		//defaultCamera->setWeight((frameNum % 1000) / 1000.0f);
-		//newCamera->setWeight(1 - (frameNum % 1000) / 1000.0f);
+	while (!ctx->isClosing()) {
+		uint64_t frameNum = ctx->getFrame();
 
 		defaultCamera->setPos(glm::vec3(sin(frameNum / 1000.0), cos(frameNum / 1000.0), 1) * 5.0f);
 		defaultCamera->lookAt(glm::vec3());
 
-		scene->render();
-		ctx->getWindow()->swapBuffers();
-
-		frameNum++;
+		ctx->update();
 	}
 
 	Yngin::terminate();

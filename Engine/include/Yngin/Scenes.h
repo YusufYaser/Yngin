@@ -15,6 +15,9 @@ namespace Yngin {
 		uint32_t createScene();
 		void deleteScene(uint32_t sceneId);
 
+		Scene* getActive();
+		void setActive(uint32_t sceneId);
+
 	private:
 		friend class Context;
 		friend struct std::default_delete<ScenesManager>;

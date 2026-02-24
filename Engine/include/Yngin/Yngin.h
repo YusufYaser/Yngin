@@ -24,6 +24,12 @@ namespace Yngin {
 
 		void makeCurrent();
 
+		bool isClosing();
+		// this should be at the end of your loop
+		void update();
+
+		uint64_t getFrame();
+
 		Window* getWindow();
 		glm::ivec2 getViewportSize();
 

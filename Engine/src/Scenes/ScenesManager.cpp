@@ -39,6 +39,18 @@ namespace Yngin {
 	void ScenesManager::deleteScene(uint32_t sceneId) {
 		assert(impl->scenes.find(sceneId) != impl->scenes.end());
 
+		if (impl->activeScene->getId() == sceneId) {
+			impl->activeScene = nullptr;
+		}
+
 		impl->scenes.erase(sceneId);
+	}
+
+	Scene* ScenesManager::getActive() {
+		return impl->activeScene;
+	}
+
+	void ScenesManager::setActive(uint32_t sceneId) {
+		impl->activeScene = getScene(sceneId);
 	}
 }
