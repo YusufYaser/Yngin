@@ -22,7 +22,16 @@ namespace Yngin {
 		glm::vec3 getPos();
 		void setPos(glm::vec3 newPos);
 
-		// this will be changed later
+		template <typename T>
+		T* getComponent();
+
+		template <typename T>
+		void createComponent();
+
+		template <typename T>
+		void deleteComponent();
+
+		// calls render() on the Mesh component and renders child OameObjects
 		void render();
 
 	private:

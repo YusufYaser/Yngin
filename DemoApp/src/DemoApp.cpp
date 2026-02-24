@@ -7,6 +7,7 @@
 #include <Yngin/Cameras.h>
 #include <Yngin/GameObject.h>
 #include <Yngin/Textures.h>
+#include <Yngin/Components/Mesh.h>
 
 using namespace Yngin;
 
@@ -48,6 +49,9 @@ int main() {
 	newCamera->lookAt({ 0, 0, 0 });
 
 	ctx->getTexturesManager()->createTexture(2, 1, 2, "\xff\xff\x0f\xff");
+
+	GameObject* obj = scene->getGameObjectsManager()->getGameObject(objId);
+	obj->createComponent<Components::Mesh>();
 
 	uint64_t frameNum = 0;
 	while (!ctx->windowShouldClose()) {

@@ -1,5 +1,7 @@
 #pragma once
 #include <Yngin/GameObject.h>
+#include <Yngin/Components/Components.h>
+#include <typeindex>
 
 namespace Yngin {
 	struct GameObject::Impl {
@@ -11,6 +13,8 @@ namespace Yngin {
 		std::map<uint32_t, std::unique_ptr<GameObject>> childs;
 
 		glm::vec3 pos = {};
+
+		std::map<std::type_index, std::unique_ptr<Components::Component>> components;
 	};
 
 	struct GameObjectsManager::Impl {

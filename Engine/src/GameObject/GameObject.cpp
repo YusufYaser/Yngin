@@ -1,12 +1,15 @@
 #include <Yngin/GameObject.h>
 #include <Yngin/Models.h>
 #include <Yngin/Textures.h>
+#include <Yngin/Components/Mesh.h>
 #include "GameObject_Internal.h"
-#include <glad/glad.h>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include <type_traits>
+#include <assert.h>
+
 
 namespace Yngin {
+	using namespace Components;
+
 	GameObject::GameObject(Context* ctx, Scene* scene, GameObject* parent) {
 		impl = std::make_unique<Impl>();
 
@@ -55,7 +58,7 @@ namespace Yngin {
 	}
 
 	void GameObject::deleteChild(uint32_t childId) {
-		impl->childs[childId].reset();
+		impl->childs.erase(childId);
 	}
 
 	void GameObject::moveChild(uint32_t childId, GameObject* newParent) {
@@ -71,25 +74,41 @@ namespace Yngin {
 		impl->pos = newPos;
 	}
 
+	template<typename T>
+	inline T* GameObject::getComponent() {
+		static_assert(std::is_base_of<Component, T>::value, "Type must be a component class");
+		auto it = impl->components.find(std::type_index(typeid(T)));
+
+		if (it == impl->components.end()) return nullptr;
+
+		return dynamic_cast<T*>(it->second.get());
+	}
+
+	template<typename T>
+	void GameObject::createComponent() {
+		static_assert(std::is_base_of<Component, T>::value, "Type must be a component class");
+		if (getComponent<T>() != nullptr) {
+			return;
+		}
+
+		auto component = std::unique_ptr<T>(new T(impl->ctx, this));
+
+		impl->components[std::type_index(typeid(T))] = std::move(component);
+	}
+
+	template<typename T>
+	void GameObject::deleteComponent() {
+		static_assert(std::is_base_of<Component, T>::value, "Type must be a component class");
+		impl->components.erase(std::type_index(typeid(T)));
+	}
+
+	template void GameObject::createComponent<Components::Mesh>();
+	template Components::Mesh* GameObject::getComponent<Components::Mesh>();
+
 	void GameObject::render() {
-		glm::mat4 model = glm::mat4(1.0f);
-
-		model = glm::translate(model, impl->pos);
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1, 0, 0));
-
-		GLuint shaderId = impl->ctx->getShaderId();
-		glUseProgram(shaderId);
-		GLuint modelLoc = glGetUniformLocation(shaderId, "model");
-		GLuint normalMatrizLoc = glGetUniformLocation(shaderId, "normalMatrix");
-
-		glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(model)));
-
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix3fv(normalMatrizLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
-
-		// for now we'll render a test model with a test texture
-		impl->ctx->getTexturesManager()->getTexture(0)->activate();
-		impl->ctx->getModelsManager()->render(0);
+		for (auto& kvp : impl->components) {
+			kvp.second->onRender();
+		}
 
 		for (auto& kvp : impl->childs) {
 			kvp.second->render();
