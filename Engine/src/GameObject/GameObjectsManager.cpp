@@ -23,7 +23,7 @@ namespace Yngin {
 	}
 
 	uint32_t GameObjectsManager::acquireId() {
-		return impl->currentId++;
+		return impl->nextId++;
 	}
 
 	GameObject* GameObjectsManager::getRootGameObject() {

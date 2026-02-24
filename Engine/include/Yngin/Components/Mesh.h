@@ -17,7 +17,7 @@ namespace Yngin {
 			~Mesh();
 
 			friend class GameObject;
-			friend class std::default_delete<Mesh>;
+			friend struct std::default_delete<Mesh>;
 
 			struct Impl;
 			std::unique_ptr<Impl> impl;

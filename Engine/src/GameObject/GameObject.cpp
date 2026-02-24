@@ -13,12 +13,6 @@ namespace Yngin {
 	GameObject::GameObject(Context* ctx, Scene* scene, GameObject* parent) {
 		impl = std::make_unique<Impl>();
 
-		if (parent != nullptr) {
-			impl->id = scene->getGameObjectsManager()->acquireId();
-			scene->getGameObjectsManager()->impl->gameObjects[impl->id] = this;
-		} else {
-			impl->id = 0;
-		}
 		impl->ctx = ctx;
 		impl->scene = scene;
 		impl->parent = parent;

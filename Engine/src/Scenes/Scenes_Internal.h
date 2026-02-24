@@ -7,6 +7,10 @@ namespace Yngin {
 	class GameObjectsManager;
 
 	struct Scene::Impl {
+		void init();
+		Scene* owner;
+
+		uint32_t id;
 		Context* ctx;
 		std::unique_ptr<CamerasManager> camerasManager;
 		std::unique_ptr<GameObjectsManager> gameObjectsManager;
@@ -15,7 +19,8 @@ namespace Yngin {
 	struct ScenesManager::Impl {
 		Context* ctx;
 
+		uint32_t nextId = 0;
+
 		std::map<uint32_t, std::unique_ptr<Scene>> scenes;
-		uint32_t nextSceneId = 0;
 	};
 }

@@ -9,12 +9,21 @@
 namespace Yngin {
 	Scene::Scene(Context* ctx) {
 		impl = std::make_unique<Impl>();
+
 		impl->ctx = ctx;
-		impl->camerasManager = std::make_unique<CamerasManager>(ctx, this);
-		impl->gameObjectsManager = std::make_unique<GameObjectsManager>(ctx, this);
+		impl->owner = this;
 	}
 
 	Scene::~Scene() = default;
+
+	void Scene::Impl::init() {
+		camerasManager = std::unique_ptr<CamerasManager>(new CamerasManager(ctx, owner));
+		gameObjectsManager = std::unique_ptr<GameObjectsManager>(new GameObjectsManager(ctx, owner));
+	}
+
+	uint32_t Scene::getId() {
+		return impl->id;
+	}
 
 	Context* Scene::getContext() {
 		return impl->ctx;

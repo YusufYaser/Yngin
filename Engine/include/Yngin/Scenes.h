@@ -10,22 +10,26 @@ namespace Yngin {
 
 	class ScenesManager {
 	public:
-		ScenesManager(Context* ctx);
-		~ScenesManager();
-
 		Scene* getScene(uint32_t sceneId);
 
 		uint32_t createScene();
 		void deleteScene(uint32_t sceneId);
 
 	private:
+		friend class Context;
+		friend struct std::default_delete<ScenesManager>;
+		friend class Scene;
+
+		ScenesManager(Context* ctx);
+		~ScenesManager();
+
 		struct Impl;
 		std::unique_ptr<Impl> impl;
 	};
 
 	class Scene {
 	public:
-		~Scene();
+		uint32_t getId();
 
 		Context* getContext();
 
@@ -35,10 +39,13 @@ namespace Yngin {
 		void render();
 
 	private:
-		Scene(Context* ctx);
 		friend class ScenesManager;
+		friend struct std::default_delete<Scene>;
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;
+
+		Scene(Context* ctx);
+		~Scene();
 	};
 }

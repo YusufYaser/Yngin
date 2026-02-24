@@ -34,6 +34,11 @@ namespace Yngin {
 		void Mesh::onRender() {
 			auto cimpl = Component::impl.get();
 
+			Model* model = cimpl->ctx->getModelsManager()->getModel(impl->modelId);
+			if (model == nullptr) return;
+
+			Texture* tex = cimpl->ctx->getTexturesManager()->getTexture(impl->texId);
+
 			glm::mat4 modelMat = glm::mat4(1.0f);
 
 			modelMat = glm::translate(modelMat, cimpl->gameObject->getPos());
@@ -50,8 +55,8 @@ namespace Yngin {
 			glUniformMatrix3fv(normalMatrizLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
 			// for now we'll render a test model with a test texture
-			cimpl->ctx->getTexturesManager()->getTexture(impl->texId)->activate();
-			cimpl->ctx->getModelsManager()->render(impl->modelId);
+			if (tex) tex->activate();
+			model->render();
 		}
 	}
 }

@@ -15,7 +15,7 @@ namespace Yngin {
 			virtual void onRender();
 
 			friend class GameObject;
-			friend class std::default_delete<Component>;
+			friend struct std::default_delete<Component>;
 
 		protected:
 			struct Impl;

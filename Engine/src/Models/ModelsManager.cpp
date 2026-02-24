@@ -17,10 +17,14 @@ namespace Yngin {
 	ModelsManager::~ModelsManager() = default;
 
 	uint32_t ModelsManager::createModel(std::vector<Vertex> vertices, std::vector<uint32_t> indices) {
-		auto model = std::unique_ptr<Model>(new Model(impl->ctx, vertices, indices));
+		Model* model = new Model(impl->ctx);
 
-		uint32_t modelId = impl->nextModelId++;
-		impl->models[modelId] = std::move(model);
+		uint32_t modelId = impl->nextId++;
+		model->impl->id = modelId;
+		impl->models[modelId] = std::unique_ptr<Model>(model);
+
+		model->impl->init(vertices, indices);
+
 		return modelId;
 	}
 
@@ -36,11 +40,7 @@ namespace Yngin {
 			throw std::invalid_argument("Invalid model type");
 		}
 
-		auto model = std::unique_ptr<Model>(new Model(impl->ctx, vertices, indices));
-
-		uint32_t modelId = impl->nextModelId++;
-		impl->models[modelId] = std::move(model);
-		return modelId;
+		return createModel(vertices, indices);
 	}
 
 	void ModelsManager::deleteModel(uint32_t modelId) {
@@ -49,11 +49,11 @@ namespace Yngin {
 		impl->models.erase(modelId);
 	}
 
-	void ModelsManager::render(uint32_t modelId) {
+	Model* ModelsManager::getModel(uint32_t modelId) {
 		auto it = impl->models.find(modelId);
 		assert(it != impl->models.end());
-		if (it == impl->models.end()) return;
+		if (it == impl->models.end()) return nullptr;
 
-		it->second->render();
+		return it->second.get();
 	}
 }

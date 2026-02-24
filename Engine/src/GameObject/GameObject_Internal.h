@@ -10,6 +10,7 @@ namespace Yngin {
 		Context* ctx;
 		Scene* scene;
 		GameObject* parent;
+
 		std::map<uint32_t, std::unique_ptr<GameObject>> childs;
 
 		glm::vec3 pos = {};
@@ -21,7 +22,7 @@ namespace Yngin {
 		Context* ctx;
 		Scene* scene;
 
-		uint32_t currentId = 0;
+		uint32_t nextId = 0;
 
 		std::unique_ptr<GameObject> rootGameObject;
 		std::map<uint32_t, GameObject*> gameObjects;

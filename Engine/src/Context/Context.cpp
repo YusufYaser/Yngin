@@ -87,9 +87,9 @@ namespace Yngin {
 
 		glfwSwapBuffers(m.glfwWindow);
 
-		m.modelsManager = std::make_unique<ModelsManager>(this);
-		m.scenesManager = std::make_unique<ScenesManager>(this);
-		m.texturesManager = std::make_unique<TexturesManager>(this);
+		m.modelsManager = std::unique_ptr<ModelsManager>(new ModelsManager(this));
+		m.scenesManager = std::unique_ptr<ScenesManager>(new ScenesManager(this));
+		m.texturesManager = std::unique_ptr<TexturesManager>(new TexturesManager(this));
 
 		// load initial shader
 		// TODO: show error logs

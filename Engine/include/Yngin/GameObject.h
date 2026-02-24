@@ -6,8 +6,6 @@
 namespace Yngin {
 	class GameObject {
 	public:
-		~GameObject();
-
 		uint32_t getId();
 
 		GameObject* getParent();
@@ -31,14 +29,16 @@ namespace Yngin {
 		template <typename T>
 		void deleteComponent();
 
-		// calls render() on the Mesh component and renders child OameObjects
+		// calls onRender() on all components and renders child OameObjects
 		void render();
 
 	private:
 		friend class Scene;
 		friend class GameObjectsManager;
+		friend struct std::default_delete<GameObject>;
 
 		GameObject(Context* ctx, Scene* scene, GameObject* parent);
+		~GameObject();
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;
@@ -46,11 +46,6 @@ namespace Yngin {
 
 	class GameObjectsManager {
 	public:
-		GameObjectsManager(Context* ctx, Scene* scene);
-		~GameObjectsManager();
-
-		uint32_t acquireId();
-
 		GameObject* getRootGameObject();
 		GameObject* getGameObject(uint32_t gameObjectId);
 
@@ -58,7 +53,13 @@ namespace Yngin {
 
 	private:
 		friend class Scene;
+		friend struct std::default_delete<GameObjectsManager>;
 		friend class GameObject;
+
+		GameObjectsManager(Context* ctx, Scene* scene);
+		~GameObjectsManager();
+
+		uint32_t acquireId();
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;

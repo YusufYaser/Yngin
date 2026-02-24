@@ -8,8 +8,6 @@
 namespace Yngin {
 	class Camera {
 	public:
-		~Camera();
-
 		glm::vec3 getPos() const;
 		glm::vec3 getOrientation() const;
 		float getFov() const;
@@ -27,8 +25,11 @@ namespace Yngin {
 		void setWeight(float newWeight);
 
 	private:
-		Camera(Context* ctx, Scene* scene);
 		friend class CamerasManager;
+		friend struct std::default_delete<Camera>;
+
+		Camera(Context* ctx, Scene* scene);
+		~Camera();
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;
@@ -36,10 +37,6 @@ namespace Yngin {
 
 	class CamerasManager {
 	public:
-		// Also creates a default camera with cameraId 0
-		CamerasManager(Context* ctx, Scene* scene);
-		~CamerasManager();
-
 		uint32_t createCamera();
 		void deleteCamera(uint32_t cameraId);
 
@@ -58,6 +55,12 @@ namespace Yngin {
 		glm::mat4 getFinalProjection();
 
 	private:
+		friend class Scene;
+		friend struct std::default_delete<CamerasManager>;
+
+		CamerasManager(Context* ctx, Scene* scene);
+		~CamerasManager();
+
 		struct Impl;
 		std::unique_ptr<Impl> impl;
 	};

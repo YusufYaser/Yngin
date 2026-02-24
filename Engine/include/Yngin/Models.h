@@ -14,31 +14,37 @@ namespace Yngin {
 		OBJ
 	};
 
+	class Model;
+
 	class ModelsManager {
 	public:
-		ModelsManager(Context* ctx);
-		~ModelsManager();
-
 		uint32_t createModel(std::vector<Vertex> vertices, std::vector<uint32_t> indices);
 		uint32_t createModel(MODEL_FILE_TYPE type, const char* data, size_t length);
 		void deleteModel(uint32_t modelId);
 
-		void render(uint32_t modelId);
+		Model* getModel(uint32_t modelId);
 
 	private:
+		friend class Context;
+		friend struct std::default_delete<ModelsManager>;
+
+		ModelsManager(Context* ctx);
+		~ModelsManager();
+
 		struct Impl;
 		std::unique_ptr<Impl> impl;
 	};
 
 	class Model {
 	public:
-		~Model();
-
 		void render();
 
 	private:
-		Model(Context* ctx, std::vector<Vertex> vertices, std::vector<uint32_t> indices);
+		Model(Context* ctx);
+		~Model();
+
 		friend class ModelsManager;
+		friend struct std::default_delete<Model>;
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;

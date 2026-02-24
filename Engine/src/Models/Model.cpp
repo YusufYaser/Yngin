@@ -4,29 +4,37 @@
 #include "Models_Internal.h"
 
 namespace Yngin {
-	Model::Model(Context* ctx, std::vector<Vertex> vertices, std::vector<uint32_t> indices) {
+	Model::Model(Context* ctx) {
+		impl = std::make_unique<Impl>();
+		impl->ctx = ctx;
+	}
+
+	Model::~Model() {
+		impl->ctx->makeCurrent();
+
+		glDeleteVertexArrays(1, &impl->VAO);
+		glDeleteBuffers(1, &impl->VBO);
+		glDeleteBuffers(1, &impl->VAO);
+	}
+
+	void Model::Impl::init(std::vector<Vertex> vertices, std::vector<uint32_t> indices) {
 		if (vertices.size() == 0 || indices.size() == 0) {
 			throw std::invalid_argument("Vertices and indices size cannot be zero");
 		}
 
-		impl = std::make_unique<Impl>();
-
 		ctx->makeCurrent();
 
-		auto& m = *impl;
-		m.ctx = ctx;
+		indicesCount = static_cast<GLsizei>(indices.size());
 
-		m.indicesCount = indices.size();
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
 
-		glGenVertexArrays(1, &m.VAO);
-		glBindVertexArray(m.VAO);
-
-		glGenBuffers(1, &m.VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, m.VBO);
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STATIC_DRAW);
 
-		glGenBuffers(1, &m.EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.EBO);
+		glGenBuffers(1, &EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW);
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
@@ -39,14 +47,6 @@ namespace Yngin {
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	}
-
-	Model::~Model() {
-		impl->ctx->makeCurrent();
-
-		glDeleteVertexArrays(1, &impl->VAO);
-		glDeleteBuffers(1, &impl->VBO);
-		glDeleteBuffers(1, &impl->VAO);
 	}
 
 	void Model::render() {
