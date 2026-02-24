@@ -2,9 +2,9 @@
 #include <Yngin/Models.h>
 #include <Yngin/Scenes.h>
 #include <Yngin/Textures.h>
+#include <Yngin/Window.h>
+#include "../Window/Window_Internal.h"
 #include <glad/glad.h>
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
 #include <stdexcept>
 #include "Context_Internal.h"
 
@@ -47,13 +47,6 @@ void main() {
 }
 )";
 
-void fb_resize_callback(GLFWwindow* window, int width, int height) {
-	GLFWwindow* oldContext = glfwGetCurrentContext();
-	glfwMakeContextCurrent(window);
-	glViewport(0, 0, width, height);
-	glfwMakeContextCurrent(oldContext);
-}
-
 namespace Yngin {
 	std::vector<Context*> Context::contexts;
 
@@ -73,19 +66,15 @@ namespace Yngin {
 
 		auto& m = *impl;
 
-		m.glfwWindow = glfwCreateWindow(800, 600, "Yngin Instance", nullptr, nullptr);
-		makeCurrent();
-		glfwSetFramebufferSizeCallback(m.glfwWindow, fb_resize_callback);
-		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		m.window = std::unique_ptr<Window>(new Window(this));
 
-		glViewport(0, 0, 800, 600);
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 
-		glfwSwapBuffers(m.glfwWindow);
+		m.window->swapBuffers();
 
 		m.modelsManager = std::unique_ptr<ModelsManager>(new ModelsManager(this));
 		m.scenesManager = std::unique_ptr<ScenesManager>(new ScenesManager(this));
@@ -146,7 +135,6 @@ namespace Yngin {
 		contexts.erase(std::find(contexts.begin(), contexts.end(), this));
 		glUseProgram(0);
 		glDeleteProgram(m.shader);
-		glfwDestroyWindow(m.glfwWindow);
 	}
 
 	void Yngin::Context::deleteAllContexts() {
@@ -156,23 +144,11 @@ namespace Yngin {
 	}
 
 	void Context::makeCurrent() {
-		if (glfwGetCurrentContext() != impl->glfwWindow) {
-			glfwMakeContextCurrent(impl->glfwWindow);
-		}
+		impl->window->impl->makeCurrent();
 	}
 
-	void Context::updateWindow() {
-		makeCurrent();
-
-		glfwPollEvents();
-	}
-
-	bool Context::windowShouldClose() {
-		return glfwWindowShouldClose(impl->glfwWindow);
-	}
-
-	void Context::swapBuffers() {
-		glfwSwapBuffers(impl->glfwWindow);
+	Window* Context::getWindow() {
+		return impl->window.get();
 	}
 
 	glm::ivec2 Context::getViewportSize() {

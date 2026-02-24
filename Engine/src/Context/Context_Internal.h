@@ -3,7 +3,7 @@
 
 namespace Yngin {
 	struct Context::Impl {
-		GLFWwindow* glfwWindow;
+		std::unique_ptr<Window> window;
 
 		std::unique_ptr<ModelsManager> modelsManager;
 		std::unique_ptr<ScenesManager> scenesManager;

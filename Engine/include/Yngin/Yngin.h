@@ -5,13 +5,12 @@
 #include <stdint.h>
 #include <glm/vec2.hpp>
 
-struct GLFWwindow;
-
 namespace Yngin {
 	bool init();
 	void terminate();
 	bool isInitialized();
 
+	class Window;
 	class ModelsManager;
 	class ScenesManager;
 	class TexturesManager;
@@ -25,9 +24,7 @@ namespace Yngin {
 
 		void makeCurrent();
 
-		void updateWindow();
-		bool windowShouldClose();
-		void swapBuffers();
+		Window* getWindow();
 		glm::ivec2 getViewportSize();
 
 		ModelsManager* getModelsManager();

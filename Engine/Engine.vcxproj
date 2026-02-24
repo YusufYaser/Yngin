@@ -26,6 +26,7 @@
     <ClInclude Include="include\Yngin\Models.h" />
     <ClInclude Include="include\Yngin\Scenes.h" />
     <ClInclude Include="include\Yngin\Textures.h" />
+    <ClInclude Include="include\Yngin\Window.h" />
     <ClInclude Include="include\Yngin\Yngin.h" />
     <ClInclude Include="src\Cameras\Cameras_Internal.h" />
     <ClInclude Include="src\Components\Components_Internal.h" />
@@ -34,6 +35,7 @@
     <ClInclude Include="src\Models\Models_Internal.h" />
     <ClInclude Include="src\Scenes\Scenes_Internal.h" />
     <ClInclude Include="src\Textures\Textures_Internal.h" />
+    <ClInclude Include="src\Window\Window_Internal.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c" />
@@ -52,6 +54,7 @@
     <ClCompile Include="src\Engine\Engine.cpp" />
     <ClCompile Include="src\Textures\Texture.cpp" />
     <ClCompile Include="src\Textures\TexturesManager.cpp" />
+    <ClCompile Include="src\Window\Window.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

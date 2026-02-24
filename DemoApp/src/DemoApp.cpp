@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <Yngin/Yngin.h>
+#include <Yngin/Window.h>
 #include <Yngin/Scenes.h>
 #include <Yngin/Models.h>
 #include <Yngin/Cameras.h>
@@ -54,8 +55,8 @@ int main() {
 	obj->createComponent<Components::Mesh>();
 
 	uint64_t frameNum = 0;
-	while (!ctx->windowShouldClose()) {
-		ctx->updateWindow();
+	while (!ctx->getWindow()->shouldClose()) {
+		ctx->getWindow()->update();
 
 		//defaultCamera->setWeight((frameNum % 1000) / 1000.0f);
 		//newCamera->setWeight(1 - (frameNum % 1000) / 1000.0f);
@@ -64,7 +65,7 @@ int main() {
 		defaultCamera->lookAt(glm::vec3());
 
 		scene->render();
-		ctx->swapBuffers();
+		ctx->getWindow()->swapBuffers();
 
 		frameNum++;
 	}
