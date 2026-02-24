@@ -14,6 +14,7 @@ namespace Yngin {
 		std::map<uint32_t, std::unique_ptr<GameObject>> childs;
 
 		glm::vec3 pos = {};
+		glm::vec3 rotation = {};
 
 		std::map<std::type_index, std::unique_ptr<Components::Component>> components;
 	};

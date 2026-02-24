@@ -56,11 +56,12 @@ int main() {
 
 	GameObject* obj = scene->getGameObjectsManager()->getGameObject(objId);
 	obj->createComponent<Components::Mesh>();
+	obj->setRotation({ glm::radians(90.0f), 0, 0 });
 
 	while (!ctx->isClosing()) {
-		uint64_t frameNum = ctx->getFrame();
+		ctx->makeCurrent();
 
-		defaultCamera->setPos(glm::vec3(sin(frameNum / 1000.0), cos(frameNum / 1000.0), 1) * 5.0f);
+		defaultCamera->setPos(glm::vec3(sin(ctx->getTime()), cos(ctx->getTime()), 1) * 5.0f);
 		defaultCamera->lookAt(glm::vec3());
 
 		ctx->update();

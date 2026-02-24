@@ -13,5 +13,7 @@ namespace Yngin {
 		uint32_t shader;
 
 		uint64_t frame;
+		double deltaTime;
+		double lastFrameEnd;
 	};
 }

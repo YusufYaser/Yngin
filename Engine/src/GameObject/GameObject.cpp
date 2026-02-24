@@ -68,6 +68,14 @@ namespace Yngin {
 		impl->pos = newPos;
 	}
 
+	glm::vec3 GameObject::getRotation() {
+		return impl->rotation;
+	}
+
+	void GameObject::setRotation(glm::vec3 newRotation) {
+		impl->rotation = newRotation;
+	}
+
 	template<typename T>
 	inline T* GameObject::getComponent() {
 		static_assert(std::is_base_of<Component, T>::value, "Type must be a component class");

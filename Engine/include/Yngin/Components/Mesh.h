@@ -1,6 +1,7 @@
 #pragma once
 #include "Components.h"
 #include <memory>
+#include <glm/vec3.hpp>
 
 namespace Yngin {
 	namespace Components {
@@ -11,6 +12,9 @@ namespace Yngin {
 
 			void setTexture(uint32_t newTextureId);
 			uint32_t getTexture();
+
+			void setScale(glm::vec3 newScale);
+			glm::vec3 getScale();
 
 		private:
 			Mesh(Context* ctx, GameObject* gameObject);

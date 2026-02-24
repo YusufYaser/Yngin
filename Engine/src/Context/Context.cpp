@@ -7,6 +7,8 @@
 #include <glad/glad.h>
 #include <stdexcept>
 #include "Context_Internal.h"
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 
 // TODO: change this initial shader code
 const char* vertexShaderCode = R"(
@@ -65,6 +67,9 @@ namespace Yngin {
 		impl = std::make_unique<Impl>();
 
 		auto& m = *impl;
+
+		m.deltaTime = 1;
+		m.lastFrameEnd = 0;
 
 		m.window = std::unique_ptr<Window>(new Window(this));
 
@@ -167,10 +172,23 @@ namespace Yngin {
 		m.window->impl->swapBuffers();
 
 		m.frame++;
+
+		double frameEnd = getTime();
+		m.deltaTime = frameEnd - m.lastFrameEnd;
+		m.lastFrameEnd = frameEnd;
 	}
 
 	uint64_t Context::getFrame() {
 		return impl->frame;
+	}
+
+	double Context::getTime() {
+		makeCurrent();
+		return glfwGetTime();
+	}
+
+	double Context::getDeltaTime() {
+		return impl->deltaTime;
 	}
 
 	Window* Context::getWindow() {

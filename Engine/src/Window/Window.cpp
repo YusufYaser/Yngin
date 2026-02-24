@@ -29,6 +29,22 @@ namespace Yngin {
 		glfwDestroyWindow(impl->glfwWindow);
 	}
 
+	void Window::setTitle(const char* title) {
+		glfwSetWindowTitle(impl->glfwWindow, title);
+	}
+
+	void Window::setSize(int width, int height) {
+		glfwSetWindowSize(impl->glfwWindow, width, height);
+	}
+
+	void Window::setPosition(int x, int y) {
+		glfwSetWindowPos(impl->glfwWindow, x, y);
+	}
+
+	void Window::setCursorLocked(bool locked) {
+		glfwSetInputMode(impl->glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
+
 	void Window::Impl::update() {
 		ctx->makeCurrent();
 		glfwPollEvents();

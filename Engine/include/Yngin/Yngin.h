@@ -22,6 +22,8 @@ namespace Yngin {
 		~Context();
 		static void deleteAllContexts();
 
+		// it is strongly recommended to call this at the start of every frame
+		// if you're using multiple contexts
 		void makeCurrent();
 
 		bool isClosing();
@@ -29,6 +31,9 @@ namespace Yngin {
 		void update();
 
 		uint64_t getFrame();
+
+		double getTime();
+		double getDeltaTime();
 
 		Window* getWindow();
 		glm::ivec2 getViewportSize();

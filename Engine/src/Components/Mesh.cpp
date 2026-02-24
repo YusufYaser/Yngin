@@ -9,6 +9,12 @@
 
 namespace Yngin {
 	namespace Components {
+		Mesh::Mesh(Context* ctx, GameObject* gameObject) : Component(ctx, gameObject) {
+			impl = std::make_unique<Impl>();
+		}
+
+		Mesh::~Mesh() = default;
+
 		void Mesh::setModel(uint32_t newModelId) {
 			impl->modelId = newModelId;
 		}
@@ -25,11 +31,13 @@ namespace Yngin {
 			return impl->texId;
 		}
 
-		Mesh::Mesh(Context* ctx, GameObject* gameObject) : Component(ctx, gameObject) {
-			impl = std::make_unique<Impl>();
+		void Mesh::setScale(glm::vec3 newScale) {
+			impl->scale = newScale;
 		}
 
-		Mesh::~Mesh() = default;
+		glm::vec3 Mesh::getScale() {
+			return impl->scale;
+		}
 
 		void Mesh::onRender() {
 			auto cimpl = Component::impl.get();
@@ -39,10 +47,15 @@ namespace Yngin {
 
 			Texture* tex = cimpl->ctx->getTexturesManager()->getTexture(impl->texId);
 
+			GameObject* obj = cimpl->gameObject;
+
 			glm::mat4 modelMat = glm::mat4(1.0f);
 
-			modelMat = glm::translate(modelMat, cimpl->gameObject->getPos());
-			modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1, 0, 0));
+			modelMat = glm::translate(modelMat, obj->getPos());
+			modelMat = glm::rotate(modelMat, obj->getRotation().x, glm::vec3(1, 0, 0));
+			modelMat = glm::rotate(modelMat, obj->getRotation().y, glm::vec3(0, 1, 0));
+			modelMat = glm::rotate(modelMat, obj->getRotation().z, glm::vec3(0, 0, 1));
+			modelMat = glm::scale(modelMat, impl->scale);
 
 			GLuint shaderId = cimpl->ctx->getShaderId();
 			glUseProgram(shaderId);

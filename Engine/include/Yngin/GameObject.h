@@ -20,6 +20,9 @@ namespace Yngin {
 		glm::vec3 getPos();
 		void setPos(glm::vec3 newPos);
 
+		glm::vec3 getRotation();
+		void setRotation(glm::vec3 newRotation);
+
 		template <typename T>
 		T* getComponent();
 
