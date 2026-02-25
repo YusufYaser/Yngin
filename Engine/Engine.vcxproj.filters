@@ -24,31 +24,31 @@
     <ClInclude Include="include\Yngin\Core\Models.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scenes\Scenes_Internal.h">
+    <ClInclude Include="src\Core\Scenes\Scenes_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Models\Models_Internal.h">
+    <ClInclude Include="src\Core\Models\Models_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Yngin\Renderer\Cameras.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Cameras\Cameras_Internal.h">
+    <ClInclude Include="src\Renderer\Cameras\Cameras_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Context\Context_Internal.h">
+    <ClInclude Include="src\Core\Context\Context_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Yngin\Core\GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameObject\GameObject_Internal.h">
+    <ClInclude Include="src\Core\GameObject\GameObject_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Yngin\Renderer\Textures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Textures\Textures_Internal.h">
+    <ClInclude Include="src\Renderer\Textures\Textures_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Yngin\Components\Components.h">
@@ -63,7 +63,7 @@
     <ClInclude Include="include\Yngin\Core\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Window\Window_Internal.h">
+    <ClInclude Include="src\Core\Window\Window_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Yngin\Core\Context.h">
@@ -80,46 +80,43 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Engine\Engine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="deps\implementations\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Context\Context.cpp">
+    <ClCompile Include="src\Core\Context\Context.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scenes\ScenesManager.cpp">
+    <ClCompile Include="src\Core\Scenes\ScenesManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Models\ModelsManager.cpp">
+    <ClCompile Include="src\Core\Models\ModelsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Cameras\CamerasManager.cpp">
+    <ClCompile Include="src\Renderer\Cameras\CamerasManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Cameras\Camera.cpp">
+    <ClCompile Include="src\Renderer\Cameras\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Models\Model.cpp">
+    <ClCompile Include="src\Core\Models\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scenes\Scene.cpp">
+    <ClCompile Include="src\Core\Scenes\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameObject\GameObject.cpp">
+    <ClCompile Include="src\Core\GameObject\GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameObject\GameObjectsManager.cpp">
+    <ClCompile Include="src\Core\GameObject\GameObjectsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Textures\Texture.cpp">
+    <ClCompile Include="src\Renderer\Textures\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Textures\TexturesManager.cpp">
+    <ClCompile Include="src\Renderer\Textures\TexturesManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Models\ModelObjLoader.cpp">
+    <ClCompile Include="src\Core\Models\ModelObjLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Components\Components.cpp">
@@ -128,7 +125,10 @@
     <ClCompile Include="src\Components\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Window\Window.cpp">
+    <ClCompile Include="src\Core\Window\Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Context\Init.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
