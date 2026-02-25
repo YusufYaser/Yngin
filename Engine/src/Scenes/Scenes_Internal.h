@@ -1,6 +1,7 @@
 #pragma once
-#include <Yngin/Yngin.h>
-#include <Yngin/GameObject.h>
+#include <Yngin/Core/Context.h>
+#include <Yngin/Core/GameObject.h>
+#include <Yngin/Core/Scenes.h>
 
 namespace Yngin {
 	class CamerasManager;

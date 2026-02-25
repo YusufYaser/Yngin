@@ -1,9 +1,12 @@
 #pragma once
-#include "Components.h"
 #include <memory>
 #include <glm/vec3.hpp>
+#include "Component.h"
 
 namespace Yngin {
+	class Context;
+	class GameObject;
+
 	namespace Components {
 		class Mesh : public Component {
 		public:

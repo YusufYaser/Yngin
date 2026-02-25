@@ -1,4 +1,4 @@
-#include <Yngin/Yngin.h>
+#include <Yngin/Core/Context.h>
 #include <glad/glad.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>

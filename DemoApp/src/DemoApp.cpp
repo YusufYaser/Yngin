@@ -2,13 +2,6 @@
 #include <fstream>
 #include <sstream>
 #include <Yngin/Yngin.h>
-#include <Yngin/Window.h>
-#include <Yngin/Scenes.h>
-#include <Yngin/Models.h>
-#include <Yngin/Cameras.h>
-#include <Yngin/GameObject.h>
-#include <Yngin/Textures.h>
-#include <Yngin/Components/Mesh.h>
 
 using namespace Yngin;
 

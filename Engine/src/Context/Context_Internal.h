@@ -1,5 +1,5 @@
 #pragma once
-#include <Yngin/Yngin.h>
+#include <Yngin/Core/Context.h>
 
 namespace Yngin {
 	struct Context::Impl {

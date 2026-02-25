@@ -19,14 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Yngin\Cameras.h" />
+    <ClInclude Include="include\Yngin\Renderer\Cameras.h" />
+    <ClInclude Include="include\Yngin\Components\Component.h" />
     <ClInclude Include="include\Yngin\Components\Components.h" />
     <ClInclude Include="include\Yngin\Components\Mesh.h" />
-    <ClInclude Include="include\Yngin\GameObject.h" />
-    <ClInclude Include="include\Yngin\Models.h" />
-    <ClInclude Include="include\Yngin\Scenes.h" />
-    <ClInclude Include="include\Yngin\Textures.h" />
-    <ClInclude Include="include\Yngin\Window.h" />
+    <ClInclude Include="include\Yngin\Core\Context.h" />
+    <ClInclude Include="include\Yngin\Core\Core.h" />
+    <ClInclude Include="include\Yngin\Core\GameObject.h" />
+    <ClInclude Include="include\Yngin\Core\Models.h" />
+    <ClInclude Include="include\Yngin\Core\Scenes.h" />
+    <ClInclude Include="include\Yngin\Renderer\Renderer.h" />
+    <ClInclude Include="include\Yngin\Renderer\Textures.h" />
+    <ClInclude Include="include\Yngin\Core\Window.h" />
     <ClInclude Include="include\Yngin\Yngin.h" />
     <ClInclude Include="src\Cameras\Cameras_Internal.h" />
     <ClInclude Include="src\Components\Components_Internal.h" />

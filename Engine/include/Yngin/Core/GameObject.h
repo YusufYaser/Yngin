@@ -1,9 +1,11 @@
 #pragma once
-#include <Yngin/Yngin.h>
-#include <Yngin/Scenes.h>
 #include <glm/vec3.hpp>
+#include <memory>
 
 namespace Yngin {
+	class Context;
+	class Scene;
+
 	class GameObject {
 	public:
 		uint32_t getId();

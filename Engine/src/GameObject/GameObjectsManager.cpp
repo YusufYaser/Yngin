@@ -1,4 +1,5 @@
-#include <Yngin/GameObject.h>
+#include <Yngin/Core/GameObject.h>
+#include <Yngin/Core/Scenes.h>
 #include "GameObject_Internal.h"
 #include <stdexcept>
 

@@ -1,6 +1,6 @@
 #pragma once
-#include <Yngin/Yngin.h>
-#include <Yngin/Window.h>
+#include <Yngin/Core/Context.h>
+#include <Yngin/Core/Window.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 

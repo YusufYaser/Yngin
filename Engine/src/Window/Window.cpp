@@ -1,4 +1,4 @@
-#include <Yngin/Window.h>
+#include <Yngin/Core/Window.h>
 #include <glad/glad.h>
 #include "Window_Internal.h"
 

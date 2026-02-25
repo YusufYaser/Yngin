@@ -1,11 +1,12 @@
 #pragma once
-#include <Yngin/Yngin.h>
-#include <Yngin/Scenes.h>
 #include <memory>
 #include <glm/vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Yngin {
+	class Context;
+	class Scene;
+
 	class Camera {
 	public:
 		glm::vec3 getPos() const;

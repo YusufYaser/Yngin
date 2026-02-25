@@ -1,8 +1,7 @@
-#include <Yngin/Yngin.h>
-#include <Yngin/Models.h>
-#include <Yngin/Scenes.h>
-#include <Yngin/Textures.h>
-#include <Yngin/Window.h>
+#include <Yngin/Core/Models.h>
+#include <Yngin/Core/Scenes.h>
+#include <Yngin/Renderer/Textures.h>
+#include <Yngin/Core/Window.h>
 #include "../Window/Window_Internal.h"
 #include <glad/glad.h>
 #include <stdexcept>

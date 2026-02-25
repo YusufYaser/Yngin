@@ -1,8 +1,9 @@
 #pragma once
-#include <Yngin/Yngin.h>
 #include <memory>
 
 namespace Yngin {
+	class Context;
+
 	class Texture {
 	public:
 		void activate();

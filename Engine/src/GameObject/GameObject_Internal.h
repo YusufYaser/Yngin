@@ -1,7 +1,8 @@
 #pragma once
-#include <Yngin/GameObject.h>
+#include <Yngin/Core/GameObject.h>
 #include <Yngin/Components/Components.h>
 #include <typeindex>
+#include <map>
 
 namespace Yngin {
 	struct GameObject::Impl {

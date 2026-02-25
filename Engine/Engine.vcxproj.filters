@@ -18,10 +18,10 @@
     <ClInclude Include="include\Yngin\Yngin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Yngin\Scenes.h">
+    <ClInclude Include="include\Yngin\Core\Scenes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Yngin\Models.h">
+    <ClInclude Include="include\Yngin\Core\Models.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Scenes\Scenes_Internal.h">
@@ -30,7 +30,7 @@
     <ClInclude Include="src\Models\Models_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Yngin\Cameras.h">
+    <ClInclude Include="include\Yngin\Renderer\Cameras.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Cameras\Cameras_Internal.h">
@@ -39,13 +39,13 @@
     <ClInclude Include="src\Context\Context_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Yngin\GameObject.h">
+    <ClInclude Include="include\Yngin\Core\GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\GameObject\GameObject_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Yngin\Textures.h">
+    <ClInclude Include="include\Yngin\Renderer\Textures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Textures\Textures_Internal.h">
@@ -60,10 +60,22 @@
     <ClInclude Include="src\Components\Components_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Yngin\Window.h">
+    <ClInclude Include="include\Yngin\Core\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Window\Window_Internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Yngin\Core\Context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Yngin\Components\Component.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Yngin\Core\Core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Yngin\Renderer\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

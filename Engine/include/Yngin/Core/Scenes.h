@@ -1,5 +1,4 @@
 #pragma once
-#include <Yngin/Yngin.h>
 #include <memory>
 
 namespace Yngin {
@@ -7,6 +6,7 @@ namespace Yngin {
 	class GameObjectsManager;
 	class GameObject;
 	class Scene;
+	class Context;
 
 	class ScenesManager {
 	public:

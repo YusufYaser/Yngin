@@ -1,4 +1,4 @@
-#include <Yngin/Models.h>
+#include <Yngin/Core/Models.h>
 #include <glad/glad.h>
 #include <stdexcept>
 #include "Models_Internal.h"

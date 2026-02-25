@@ -1,4 +1,4 @@
-#include <Yngin/Models.h>
+#include <Yngin/Core/Models.h>
 #include "Models_Internal.h"
 #include <string>
 #include <sstream>

@@ -1,6 +1,6 @@
-#include <Yngin/Scenes.h>
-#include <Yngin/Models.h>
-#include <Yngin/Cameras.h>
+#include <Yngin/Core/Scenes.h>
+#include <Yngin/Core/Models.h>
+#include <Yngin/Renderer/Cameras.h>
 #include <glad/glad.h>
 #include <stdexcept>
 #include "Scenes_Internal.h"

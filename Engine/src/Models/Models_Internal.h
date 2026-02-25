@@ -1,6 +1,7 @@
 #pragma once
-#include <Yngin/Yngin.h>
+#include <Yngin/Core/Context.h>
 #include <glad/glad.h>
+#include <map>
 
 namespace Yngin {
 	struct Model::Impl {

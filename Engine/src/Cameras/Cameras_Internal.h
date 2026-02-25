@@ -1,5 +1,6 @@
 #pragma once
-#include <Yngin/Yngin.h>
+#include <map>
+#include <Yngin/Core/Context.h>
 
 namespace Yngin {
 	struct Camera::Impl {
