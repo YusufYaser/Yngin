@@ -8,6 +8,7 @@
 #include "Context_Internal.h"
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include <thread>
 
 // TODO: change this initial shader code
 const char* vertexShaderCode = R"(
@@ -69,6 +70,7 @@ namespace Yngin {
 
 		m.deltaTime = 1;
 		m.lastFrameEnd = 0;
+		m.maxFPS = -1;
 
 		m.window = std::unique_ptr<Window>(new Window(this));
 
@@ -168,9 +170,21 @@ namespace Yngin {
 			m.scenesManager->getActive()->render();
 		}
 
+		glfwSwapInterval(m.maxFPS == 0);
+
 		m.window->impl->swapBuffers();
 
 		m.frame++;
+
+		if (m.maxFPS > 0) {
+			double timeToFinish = m.lastFrameEnd + 1.0 / m.maxFPS;
+
+			while (getTime() < timeToFinish) {
+				if (timeToFinish - getTime() > 0.002) {
+					std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				}
+			}
+		}
 
 		double frameEnd = getTime();
 		m.deltaTime = frameEnd - m.lastFrameEnd;
@@ -179,6 +193,14 @@ namespace Yngin {
 
 	uint64_t Context::getFrame() {
 		return impl->frame;
+	}
+
+	int Context::getMaxFPS() {
+		return impl->maxFPS;
+	}
+
+	void Context::setMaxFPS(int newMaxFPS) {
+		impl->maxFPS = newMaxFPS;
 	}
 
 	double Context::getTime() {

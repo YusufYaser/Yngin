@@ -15,5 +15,6 @@ namespace Yngin {
 		uint64_t frame;
 		double deltaTime;
 		double lastFrameEnd;
+		int maxFPS;
 	};
 }

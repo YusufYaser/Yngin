@@ -32,6 +32,10 @@ namespace Yngin {
 
 		uint64_t getFrame();
 
+		int getMaxFPS();
+		// -1 for max, 0 for vsync
+		void setMaxFPS(int newMaxFPS);
+
 		double getTime();
 		double getDeltaTime();
 

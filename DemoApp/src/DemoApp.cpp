@@ -51,6 +51,8 @@ int main() {
 	obj->createComponent<Components::Mesh>();
 	obj->setRotation({ glm::radians(90.0f), 0, 0 });
 
+	ctx->setMaxFPS(120);
+
 	while (!ctx->isClosing()) {
 		ctx->makeCurrent();
 
