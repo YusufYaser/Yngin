@@ -7,6 +7,7 @@
 #include <Yngin/Core/Models.h>
 #include <Yngin/Core/GameObject.h>
 #include <Yngin/Core/Context.h>
+#include <Yngin/Renderer/Shaders.h>
 
 namespace Yngin {
 	namespace Components {
@@ -58,15 +59,13 @@ namespace Yngin {
 			modelMat = glm::rotate(modelMat, obj->getRotation().z, glm::vec3(0, 0, 1));
 			modelMat = glm::scale(modelMat, impl->scale);
 
-			GLuint shaderId = cimpl->ctx->getShaderId();
-			glUseProgram(shaderId);
-			GLuint modelLoc = glGetUniformLocation(shaderId, "model");
-			GLuint normalMatrizLoc = glGetUniformLocation(shaderId, "normalMatrix");
+			Shader* worldShader = cimpl->ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
+			worldShader->activate();
 
 			glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMat)));
 
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMat));
-			glUniformMatrix3fv(normalMatrizLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+			worldShader->setMat3("normalMatrix", normalMatrix);
+			worldShader->setMat4("model", modelMat);
 
 			// for now we'll render a test model with a test texture
 			if (tex) tex->activate();

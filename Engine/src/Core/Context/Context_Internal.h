@@ -8,9 +8,7 @@ namespace Yngin {
 		std::unique_ptr<ModelsManager> modelsManager;
 		std::unique_ptr<ScenesManager> scenesManager;
 		std::unique_ptr<TexturesManager> texturesManager;
-
-		// TODO: add a custom shader class
-		uint32_t shader;
+		std::unique_ptr<ShadersManager> shadersManager;
 
 		uint64_t frame;
 		double deltaTime;

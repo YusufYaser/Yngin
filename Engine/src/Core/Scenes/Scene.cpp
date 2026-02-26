@@ -1,5 +1,6 @@
 #include <Yngin/Core/Scenes.h>
 #include <Yngin/Core/Models.h>
+#include <Yngin/Renderer/Shaders.h>
 #include <Yngin/Renderer/Cameras.h>
 #include <glad/glad.h>
 #include <stdexcept>
@@ -45,13 +46,11 @@ namespace Yngin {
 		glm::mat4 proj = getCamerasManager()->getFinalProjection();
 		glm::mat4 view = getCamerasManager()->getFinalView();
 
-		GLuint shaderId = impl->ctx->getShaderId();
-		glUseProgram(shaderId);
-		GLuint projLoc = glGetUniformLocation(shaderId, "projection");
-		GLuint viewLoc = glGetUniformLocation(shaderId, "view");
+		Shader* worldShader = impl->ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
+		worldShader->activate();
 
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		worldShader->setMat4("projection", proj);
+		worldShader->setMat4("view", view);
 
 		impl->gameObjectsManager->getRootGameObject()->render();
 	}

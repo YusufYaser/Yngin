@@ -1,5 +1,6 @@
 #include <Yngin/Core/Models.h>
 #include <Yngin/Core/Scenes.h>
+#include <Yngin/Renderer/Shaders.h>
 #include <Yngin/Renderer/Textures.h>
 #include <Yngin/Core/Window.h>
 #include "../Window/Window_Internal.h"
@@ -9,45 +10,7 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <thread>
-
-// TODO: change this initial shader code
-const char* vertexShaderCode = R"(
-#version 460 core
-
-layout(location = 0) in vec3 inPos;
-layout(location = 1) in vec2 inTexCoord;
-layout(location = 2) in vec3 inNormal;
-
-uniform mat4 projection;
-uniform mat4 view;
-uniform mat4 model;
-uniform mat3 normalMatrix;
-
-out vec2 fTexCoord;
-out vec3 fNormal;
-
-void main() {
-	gl_Position = projection * view * model * vec4(inPos, 1.0);
-
-	fTexCoord = inTexCoord;
-	fNormal = normalize(normalMatrix * inNormal);
-}
-)";
-
-const char* fragmentShaderCode = R"(
-#version 460 core
-
-in vec2 fTexCoord;
-in vec3 fNormal;
-
-out vec4 FragColor;
-
-uniform sampler2D tex0;
-
-void main() {
-	FragColor = vec4(fNormal, 1.0);
-}
-)";
+#include "../../Renderer/Shaders/Shader_Sources.h"
 
 namespace Yngin {
 	std::vector<Context*> Context::contexts;
@@ -83,46 +46,18 @@ namespace Yngin {
 		m.modelsManager = std::unique_ptr<ModelsManager>(new ModelsManager(this));
 		m.scenesManager = std::unique_ptr<ScenesManager>(new ScenesManager(this));
 		m.texturesManager = std::unique_ptr<TexturesManager>(new TexturesManager(this));
+		m.shadersManager = std::unique_ptr<ShadersManager>(new ShadersManager(this));
 
 		m.texturesManager->createTexture(1, 1, 1, "\x00");
 
-		// load initial shader
-		// TODO: show error logs
-		bool shadersFailed = false;
-		GLuint vertexShader, fragmentShader;
-		{
-			vertexShader = glCreateShader(GL_VERTEX_SHADER);
-			glShaderSource(vertexShader, 1, &vertexShaderCode, 0);
-			glCompileShader(vertexShader);
-			GLint shaderCompiled = 0;
-			glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &shaderCompiled);
-			if (!shaderCompiled) {
-				shadersFailed = true;
-			}
-		}
-		{
-			fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-			glShaderSource(fragmentShader, 1, &fragmentShaderCode, 0);
-			glCompileShader(fragmentShader);
-			GLint shaderCompiled = 0;
-			glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &shaderCompiled);
-			if (!shaderCompiled) {
-				shadersFailed = true;
-			}
-		}
+		Shader* worldShader = m.shadersManager->getShader(SHADER_TYPE::WORLD);
+		bool shadersBuilt = worldShader->setSource(ShaderSources::world);
 
-		m.shader = glCreateProgram();
-		glAttachShader(m.shader, vertexShader);
-		glAttachShader(m.shader, fragmentShader);
-		glLinkProgram(m.shader);
-		glDeleteShader(vertexShader);
-		glDeleteShader(fragmentShader);
-
-		if (shadersFailed) {
+		if (!shadersBuilt) {
 			throw std::exception("Failed to initialize shaders");
 		}
 
-		glUseProgram(m.shader);
+		worldShader->activate();
 	}
 
 	Context::~Context() {
@@ -139,8 +74,6 @@ namespace Yngin {
 		m.texturesManager.reset();
 
 		contexts.erase(std::find(contexts.begin(), contexts.end(), this));
-		glUseProgram(0);
-		glDeleteProgram(m.shader);
 	}
 
 	void Yngin::Context::deleteAllContexts() {
@@ -234,7 +167,7 @@ namespace Yngin {
 		return impl->texturesManager.get();
 	}
 
-	uint32_t Context::getShaderId() {
-		return impl->shader;
+	ShadersManager* Context::getShadersManager() {
+		return impl->shadersManager.get();
 	}
 }

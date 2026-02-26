@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Yngin\Renderer\Shaders.h" />
     <ClInclude Include="include\Yngin\Renderer\Cameras.h" />
     <ClInclude Include="include\Yngin\Components\Component.h" />
     <ClInclude Include="include\Yngin\Components\Components.h" />
@@ -32,18 +33,22 @@
     <ClInclude Include="include\Yngin\Renderer\Textures.h" />
     <ClInclude Include="include\Yngin\Core\Window.h" />
     <ClInclude Include="include\Yngin\Yngin.h" />
+    <ClInclude Include="src\Renderer\Shaders\Shaders_Internal.h" />
     <ClInclude Include="src\Renderer\Cameras\Cameras_Internal.h" />
     <ClInclude Include="src\Components\Components_Internal.h" />
     <ClInclude Include="src\Core\Context\Context_Internal.h" />
     <ClInclude Include="src\Core\GameObject\GameObject_Internal.h" />
     <ClInclude Include="src\Core\Models\Models_Internal.h" />
     <ClInclude Include="src\Core\Scenes\Scenes_Internal.h" />
+    <ClInclude Include="src\Renderer\Shaders\Shader_Sources.h" />
     <ClInclude Include="src\Renderer\Textures\Textures_Internal.h" />
     <ClInclude Include="src\Core\Window\Window_Internal.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c" />
     <ClCompile Include="src\Core\Context\Init.cpp" />
+    <ClCompile Include="src\Renderer\Shaders\Shader.cpp" />
+    <ClCompile Include="src\Renderer\Shaders\ShadersManager.cpp" />
     <ClCompile Include="src\Renderer\Cameras\Camera.cpp" />
     <ClCompile Include="src\Renderer\Cameras\CamerasManager.cpp" />
     <ClCompile Include="src\Components\Components.cpp" />

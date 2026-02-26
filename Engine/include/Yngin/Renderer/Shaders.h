@@ -1,0 +1,55 @@
+#pragma once
+#include <memory>
+#include <glm/mat4x4.hpp>
+
+namespace Yngin {
+	class Shader;
+
+	enum class SHADER_TYPE : uint8_t {
+		WORLD = 0
+	};
+
+	struct ShaderSource {
+		const char* vertex;
+		const char* fragment;
+	};
+
+	class ShadersManager {
+	public:
+		Shader* getShader(SHADER_TYPE shaderType);
+
+		Shader* getActive();
+		void setActive(SHADER_TYPE shaderType);
+
+	private:
+		friend class Context;
+		friend struct std::default_delete<ShadersManager>;
+		friend class Shader;
+
+		ShadersManager(Context* ctx);
+		~ShadersManager();
+
+		struct Impl;
+		std::unique_ptr<Impl> impl;
+	};
+
+	class Shader {
+	public:
+		bool setSource(ShaderSource& src);
+		void activate();
+
+		void setMat3(const char* name, glm::mat3 v);
+		void setMat4(const char* name, glm::mat4 v);
+
+	private:
+		friend class ShadersManager;
+		friend struct std::default_delete<Shader>;
+
+		struct Impl;
+		std::unique_ptr<Impl> impl;
+
+		Shader(Context* ctx, SHADER_TYPE type);
+		~Shader();
+
+	};
+}

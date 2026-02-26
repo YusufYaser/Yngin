@@ -39,25 +39,25 @@ int main() {
 
 	Camera* defaultCamera = camerasManager->getCamera(0);
 
-	uint32_t newCameraId = camerasManager->createCamera();
-	Camera* newCamera = camerasManager->getCamera(newCameraId);
+	defaultCamera->setPos(glm::vec3(5.0f));
+	defaultCamera->lookAt(glm::vec3());
 
-	newCamera->setPos({ -4, 5, 5 });
-	newCamera->lookAt({ 0, 0, 0 });
-
-	ctx->getTexturesManager()->createTexture(2, 1, 2, "\xff\xff\x0f\xff");
+	uint32_t tex = ctx->getTexturesManager()->createTexture(2, 1, 2, "\xff\xff\x0f\xff");
 
 	GameObject* obj = scene->getGameObjectsManager()->getGameObject(objId);
-	obj->createComponent<Components::Mesh>();
+	Components::Mesh* mesh = obj->createComponent<Components::Mesh>();
 	obj->setRotation({ glm::radians(90.0f), 0, 0 });
+
+	mesh->setModel(model);
+	mesh->setTexture(tex);
 
 	ctx->setMaxFPS(120);
 
 	while (!ctx->isClosing()) {
 		ctx->makeCurrent();
 
-		defaultCamera->setPos(glm::vec3(sin(ctx->getTime()), cos(ctx->getTime()), 1) * 5.0f);
-		defaultCamera->lookAt(glm::vec3());
+		double time = ctx->getTime();
+		obj->setRotation(glm::vec3(time, time * 2, time * 3));
 
 		ctx->update();
 	}

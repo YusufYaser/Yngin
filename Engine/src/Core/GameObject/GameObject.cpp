@@ -87,15 +87,19 @@ namespace Yngin {
 	}
 
 	template<typename T>
-	void GameObject::createComponent() {
+	T* GameObject::createComponent() {
 		static_assert(std::is_base_of<Component, T>::value, "Type must be a component class");
+
+		assert(getComponent<T>() == nullptr);
 		if (getComponent<T>() != nullptr) {
-			return;
+			return nullptr;
 		}
 
 		auto component = std::unique_ptr<T>(new T(impl->ctx, this));
 
 		impl->components[std::type_index(typeid(T))] = std::move(component);
+
+		return getComponent<T>();
 	}
 
 	template<typename T>
@@ -104,7 +108,7 @@ namespace Yngin {
 		impl->components.erase(std::type_index(typeid(T)));
 	}
 
-	template void GameObject::createComponent<Components::Mesh>();
+	template Components::Mesh* GameObject::createComponent<Components::Mesh>();
 	template Components::Mesh* GameObject::getComponent<Components::Mesh>();
 
 	void GameObject::render() {

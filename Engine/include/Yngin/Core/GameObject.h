@@ -29,7 +29,7 @@ namespace Yngin {
 		T* getComponent();
 
 		template <typename T>
-		void createComponent();
+		T* createComponent();
 
 		template <typename T>
 		void deleteComponent();
