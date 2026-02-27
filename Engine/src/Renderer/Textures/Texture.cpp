@@ -56,38 +56,49 @@ namespace Yngin {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrap);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrap);
 
-		std::string finalData = "";
+		char* finalData = new char[w * h * 4 + 1];
+		int cIdx = 0;
 
 		// convert to RGBA
 		if (n == 1) {
 			for (int i = 0; i < w * h; i++) {
-				finalData += data[i * n];
-				finalData += data[i * n];
-				finalData += data[i * n];
-				finalData += '\xff';
+				finalData[cIdx++] = data[i * n];
+				finalData[cIdx++] = data[i * n];
+				finalData[cIdx++] = data[i * n];
+				finalData[cIdx++] = '\xff';
 			}
+			finalData[cIdx] += '\0';
 		} else if (n == 2) {
 			for (int i = 0; i < w * h; i++) {
-				finalData += data[i * n];
-				finalData += data[i * n];
-				finalData += data[i * n];
-				finalData += data[i * n + 1];
+				finalData[cIdx++] = data[i * n];
+				finalData[cIdx++] = data[i * n];
+				finalData[cIdx++] = data[i * n];
+				finalData[cIdx++] = data[i * n + 1];
 			}
+			finalData[cIdx] += '\0';
 		} else if (n == 3) {
 			for (int i = 0; i < w * h; i++) {
-				finalData += data[i * n];
-				finalData += data[i * n + 1];
-				finalData += data[i * n + 2];
-				finalData += '\xff';
+				finalData[cIdx++] = data[i * n];
+				finalData[cIdx++] = data[i * n + 1];
+				finalData[cIdx++] = data[i * n + 2];
+				finalData[cIdx++] = '\xff';
 			}
+			finalData[cIdx] += '\0';
 		} else if (n > 4) {
 			throw std::invalid_argument("Number of channels cannot be more than 4");
 		} else {
-			finalData = data;
+			delete[] finalData;
+			finalData = (char*)data;
 		}
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, finalData.c_str());
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, finalData);
 		glGenerateMipmap(GL_TEXTURE_2D);
+
+		if (n != 4) {
+			delete[] finalData;
+		} else {
+			finalData = nullptr;
+		}
 
 		if (active)	glBindTexture(GL_TEXTURE_2D, impl->texId);
 	}
