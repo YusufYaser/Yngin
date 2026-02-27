@@ -48,7 +48,12 @@ namespace Yngin {
 		m.texturesManager = std::unique_ptr<TexturesManager>(new TexturesManager(this));
 		m.shadersManager = std::unique_ptr<ShadersManager>(new ShadersManager(this));
 
-		m.texturesManager->createTexture(1, 1, 1, "\x00");
+		TextureData texData{};
+		texData.width = 1;
+		texData.height = 1;
+		texData.numCh = 1;
+		texData.data = "\x00";
+		m.texturesManager->createTexture(texData);
 
 		Shader* worldShader = m.shadersManager->getShader(SHADER_TYPE::WORLD);
 		bool shadersBuilt = worldShader->setSource(ShaderSources::world);

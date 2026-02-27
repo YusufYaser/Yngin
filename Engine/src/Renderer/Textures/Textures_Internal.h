@@ -15,6 +15,8 @@ namespace Yngin {
 	struct TexturesManager::Impl {
 		Context* ctx;
 
+		Texture* activeTexture;
+
 		std::map<uint32_t, std::unique_ptr<Texture>> textures;
 		uint32_t nextId = 0;
 	};

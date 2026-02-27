@@ -67,7 +67,6 @@ namespace Yngin {
 			worldShader->setMat3("normalMatrix", normalMatrix);
 			worldShader->setMat4("model", modelMat);
 
-			// for now we'll render a test model with a test texture
 			if (tex) tex->activate();
 			model->render();
 		}

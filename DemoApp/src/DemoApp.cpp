@@ -42,14 +42,21 @@ int main() {
 	defaultCamera->setPos(glm::vec3(5.0f));
 	defaultCamera->lookAt(glm::vec3());
 
-	uint32_t tex = ctx->getTexturesManager()->createTexture(2, 1, 2, "\xff\xff\x0f\xff");
+	TextureData texData{};
+	texData.width = 2;
+	texData.height = 1;
+	texData.numCh = 2;
+	texData.wrap = TEXTURE_WRAP::CLAMP;
+	texData.data = "\xff\xff\x0f\xff";
+	uint32_t texId = ctx->getTexturesManager()->createTexture(texData);
+	Texture* tex = ctx->getTexturesManager()->getTexture(texId);
 
 	GameObject* obj = scene->getGameObjectsManager()->getGameObject(objId);
 	Components::Mesh* mesh = obj->createComponent<Components::Mesh>();
 	obj->setRotation({ glm::radians(90.0f), 0, 0 });
 
 	mesh->setModel(model);
-	mesh->setTexture(tex);
+	mesh->setTexture(texId);
 
 	ctx->setMaxFPS(120);
 
