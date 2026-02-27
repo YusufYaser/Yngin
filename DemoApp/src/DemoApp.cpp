@@ -81,7 +81,7 @@ int main() {
 
 	ctx->setMaxFPS(120);
 
-	while (!ctx->isClosing()) {
+	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();
 
 		double time = ctx->getTime();

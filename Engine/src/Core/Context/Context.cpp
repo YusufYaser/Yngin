@@ -25,6 +25,7 @@ namespace Yngin {
 
 	Context::Context() {
 		if (!Yngin::isInitialized()) {
+			impl->status = CONTEXT_STATUS::FAILED_TO_INIT;
 			throw std::exception("Cannot create new context before initialization");
 		}
 		contexts.push_back(this);
@@ -63,6 +64,7 @@ namespace Yngin {
 		shadersBuilt = shadersBuilt && skyboxShader->setSource(ShaderSources::skybox);
 
 		if (!shadersBuilt) {
+			impl->status = CONTEXT_STATUS::FAILED_TO_INIT;
 			throw std::exception("Failed to initialize shaders");
 		}
 
@@ -70,6 +72,8 @@ namespace Yngin {
 
 		uint32_t skyboxModelId = m.modelsManager->createModel(DefaultModels::skybox);
 		impl->skyboxModel = m.modelsManager->getModel(skyboxModelId);
+
+		impl->status = CONTEXT_STATUS::RUNNING;
 	}
 
 	Context::~Context() {
@@ -78,6 +82,8 @@ namespace Yngin {
 
 	void Context::cleanup() {
 		auto& m = *impl;
+
+		m.status = CONTEXT_STATUS::CLEANING_UP;
 
 		makeCurrent();
 
@@ -98,16 +104,14 @@ namespace Yngin {
 		impl->window->impl->makeCurrent();
 	}
 
-	bool Context::isClosing() {
-		return impl->window->impl->shouldClose();
+	CONTEXT_STATUS Context::getStatus() {
+		return impl->status;
 	}
 
 	void Context::update() {
-		assert(!isClosing());
+		assert(getStatus() == CONTEXT_STATUS::RUNNING);
 
 		auto& m = *impl;
-
-		m.window->impl->update();
 
 		Scene* scene = m.scenesManager->getActive();
 		assert(scene);
@@ -118,6 +122,11 @@ namespace Yngin {
 		glfwSwapInterval(m.maxFPS == 0);
 
 		m.window->impl->swapBuffers();
+		m.window->impl->update();
+
+		if (getStatus() == CONTEXT_STATUS::RUNNING && m.window->impl->shouldClose()) {
+			m.status = CONTEXT_STATUS::NEEDS_TO_STOP;
+		}
 
 		m.frame++;
 

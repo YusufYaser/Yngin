@@ -18,6 +18,14 @@ namespace Yngin {
 	struct Vertex;
 	class Model;
 
+	enum class CONTEXT_STATUS : uint8_t {
+		RUNNING,
+		INITIALIZING,
+		FAILED_TO_INIT,
+		NEEDS_TO_STOP,
+		CLEANING_UP
+	};
+
 	class Context {
 	public:
 		Context();
@@ -28,7 +36,7 @@ namespace Yngin {
 		// if you're using multiple contexts
 		void makeCurrent();
 
-		bool isClosing();
+		CONTEXT_STATUS getStatus();
 		// this should be at the end of your loop
 		void update();
 
