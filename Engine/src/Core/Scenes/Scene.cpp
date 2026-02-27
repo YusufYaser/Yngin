@@ -2,6 +2,7 @@
 #include <Yngin/Core/Models.h>
 #include <Yngin/Renderer/Shaders.h>
 #include <Yngin/Renderer/Cameras.h>
+#include <Yngin/Renderer/Textures.h>
 #include <glad/glad.h>
 #include <stdexcept>
 #include "Scenes_Internal.h"
@@ -20,6 +21,8 @@ namespace Yngin {
 	void Scene::Impl::init() {
 		camerasManager = std::unique_ptr<CamerasManager>(new CamerasManager(ctx, owner));
 		gameObjectsManager = std::unique_ptr<GameObjectsManager>(new GameObjectsManager(ctx, owner));
+
+		skyboxTex = ctx->getTexturesManager()->getTexture(0);
 	}
 
 	uint32_t Scene::getId() {
@@ -38,6 +41,14 @@ namespace Yngin {
 		return impl->gameObjectsManager.get();
 	}
 
+	Texture* Scene::getSkyboxTexture() {
+		return impl->skyboxTex;
+	}
+
+	void Scene::setSkyboxTexture(Texture* tex) {
+		impl->skyboxTex = tex;
+	}
+
 	void Scene::render() {
 		impl->ctx->makeCurrent();
 
@@ -45,6 +56,19 @@ namespace Yngin {
 
 		glm::mat4 proj = getCamerasManager()->getFinalProjection();
 		glm::mat4 view = getCamerasManager()->getFinalView();
+
+		Model* skybox = impl->ctx->getSkyboxModel();
+		if (skybox) {
+			Shader* skyboxShader = impl->ctx->getShadersManager()->getShader(SHADER_TYPE::SKYBOX);
+			skyboxShader->activate();
+
+			skyboxShader->setMat4("projection", proj);
+			skyboxShader->setMat4("view", glm::mat4(glm::mat3(view)));
+
+			impl->skyboxTex->activate();
+			skybox->render();
+			glClear(GL_DEPTH_BUFFER_BIT);
+		}
 
 		Shader* worldShader = impl->ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
 		worldShader->activate();

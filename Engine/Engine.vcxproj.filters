@@ -84,7 +84,13 @@
     <ClInclude Include="src\Renderer\Shaders\Shaders_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\Shaders\Shader_Sources.h">
+    <ClInclude Include="src\Renderer\Shaders\Sources\World_Shader_Source.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Shaders\Sources\Skybox_Shader_Source.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Models\DefaultModels\Skybox_Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,6 +2,8 @@
 #include <fstream>
 #include <sstream>
 #include <Yngin/Yngin.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 using namespace Yngin;
 
@@ -39,8 +41,27 @@ int main() {
 
 	Camera* defaultCamera = camerasManager->getCamera(0);
 
-	defaultCamera->setPos(glm::vec3(5.0f));
+	defaultCamera->setPos({ 5, 5, 0 });
 	defaultCamera->lookAt(glm::vec3());
+
+	TexturesManager* texMgr = ctx->getTexturesManager();
+
+	// https://freestylized.com/skybox/sky_36/
+	uint32_t skyboxTexId = texMgr->createTexture();
+	Texture* skyboxTex = texMgr->getTexture(skyboxTexId);
+	TextureData skyboxData{};
+	unsigned char* bytes = stbi_load("skybox.png", &skyboxData.width, &skyboxData.height, &skyboxData.numCh, 0);
+	skyboxData.data = (const char*)bytes;
+	skyboxData.wrap = TEXTURE_WRAP::CLAMP;
+	skyboxData.filter = TEXTURE_FILTER::NEAREST;
+	if (skyboxData.data) {
+		skyboxTex->setData(skyboxData);
+		stbi_image_free(bytes);
+	} else {
+		printf("Failed to load skybox: %s\n", stbi_failure_reason());
+	}
+
+	scene->setSkyboxTexture(skyboxTex);
 
 	TextureData texData{};
 	texData.width = 2;
@@ -48,8 +69,8 @@ int main() {
 	texData.numCh = 2;
 	texData.wrap = TEXTURE_WRAP::CLAMP;
 	texData.data = "\xff\xff\x0f\xff";
-	uint32_t texId = ctx->getTexturesManager()->createTexture(texData);
-	Texture* tex = ctx->getTexturesManager()->getTexture(texId);
+	uint32_t texId = texMgr->createTexture(texData);
+	Texture* tex = texMgr->getTexture(texId);
 
 	GameObject* obj = scene->getGameObjectsManager()->getGameObject(objId);
 	Components::Mesh* mesh = obj->createComponent<Components::Mesh>();

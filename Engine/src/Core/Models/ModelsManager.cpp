@@ -16,14 +16,14 @@ namespace Yngin {
 
 	ModelsManager::~ModelsManager() = default;
 
-	uint32_t ModelsManager::createModel(std::vector<Vertex> vertices, std::vector<uint32_t> indices) {
+	uint32_t ModelsManager::createModel(const ModelData& data) {
 		Model* model = new Model(impl->ctx);
 
 		uint32_t modelId = impl->nextId++;
 		model->impl->id = modelId;
 		impl->models[modelId] = std::unique_ptr<Model>(model);
 
-		model->impl->init(vertices, indices);
+		model->impl->init(data.vertices, data.indices);
 
 		return modelId;
 	}
@@ -40,7 +40,7 @@ namespace Yngin {
 			throw std::invalid_argument("Invalid model type");
 		}
 
-		return createModel(vertices, indices);
+		return createModel({ vertices, indices });
 	}
 
 	void ModelsManager::deleteModel(uint32_t modelId) {

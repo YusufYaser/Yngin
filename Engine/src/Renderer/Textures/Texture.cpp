@@ -30,7 +30,7 @@ namespace Yngin {
 		glGenTextures(1, &impl->texId);
 		glBindTexture(GL_TEXTURE_2D, impl->texId);
 
-		GLint glFilter;
+		GLint glFilter = GL_LINEAR;
 		switch (texData.filter) {
 		case TEXTURE_FILTER::LINEAR:
 			glFilter = GL_LINEAR;
@@ -43,7 +43,7 @@ namespace Yngin {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glFilter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glFilter);
 
-		GLint glWrap;
+		GLint glWrap = GL_REPEAT;
 		switch (texData.wrap) {
 		case TEXTURE_WRAP::REPEAT:
 			glWrap = GL_REPEAT;

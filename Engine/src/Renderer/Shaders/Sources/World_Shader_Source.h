@@ -3,7 +3,7 @@
 
 namespace Yngin {
 	namespace ShaderSources {
-		ShaderSource world = {
+		const ShaderSource world = {
 			// vertex
 			R"(
 #version 460 core

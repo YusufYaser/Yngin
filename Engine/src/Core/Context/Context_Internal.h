@@ -14,5 +14,8 @@ namespace Yngin {
 		double deltaTime;
 		double lastFrameEnd;
 		int maxFPS;
+
+		// this will be removed later
+		Model* skyboxModel;
 	};
 }

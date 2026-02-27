@@ -6,7 +6,8 @@ namespace Yngin {
 	class Shader;
 
 	enum class SHADER_TYPE : uint8_t {
-		WORLD = 0
+		WORLD = 0,
+		SKYBOX
 	};
 
 	struct ShaderSource {
@@ -35,7 +36,7 @@ namespace Yngin {
 
 	class Shader {
 	public:
-		bool setSource(ShaderSource& src);
+		bool setSource(const ShaderSource& src);
 		void activate();
 
 		void setMat3(const char* name, glm::mat3 v);

@@ -7,6 +7,7 @@ namespace Yngin {
 	class GameObject;
 	class Scene;
 	class Context;
+	class Texture;
 
 	class ScenesManager {
 	public:
@@ -38,6 +39,9 @@ namespace Yngin {
 
 		CamerasManager* getCamerasManager();
 		GameObjectsManager* getGameObjectsManager();
+
+		Texture* getSkyboxTexture();
+		void setSkyboxTexture(Texture* tex);
 
 		void render();
 

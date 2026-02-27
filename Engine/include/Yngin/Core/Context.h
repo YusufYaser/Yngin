@@ -16,6 +16,7 @@ namespace Yngin {
 	class TexturesManager;
 	class ShadersManager;
 	struct Vertex;
+	class Model;
 
 	class Context {
 	public:
@@ -47,6 +48,9 @@ namespace Yngin {
 		ScenesManager* getScenesManager();
 		TexturesManager* getTexturesManager();
 		ShadersManager* getShadersManager();
+
+		// this will be removed later
+		Model* getSkyboxModel();
 
 	private:
 		static std::vector<Context*> contexts;

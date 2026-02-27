@@ -10,7 +10,9 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <thread>
-#include "../../Renderer/Shaders/Shader_Sources.h"
+#include "../../Renderer/Shaders/Sources/World_Shader_Source.h"
+#include "../../Renderer/Shaders/Sources/Skybox_Shader_Source.h"
+#include "../Models/DefaultModels/Skybox_Model.h"
 
 namespace Yngin {
 	std::vector<Context*> Context::contexts;
@@ -56,13 +58,18 @@ namespace Yngin {
 		m.texturesManager->createTexture(texData);
 
 		Shader* worldShader = m.shadersManager->getShader(SHADER_TYPE::WORLD);
+		Shader* skyboxShader = m.shadersManager->getShader(SHADER_TYPE::SKYBOX);
 		bool shadersBuilt = worldShader->setSource(ShaderSources::world);
+		shadersBuilt = shadersBuilt && skyboxShader->setSource(ShaderSources::skybox);
 
 		if (!shadersBuilt) {
 			throw std::exception("Failed to initialize shaders");
 		}
 
 		worldShader->activate();
+
+		uint32_t skyboxModelId = m.modelsManager->createModel(DefaultModels::skybox);
+		impl->skyboxModel = m.modelsManager->getModel(skyboxModelId);
 	}
 
 	Context::~Context() {
@@ -174,5 +181,9 @@ namespace Yngin {
 
 	ShadersManager* Context::getShadersManager() {
 		return impl->shadersManager.get();
+	}
+
+	Model* Context::getSkyboxModel() {
+		return impl->skyboxModel;
 	}
 }

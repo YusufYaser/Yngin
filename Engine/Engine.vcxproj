@@ -33,6 +33,7 @@
     <ClInclude Include="include\Yngin\Renderer\Textures.h" />
     <ClInclude Include="include\Yngin\Core\Window.h" />
     <ClInclude Include="include\Yngin\Yngin.h" />
+    <ClInclude Include="src\Core\Models\DefaultModels\Skybox_Model.h" />
     <ClInclude Include="src\Renderer\Shaders\Shaders_Internal.h" />
     <ClInclude Include="src\Renderer\Cameras\Cameras_Internal.h" />
     <ClInclude Include="src\Components\Components_Internal.h" />
@@ -40,7 +41,8 @@
     <ClInclude Include="src\Core\GameObject\GameObject_Internal.h" />
     <ClInclude Include="src\Core\Models\Models_Internal.h" />
     <ClInclude Include="src\Core\Scenes\Scenes_Internal.h" />
-    <ClInclude Include="src\Renderer\Shaders\Shader_Sources.h" />
+    <ClInclude Include="src\Renderer\Shaders\Sources\Skybox_Shader_Source.h" />
+    <ClInclude Include="src\Renderer\Shaders\Sources\World_Shader_Source.h" />
     <ClInclude Include="src\Renderer\Textures\Textures_Internal.h" />
     <ClInclude Include="src\Core\Window\Window_Internal.h" />
   </ItemGroup>
