@@ -10,19 +10,19 @@ void fb_resize_callback(GLFWwindow* window, int width, int height) {
 }
 
 namespace Yngin {
-	Window::Window(Context* ctx) {
+	Window::Window(Context* ctx, const WindowSettings& settings) {
 		impl = std::make_unique<Impl>();
 		impl->ctx = ctx;
 		impl->owner = this;
 
 		auto& m = *impl;
 
-		m.glfwWindow = glfwCreateWindow(800, 600, "Yngin Instance", nullptr, nullptr);
+		m.glfwWindow = glfwCreateWindow(settings.width, settings.height, settings.title, nullptr, nullptr);
 		impl->makeCurrent();
 		glfwSetFramebufferSizeCallback(m.glfwWindow, fb_resize_callback);
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-		fb_resize_callback(m.glfwWindow, 800, 600);
+		fb_resize_callback(m.glfwWindow, settings.width, settings.height);
 	}
 
 	Window::~Window() {

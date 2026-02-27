@@ -17,13 +17,13 @@
 namespace Yngin {
 	std::vector<Context*> Context::contexts;
 
-	Context* createContext() {
+	Context* createContext(const ContextSettings& settings) {
 		Context* ctx = nullptr;
-		if (Yngin::isInitialized()) ctx = new Context();
+		if (Yngin::isInitialized()) ctx = new Context(settings);
 		return ctx;
 	}
 
-	Context::Context() {
+	Context::Context(const ContextSettings& settings) {
 		if (!Yngin::isInitialized()) {
 			impl->status = CONTEXT_STATUS::FAILED_TO_INIT;
 			throw std::exception("Cannot create new context before initialization");
@@ -34,11 +34,7 @@ namespace Yngin {
 
 		auto& m = *impl;
 
-		m.deltaTime = 1;
-		m.lastFrameEnd = 0;
-		m.maxFPS = -1;
-
-		m.window = std::unique_ptr<Window>(new Window(this));
+		m.window = std::unique_ptr<Window>(new Window(this, settings.windowSettings));
 
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);

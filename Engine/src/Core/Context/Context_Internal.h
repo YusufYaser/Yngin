@@ -12,12 +12,12 @@ namespace Yngin {
 		std::unique_ptr<TexturesManager> texturesManager;
 		std::unique_ptr<ShadersManager> shadersManager;
 
-		uint64_t frame;
-		double deltaTime;
-		double lastFrameEnd;
-		int maxFPS;
+		uint64_t frame = 0;
+		double deltaTime = 1;
+		double lastFrameEnd = 0;
+		int maxFPS = -1;
 
 		// this will be removed later
-		Model* skyboxModel;
+		Model* skyboxModel = nullptr;
 	};
 }

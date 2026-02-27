@@ -4,6 +4,12 @@
 namespace Yngin {
 	class Context;
 
+	struct WindowSettings {
+		int width = 800;
+		int height = 600;
+		const char* title = "Yngin Context";
+	};
+
 	class Window {
 	public:
 		void setTitle(const char* title);
@@ -15,7 +21,7 @@ namespace Yngin {
 		friend class Context;
 		friend struct std::default_delete<Window>;
 
-		Window(Context* ctx);
+		Window(Context* ctx, const WindowSettings& settings = {});
 		~Window();
 
 		struct Impl;

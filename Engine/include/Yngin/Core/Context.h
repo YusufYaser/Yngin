@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdint.h>
 #include <glm/vec2.hpp>
+#include <Yngin/Core/Window.h>
 
 namespace Yngin {
 	bool init();
@@ -26,9 +27,13 @@ namespace Yngin {
 		CLEANING_UP
 	};
 
+	struct ContextSettings {
+		WindowSettings windowSettings{};
+	};
+
 	class Context {
 	public:
-		Context();
+		Context(const ContextSettings& settings = {});
 		~Context();
 		static void deleteAllContexts();
 
@@ -68,5 +73,5 @@ namespace Yngin {
 		std::unique_ptr<Impl> impl;
 	};
 
-	Context* createContext();
+	Context* createContext(const ContextSettings& settings = {});
 }

@@ -10,7 +10,12 @@ using namespace Yngin;
 int main() {
 	Yngin::init();
 
-	Context* ctx = createContext();
+	ContextSettings settings = {};
+	settings.windowSettings = {
+		.title = "Yngin Demo App"
+	};
+
+	Context* ctx = createContext(settings);
 
 	printf("Context: %p\n", ctx);
 
