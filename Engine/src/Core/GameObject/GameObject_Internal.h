@@ -24,7 +24,7 @@ namespace Yngin {
 		Context* ctx;
 		Scene* scene;
 
-		uint32_t nextId = 0;
+		uint32_t nextId = 1;
 
 		std::unique_ptr<GameObject> rootGameObject;
 		std::map<uint32_t, GameObject*> gameObjects;

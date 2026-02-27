@@ -5,7 +5,7 @@
 #include "GameObject_Internal.h"
 #include <type_traits>
 #include <assert.h>
-
+#include <Yngin/Core/Scenes.h>
 
 namespace Yngin {
 	using namespace Components;
@@ -44,15 +44,18 @@ namespace Yngin {
 	uint32_t GameObject::createChild() {
 		auto gameObject = std::unique_ptr<GameObject>(new GameObject(impl->ctx, impl->scene, this));
 
-		uint32_t id = gameObject->getId();
+		uint32_t id = impl->scene->getGameObjectsManager()->acquireId();
+		gameObject->impl->id = id;
 
 		impl->childs[id] = std::move(gameObject);
+		impl->scene->getGameObjectsManager()->impl->gameObjects[id] = impl->childs[id].get();
 
 		return id;
 	}
 
 	void GameObject::deleteChild(uint32_t childId) {
 		impl->childs.erase(childId);
+		impl->scene->getGameObjectsManager()->impl->gameObjects.erase(childId);
 	}
 
 	void GameObject::moveChild(uint32_t childId, GameObject* newParent) {
