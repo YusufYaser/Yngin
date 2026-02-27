@@ -20,7 +20,7 @@ int main() {
 
 	scenesManager->setActive(sceneId);
 
-	std::ifstream modelFile("test_model.obj");
+	std::ifstream modelFile("test_model");
 
 	if (!modelFile.is_open()) {
 		printf("Test model not found\n");
