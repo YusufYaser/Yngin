@@ -20,6 +20,7 @@ namespace Yngin {
 	private:
 		friend class Context;
 		friend struct std::default_delete<Window>;
+		friend class InputSystem;
 
 		Window(Context* ctx, const WindowSettings& settings = {});
 		~Window();

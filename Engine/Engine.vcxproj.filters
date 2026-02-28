@@ -93,6 +93,12 @@
     <ClInclude Include="src\Core\Models\DefaultModels\Skybox_Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Yngin\Core\InputSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\InputSystem\InputSystem_Internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c">
@@ -150,6 +156,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Renderer\Shaders\ShadersManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\InputSystem\InputSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

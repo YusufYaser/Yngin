@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <Yngin/Yngin.h>
+#include <glm/glm.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -19,8 +20,13 @@ int main() {
 
 	printf("Context: %p\n", ctx);
 
+	ModelsManager* modelsMgr = ctx->getModelsManager();
 	ScenesManager* scenesManager = ctx->getScenesManager();
 	Scene* scene = scenesManager->createScene();
+	GameObjectsManager* gameObjMgr = scene->getGameObjectsManager();
+
+	Window* window = ctx->getWindow();
+	InputSystem* input = ctx->getInputSystem();
 
 	scenesManager->setActive(scene->getId());
 
@@ -37,7 +43,7 @@ int main() {
 
 	modelFile.close();
 
-	Model* model = ctx->getModelsManager()->createModel(MODEL_FILE_TYPE::OBJ, modelFileData.str().c_str(), modelFileData.str().length());
+	Model* model = modelsMgr->createModel(MODEL_FILE_TYPE::OBJ, modelFileData.str().c_str(), modelFileData.str().length());
 
 	CamerasManager* camerasManager = scene->getCamerasManager();
 
@@ -73,20 +79,49 @@ int main() {
 	texData.data = "\xff\x00\x00\xff";
 	Texture* tex = texMgr->createTexture(texData);
 
-	GameObject* obj = scene->getGameObjectsManager()->getRootGameObject()->createChild();
+	TextureData whiteTexData = {
+		.width = 1,
+		.height = 1,
+		.numCh = 1,
+		.data = "\xaa"
+	};
+	Texture* whiteTex = texMgr->createTexture(whiteTexData);
+
+	GameObject* obj = gameObjMgr->getRootGameObject()->createChild();
 	Components::Mesh* mesh = obj->createComponent<Components::Mesh>();
 	obj->setRotation({ glm::radians(90.0f), 0, 0 });
 
 	mesh->setModel(model->getId());
 	mesh->setTexture(tex->getId());
 
+	std::vector<Vertex> wallVertices;
+	std::vector<uint32_t> wallIndices = { 0, 1, 2, 0, 2, 3 };
+
+	wallVertices.push_back({ glm::vec3(0.5f, -0.5f, 0), glm::vec2(0, 0), glm::vec3(0, 0, 1) });
+	wallVertices.push_back({ glm::vec3(-0.5f, -0.5f, 0), glm::vec2(0, 0), glm::vec3(0, 0, 1) });
+	wallVertices.push_back({ glm::vec3(-0.5f,  0.5f, 0), glm::vec2(0, 0), glm::vec3(0, 0, 1) });
+	wallVertices.push_back({ glm::vec3(0.5f,  0.5f, 0), glm::vec2(0, 0), glm::vec3(0, 0, 1) });
+
+	ModelData wallModelData = { wallVertices, wallIndices };
+	Model* wallModel = modelsMgr->createModel(wallModelData);
+
+	GameObject* wall = gameObjMgr->getRootGameObject()->createChild();
+	Components::Mesh* wallMesh = wall->createComponent<Components::Mesh>();
+	wallMesh->setModel(wallModel->getId());
+	wallMesh->setTexture(whiteTex->getId());
+	wallMesh->setScale(glm::vec3(1, 1, 0) * 100.0f);
+	wall->setPos({ 0, 0, -1.0f });
+
 	ctx->setMaxFPS(120);
 
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();
 
+		window->setCursorLocked(input->isMousePressed(MOUSE_BUTTON::RIGHT));
+
 		double time = ctx->getTime();
-		obj->setRotation(glm::vec3(time, time * 2, time * 3));
+		obj->setRotation(glm::vec3(3.14f / 2, time * 0.25f, 0));
+		obj->setPos(glm::vec3(0, 0, sin(time * 1.5f) * 0.25f) / 2.0f + 0.5f);
 
 		ctx->update();
 	}

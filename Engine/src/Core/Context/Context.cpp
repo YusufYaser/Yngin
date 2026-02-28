@@ -1,5 +1,6 @@
 #include <Yngin/Core/Models.h>
 #include <Yngin/Core/Scenes.h>
+#include <Yngin/Core/InputSystem.h>
 #include <Yngin/Renderer/Shaders.h>
 #include <Yngin/Renderer/Textures.h>
 #include <Yngin/Core/Window.h>
@@ -46,6 +47,8 @@ namespace Yngin {
 		m.scenesManager = std::unique_ptr<ScenesManager>(new ScenesManager(this));
 		m.texturesManager = std::unique_ptr<TexturesManager>(new TexturesManager(this));
 		m.shadersManager = std::unique_ptr<ShadersManager>(new ShadersManager(this));
+
+		m.inputSystem = std::unique_ptr<InputSystem>(new InputSystem(this));
 
 		TextureData texData{};
 		texData.width = 1;
@@ -186,6 +189,10 @@ namespace Yngin {
 
 	ShadersManager* Context::getShadersManager() {
 		return impl->shadersManager.get();
+	}
+
+	InputSystem* Context::getInputSystem() {
+		return impl->inputSystem.get();
 	}
 
 	Model* Context::getSkyboxModel() {

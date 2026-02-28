@@ -18,6 +18,7 @@ namespace Yngin {
 	class ShadersManager;
 	struct Vertex;
 	class Model;
+	class InputSystem;
 
 	enum class CONTEXT_STATUS : uint8_t {
 		RUNNING,
@@ -61,6 +62,8 @@ namespace Yngin {
 		ScenesManager* getScenesManager();
 		TexturesManager* getTexturesManager();
 		ShadersManager* getShadersManager();
+
+		InputSystem* getInputSystem();
 
 		// this will be removed later
 		Model* getSkyboxModel();
