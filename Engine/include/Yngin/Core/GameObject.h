@@ -14,7 +14,7 @@ namespace Yngin {
 		void setParent(GameObject* newParent);
 
 		GameObject* getChild(uint32_t childId);
-		uint32_t createChild();
+		GameObject* createChild();
 		void deleteChild(uint32_t childId);
 
 		void moveChild(uint32_t childId, GameObject* newParent);

@@ -26,6 +26,8 @@ namespace Yngin {
 
 	class Texture {
 	public:
+		uint32_t getId();
+
 		void activate();
 
 		void setData(TextureData& data);
@@ -43,8 +45,8 @@ namespace Yngin {
 
 	class TexturesManager {
 	public:
-		uint32_t createTexture();
-		uint32_t createTexture(TextureData& data);
+		Texture* createTexture();
+		Texture* createTexture(TextureData& data);
 		void deleteTexture(uint32_t textureId);
 
 		Texture* getTexture(uint32_t textureId);

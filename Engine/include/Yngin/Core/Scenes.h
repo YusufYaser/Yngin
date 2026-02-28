@@ -13,7 +13,7 @@ namespace Yngin {
 	public:
 		Scene* getScene(uint32_t sceneId);
 
-		uint32_t createScene();
+		Scene* createScene();
 		void deleteScene(uint32_t sceneId);
 
 		Scene* getActive();

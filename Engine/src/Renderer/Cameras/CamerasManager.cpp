@@ -15,19 +15,20 @@ namespace Yngin {
 		impl->ctx = ctx;
 		impl->scene = scene;
 
-		uint32_t defaultCamera = createCamera();
-		getCamera(defaultCamera)->setWeight(1.0f);
+		Camera* defaultCamera = createCamera();
+		defaultCamera->setWeight(1.0f);
 	}
 
 	CamerasManager::~CamerasManager() {
 	}
 
-	uint32_t CamerasManager::createCamera() {
+	Camera* CamerasManager::createCamera() {
 		auto camera = std::unique_ptr<Camera>(new Camera(impl->ctx, impl->scene));
 
 		uint32_t cameraId = impl->nextCameraId++;
+		camera->impl->id = cameraId;
 		impl->cameras[cameraId] = std::move(camera);
-		return cameraId;
+		return impl->cameras[cameraId].get();
 	}
 
 	void CamerasManager::deleteCamera(uint32_t cameraId) {

@@ -16,7 +16,7 @@ namespace Yngin {
 
 	ModelsManager::~ModelsManager() = default;
 
-	uint32_t ModelsManager::createModel(const ModelData& data) {
+	Model* ModelsManager::createModel(const ModelData& data) {
 		Model* model = new Model(impl->ctx);
 
 		uint32_t modelId = impl->nextId++;
@@ -25,10 +25,10 @@ namespace Yngin {
 
 		model->impl->init(data.vertices, data.indices);
 
-		return modelId;
+		return model;
 	}
 
-	uint32_t ModelsManager::createModel(MODEL_FILE_TYPE type, const char* data, size_t length) {
+	Model* ModelsManager::createModel(MODEL_FILE_TYPE type, const char* data, size_t length) {
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
 

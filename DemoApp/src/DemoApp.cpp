@@ -20,10 +20,9 @@ int main() {
 	printf("Context: %p\n", ctx);
 
 	ScenesManager* scenesManager = ctx->getScenesManager();
-	uint32_t sceneId = scenesManager->createScene();
-	Scene* scene = scenesManager->getScene(sceneId);
+	Scene* scene = scenesManager->createScene();
 
-	scenesManager->setActive(sceneId);
+	scenesManager->setActive(scene->getId());
 
 	std::ifstream modelFile("test_model");
 
@@ -38,9 +37,7 @@ int main() {
 
 	modelFile.close();
 
-	uint32_t model = ctx->getModelsManager()->createModel(MODEL_FILE_TYPE::OBJ, modelFileData.str().c_str(), modelFileData.str().length());
-
-	uint32_t objId = scene->getGameObjectsManager()->getRootGameObject()->createChild();
+	Model* model = ctx->getModelsManager()->createModel(MODEL_FILE_TYPE::OBJ, modelFileData.str().c_str(), modelFileData.str().length());
 
 	CamerasManager* camerasManager = scene->getCamerasManager();
 
@@ -52,8 +49,7 @@ int main() {
 	TexturesManager* texMgr = ctx->getTexturesManager();
 
 	// https://freestylized.com/skybox/sky_36/
-	uint32_t skyboxTexId = texMgr->createTexture();
-	Texture* skyboxTex = texMgr->getTexture(skyboxTexId);
+	Texture* skyboxTex = texMgr->createTexture();
 	TextureData skyboxData{};
 	unsigned char* bytes = stbi_load("skybox.png", &skyboxData.width, &skyboxData.height, &skyboxData.numCh, 0);
 	skyboxData.data = (const char*)bytes;
@@ -70,19 +66,19 @@ int main() {
 
 	TextureData texData{};
 	texData.width = 2;
-	texData.height = 1;
-	texData.numCh = 2;
+	texData.height = 2;
+	texData.numCh = 1;
 	texData.wrap = TEXTURE_WRAP::CLAMP;
-	texData.data = "\xff\xff\x0f\xff";
-	uint32_t texId = texMgr->createTexture(texData);
-	Texture* tex = texMgr->getTexture(texId);
+	texData.filter = TEXTURE_FILTER::NEAREST;
+	texData.data = "\xff\x00\x00\xff";
+	Texture* tex = texMgr->createTexture(texData);
 
-	GameObject* obj = scene->getGameObjectsManager()->getGameObject(objId);
+	GameObject* obj = scene->getGameObjectsManager()->getRootGameObject()->createChild();
 	Components::Mesh* mesh = obj->createComponent<Components::Mesh>();
 	obj->setRotation({ glm::radians(90.0f), 0, 0 });
 
-	mesh->setModel(model);
-	mesh->setTexture(texId);
+	mesh->setModel(model->getId());
+	mesh->setTexture(tex->getId());
 
 	ctx->setMaxFPS(120);
 

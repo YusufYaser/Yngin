@@ -23,8 +23,8 @@ namespace Yngin {
 
 	class ModelsManager {
 	public:
-		uint32_t createModel(const ModelData& data);
-		uint32_t createModel(MODEL_FILE_TYPE type, const char* data, size_t length);
+		Model* createModel(const ModelData& data);
+		Model* createModel(MODEL_FILE_TYPE type, const char* data, size_t length);
 		void deleteModel(uint32_t modelId);
 
 		Model* getModel(uint32_t modelId);
@@ -42,6 +42,8 @@ namespace Yngin {
 
 	class Model {
 	public:
+		uint32_t getId();
+
 		void render();
 
 	private:

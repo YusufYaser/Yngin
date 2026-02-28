@@ -66,8 +66,8 @@ namespace Yngin {
 
 		worldShader->activate();
 
-		uint32_t skyboxModelId = m.modelsManager->createModel(DefaultModels::skybox);
-		impl->skyboxModel = m.modelsManager->getModel(skyboxModelId);
+		Model* skyboxModel = m.modelsManager->createModel(DefaultModels::skybox);
+		impl->skyboxModel = skyboxModel;
 
 		impl->status = CONTEXT_STATUS::RUNNING;
 	}

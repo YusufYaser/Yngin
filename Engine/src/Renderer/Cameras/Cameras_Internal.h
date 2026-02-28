@@ -7,6 +7,8 @@ namespace Yngin {
 		Context* ctx;
 		Scene* scene;
 
+		uint32_t id;
+
 		float fov = 70.0f;
 		glm::vec3 pos = { 0, 0, 0 };
 		glm::vec3 orientation = { 1, 0, 0 };

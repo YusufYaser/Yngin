@@ -41,16 +41,17 @@ namespace Yngin {
 		return it->second.get();
 	}
 
-	uint32_t GameObject::createChild() {
+	GameObject* GameObject::createChild() {
 		auto gameObject = std::unique_ptr<GameObject>(new GameObject(impl->ctx, impl->scene, this));
 
 		uint32_t id = impl->scene->getGameObjectsManager()->acquireId();
 		gameObject->impl->id = id;
 
 		impl->childs[id] = std::move(gameObject);
-		impl->scene->getGameObjectsManager()->impl->gameObjects[id] = impl->childs[id].get();
+		GameObject* obj = impl->childs[id].get();
+		impl->scene->getGameObjectsManager()->impl->gameObjects[id] = obj;
 
-		return id;
+		return obj;
 	}
 
 	void GameObject::deleteChild(uint32_t childId) {

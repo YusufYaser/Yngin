@@ -13,6 +13,10 @@ namespace Yngin {
 		glDeleteTextures(1, &impl->texId);
 	}
 
+	uint32_t Texture::getId() {
+		return impl->id;
+	}
+
 	void Texture::activate() {
 		glBindTexture(GL_TEXTURE_2D, impl->texId);
 	}

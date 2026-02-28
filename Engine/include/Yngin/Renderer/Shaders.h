@@ -36,6 +36,8 @@ namespace Yngin {
 
 	class Shader {
 	public:
+		SHADER_TYPE getType();
+
 		bool setSource(const ShaderSource& src);
 		void activate();
 

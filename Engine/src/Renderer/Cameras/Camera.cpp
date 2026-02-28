@@ -10,6 +10,10 @@ namespace Yngin {
 
 	Camera::~Camera() = default;
 
+	uint32_t Camera::getId() {
+		return impl->id;
+	}
+
 	glm::vec3 Camera::getPos() const {
 		return impl->pos;
 	}

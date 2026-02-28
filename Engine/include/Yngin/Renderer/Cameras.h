@@ -9,6 +9,8 @@ namespace Yngin {
 
 	class Camera {
 	public:
+		uint32_t getId();
+
 		glm::vec3 getPos() const;
 		glm::vec3 getOrientation() const;
 		float getFov() const;
@@ -38,7 +40,7 @@ namespace Yngin {
 
 	class CamerasManager {
 	public:
-		uint32_t createCamera();
+		Camera* createCamera();
 		void deleteCamera(uint32_t cameraId);
 
 		Camera* getCamera(uint32_t cameraId);

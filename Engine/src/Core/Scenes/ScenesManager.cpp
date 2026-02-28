@@ -24,7 +24,7 @@ namespace Yngin {
 		return it->second.get();
 	}
 
-	uint32_t ScenesManager::createScene() {
+	Scene* ScenesManager::createScene() {
 		Scene* scene = new Scene(impl->ctx);
 
 		uint32_t sceneId = impl->nextId++;
@@ -33,7 +33,7 @@ namespace Yngin {
 
 		scene->impl->init();
 
-		return sceneId;
+		return scene;
 	}
 
 	void ScenesManager::deleteScene(uint32_t sceneId) {

@@ -49,6 +49,10 @@ namespace Yngin {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
+	uint32_t Model::getId() {
+		return impl->id;
+	}
+
 	void Model::render() {
 		impl->ctx->makeCurrent();
 

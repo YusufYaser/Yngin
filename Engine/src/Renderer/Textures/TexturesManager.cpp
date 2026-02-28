@@ -18,17 +18,19 @@ namespace Yngin {
 
 	TexturesManager::~TexturesManager() = default;
 
-	uint32_t TexturesManager::createTexture() {
+	Texture* TexturesManager::createTexture() {
 		auto texture = std::unique_ptr<Texture>(new Texture(impl->ctx));
 
 		uint32_t textureId = impl->nextId++;
+		texture->impl->id = textureId;
 		impl->textures[textureId] = std::move(texture);
-		return textureId;
+
+		return impl->textures[textureId].get();
 	}
 
-	uint32_t TexturesManager::createTexture(TextureData& data) {
-		uint32_t tex = createTexture();
-		getTexture(tex)->setData(data);
+	Texture* TexturesManager::createTexture(TextureData& data) {
+		Texture* tex = createTexture();
+		tex->setData(data);
 		return tex;
 	}
 
