@@ -11,7 +11,7 @@
 
 namespace Yngin {
 	namespace Components {
-		Mesh::Mesh(Context* ctx, GameObject* gameObject) : Component(ctx, gameObject) {
+		Mesh::Mesh(GameObject* gameObject) : Component(gameObject) {
 			impl = std::make_unique<Impl>();
 		}
 

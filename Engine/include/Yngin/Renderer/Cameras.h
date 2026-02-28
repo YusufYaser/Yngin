@@ -61,7 +61,7 @@ namespace Yngin {
 		friend class Scene;
 		friend struct std::default_delete<CamerasManager>;
 
-		CamerasManager(Context* ctx, Scene* scene);
+		CamerasManager(Scene* scene);
 		~CamerasManager();
 
 		struct Impl;

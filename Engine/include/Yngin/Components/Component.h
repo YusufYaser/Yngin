@@ -8,7 +8,7 @@ namespace Yngin {
 	namespace Components {
 		class Component {
 		public:
-			Component(Context* ctx, GameObject* gameObject);
+			Component(GameObject* gameObject);
 			~Component();
 
 		private:

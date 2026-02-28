@@ -19,7 +19,7 @@ namespace Yngin {
 	Scene::~Scene() = default;
 
 	void Scene::Impl::init() {
-		camerasManager = std::unique_ptr<CamerasManager>(new CamerasManager(ctx, owner));
+		camerasManager = std::unique_ptr<CamerasManager>(new CamerasManager(owner));
 		gameObjectsManager = std::unique_ptr<GameObjectsManager>(new GameObjectsManager(ctx, owner));
 
 		skyboxTex = ctx->getTexturesManager()->getTexture(0);

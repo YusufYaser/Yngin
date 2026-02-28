@@ -20,7 +20,7 @@ namespace Yngin {
 			glm::vec3 getScale();
 
 		private:
-			Mesh(Context* ctx, GameObject* gameObject);
+			Mesh(GameObject* gameObject);
 			~Mesh();
 
 			friend class GameObject;

@@ -24,6 +24,10 @@ namespace Yngin {
 		return impl->id;
 	}
 
+	Context* GameObject::getContext() {
+		return impl->ctx;
+	}
+
 	GameObject* GameObject::getParent() {
 		return impl->parent;
 	}
@@ -60,6 +64,10 @@ namespace Yngin {
 	}
 
 	void GameObject::moveChild(uint32_t childId, GameObject* newParent) {
+		assert(newParent->getContext() == impl->ctx);
+
+		if (newParent->getContext() != impl->ctx) return;
+
 		newParent->impl->childs[childId] = std::move(impl->childs[childId]);
 		impl->childs.erase(childId);
 	}
@@ -99,7 +107,7 @@ namespace Yngin {
 			return nullptr;
 		}
 
-		auto component = std::unique_ptr<T>(new T(impl->ctx, this));
+		auto component = std::unique_ptr<T>(new T(this));
 
 		impl->components[std::type_index(typeid(T))] = std::move(component);
 

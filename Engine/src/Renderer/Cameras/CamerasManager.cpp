@@ -5,14 +5,14 @@
 #include <stdexcept>
 
 namespace Yngin {
-	CamerasManager::CamerasManager(Context* ctx, Scene* scene) {
+	CamerasManager::CamerasManager(Scene* scene) {
 		if (scene->getCamerasManager()) {
 			throw std::invalid_argument("Scene already has a cameras manager!");
 		}
 
 		impl = std::make_unique<Impl>();
 
-		impl->ctx = ctx;
+		impl->ctx = scene->getContext();
 		impl->scene = scene;
 
 		Camera* defaultCamera = createCamera();

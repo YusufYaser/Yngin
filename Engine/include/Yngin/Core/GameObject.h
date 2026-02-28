@@ -9,6 +9,7 @@ namespace Yngin {
 	class GameObject {
 	public:
 		uint32_t getId();
+		Context* getContext();
 
 		GameObject* getParent();
 		void setParent(GameObject* newParent);
