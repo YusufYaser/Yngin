@@ -120,6 +120,7 @@ namespace Yngin {
 		impl->components.erase(std::type_index(typeid(T)));
 	}
 
+	template void GameObject::deleteComponent<Components::Mesh>();
 	template Components::Mesh* GameObject::createComponent<Components::Mesh>();
 	template Components::Mesh* GameObject::getComponent<Components::Mesh>();
 
