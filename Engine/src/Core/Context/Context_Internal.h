@@ -1,5 +1,7 @@
 #pragma once
 #include <Yngin/Core/Context.h>
+#include <Yngin/Services/Services.h>
+#include <typeindex>
 
 namespace Yngin {
 	struct Context::Impl {
@@ -21,5 +23,7 @@ namespace Yngin {
 
 		// this will be removed later
 		Model* skyboxModel = nullptr;
+
+		std::map<std::type_index, std::unique_ptr<Services::Service>> services;
 	};
 }

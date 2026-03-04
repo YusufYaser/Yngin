@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/vec3.hpp>
 #include <memory>
+#include "../Services/Tween.h"
 
 namespace Yngin {
 	class Context;
@@ -41,6 +42,7 @@ namespace Yngin {
 	private:
 		friend class Scene;
 		friend class GameObjectsManager;
+		friend class Services::Tween;
 		friend struct std::default_delete<GameObject>;
 
 		GameObject(Context* ctx, Scene* scene, GameObject* parent);

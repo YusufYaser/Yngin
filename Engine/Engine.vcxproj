@@ -33,6 +33,9 @@
     <ClInclude Include="include\Yngin\Renderer\Renderer.h" />
     <ClInclude Include="include\Yngin\Renderer\Textures.h" />
     <ClInclude Include="include\Yngin\Core\Window.h" />
+    <ClInclude Include="include\Yngin\Services\Service.h" />
+    <ClInclude Include="include\Yngin\Services\Services.h" />
+    <ClInclude Include="include\Yngin\Services\Tween.h" />
     <ClInclude Include="include\Yngin\Yngin.h" />
     <ClInclude Include="src\Core\InputSystem\InputSystem_Internal.h" />
     <ClInclude Include="src\Core\Models\DefaultModels\Skybox_Model.h" />
@@ -47,6 +50,7 @@
     <ClInclude Include="src\Renderer\Shaders\Sources\World_Shader_Source.h" />
     <ClInclude Include="src\Renderer\Textures\Textures_Internal.h" />
     <ClInclude Include="src\Core\Window\Window_Internal.h" />
+    <ClInclude Include="src\Services\Services_Internal.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c" />
@@ -69,6 +73,8 @@
     <ClCompile Include="src\Renderer\Textures\Texture.cpp" />
     <ClCompile Include="src\Renderer\Textures\TexturesManager.cpp" />
     <ClCompile Include="src\Core\Window\Window.cpp" />
+    <ClCompile Include="src\Services\Service.cpp" />
+    <ClCompile Include="src\Services\Tween.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

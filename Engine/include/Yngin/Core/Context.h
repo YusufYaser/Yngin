@@ -52,18 +52,23 @@ namespace Yngin {
 		// -1 for max, 0 for vsync
 		void setMaxFPS(int newMaxFPS);
 
+		// TODO: add startFrameTime()
 		double getTime();
 		double getDeltaTime();
 
 		Window* getWindow();
 		glm::ivec2 getViewportSize();
 
+		// these will be replaced with getManager<T>() soon
 		ModelsManager* getModelsManager();
 		ScenesManager* getScenesManager();
 		TexturesManager* getTexturesManager();
 		ShadersManager* getShadersManager();
 
 		InputSystem* getInputSystem();
+
+		template <typename T>
+		T* getService();
 
 		// this will be removed later
 		Model* getSkyboxModel();

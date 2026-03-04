@@ -99,6 +99,18 @@
     <ClInclude Include="src\Core\InputSystem\InputSystem_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Yngin\Services\Services.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Yngin\Services\Tween.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Yngin\Services\Service.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\Services_Internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c">
@@ -159,6 +171,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\InputSystem\InputSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\Tween.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\Service.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -14,6 +14,7 @@
 #include "../../Renderer/Shaders/Sources/World_Shader_Source.h"
 #include "../../Renderer/Shaders/Sources/Skybox_Shader_Source.h"
 #include "../Models/DefaultModels/Skybox_Model.h"
+#include <Yngin/Services/Services.h>
 
 namespace Yngin {
 	std::vector<Context*> Context::contexts;
@@ -49,6 +50,8 @@ namespace Yngin {
 		m.shadersManager = std::unique_ptr<ShadersManager>(new ShadersManager(this));
 
 		m.inputSystem = std::unique_ptr<InputSystem>(new InputSystem(this));
+
+		m.services[std::type_index(typeid(Services::Tween))] = std::unique_ptr<Services::Tween>(new Services::Tween(this));
 
 		TextureData texData{};
 		texData.width = 1;
@@ -111,6 +114,10 @@ namespace Yngin {
 		assert(getStatus() == CONTEXT_STATUS::RUNNING);
 
 		auto& m = *impl;
+
+		for (auto& kvp : m.services) {
+			kvp.second.get()->onUpdate();
+		}
 
 		Scene* scene = m.scenesManager->getActive();
 		assert(scene);
@@ -198,4 +205,13 @@ namespace Yngin {
 	Model* Context::getSkyboxModel() {
 		return impl->skyboxModel;
 	}
+
+
+
+	template<typename T>
+	inline T* Context::getService() {
+		return dynamic_cast<T*>(impl->services[std::type_index(typeid(T))].get());
+	}
+
+	template Services::Tween* Context::getService<Services::Tween>();
 }

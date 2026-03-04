@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <assert.h>
 #include <Yngin/Core/Scenes.h>
+#include <Yngin/Services/Tween.h>
 
 namespace Yngin {
 	using namespace Components;

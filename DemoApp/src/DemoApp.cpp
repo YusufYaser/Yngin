@@ -1,3 +1,8 @@
+// I know this code isn't the best but I'll improve it soon
+//
+// I just quickly add code to test new features without
+// checking the code style
+
 #include <stdio.h>
 #include <fstream>
 #include <sstream>
@@ -49,7 +54,7 @@ int main() {
 
 	Camera* defaultCamera = camerasManager->getCamera(0);
 
-	defaultCamera->setPos({ 5, 5, 0 });
+	defaultCamera->setPos({ 10, 0, 0 });
 	defaultCamera->lookAt(glm::vec3());
 
 	TexturesManager* texMgr = ctx->getTexturesManager();
@@ -105,23 +110,36 @@ int main() {
 	ModelData wallModelData = { wallVertices, wallIndices };
 	Model* wallModel = modelsMgr->createModel(wallModelData);
 
-	GameObject* wall = gameObjMgr->getRootGameObject()->createChild();
+	/*GameObject* wall = gameObjMgr->getRootGameObject()->createChild();
 	Components::Mesh* wallMesh = wall->createComponent<Components::Mesh>();
 	wallMesh->setModel(wallModel->getId());
 	wallMesh->setTexture(whiteTex->getId());
 	wallMesh->setScale(glm::vec3(1, 1, 0) * 100.0f);
-	wall->setPos({ 0, 0, -1.0f });
+	wall->setPos({ 0, 0, -1.0f });*/
 
 	ctx->setMaxFPS(120);
+
+	Services::Tween* tween = ctx->getService<Services::Tween>();
+	printf("Tween Service: %p\n", tween);
+
+	Services::TweenSettings tweenSettings = {
+		.duration = 1.0f,
+		.function = Services::TWEEN_FUNCTION::EASE_INOUT
+	};
+
+	int tweenId = 0;
+
+	int cycle = 0;
 
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();
 
 		window->setCursorLocked(input->isMousePressed(MOUSE_BUTTON::RIGHT));
 
-		double time = ctx->getTime();
-		obj->setRotation(glm::vec3(3.14f / 2, time * 0.25f, 0));
-		obj->setPos(glm::vec3(0, 0, sin(time * 1.5f) * 0.25f) / 2.0f + 0.5f);
+		if (!tween->isActive(tweenId)) {
+			cycle = (cycle + 1) % 3;
+			tweenId = tween->tweenPos(obj, glm::vec3(0, cycle == 1 ? 1.0f : cycle == 2 ? -1.0f : 0, cycle == 0 ? -1.0f : 1.0f) * 2.0f, tweenSettings);
+		}
 
 		ctx->update();
 	}
