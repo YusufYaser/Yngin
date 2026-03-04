@@ -40,7 +40,7 @@ namespace Yngin {
 		CamerasManager* getCamerasManager();
 		GameObjectsManager* getGameObjectsManager();
 
-		Texture* getSkyboxTexture();
+		uint32_t getSkyboxTextureId();
 		void setSkyboxTexture(Texture* tex);
 
 		void render();

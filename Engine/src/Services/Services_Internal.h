@@ -9,6 +9,8 @@ struct TweenProcess {
 	float* value;
 	std::function<void(float)> onUpdate;
 
+	uint32_t linkedGameObjectId = 0;
+
 	double startTime;
 	double duration = 1;
 

@@ -6,7 +6,6 @@
 namespace Yngin {
 	struct Model::Impl {
 		Context* ctx;
-		Model* parent;
 		void init(std::vector<Vertex> vertices, std::vector<uint32_t> indices);
 
 		uint32_t id;

@@ -5,6 +5,7 @@
 
 namespace Yngin {
 	class GameObject;
+	class Scene;
 
 	namespace Services {
 		enum class TWEEN_FUNCTION : uint8_t {

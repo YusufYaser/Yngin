@@ -14,7 +14,7 @@ namespace Yngin {
 		uint32_t id;
 		Context* ctx;
 
-		Texture* skyboxTex;
+		uint32_t skyboxTexId = 0;
 
 		std::unique_ptr<CamerasManager> camerasManager;
 		std::unique_ptr<GameObjectsManager> gameObjectsManager;

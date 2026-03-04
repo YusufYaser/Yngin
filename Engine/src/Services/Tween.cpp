@@ -1,5 +1,6 @@
 #include <Yngin/Services/Tween.h>
 #include <Yngin/Core/GameObject.h>
+#include <Yngin/Core/Scenes.h>
 #include "Services_Internal.h"
 #include "../Core/GameObject/GameObject_Internal.h"
 
@@ -19,9 +20,27 @@ namespace Yngin {
 
 			std::vector<int> toDelete;
 
+			Scene* activeScene = Service::impl->ctx->getScenesManager()->getActive();
+
+			if (activeScene == nullptr) {
+				for (auto& kvp : impl->processes) {
+					for (auto& ptr : kvp.second) {
+						impl->processes.erase(ptr->id);
+					}
+				}
+				return;
+			}
+
+			GameObjectsManager* gameObjMgr = activeScene->getGameObjectsManager();
+
 			for (auto& kvp : impl->processes) {
 				for (auto& ptr : kvp.second) {
 					TweenProcess* p = ptr.get();
+
+					if (gameObjMgr->getGameObject(p->linkedGameObjectId) == nullptr) {
+						toDelete.push_back(p->id);
+						continue;
+					}
 
 					float progress = (time - p->startTime) / p->duration;
 					if (progress >= 1.0f) {
@@ -103,9 +122,9 @@ namespace Yngin {
 				process->function = settings.function;
 				process->initial = pos[i];
 				process->target = target[i];
-				// I know this is unsafe, I'll fix this soon
 				process->value = &obj->impl->pos[i];
 				process->startTime = Service::impl->ctx->getTime();
+				process->linkedGameObjectId = obj->getId();
 
 				impl->processes[id].push_back(std::move(process));
 			}
