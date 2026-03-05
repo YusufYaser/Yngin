@@ -52,7 +52,7 @@ namespace Yngin {
 		// -1 for max, 0 for vsync
 		void setMaxFPS(int newMaxFPS);
 
-		// TODO: add startFrameTime()
+		double getFrameStartTime();
 		double getTime();
 		double getDeltaTime();
 

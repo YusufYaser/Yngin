@@ -171,6 +171,10 @@ namespace Yngin {
 		impl->maxFPS = newMaxFPS;
 	}
 
+	double Context::getFrameStartTime() {
+		return impl->lastFrameEnd;
+	}
+
 	double Context::getTime() {
 		makeCurrent();
 		return glfwGetTime();

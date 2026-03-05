@@ -16,7 +16,7 @@ namespace Yngin {
 		Tween::~Tween() = default;
 
 		void Tween::onUpdate() {
-			double time = Service::impl->ctx->getTime();
+			double time = Service::impl->ctx->getFrameStartTime();
 
 			std::vector<int> toDelete;
 
@@ -99,7 +99,7 @@ namespace Yngin {
 			process->target = target;
 			process->value = nullptr;
 			process->onUpdate = onUpdate;
-			process->startTime = Service::impl->ctx->getTime();
+			process->startTime = Service::impl->ctx->getFrameStartTime();
 
 			impl->processes[id].push_back(std::move(process));
 
@@ -123,7 +123,7 @@ namespace Yngin {
 				process->initial = pos[i];
 				process->target = target[i];
 				process->value = &obj->impl->pos[i];
-				process->startTime = Service::impl->ctx->getTime();
+				process->startTime = Service::impl->ctx->getFrameStartTime();
 				process->linkedGameObjectId = obj->getId();
 
 				impl->processes[id].push_back(std::move(process));
