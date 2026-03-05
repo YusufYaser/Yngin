@@ -59,7 +59,7 @@ namespace Yngin {
 		Window* getWindow();
 		glm::ivec2 getViewportSize();
 
-		// these will be replaced with getManager<T>() soon
+		// TODO: replace these with getManager<T>()
 		ModelsManager* getModelsManager();
 		ScenesManager* getScenesManager();
 		TexturesManager* getTexturesManager();
@@ -70,8 +70,9 @@ namespace Yngin {
 		template <typename T>
 		T* getService();
 
-		// this will be removed later
+		// TODO: implement internal models
 		Model* getSkyboxModel();
+		Model* getImageModel();
 
 	private:
 		static std::vector<Context*> contexts;

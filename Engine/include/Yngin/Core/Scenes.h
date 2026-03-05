@@ -9,6 +9,10 @@ namespace Yngin {
 	class Context;
 	class Texture;
 
+	namespace UI {
+		class UIManager;
+	};
+
 	class ScenesManager {
 	public:
 		Scene* getScene(uint32_t sceneId);
@@ -39,6 +43,7 @@ namespace Yngin {
 
 		CamerasManager* getCamerasManager();
 		GameObjectsManager* getGameObjectsManager();
+		UI::UIManager* getUIManager();
 
 		uint32_t getSkyboxTextureId();
 		void setSkyboxTexture(Texture* tex);

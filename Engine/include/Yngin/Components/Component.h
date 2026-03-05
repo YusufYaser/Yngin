@@ -7,15 +7,15 @@ namespace Yngin {
 
 	namespace Components {
 		class Component {
-		public:
-			Component(GameObject* gameObject);
-			~Component();
-
 		private:
 			virtual void onRender();
 
 			friend class GameObject;
 			friend struct std::default_delete<Component>;
+			friend class Mesh;
+
+			Component(GameObject* gameObject);
+			~Component();
 
 		protected:
 			struct Impl;

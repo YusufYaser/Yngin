@@ -18,6 +18,7 @@ namespace Yngin {
 
 		std::unique_ptr<CamerasManager> camerasManager;
 		std::unique_ptr<GameObjectsManager> gameObjectsManager;
+		std::unique_ptr<UI::UIManager> uiManager;
 	};
 
 	struct ScenesManager::Impl {

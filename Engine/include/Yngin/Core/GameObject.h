@@ -37,9 +37,6 @@ namespace Yngin {
 		template <typename T>
 		void deleteComponent();
 
-		// calls onRender() on all components and renders child OameObjects
-		void render();
-
 	private:
 		friend class Scene;
 		friend class GameObjectsManager;
@@ -48,6 +45,9 @@ namespace Yngin {
 
 		GameObject(Context* ctx, Scene* scene, GameObject* parent);
 		~GameObject();
+
+		// calls onRender() on all components and renders child OameObjects
+		void render();
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;

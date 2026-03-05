@@ -61,16 +61,18 @@ int main() {
 
 	// https://freestylized.com/skybox/sky_36/
 	Texture* skyboxTex = texMgr->createTexture();
-	TextureData skyboxData{};
-	unsigned char* bytes = stbi_load("skybox.png", &skyboxData.width, &skyboxData.height, &skyboxData.numCh, 0);
-	skyboxData.data = (const char*)bytes;
-	skyboxData.wrap = TEXTURE_WRAP::CLAMP;
-	skyboxData.filter = TEXTURE_FILTER::NEAREST;
-	if (skyboxData.data) {
-		skyboxTex->setData(skyboxData);
-		stbi_image_free(bytes);
-	} else {
-		printf("Failed to load skybox: %s\n", stbi_failure_reason());
+	{
+		TextureData skyboxData{};
+		unsigned char* bytes = stbi_load("skybox.png", &skyboxData.width, &skyboxData.height, &skyboxData.numCh, 0);
+		skyboxData.data = (const char*)bytes;
+		skyboxData.wrap = TEXTURE_WRAP::CLAMP;
+		skyboxData.filter = TEXTURE_FILTER::NEAREST;
+		if (skyboxData.data) {
+			skyboxTex->setData(skyboxData);
+			stbi_image_free(bytes);
+		} else {
+			printf("Failed to load skybox: %s\n", stbi_failure_reason());
+		}
 	}
 
 	scene->setSkyboxTexture(skyboxTex);
@@ -120,7 +122,6 @@ int main() {
 	ctx->setMaxFPS(120);
 
 	Services::Tween* tween = ctx->getService<Services::Tween>();
-	printf("Tween Service: %p\n", tween);
 
 	Services::TweenSettings tweenSettings = {
 		.duration = 1.0f,
@@ -128,8 +129,12 @@ int main() {
 	};
 
 	int tweenId = 0;
-
 	int cycle = 0;
+
+	UI::Image* image = scene->getUIManager()->getRootElement()->createChild<UI::Image>();
+	image->setTexture(tex->getId());
+	image->setPos({ 0, 175, 0, 75 });
+	image->setSize({ 0, 300, 0, 100 });
 
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();

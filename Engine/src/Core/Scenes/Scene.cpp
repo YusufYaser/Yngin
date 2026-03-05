@@ -1,5 +1,7 @@
 #include <Yngin/Core/Scenes.h>
 #include <Yngin/Core/Models.h>
+#include <Yngin/UI/Elements/UIElement.h>
+#include <Yngin/UI/UIManager.h>
 #include <Yngin/Renderer/Shaders.h>
 #include <Yngin/Renderer/Cameras.h>
 #include <Yngin/Renderer/Textures.h>
@@ -21,6 +23,7 @@ namespace Yngin {
 	void Scene::Impl::init() {
 		camerasManager = std::unique_ptr<CamerasManager>(new CamerasManager(owner));
 		gameObjectsManager = std::unique_ptr<GameObjectsManager>(new GameObjectsManager(ctx, owner));
+		uiManager = std::unique_ptr<UI::UIManager>(new UI::UIManager(ctx, owner));
 	}
 
 	uint32_t Scene::getId() {
@@ -37,6 +40,10 @@ namespace Yngin {
 
 	GameObjectsManager* Scene::getGameObjectsManager() {
 		return impl->gameObjectsManager.get();
+	}
+
+	UI::UIManager* Scene::getUIManager() {
+		return impl->uiManager.get();
 	}
 
 	uint32_t Scene::getSkyboxTextureId() {
@@ -76,5 +83,6 @@ namespace Yngin {
 		worldShader->setMat4("view", view);
 
 		impl->gameObjectsManager->getRootGameObject()->render();
+		impl->uiManager->getRootElement()->render();
 	}
 }

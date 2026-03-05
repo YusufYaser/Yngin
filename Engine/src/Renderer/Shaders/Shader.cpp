@@ -77,4 +77,19 @@ namespace Yngin {
 		GLuint loc = glGetUniformLocation(impl->glId, name);
 		glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(v));
 	}
+
+	void Shader::setFloat(const char* name, float v) {
+		GLuint loc = glGetUniformLocation(impl->glId, name);
+		glUniform1f(loc, v);
+	}
+
+	void Shader::setInt(const char* name, int v) {
+		GLuint loc = glGetUniformLocation(impl->glId, name);
+		glUniform1i(loc, v);
+	}
+
+	void Shader::setIVec2(const char* name, glm::ivec2 v) {
+		GLuint loc = glGetUniformLocation(impl->glId, name);
+		glUniform2iv(loc, 1, glm::value_ptr(v));
+	}
 }

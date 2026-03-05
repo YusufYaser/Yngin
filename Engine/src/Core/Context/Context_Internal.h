@@ -21,8 +21,9 @@ namespace Yngin {
 		double lastFrameEnd = 0;
 		int maxFPS = -1;
 
-		// this will be removed later
+		// these will be removed later
 		Model* skyboxModel = nullptr;
+		Model* imageModel = nullptr;
 
 		std::map<std::type_index, std::unique_ptr<Services::Service>> services;
 	};

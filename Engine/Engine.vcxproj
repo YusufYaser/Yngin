@@ -36,9 +36,15 @@
     <ClInclude Include="include\Yngin\Services\Service.h" />
     <ClInclude Include="include\Yngin\Services\Services.h" />
     <ClInclude Include="include\Yngin\Services\Tween.h" />
+    <ClInclude Include="include\Yngin\UI\Elements\Elements.h" />
+    <ClInclude Include="include\Yngin\UI\Elements\Image.h" />
+    <ClInclude Include="include\Yngin\UI\UI.h" />
+    <ClInclude Include="include\Yngin\UI\Elements\UIElement.h" />
+    <ClInclude Include="include\Yngin\UI\UIManager.h" />
     <ClInclude Include="include\Yngin\Yngin.h" />
     <ClInclude Include="src\Core\InputSystem\InputSystem_Internal.h" />
     <ClInclude Include="src\Core\Models\DefaultModels\Skybox_Model.h" />
+    <ClInclude Include="src\Core\Models\DefaultModels\Square_Model.h" />
     <ClInclude Include="src\Renderer\Shaders\Shaders_Internal.h" />
     <ClInclude Include="src\Renderer\Cameras\Cameras_Internal.h" />
     <ClInclude Include="src\Components\Components_Internal.h" />
@@ -46,11 +52,14 @@
     <ClInclude Include="src\Core\GameObject\GameObject_Internal.h" />
     <ClInclude Include="src\Core\Models\Models_Internal.h" />
     <ClInclude Include="src\Core\Scenes\Scenes_Internal.h" />
+    <ClInclude Include="src\Renderer\Shaders\Sources\UI_Shader_Source.h" />
     <ClInclude Include="src\Renderer\Shaders\Sources\Skybox_Shader_Source.h" />
     <ClInclude Include="src\Renderer\Shaders\Sources\World_Shader_Source.h" />
     <ClInclude Include="src\Renderer\Textures\Textures_Internal.h" />
     <ClInclude Include="src\Core\Window\Window_Internal.h" />
     <ClInclude Include="src\Services\Services_Internal.h" />
+    <ClInclude Include="src\UI\Elements\UI_Elements_Internal.h" />
+    <ClInclude Include="src\UI\UI_Internal.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c" />
@@ -75,6 +84,9 @@
     <ClCompile Include="src\Core\Window\Window.cpp" />
     <ClCompile Include="src\Services\Service.cpp" />
     <ClCompile Include="src\Services\Tween.cpp" />
+    <ClCompile Include="src\UI\Elements\Image.cpp" />
+    <ClCompile Include="src\UI\Elements\UIElement.cpp" />
+    <ClCompile Include="src\UI\UIManager.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

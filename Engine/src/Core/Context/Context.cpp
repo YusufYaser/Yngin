@@ -13,7 +13,9 @@
 #include <thread>
 #include "../../Renderer/Shaders/Sources/World_Shader_Source.h"
 #include "../../Renderer/Shaders/Sources/Skybox_Shader_Source.h"
+#include "../../Renderer/Shaders/Sources/UI_Shader_Source.h"
 #include "../Models/DefaultModels/Skybox_Model.h"
+#include "../Models/DefaultModels/Square_Model.h"
 #include <Yngin/Services/Services.h>
 
 namespace Yngin {
@@ -62,8 +64,10 @@ namespace Yngin {
 
 		Shader* worldShader = m.shadersManager->getShader(SHADER_TYPE::WORLD);
 		Shader* skyboxShader = m.shadersManager->getShader(SHADER_TYPE::SKYBOX);
+		Shader* uiShader = m.shadersManager->getShader(SHADER_TYPE::UI);
 		bool shadersBuilt = worldShader->setSource(ShaderSources::world);
 		shadersBuilt = shadersBuilt && skyboxShader->setSource(ShaderSources::skybox);
+		shadersBuilt = shadersBuilt && uiShader->setSource(ShaderSources::ui);
 
 		if (!shadersBuilt) {
 			impl->status = CONTEXT_STATUS::FAILED_TO_INIT;
@@ -72,8 +76,8 @@ namespace Yngin {
 
 		worldShader->activate();
 
-		Model* skyboxModel = m.modelsManager->createModel(DefaultModels::skybox);
-		impl->skyboxModel = skyboxModel;
+		impl->skyboxModel = m.modelsManager->createModel(DefaultModels::skybox);
+		impl->imageModel = m.modelsManager->createModel(DefaultModels::square);
 
 		impl->status = CONTEXT_STATUS::RUNNING;
 	}
@@ -204,6 +208,10 @@ namespace Yngin {
 
 	Model* Context::getSkyboxModel() {
 		return impl->skyboxModel;
+	}
+
+	Model* Context::getImageModel() {
+		return impl->imageModel;
 	}
 
 

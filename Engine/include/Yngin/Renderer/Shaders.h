@@ -7,7 +7,8 @@ namespace Yngin {
 
 	enum class SHADER_TYPE : uint8_t {
 		WORLD = 0,
-		SKYBOX
+		SKYBOX,
+		UI
 	};
 
 	struct ShaderSource {
@@ -44,6 +45,11 @@ namespace Yngin {
 		void setMat3(const char* name, glm::mat3 v);
 		void setMat4(const char* name, glm::mat4 v);
 
+		void setFloat(const char* name, float v);
+		void setInt(const char* name, int v);
+
+		void setIVec2(const char* name, glm::ivec2 v);
+
 	private:
 		friend class ShadersManager;
 		friend struct std::default_delete<Shader>;
@@ -53,6 +59,5 @@ namespace Yngin {
 
 		Shader(Context* ctx, SHADER_TYPE type);
 		~Shader();
-
 	};
 }
