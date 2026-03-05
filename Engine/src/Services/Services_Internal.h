@@ -3,19 +3,22 @@
 #include <typeindex>
 #include <any>
 
+struct TweenValues {
+	float initial;
+	float target;
+	float* value = nullptr;
+	std::function<void(float)> onUpdate;
+};
+
 struct TweenProcess {
 	int id;
 
-	float* value;
-	std::function<void(float)> onUpdate;
+	std::vector<TweenValues> values;
 
 	uint32_t linkedGameObjectId = 0;
 
 	double startTime;
 	double duration = 1;
-
-	float initial;
-	float target;
 
 	Yngin::Services::TWEEN_FUNCTION function;
 };
@@ -27,7 +30,7 @@ namespace Yngin {
 		};
 
 		struct Tween::Impl {
-			std::map<int, std::vector<std::unique_ptr<TweenProcess>>> processes;
+			std::map<int, std::unique_ptr<TweenProcess>> processes;
 
 			uint32_t nextId = 1;
 		};

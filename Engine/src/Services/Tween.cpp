@@ -24,9 +24,7 @@ namespace Yngin {
 
 			if (activeScene == nullptr) {
 				for (auto& kvp : impl->processes) {
-					for (auto& ptr : kvp.second) {
-						impl->processes.erase(ptr->id);
-					}
+					impl->processes.erase(kvp.second->id);
 				}
 				return;
 			}
@@ -34,20 +32,23 @@ namespace Yngin {
 			GameObjectsManager* gameObjMgr = activeScene->getGameObjectsManager();
 
 			for (auto& kvp : impl->processes) {
-				for (auto& ptr : kvp.second) {
-					TweenProcess* p = ptr.get();
+				TweenProcess* p = kvp.second.get();
 
-					if (gameObjMgr->getGameObject(p->linkedGameObjectId) == nullptr) {
-						toDelete.push_back(p->id);
-						continue;
-					}
+				if (gameObjMgr->getGameObject(p->linkedGameObjectId) == nullptr) {
+					toDelete.push_back(p->id);
+					continue;
+				}
 
-					float progress = (time - p->startTime) / p->duration;
+				float progress = (time - p->startTime) / p->duration;
+				if (progress >= 1.0f) {
+					progress = 1.0f;
+					toDelete.push_back(p->id);
+				}
+
+				for (auto& v : p->values) {
 					if (progress >= 1.0f) {
-						progress = 1.0f;
-						toDelete.push_back(p->id);
-						if (p->value) *p->value = p->target;
-						if (p->onUpdate) p->onUpdate(p->target);
+						if (v.value) *v.value = v.target;
+						if (v.onUpdate) v.onUpdate(v.target);
 						continue;
 					}
 
@@ -68,10 +69,10 @@ namespace Yngin {
 						break;
 					}
 
-					float newValue = p->initial + (p->target - p->initial) * eased;
+					float newValue = v.initial + (v.target - v.initial) * eased;
 
-					if (p->value) *p->value = newValue;
-					if (p->onUpdate) p->onUpdate(newValue);
+					if (v.value) *v.value = newValue;
+					if (v.onUpdate) v.onUpdate(newValue);
 				}
 			}
 
@@ -95,13 +96,14 @@ namespace Yngin {
 			process->id = id;
 			process->duration = settings.duration;
 			process->function = settings.function;
-			process->initial = start;
-			process->target = target;
-			process->value = nullptr;
-			process->onUpdate = onUpdate;
+			process->values.push_back(TweenValues{
+				.initial = start,
+				.target = target,
+				.onUpdate = onUpdate
+				});
 			process->startTime = Service::impl->ctx->getFrameStartTime();
 
-			impl->processes[id].push_back(std::move(process));
+			impl->processes[id] = std::move(process);
 
 			return id;
 		}
@@ -115,19 +117,23 @@ namespace Yngin {
 
 			int id = impl->nextId++;
 
-			for (int i = 0; i < 3; i++) {
-				std::unique_ptr<TweenProcess> process = std::make_unique<TweenProcess>();
-				process->id = id;
-				process->duration = settings.duration;
-				process->function = settings.function;
-				process->initial = pos[i];
-				process->target = target[i];
-				process->value = &obj->impl->pos[i];
-				process->startTime = Service::impl->ctx->getFrameStartTime();
-				process->linkedGameObjectId = obj->getId();
+			std::unique_ptr<TweenProcess> process = std::make_unique<TweenProcess>();
+			process->id = id;
+			process->duration = settings.duration;
+			process->function = settings.function;
 
-				impl->processes[id].push_back(std::move(process));
+			for (int i = 0; i < 3; i++) {
+				process->values.push_back(TweenValues{
+					.initial = pos[i],
+					.target = target[i],
+					.value = &obj->impl->pos[i],
+					});
 			}
+
+			process->startTime = Service::impl->ctx->getFrameStartTime();
+			process->linkedGameObjectId = obj->getId();
+
+			impl->processes[id] = std::move(process);
 
 			return id;
 		}
