@@ -146,6 +146,14 @@ int main() {
 			tweenId = tween->tweenPos(obj, glm::vec3(0, cycle == 1 ? 1.0f : cycle == 2 ? -1.0f : 0, cycle == 0 ? -1.0f : 1.0f) * 2.0f, tweenSettings);
 		}
 
+		if (image->isClicked()) {
+			image->setColor(glm::vec4(0.5f));
+		} else if (image->isHovered()) {
+			image->setColor(glm::vec4(0.75f));
+		} else {
+			image->setColor(glm::vec4(1.0f));
+		}
+
 		ctx->update();
 	}
 

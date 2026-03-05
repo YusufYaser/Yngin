@@ -5,6 +5,7 @@
 #include <Yngin/Core/Models.h>
 #include <Yngin/Renderer/Textures.h>
 #include "UI_Elements_Internal.h"
+#include <glad/glad.h>
 
 namespace Yngin {
 	namespace UI {
@@ -34,10 +35,14 @@ namespace Yngin {
 
 			uiShader->setIVec2("screenSize", UIElement::impl->ctx->getViewportSize());
 
+			uiShader->setVec4("color", impl->color);
+
 			UIElement::impl->ctx->getTexturesManager()->getTexture(impl->texId)->activate();
 
 			Model* model = UIElement::impl->ctx->getImageModel();
+			glDisable(GL_DEPTH_TEST);
 			model->render();
+			glEnable(GL_DEPTH_TEST);
 
 			UIElement::render();
 		}
@@ -48,6 +53,14 @@ namespace Yngin {
 
 		uint32_t Image::getTexture() {
 			return impl->texId;
+		}
+
+		void Image::setColor(glm::vec4 newColor) {
+			impl->color = newColor;
+		}
+
+		glm::vec4 Image::getColor() {
+			return impl->color;
 		}
 	}
 }

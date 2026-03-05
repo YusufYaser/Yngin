@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <glm/vec2.hpp>
+#include <Yngin/Core/InputSystem.h>
 
 namespace Yngin {
 	class Context;
@@ -46,6 +47,9 @@ namespace Yngin {
 
 			void setSize(UITransform newSize);
 			UITransform getSize();
+
+			bool isHovered();
+			bool isClicked(Yngin::MOUSE_BUTTON btn = Yngin::MOUSE_BUTTON::LEFT);
 
 		private:
 			friend class UIManager;

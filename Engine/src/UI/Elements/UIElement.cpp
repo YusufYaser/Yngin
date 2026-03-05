@@ -3,6 +3,8 @@
 #include "../UI_Internal.h"
 #include <assert.h>
 #include <Yngin/Core/Scenes.h>
+#include <Yngin/Core/Context.h>
+#include <Yngin/Core/InputSystem.h>
 
 namespace Yngin {
 	namespace UI {
@@ -50,6 +52,35 @@ namespace Yngin {
 
 		UITransform UIElement::getSize() {
 			return impl->size;
+		}
+
+		bool UIElement::isHovered() {
+			auto& m = impl;
+
+			glm::ivec2 screenSize = impl->ctx->getViewportSize();
+
+			glm::ivec2 size = {
+				m->size.xOffset + int(m->size.xScale * screenSize.x),
+				m->size.yOffset + int(m->size.yScale * screenSize.y)
+			};
+
+			glm::ivec2 boundsStart = {
+				m->pos.xOffset + int(m->pos.xScale * screenSize.x) - size.x / 2,
+				m->pos.yOffset + int(m->pos.yScale * screenSize.y) - size.y / 2
+			};
+
+			glm::ivec2 boundsEnd = boundsStart + size;
+
+			glm::ivec2 mousePos = impl->ctx->getInputSystem()->getMousePos();
+
+			bool x = boundsStart.x <= mousePos.x && mousePos.x <= boundsEnd.x;
+			bool y = boundsStart.y <= mousePos.y && mousePos.y <= boundsEnd.y;
+
+			return x && y;
+		}
+
+		bool UIElement::isClicked(Yngin::MOUSE_BUTTON btn) {
+			return isHovered() && impl->ctx->getInputSystem()->isMousePressed(btn);
 		}
 
 		template<typename T>

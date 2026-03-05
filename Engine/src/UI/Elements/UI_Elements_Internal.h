@@ -20,6 +20,7 @@ namespace Yngin {
 
 		struct Image::Impl {
 			uint32_t texId;
+			glm::vec4 color = glm::vec4(1.0f);
 		};
 	}
 }

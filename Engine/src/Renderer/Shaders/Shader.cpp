@@ -92,4 +92,9 @@ namespace Yngin {
 		GLuint loc = glGetUniformLocation(impl->glId, name);
 		glUniform2iv(loc, 1, glm::value_ptr(v));
 	}
+
+	void Shader::setVec4(const char* name, glm::vec4 v) {
+		GLuint loc = glGetUniformLocation(impl->glId, name);
+		glUniform4fv(loc, 1, glm::value_ptr(v));
+	}
 }

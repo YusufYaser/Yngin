@@ -1,5 +1,6 @@
 #pragma once
 #include "UIElement.h"
+#include <glm/vec4.hpp>
 
 namespace Yngin {
 	namespace UI {
@@ -11,6 +12,9 @@ namespace Yngin {
 
 			void setTexture(uint32_t newTextureId);
 			uint32_t getTexture();
+
+			void setColor(glm::vec4 newColor);
+			glm::vec4 getColor();
 
 		private:
 			friend class UIElement;
