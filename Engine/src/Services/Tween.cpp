@@ -18,8 +18,6 @@ namespace Yngin {
 		Tween::~Tween() = default;
 
 		void Tween::onUpdate() {
-			double time = Service::impl->ctx->getFrameStartTime();
-
 			std::vector<int> toDelete;
 
 			Scene* activeScene = Service::impl->ctx->getScenesManager()->getActive();
@@ -47,7 +45,8 @@ namespace Yngin {
 					continue;
 				}
 
-				if (p->lastPause != -1) continue;
+				double time = Service::impl->ctx->getFrameStartTime();
+				if (p->lastPause != -1) time = p->lastPause;
 
 				float progress = (time - p->startTime - p->totalPauseTime) / p->duration;
 				if (progress >= 1.0f) {
