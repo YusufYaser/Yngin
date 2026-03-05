@@ -32,6 +32,8 @@ namespace Yngin {
 
 		void setData(TextureData& data);
 
+		glm::ivec2 getSize();
+
 	private:
 		friend class TexturesManager;
 		friend struct std::default_delete<Texture>;

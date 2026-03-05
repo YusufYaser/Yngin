@@ -105,5 +105,11 @@ namespace Yngin {
 		}
 
 		if (active)	glBindTexture(GL_TEXTURE_2D, impl->texId);
+
+		impl->size = glm::ivec2(w, h);
+	}
+
+	glm::ivec2 Texture::getSize() {
+		return impl->size;
 	}
 }

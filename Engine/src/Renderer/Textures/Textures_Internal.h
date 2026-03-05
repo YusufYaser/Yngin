@@ -10,6 +10,8 @@ namespace Yngin {
 		uint32_t id;
 
 		GLuint texId;
+
+		glm::ivec2 size = {};
 	};
 
 	struct TexturesManager::Impl {
