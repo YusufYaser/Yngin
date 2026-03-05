@@ -20,6 +20,9 @@ struct TweenProcess {
 	double startTime;
 	double duration = 1;
 
+	double lastPause = -1;
+	double totalPauseTime = 0;
+
 	Yngin::Services::TWEEN_FUNCTION function;
 };
 

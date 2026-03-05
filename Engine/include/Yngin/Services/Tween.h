@@ -29,6 +29,9 @@ namespace Yngin {
 			int tweenFloat(float start, float target, const TweenSettings& settings, std::function<void(float)> onUpdate);
 			int tweenPos(GameObject* obj, glm::vec3 target, const TweenSettings& settings);
 
+			bool isPaused(int tweenId);
+			void setPaused(int tweenId, bool paused);
+
 		private:
 			friend class Context;
 			friend struct std::default_delete<Tween>;

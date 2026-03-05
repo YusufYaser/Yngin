@@ -39,7 +39,9 @@ namespace Yngin {
 					continue;
 				}
 
-				float progress = (time - p->startTime) / p->duration;
+				if (p->lastPause != -1) continue;
+
+				float progress = (time - p->startTime - p->totalPauseTime) / p->duration;
 				if (progress >= 1.0f) {
 					progress = 1.0f;
 					toDelete.push_back(p->id);
@@ -136,6 +138,28 @@ namespace Yngin {
 			impl->processes[id] = std::move(process);
 
 			return id;
+		}
+
+		bool Tween::isPaused(int tweenId) {
+			if (!isActive(tweenId)) return false;
+
+			return impl->processes[tweenId]->lastPause != -1;
+		}
+
+		void Tween::setPaused(int tweenId, bool paused) {
+			if (!isActive(tweenId)) return;
+
+			TweenProcess* p = impl->processes[tweenId].get();
+			if (paused && p->lastPause != -1) return;
+
+			double time = Service::impl->ctx->getFrameStartTime();
+			if (!paused) {
+				p->totalPauseTime += time - p->lastPause;
+				p->lastPause = -1;
+				return;
+			}
+
+			p->lastPause = time;
 		}
 	}
 }
