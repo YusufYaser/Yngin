@@ -29,6 +29,10 @@ namespace Yngin {
 		return impl->ctx;
 	}
 
+	Scene* GameObject::getScene() {
+		return impl->scene;
+	}
+
 	GameObject* GameObject::getParent() {
 		return impl->parent;
 	}
@@ -66,8 +70,10 @@ namespace Yngin {
 
 	void GameObject::moveChild(uint32_t childId, GameObject* newParent) {
 		assert(newParent->getContext() == impl->ctx);
+		assert(newParent->getScene() == impl->scene);
 
 		if (newParent->getContext() != impl->ctx) return;
+		if (newParent->getScene() != impl->scene) return;
 
 		newParent->impl->childs[childId] = std::move(impl->childs[childId]);
 		impl->childs.erase(childId);

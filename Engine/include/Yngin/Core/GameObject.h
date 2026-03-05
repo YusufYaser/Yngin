@@ -11,6 +11,7 @@ namespace Yngin {
 	public:
 		uint32_t getId();
 		Context* getContext();
+		Scene* getScene();
 
 		GameObject* getParent();
 		void setParent(GameObject* newParent);
