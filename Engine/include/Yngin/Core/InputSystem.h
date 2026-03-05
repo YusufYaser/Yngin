@@ -9,6 +9,42 @@ namespace Yngin {
 		MIDDLE
 	};
 
+	enum class KEY {
+		UNKNOWN = 0,
+
+		A, B, C, D, E, F, G,
+		H, I, J, K, L, M, N,
+		O, P, Q, R, S, T,
+		U, V, W, X, Y, Z,
+
+		NUM_0, NUM_1, NUM_2, NUM_3, NUM_4,
+		NUM_5, NUM_6, NUM_7, NUM_8, NUM_9,
+
+		SPACE,
+
+		ESCAPE,
+		ENTER,
+		TAB,
+		BACKSPACE,
+
+		RIGHT,
+		LEFT,
+		DOWN,
+		UP,
+
+		LSHIFT,
+		LCTRL,
+		LALT,
+		LSUPER,
+		RSHIFT,
+		RCTRL,
+		RALT,
+		RSUPER,
+
+
+		COUNT
+	};
+
 	class InputSystem {
 	public:
 		// get mouse position relative to the window position
@@ -16,6 +52,9 @@ namespace Yngin {
 
 		bool isMousePressed(const MOUSE_BUTTON& button);
 		bool isMouseJustPressed(const MOUSE_BUTTON& button);
+
+		bool isKeyPressed(const KEY& key);
+		bool isKeyJustPressed(const KEY& key);
 
 	private:
 		friend class Context;

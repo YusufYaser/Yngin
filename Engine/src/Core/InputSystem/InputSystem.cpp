@@ -6,6 +6,32 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+int keyToGlfw(Yngin::KEY key) {
+	if (Yngin::KEY::A <= key && key <= Yngin::KEY::Z) {
+		return GLFW_KEY_A + (int(key) - int(Yngin::KEY::A));
+	}
+
+	if (Yngin::KEY::NUM_0 <= key && key <= Yngin::KEY::NUM_9) {
+		return GLFW_KEY_0 + (int(key) - int(Yngin::KEY::NUM_0));
+	}
+
+	if (key == Yngin::KEY::SPACE) return GLFW_KEY_SPACE;
+
+	if (Yngin::KEY::ESCAPE <= key && key <= Yngin::KEY::BACKSPACE) {
+		return GLFW_KEY_ESCAPE + (int(key) - int(Yngin::KEY::ESCAPE));
+	}
+
+	if (Yngin::KEY::RIGHT <= key && key <= Yngin::KEY::UP) {
+		return GLFW_KEY_RIGHT + (int(key) - int(Yngin::KEY::RIGHT));
+	}
+
+	if (Yngin::KEY::LSHIFT <= key && key <= Yngin::KEY::RSUPER) {
+		return GLFW_KEY_LEFT_SHIFT + (int(key) - int(Yngin::KEY::LSHIFT));
+	}
+
+	return 0;
+}
+
 namespace Yngin {
 	InputSystem::InputSystem(Context* ctx) {
 		impl = std::make_unique<Impl>();
@@ -17,10 +43,18 @@ namespace Yngin {
 
 	void InputSystem::onUpdate() {
 		uint64_t frameNum = impl->ctx->getFrame();
+
 		for (int i = 0; i < 3; i++) {
 			MOUSE_BUTTON btn = MOUSE_BUTTON(i);
 			if (!isMousePressed(btn)) {
 				impl->lastFrameMouseReleased[btn] = frameNum;
+			}
+		}
+
+		for (int i = 0; i < (int)Yngin::KEY::COUNT; i++) {
+			KEY key = KEY(i);
+			if (!isKeyPressed(key)) {
+				impl->lastFrameKeyReleased[key] = frameNum;
 			}
 		}
 	}
@@ -58,5 +92,18 @@ namespace Yngin {
 
 	bool InputSystem::isMouseJustPressed(const MOUSE_BUTTON& button) {
 		return impl->lastFrameMouseReleased[button] == impl->ctx->getFrame() - 2;
+	}
+
+	bool InputSystem::isKeyPressed(const KEY& key) {
+		int glfwKey = keyToGlfw(key);
+
+		Window* window = impl->ctx->getWindow();
+		GLFWwindow* glfwWindow = window->impl->glfwWindow;
+
+		return glfwGetKey(glfwWindow, glfwKey) == GLFW_PRESS;
+	}
+
+	bool InputSystem::isKeyJustPressed(const KEY& key) {
+		return impl->lastFrameKeyReleased[key] == impl->ctx->getFrame() - 2;
 	}
 }

@@ -7,5 +7,6 @@ namespace Yngin {
 		Context* ctx;
 
 		std::map<Yngin::MOUSE_BUTTON, uint64_t> lastFrameMouseReleased;
+		std::map<Yngin::KEY, uint64_t> lastFrameKeyReleased;
 	};
 }
