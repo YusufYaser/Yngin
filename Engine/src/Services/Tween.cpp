@@ -1,8 +1,10 @@
 #include <Yngin/Services/Tween.h>
 #include <Yngin/Core/GameObject.h>
+#include <Yngin/Renderer/Cameras.h>
 #include <Yngin/Core/Scenes.h>
 #include "Services_Internal.h"
 #include "../Core/GameObject/GameObject_Internal.h"
+#include "../Renderer/Cameras/Cameras_Internal.h"
 
 #define PI 3.14159265358979323846
 #define HALF_PI 1.57079632679f
@@ -30,11 +32,17 @@ namespace Yngin {
 			}
 
 			GameObjectsManager* gameObjMgr = activeScene->getGameObjectsManager();
+			CamerasManager* camerasMgr = activeScene->getCamerasManager();
 
 			for (auto& kvp : impl->processes) {
 				TweenProcess* p = kvp.second.get();
 
 				if (gameObjMgr->getGameObject(p->linkedGameObjectId) == nullptr) {
+					toDelete.push_back(p->id);
+					continue;
+				}
+
+				if (camerasMgr->getCamera(p->linkedCameraId) == nullptr) {
 					toDelete.push_back(p->id);
 					continue;
 				}
@@ -134,6 +142,36 @@ namespace Yngin {
 
 			process->startTime = Service::impl->ctx->getFrameStartTime();
 			process->linkedGameObjectId = obj->getId();
+
+			impl->processes[id] = std::move(process);
+
+			return id;
+		}
+
+		int Tween::tweenPos(Camera* obj, glm::vec3 target, const TweenSettings& settings) {
+			assert(obj->impl->ctx == Service::impl->ctx);
+
+			if (obj->impl->ctx != Service::impl->ctx) return 0;
+
+			glm::vec3 pos = obj->getPos();
+
+			int id = impl->nextId++;
+
+			std::unique_ptr<TweenProcess> process = std::make_unique<TweenProcess>();
+			process->id = id;
+			process->duration = settings.duration;
+			process->function = settings.function;
+
+			for (int i = 0; i < 3; i++) {
+				process->values.push_back(TweenValues{
+					.initial = pos[i],
+					.target = target[i],
+					.value = &obj->impl->pos[i],
+					});
+			}
+
+			process->startTime = Service::impl->ctx->getFrameStartTime();
+			process->linkedCameraId = obj->getId();
 
 			impl->processes[id] = std::move(process);
 

@@ -5,6 +5,7 @@
 
 namespace Yngin {
 	class GameObject;
+	class Camera;
 	class Scene;
 
 	namespace Services {
@@ -28,6 +29,7 @@ namespace Yngin {
 
 			int tweenFloat(float start, float target, const TweenSettings& settings, std::function<void(float)> onUpdate);
 			int tweenPos(GameObject* obj, glm::vec3 target, const TweenSettings& settings);
+			int tweenPos(Camera* obj, glm::vec3 target, const TweenSettings& settings);
 
 			bool isPaused(int tweenId);
 			void setPaused(int tweenId, bool paused);

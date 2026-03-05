@@ -16,6 +16,7 @@ struct TweenProcess {
 	std::vector<TweenValues> values;
 
 	uint32_t linkedGameObjectId = 0;
+	uint32_t linkedCameraId = 0;
 
 	double startTime;
 	double duration = 1;

@@ -2,6 +2,7 @@
 #include <memory>
 #include <glm/vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "../Services/Tween.h"
 
 namespace Yngin {
 	class Context;
@@ -30,6 +31,7 @@ namespace Yngin {
 	private:
 		friend class CamerasManager;
 		friend struct std::default_delete<Camera>;
+		friend class Services::Tween;
 
 		Camera(Context* ctx, Scene* scene);
 		~Camera();
