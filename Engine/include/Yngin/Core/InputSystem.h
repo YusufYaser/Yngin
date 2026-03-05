@@ -15,6 +15,7 @@ namespace Yngin {
 		glm::ivec2 getMousePos();
 
 		bool isMousePressed(const MOUSE_BUTTON& button);
+		bool isMouseJustPressed(const MOUSE_BUTTON& button);
 
 	private:
 		friend class Context;
@@ -22,6 +23,8 @@ namespace Yngin {
 
 		InputSystem(Context* ctx);
 		~InputSystem();
+
+		void onUpdate();
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;

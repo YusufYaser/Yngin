@@ -50,6 +50,7 @@ namespace Yngin {
 
 			bool isHovered();
 			bool isClicked(Yngin::MOUSE_BUTTON btn = Yngin::MOUSE_BUTTON::LEFT);
+			bool isHeld(Yngin::MOUSE_BUTTON btn = Yngin::MOUSE_BUTTON::LEFT);
 
 		private:
 			friend class UIManager;

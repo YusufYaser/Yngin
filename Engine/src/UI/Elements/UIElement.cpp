@@ -80,6 +80,10 @@ namespace Yngin {
 		}
 
 		bool UIElement::isClicked(Yngin::MOUSE_BUTTON btn) {
+			return isHovered() && impl->ctx->getInputSystem()->isMouseJustPressed(btn);
+		}
+
+		bool UIElement::isHeld(Yngin::MOUSE_BUTTON btn) {
 			return isHovered() && impl->ctx->getInputSystem()->isMousePressed(btn);
 		}
 

@@ -45,6 +45,8 @@ namespace Yngin {
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		m.modelsManager = std::unique_ptr<ModelsManager>(new ModelsManager(this));
 		m.scenesManager = std::unique_ptr<ScenesManager>(new ScenesManager(this));
@@ -123,6 +125,9 @@ namespace Yngin {
 			kvp.second.get()->onUpdate();
 		}
 
+		m.window->impl->update();
+		m.inputSystem->onUpdate();
+
 		Scene* scene = m.scenesManager->getActive();
 		assert(scene);
 		if (scene) {
@@ -132,7 +137,6 @@ namespace Yngin {
 		glfwSwapInterval(m.maxFPS == 0);
 
 		m.window->impl->swapBuffers();
-		m.window->impl->update();
 
 		if (getStatus() == CONTEXT_STATUS::RUNNING && m.window->impl->shouldClose()) {
 			m.status = CONTEXT_STATUS::NEEDS_TO_STOP;

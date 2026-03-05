@@ -15,6 +15,16 @@ namespace Yngin {
 
 	InputSystem::~InputSystem() = default;
 
+	void InputSystem::onUpdate() {
+		uint64_t frameNum = impl->ctx->getFrame();
+		for (int i = 0; i < 3; i++) {
+			MOUSE_BUTTON btn = MOUSE_BUTTON(i);
+			if (!isMousePressed(btn)) {
+				impl->lastFrameMouseReleased[btn] = frameNum;
+			}
+		}
+	}
+
 	glm::ivec2 InputSystem::getMousePos() {
 		Window* window = impl->ctx->getWindow();
 		GLFWwindow* glfwWindow = window->impl->glfwWindow;
@@ -44,5 +54,9 @@ namespace Yngin {
 		GLFWwindow* glfwWindow = window->impl->glfwWindow;
 
 		return glfwGetMouseButton(glfwWindow, glfwButton);
+	}
+
+	bool InputSystem::isMouseJustPressed(const MOUSE_BUTTON& button) {
+		return impl->lastFrameMouseReleased[button] == impl->ctx->getFrame() - 2;
 	}
 }
