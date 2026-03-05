@@ -44,8 +44,6 @@ namespace Yngin {
 
 	Texture* TexturesManager::getTexture(uint32_t textureId) {
 		auto it = impl->textures.find(textureId);
-		assert(it != impl->textures.end());
-
 		if (it == impl->textures.end()) return nullptr;
 
 		return it->second.get();

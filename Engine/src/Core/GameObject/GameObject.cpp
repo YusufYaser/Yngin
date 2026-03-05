@@ -43,7 +43,6 @@ namespace Yngin {
 
 	GameObject* GameObject::getChild(uint32_t childId) {
 		auto it = impl->childs.find(childId);
-		assert(it != impl->childs.end());
 
 		if (it == impl->childs.end()) return nullptr;
 

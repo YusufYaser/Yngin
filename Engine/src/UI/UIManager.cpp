@@ -23,8 +23,6 @@ namespace Yngin {
 
 		UIElement* UIManager::getElement(uint32_t id) {
 			auto it = impl->elements.find(id);
-			assert(it != impl->elements.end());
-
 			if (it == impl->elements.end()) return nullptr;
 
 			return it->second;
@@ -32,8 +30,6 @@ namespace Yngin {
 
 		void UIManager::deleteElement(uint32_t id) {
 			auto it = impl->elements.find(id);
-			assert(it != impl->elements.end());
-
 			if (it == impl->elements.end()) return;
 
 			auto element = it->second;

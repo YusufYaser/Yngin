@@ -18,7 +18,6 @@ namespace Yngin {
 
 	Scene* ScenesManager::getScene(uint32_t sceneId) {
 		auto it = impl->scenes.find(sceneId);
-		assert(it != impl->scenes.end());
 		if (it == impl->scenes.end()) return nullptr;
 
 		return it->second.get();
@@ -37,8 +36,6 @@ namespace Yngin {
 	}
 
 	void ScenesManager::deleteScene(uint32_t sceneId) {
-		assert(impl->scenes.find(sceneId) != impl->scenes.end());
-
 		if (impl->activeScene->getId() == sceneId) {
 			impl->activeScene = nullptr;
 		}

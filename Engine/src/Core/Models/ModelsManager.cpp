@@ -44,14 +44,11 @@ namespace Yngin {
 	}
 
 	void ModelsManager::deleteModel(uint32_t modelId) {
-		assert(impl->models.find(modelId) != impl->models.end());
-
 		impl->models.erase(modelId);
 	}
 
 	Model* ModelsManager::getModel(uint32_t modelId) {
 		auto it = impl->models.find(modelId);
-		assert(it != impl->models.end());
 		if (it == impl->models.end()) return nullptr;
 
 		return it->second.get();

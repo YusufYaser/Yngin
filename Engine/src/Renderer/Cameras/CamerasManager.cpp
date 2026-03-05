@@ -41,8 +41,6 @@ namespace Yngin {
 
 	Camera* CamerasManager::getCamera(uint32_t cameraId) {
 		auto it = impl->cameras.find(cameraId);
-		assert(it != impl->cameras.end());
-
 		if (it == impl->cameras.end()) return nullptr;
 
 		return it->second.get();

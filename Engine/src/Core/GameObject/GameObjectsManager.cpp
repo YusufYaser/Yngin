@@ -33,7 +33,6 @@ namespace Yngin {
 
 	GameObject* GameObjectsManager::getGameObject(uint32_t gameObjectId) {
 		auto it = impl->gameObjects.find(gameObjectId);
-		assert(it != impl->gameObjects.end());
 
 		if (it == impl->gameObjects.end()) return nullptr;
 
@@ -42,7 +41,6 @@ namespace Yngin {
 
 	void GameObjectsManager::deleteGameObject(uint32_t gameObjectId) {
 		auto it = impl->gameObjects.find(gameObjectId);
-		assert(it != impl->gameObjects.end());
 
 		if (it == impl->gameObjects.end()) return;
 

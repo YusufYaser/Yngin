@@ -129,7 +129,6 @@ namespace Yngin {
 		m.inputSystem->onUpdate();
 
 		Scene* scene = m.scenesManager->getActive();
-		assert(scene);
 		if (scene) {
 			m.scenesManager->getActive()->render();
 		}
