@@ -140,7 +140,7 @@ int main() {
 	wallVertices.push_back({ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(000.0f, 100.0f), glm::vec3(0, 0, 1.0f) });
 	wallVertices.push_back({ glm::vec3(+0.5f, -0.5f, 0.0f), glm::vec2(100.0f, 100.0f), glm::vec3(0, 0, 1.0f) });
 
-	ModelData wallModelData = { wallVertices, wallIndices };
+	ModelData wallModelData = { wallVertices, wallIndices, MODEL_FRONT_FACE::NONE };
 	Model* wallModel = modelsMgr->createModel(wallModelData);
 
 	GameObject* wall = gameObjMgr->getRootGameObject()->createChild();

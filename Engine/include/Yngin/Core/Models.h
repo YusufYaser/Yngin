@@ -10,13 +10,20 @@ namespace Yngin {
 		glm::vec3 normal;
 	};
 
-	struct ModelData {
-		std::vector<Vertex> vertices;
-		std::vector<uint32_t> indices;
+	enum class MODEL_FRONT_FACE : uint8_t {
+		NONE,
+		CCW,
+		CW
 	};
 
 	enum class MODEL_FILE_TYPE : uint8_t {
 		OBJ
+	};
+
+	struct ModelData {
+		std::vector<Vertex> vertices;
+		std::vector<uint32_t> indices;
+		MODEL_FRONT_FACE frontFace = MODEL_FRONT_FACE::CCW;
 	};
 
 	class Model;

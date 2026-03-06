@@ -6,7 +6,7 @@
 namespace Yngin {
 	struct Model::Impl {
 		Context* ctx;
-		void init(std::vector<Vertex> vertices, std::vector<uint32_t> indices);
+		void init(std::vector<Vertex> vertices, std::vector<uint32_t> indices, MODEL_FRONT_FACE frontFace);
 
 		uint32_t id;
 
@@ -15,6 +15,8 @@ namespace Yngin {
 		GLuint EBO;
 
 		GLsizei indicesCount;
+
+		MODEL_FRONT_FACE frontFace;
 	};
 
 	struct ModelsManager::Impl {

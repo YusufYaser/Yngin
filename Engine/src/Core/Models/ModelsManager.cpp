@@ -23,7 +23,7 @@ namespace Yngin {
 		model->impl->id = modelId;
 		impl->models[modelId] = std::unique_ptr<Model>(model);
 
-		model->impl->init(data.vertices, data.indices);
+		model->impl->init(data.vertices, data.indices, data.frontFace);
 
 		return model;
 	}
@@ -40,7 +40,11 @@ namespace Yngin {
 			throw std::invalid_argument("Invalid model type");
 		}
 
-		return createModel({ vertices, indices });
+		return createModel(ModelData{
+			.vertices = vertices,
+			.indices = indices,
+			.frontFace = MODEL_FRONT_FACE::CCW
+			});
 	}
 
 	void ModelsManager::deleteModel(uint32_t modelId) {

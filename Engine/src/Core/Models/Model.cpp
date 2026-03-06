@@ -17,7 +17,7 @@ namespace Yngin {
 		glDeleteBuffers(1, &impl->VAO);
 	}
 
-	void Model::Impl::init(std::vector<Vertex> vertices, std::vector<uint32_t> indices) {
+	void Model::Impl::init(std::vector<Vertex> vertices, std::vector<uint32_t> indices, MODEL_FRONT_FACE frontFace) {
 		if (vertices.size() == 0 || indices.size() == 0) {
 			throw std::invalid_argument("Vertices and indices size cannot be zero");
 		}
@@ -47,6 +47,8 @@ namespace Yngin {
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		this->frontFace = frontFace;
 	}
 
 	uint32_t Model::getId() {
@@ -59,6 +61,17 @@ namespace Yngin {
 
 	void Model::render() {
 		impl->ctx->makeCurrent();
+
+		if (impl->frontFace == MODEL_FRONT_FACE::NONE) {
+			glDisable(GL_CULL_FACE);
+		} else {
+			glEnable(GL_CULL_FACE);
+			if (impl->frontFace == MODEL_FRONT_FACE::CW) {
+				glFrontFace(GL_CW);
+			} else {
+				glFrontFace(GL_CCW);
+			}
+		}
 
 		glBindVertexArray(impl->VAO);
 		glDrawElements(GL_TRIANGLES, impl->indicesCount, GL_UNSIGNED_INT, 0);
