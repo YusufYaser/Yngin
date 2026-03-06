@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include "Component.h"
 
 namespace Yngin {
@@ -19,6 +20,9 @@ namespace Yngin {
 			void setTexture(uint32_t newTextureId);
 			void setTexture(Texture* newTexture);
 			uint32_t getTexture();
+
+			void setColor(glm::vec3 newColor);
+			glm::vec3 getColor();
 
 			void setScale(glm::vec3 newScale);
 			glm::vec3 getScale();

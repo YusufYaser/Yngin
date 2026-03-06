@@ -58,7 +58,7 @@ namespace Yngin {
 	glm::mat4 Camera::Impl::getPerspectiveProjection() {
 		glm::ivec2 viewportSize = ctx->getViewportSize();
 		float aspectRatio = viewportSize.x * 1.0f / viewportSize.y;
-		return glm::perspective(fov, aspectRatio, 0.1f, 1000.0f);
+		return glm::perspective(glm::radians(fov), aspectRatio, 0.1f, 1000.0f);
 	}
 
 	float Camera::getWeight() {

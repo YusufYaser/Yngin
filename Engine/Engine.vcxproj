@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Yngin\Components\Light.h" />
     <ClInclude Include="include\Yngin\Core\InputSystem.h" />
     <ClInclude Include="include\Yngin\Renderer\Shaders.h" />
     <ClInclude Include="include\Yngin\Renderer\Cameras.h" />
@@ -63,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c" />
+    <ClCompile Include="src\Components\Light.cpp" />
     <ClCompile Include="src\Core\Context\Init.cpp" />
     <ClCompile Include="src\Core\InputSystem\InputSystem.cpp" />
     <ClCompile Include="src\Renderer\Shaders\Shader.cpp" />

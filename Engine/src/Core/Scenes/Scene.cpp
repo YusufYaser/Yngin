@@ -9,7 +9,11 @@
 #include <stdexcept>
 #include "Scenes_Internal.h"
 #include "../../Renderer/Cameras/Cameras_Internal.h"
+#include "../../Core/GameObject/GameObject_Internal.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <string>
+
+#define MAX_LIGHTS 32
 
 namespace Yngin {
 	Scene::Scene(Context* ctx) {
@@ -92,6 +96,27 @@ namespace Yngin {
 
 		worldShader->setMat4("projection", proj);
 		worldShader->setMat4("view", view);
+
+		// register lights
+		int lightsCount = 0;
+		for (auto& kvp : impl->gameObjectsManager->impl->gameObjects) {
+			GameObject* obj = kvp.second;
+			Components::Light* light = obj->getComponent<Components::Light>();
+
+			if (light == nullptr) continue;
+
+			worldShader->setVec3(std::string("lights[" + std::to_string(lightsCount) + "].position").c_str(), obj->getPos());
+			worldShader->setVec3(std::string("lights[" + std::to_string(lightsCount) + "].color").c_str(), light->getColor());
+			worldShader->setFloat(std::string("lights[" + std::to_string(lightsCount) + "].distance").c_str(), light->getDistance());
+
+			lightsCount++;
+
+			if (lightsCount >= MAX_LIGHTS) {
+				break;
+			}
+		}
+
+		worldShader->setInt("lightsCount", lightsCount);
 
 		impl->gameObjectsManager->getRootGameObject()->render();
 		impl->uiManager->getRootElement()->render();

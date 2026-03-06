@@ -158,6 +158,10 @@ namespace Yngin {
 	template Components::Mesh* GameObject::createComponent<Components::Mesh>();
 	template Components::Mesh* GameObject::getComponent<Components::Mesh>();
 
+	template void GameObject::deleteComponent<Components::Light>();
+	template Components::Light* GameObject::createComponent<Components::Light>();
+	template Components::Light* GameObject::getComponent<Components::Light>();
+
 	void GameObject::render() {
 		for (auto& kvp : impl->components) {
 			kvp.second->onRender();

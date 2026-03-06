@@ -15,6 +15,13 @@ namespace Yngin {
 			uint32_t texId;
 
 			glm::vec3 scale = glm::vec3(1.0f);
+
+			glm::vec3 color = glm::vec3(1.0f);
+		};
+
+		struct Light::Impl {
+			glm::vec3 color = glm::vec3(1.0f);
+			float distance = 1.0f;
 		};
 	}
 }

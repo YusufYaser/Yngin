@@ -51,6 +51,8 @@ namespace Yngin {
 		void setInt(const char* name, int v);
 
 		void setIVec2(const char* name, glm::ivec2 v);
+
+		void setVec3(const char* name, glm::vec3 v);
 		void setVec4(const char* name, glm::vec4 v);
 
 	private:

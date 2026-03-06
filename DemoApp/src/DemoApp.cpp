@@ -50,12 +50,28 @@ int main() {
 
 	Model* model = modelsMgr->createModel(MODEL_FILE_TYPE::OBJ, modelFileData.str().c_str(), modelFileData.str().length());
 
+	std::ifstream cubeModelFile("cube_model");
+
+	if (!cubeModelFile.is_open()) {
+		printf("Cube model not found\n");
+		Yngin::terminate();
+		return 1;
+	}
+
+	std::stringstream cubeModelFileData;
+	cubeModelFileData << cubeModelFile.rdbuf();
+
+	cubeModelFile.close();
+
+	Model* cubeModel = modelsMgr->createModel(MODEL_FILE_TYPE::OBJ, cubeModelFileData.str().c_str(), cubeModelFileData.str().length());
+
 	CamerasManager* camerasManager = scene->getCamerasManager();
 
 	Camera* defaultCamera = camerasManager->getCamera(0);
 
 	defaultCamera->setPos({ 10, 0, 0 });
 	defaultCamera->lookAt(glm::vec3());
+	defaultCamera->setFov(90.0f);
 
 	TexturesManager* texMgr = ctx->getTexturesManager();
 
@@ -105,7 +121,7 @@ int main() {
 		.width = 1,
 		.height = 1,
 		.numCh = 1,
-		.data = "\xaa"
+		.data = "\xff"
 	};
 	Texture* whiteTex = texMgr->createTexture(whiteTexData);
 
@@ -113,16 +129,16 @@ int main() {
 	Components::Mesh* mesh = obj->createComponent<Components::Mesh>();
 	obj->setRotation({ glm::radians(90.0f), 0, 0 });
 
-	mesh->setModel(model->getId());
+	mesh->setModel(cubeModel->getId());
 	mesh->setTexture(tex->getId());
 
 	std::vector<Vertex> wallVertices;
 	std::vector<uint32_t> wallIndices = { 0, 1, 2, 0, 2, 3 };
 
-	wallVertices.push_back({ glm::vec3(+0.5f, +0.5f, 0.0f), glm::vec2(100.0f, 000.0f) });
-	wallVertices.push_back({ glm::vec3(-0.5f, +0.5f, 0.0f), glm::vec2(000.0f, 000.0f) });
-	wallVertices.push_back({ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(000.0f, 100.0f) });
-	wallVertices.push_back({ glm::vec3(+0.5f, -0.5f, 0.0f), glm::vec2(100.0f, 100.0f) });
+	wallVertices.push_back({ glm::vec3(+0.5f, +0.5f, 0.0f), glm::vec2(100.0f, 000.0f), glm::vec3(0, 0, 1.0f) });
+	wallVertices.push_back({ glm::vec3(-0.5f, +0.5f, 0.0f), glm::vec2(000.0f, 000.0f), glm::vec3(0, 0, 1.0f) });
+	wallVertices.push_back({ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(000.0f, 100.0f), glm::vec3(0, 0, 1.0f) });
+	wallVertices.push_back({ glm::vec3(+0.5f, -0.5f, 0.0f), glm::vec2(100.0f, 100.0f), glm::vec3(0, 0, 1.0f) });
 
 	ModelData wallModelData = { wallVertices, wallIndices };
 	Model* wallModel = modelsMgr->createModel(wallModelData);
@@ -131,8 +147,43 @@ int main() {
 	Components::Mesh* wallMesh = wall->createComponent<Components::Mesh>();
 	wallMesh->setModel(wallModel->getId());
 	wallMesh->setTexture(tex->getId());
-	wallMesh->setScale(glm::vec3(1, 1, 0) * 100.0f);
+	wallMesh->setScale(glm::vec3(1, 1, 1) * 100.0f);
 	wall->setPos({ 0, 0, -5.0f });
+
+	{
+		GameObject* light = gameObjMgr->getRootGameObject()->createChild();
+		Components::Mesh* mesh = light->createComponent<Components::Mesh>();
+		mesh->setModel(cubeModel);
+		mesh->setTexture(whiteTex);
+		light->setPos({ 0, 0, 2 });
+
+		Components::Light* lightComp = light->createComponent<Components::Light>();
+		lightComp->setDistance(100.0f);
+		lightComp->setColor({ 1.0f, 0.8f, 0.45f });
+
+		mesh->setColor(lightComp->getColor());
+	}
+	/*{
+		GameObject* light = gameObjMgr->getRootGameObject()->createChild();
+		Components::Mesh* mesh = light->createComponent<Components::Mesh>();
+		mesh->setModel(cubeModel);
+		mesh->setTexture(whiteTex);
+		light->setPos({ 0, 3.0f, -0.5f });
+
+		Components::Light* lightComp = light->createComponent<Components::Light>();
+		lightComp->setColor({ 1.0f, 0, 0 });
+	}
+
+	{
+		GameObject* light = gameObjMgr->getRootGameObject()->createChild();
+		Components::Mesh* mesh = light->createComponent<Components::Mesh>();
+		mesh->setModel(cubeModel);
+		mesh->setTexture(whiteTex);
+		light->setPos({ 3.0f, 0, 0.5f });
+
+		Components::Light* lightComp = light->createComponent<Components::Light>();
+		lightComp->setColor({ 0, 0, 1.0f });
+	}*/
 
 	ctx->setMaxFPS(120);
 
@@ -159,8 +210,8 @@ int main() {
 		window->setCursorLocked(input->isMousePressed(MOUSE_BUTTON::RIGHT));
 
 		if (!tween->isActive(tweenId)) {
-			cycle = (cycle + 1) % 3;
-			tweenId = tween->tweenPos(obj, glm::vec3(0, cycle == 1 ? 1.0f : cycle == 2 ? -1.0f : 0, cycle == 0 ? -1.0f : 1.0f) * 2.0f, tweenSettings);
+			cycle = (cycle + 1) % 4;
+			tweenId = tween->tweenPos(obj, glm::vec3(glm::vec2(cycle <= 1 ? 0.5f : -0.5f, ((cycle + 3) % 4) <= 1 ? 0.5f : -0.5f) * 3.0f, -2.0f), tweenSettings);
 		}
 
 		if (input->isKeyJustPressed(Yngin::KEY::SPACE)) {

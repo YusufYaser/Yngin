@@ -12,12 +12,11 @@ namespace Yngin {
 
 			friend class GameObject;
 			friend struct std::default_delete<Component>;
-			friend class Mesh;
 
+		protected:
 			Component(GameObject* gameObject);
 			~Component();
 
-		protected:
 			struct Impl;
 			std::unique_ptr<Impl> impl;
 		};

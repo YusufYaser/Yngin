@@ -125,6 +125,6 @@ namespace Yngin {
 
 		float fov = owner->getFinalFov();
 
-		return glm::perspective(fov, aspectRatio, 0.1f, 1000.0f);
+		return glm::perspective(glm::radians(fov), aspectRatio, 0.1f, 1000.0f);
 	}
 }

@@ -45,6 +45,14 @@ namespace Yngin {
 			return impl->texId;
 		}
 
+		void Mesh::setColor(glm::vec3 newColor) {
+			impl->color = newColor;
+		}
+
+		glm::vec3 Mesh::getColor() {
+			return impl->color;
+		}
+
 		void Mesh::setScale(glm::vec3 newScale) {
 			impl->scale = newScale;
 		}
@@ -78,6 +86,10 @@ namespace Yngin {
 
 			worldShader->setMat3("normalMatrix", normalMatrix);
 			worldShader->setMat4("model", modelMat);
+
+			worldShader->setInt("isLight", obj->getComponent<Components::Light>() != nullptr);
+
+			worldShader->setVec4("color", glm::vec4(impl->color, 1));
 
 			if (tex) tex->activate();
 			model->render();

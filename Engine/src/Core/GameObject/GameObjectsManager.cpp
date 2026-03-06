@@ -52,6 +52,7 @@ namespace Yngin {
 			gameObject->getParent()->deleteChild(gameObjectId);
 		}
 	}
+
 	void GameObjectsManager::deleteGameObject(GameObject* gameObject) {
 		if (gameObject->impl->scene == impl->scene) {
 			deleteGameObject(gameObject->impl->id);
