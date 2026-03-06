@@ -14,6 +14,7 @@ namespace Yngin {
 			UIElement* getElement(uint32_t id);
 
 			void deleteElement(uint32_t id);
+			void deleteElement(UIElement* element);
 
 		private:
 			friend class Scene;

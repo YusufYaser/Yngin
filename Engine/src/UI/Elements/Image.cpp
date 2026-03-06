@@ -51,6 +51,12 @@ namespace Yngin {
 			impl->texId = newTextureId;
 		}
 
+		void Image::setTexture(Texture* newTexture) {
+			if (newTexture->getContext() == UIElement::impl->ctx) {
+				impl->texId = newTexture->getId();
+			}
+		}
+
 		uint32_t Image::getTexture() {
 			return impl->texId;
 		}

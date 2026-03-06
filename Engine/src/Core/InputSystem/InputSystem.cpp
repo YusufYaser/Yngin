@@ -46,14 +46,18 @@ namespace Yngin {
 
 		for (int i = 0; i < 3; i++) {
 			MOUSE_BUTTON btn = MOUSE_BUTTON(i);
-			if (!isMousePressed(btn)) {
+			if (isMousePressed(btn)) {
+				impl->lastFrameMousePressed[btn] = frameNum;
+			} else {
 				impl->lastFrameMouseReleased[btn] = frameNum;
 			}
 		}
 
 		for (int i = 0; i < (int)Yngin::KEY::COUNT; i++) {
 			KEY key = KEY(i);
-			if (!isKeyPressed(key)) {
+			if (isKeyPressed(key)) {
+				impl->lastFrameKeyPressed[key] = frameNum;
+			} else {
 				impl->lastFrameKeyReleased[key] = frameNum;
 			}
 		}
@@ -94,6 +98,10 @@ namespace Yngin {
 		return impl->lastFrameMouseReleased[button] == impl->ctx->getFrame() - 2;
 	}
 
+	bool InputSystem::isMouseJustReleased(const MOUSE_BUTTON& button) {
+		return impl->lastFrameMousePressed[button] == impl->ctx->getFrame() - 2;
+	}
+
 	bool InputSystem::isKeyPressed(const KEY& key) {
 		int glfwKey = keyToGlfw(key);
 
@@ -105,5 +113,9 @@ namespace Yngin {
 
 	bool InputSystem::isKeyJustPressed(const KEY& key) {
 		return impl->lastFrameKeyReleased[key] == impl->ctx->getFrame() - 2;
+	}
+
+	bool InputSystem::isKeyJustReleased(const KEY& key) {
+		return impl->lastFrameKeyPressed[key] == impl->ctx->getFrame() - 2;
 	}
 }

@@ -26,6 +26,7 @@ namespace Yngin {
 		Model* createModel(const ModelData& data);
 		Model* createModel(MODEL_FILE_TYPE type, const char* data, size_t length);
 		void deleteModel(uint32_t modelId);
+		void deleteModel(Model* model);
 
 		Model* getModel(uint32_t modelId);
 
@@ -43,6 +44,7 @@ namespace Yngin {
 	class Model {
 	public:
 		uint32_t getId();
+		Context* getContext();
 
 		void render();
 

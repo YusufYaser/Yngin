@@ -6,14 +6,18 @@
 namespace Yngin {
 	class Context;
 	class GameObject;
+	class Model;
+	class Texture;
 
 	namespace Components {
 		class Mesh : public Component {
 		public:
 			void setModel(uint32_t newModelId);
+			void setModel(Model* newModel);
 			uint32_t getModel();
 
 			void setTexture(uint32_t newTextureId);
+			void setTexture(Texture* newTexture);
 			uint32_t getTexture();
 
 			void setScale(glm::vec3 newScale);

@@ -28,6 +28,7 @@ namespace Yngin {
 	class Texture {
 	public:
 		uint32_t getId();
+		Context* getContext();
 
 		void activate();
 

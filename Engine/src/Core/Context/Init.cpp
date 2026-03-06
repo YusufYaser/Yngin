@@ -3,6 +3,7 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #ifdef _WIN32
+#undef APIENTRY // stops warning
 #include <windows.h>
 #pragma comment(lib, "winmm.lib")
 #endif

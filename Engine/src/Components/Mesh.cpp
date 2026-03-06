@@ -21,12 +21,24 @@ namespace Yngin {
 			impl->modelId = newModelId;
 		}
 
+		void Mesh::setModel(Model* newModel) {
+			if (newModel->getContext() == Component::impl->ctx) {
+				impl->modelId = newModel->getId();
+			}
+		}
+
 		uint32_t Mesh::getModel() {
 			return impl->modelId;
 		}
 
 		void Mesh::setTexture(uint32_t newTextureId) {
 			impl->texId = newTextureId;
+		}
+
+		void Mesh::setTexture(Texture* newTexture) {
+			if (newTexture->getContext() == Component::impl->ctx) {
+				impl->texId = newTexture->getId();
+			}
 		}
 
 		uint32_t Mesh::getTexture() {

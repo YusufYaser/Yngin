@@ -47,6 +47,12 @@ namespace Yngin {
 		impl->models.erase(modelId);
 	}
 
+	void ModelsManager::deleteModel(Model* model) {
+		if (model->getContext() == impl->ctx) {
+			deleteModel(model->impl->id);
+		}
+	}
+
 	Model* ModelsManager::getModel(uint32_t modelId) {
 		auto it = impl->models.find(modelId);
 		if (it == impl->models.end()) return nullptr;

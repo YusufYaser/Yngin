@@ -1,5 +1,6 @@
 #include <Yngin/UI/UIManager.h>
 #include "UI_Internal.h"
+#include "Elements/UI_Elements_Internal.h"
 #include <assert.h>
 
 namespace Yngin {
@@ -38,6 +39,12 @@ namespace Yngin {
 
 			if (element->getParent()) {
 				element->getParent()->deleteChild(id);
+			}
+		}
+
+		void UIManager::deleteElement(UIElement* element) {
+			if (element->impl->scene == impl->scene) {
+				deleteElement(element->getId());
 			}
 		}
 	}

@@ -19,9 +19,11 @@ namespace Yngin {
 
 		Scene* createScene();
 		void deleteScene(uint32_t sceneId);
+		void deleteScene(Scene* scene);
 
 		Scene* getActive();
 		void setActive(uint32_t sceneId);
+		void setActive(Scene* scene);
 
 	private:
 		friend class Context;
@@ -41,11 +43,14 @@ namespace Yngin {
 
 		Context* getContext();
 
+		void activate();
+
 		CamerasManager* getCamerasManager();
 		GameObjectsManager* getGameObjectsManager();
 		UI::UIManager* getUIManager();
 
 		uint32_t getSkyboxTextureId();
+		void setSkyboxTexture(uint32_t texId);
 		void setSkyboxTexture(Texture* tex);
 
 		void render();

@@ -31,4 +31,10 @@ namespace Yngin {
 		Shader* shader = getShader(type);
 		shader->activate();
 	}
+
+	void ShadersManager::setActive(Shader* shader) {
+		if (shader->impl->ctx == impl->ctx) {
+			shader->activate();
+		}
+	}
 }

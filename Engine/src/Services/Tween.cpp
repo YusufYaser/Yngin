@@ -6,7 +6,7 @@
 #include "../Core/GameObject/GameObject_Internal.h"
 #include "../Renderer/Cameras/Cameras_Internal.h"
 
-#define PI 3.14159265358979323846
+#define PI 3.14159265358979323846f
 #define HALF_PI 1.57079632679f
 
 namespace Yngin {
@@ -48,7 +48,7 @@ namespace Yngin {
 				double time = Service::impl->ctx->getFrameStartTime();
 				if (p->lastPause != -1) time = p->lastPause;
 
-				float progress = (time - p->startTime - p->totalPauseTime) / p->duration;
+				float progress = static_cast<float>((time - p->startTime - p->totalPauseTime) / p->duration);
 				if (progress >= 1.0f) {
 					progress = 1.0f;
 					toDelete.push_back(p->id);

@@ -3,6 +3,8 @@
 #include <glm/vec4.hpp>
 
 namespace Yngin {
+	class Texture;
+
 	namespace UI {
 		class Image : public UIElement {
 		public:
@@ -11,6 +13,7 @@ namespace Yngin {
 			UIType getType();
 
 			void setTexture(uint32_t newTextureId);
+			void setTexture(Texture* newTexture);
 			uint32_t getTexture();
 
 			void setColor(glm::vec4 newColor);

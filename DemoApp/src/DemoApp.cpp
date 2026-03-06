@@ -77,13 +77,28 @@ int main() {
 
 	scene->setSkyboxTexture(skyboxTex);
 
+	Texture* githubTex = texMgr->createTexture();
+	{
+		TextureData data{};
+		unsigned char* bytes = stbi_load("github.png", &data.width, &data.height, &data.numCh, 0);
+		data.data = (const char*)bytes;
+		data.wrap = TEXTURE_WRAP::CLAMP;
+		data.filter = TEXTURE_FILTER::LINEAR;
+		if (data.data) {
+			githubTex->setData(data);
+			stbi_image_free(bytes);
+		} else {
+			printf("Failed to load github.png: %s\n", stbi_failure_reason());
+		}
+	}
+
 	TextureData texData{};
 	texData.width = 2;
 	texData.height = 2;
 	texData.numCh = 1;
-	texData.wrap = TEXTURE_WRAP::CLAMP;
+	texData.wrap = TEXTURE_WRAP::REPEAT;
 	texData.filter = TEXTURE_FILTER::NEAREST;
-	texData.data = "\xff\x00\x00\xff";
+	texData.data = "\xff\x80\x80\xff";
 	Texture* tex = texMgr->createTexture(texData);
 
 	TextureData whiteTexData = {
@@ -104,20 +119,20 @@ int main() {
 	std::vector<Vertex> wallVertices;
 	std::vector<uint32_t> wallIndices = { 0, 1, 2, 0, 2, 3 };
 
-	wallVertices.push_back({ glm::vec3(0.5f, -0.5f, 0), glm::vec2(0, 0), glm::vec3(0, 0, 1) });
-	wallVertices.push_back({ glm::vec3(-0.5f, -0.5f, 0), glm::vec2(0, 0), glm::vec3(0, 0, 1) });
-	wallVertices.push_back({ glm::vec3(-0.5f,  0.5f, 0), glm::vec2(0, 0), glm::vec3(0, 0, 1) });
-	wallVertices.push_back({ glm::vec3(0.5f,  0.5f, 0), glm::vec2(0, 0), glm::vec3(0, 0, 1) });
+	wallVertices.push_back({ glm::vec3(+0.5f, +0.5f, 0.0f), glm::vec2(100.0f, 000.0f) });
+	wallVertices.push_back({ glm::vec3(-0.5f, +0.5f, 0.0f), glm::vec2(000.0f, 000.0f) });
+	wallVertices.push_back({ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(000.0f, 100.0f) });
+	wallVertices.push_back({ glm::vec3(+0.5f, -0.5f, 0.0f), glm::vec2(100.0f, 100.0f) });
 
 	ModelData wallModelData = { wallVertices, wallIndices };
 	Model* wallModel = modelsMgr->createModel(wallModelData);
 
-	/*GameObject* wall = gameObjMgr->getRootGameObject()->createChild();
+	GameObject* wall = gameObjMgr->getRootGameObject()->createChild();
 	Components::Mesh* wallMesh = wall->createComponent<Components::Mesh>();
 	wallMesh->setModel(wallModel->getId());
-	wallMesh->setTexture(whiteTex->getId());
+	wallMesh->setTexture(tex->getId());
 	wallMesh->setScale(glm::vec3(1, 1, 0) * 100.0f);
-	wall->setPos({ 0, 0, -1.0f });*/
+	wall->setPos({ 0, 0, -5.0f });
 
 	ctx->setMaxFPS(120);
 
@@ -131,10 +146,12 @@ int main() {
 	int tweenId = 0;
 	int cycle = 0;
 
-	UI::Image* image = scene->getUIManager()->getRootElement()->createChild<UI::Image>();
-	image->setTexture(tex->getId());
-	image->setPos({ 0, 175, 0, 75 });
-	image->setSize({ 0, 300, 0, 100 });
+	UI::Image* github = scene->getUIManager()->getRootElement()->createChild<UI::Image>();
+	github->setTexture(githubTex->getId());
+	github->setPos({ 0, 48, 1.0f, -48 });
+	github->setSize({ 0, 64, 0, 64 });
+
+	glm::ivec2 oldMousePos = {};
 
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();
@@ -149,9 +166,72 @@ int main() {
 		if (input->isKeyJustPressed(Yngin::KEY::SPACE)) {
 			tween->setPaused(tweenId, !tween->isPaused(tweenId));
 		}
-			image->setColor(glm::vec4(0.75f));
+
+		if (github->isClicked()) {
+			system("start https://github.com/YusufYaser/Yngin");
+		}
+
+		if (github->isHeld()) {
+			github->setColor(glm::vec4(0.5f));
+		} else if (github->isHovered()) {
+			github->setColor(glm::vec4(0.75f));
 		} else {
-			image->setColor(glm::vec4(1.0f));
+			github->setColor(glm::vec4(1.0f));
+		}
+
+		double delta = ctx->getDeltaTime();
+
+		if (input->isMouseJustPressed(MOUSE_BUTTON::RIGHT)) {
+			oldMousePos = input->getMousePos();
+		}
+
+		if (input->isMousePressed(MOUSE_BUTTON::RIGHT)) {
+			glm::vec3 o = defaultCamera->getOrientation();
+			glm::ivec2 m = input->getMousePos() - oldMousePos;
+			oldMousePos = input->getMousePos();
+
+			float senstivity = 0.002f;
+
+			float yaw = atan2(o.x, o.y);
+			float pitch = asin(o.z);
+
+			o.x = cos(pitch) * sin(yaw + m.x * senstivity);
+			o.y = cos(pitch) * cos(yaw + m.x * senstivity);
+			o.z = sin(pitch - m.y * senstivity);
+
+			defaultCamera->setOrientation(o);
+
+			glm::vec3 forward = glm::normalize(o);
+			glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0, 0, 1)));
+			glm::vec3 realUp = glm::cross(forward, right);
+
+			glm::vec3 change = {};
+
+			if (input->isKeyPressed(Yngin::KEY::W)) {
+				change += forward;
+			}
+			if (input->isKeyPressed(Yngin::KEY::S)) {
+				change -= forward;
+			}
+			if (input->isKeyPressed(Yngin::KEY::D)) {
+				change += right;
+			}
+			if (input->isKeyPressed(Yngin::KEY::A)) {
+				change -= right;
+			}
+			if (input->isKeyPressed(Yngin::KEY::Q)) {
+				change += realUp;
+			}
+			if (input->isKeyPressed(Yngin::KEY::E)) {
+				change -= realUp;
+			}
+
+			float speed = 5.0f;
+			if (input->isKeyPressed(Yngin::KEY::LSHIFT)) {
+				speed *= 1.5f;
+			}
+
+			defaultCamera->setPos(defaultCamera->getPos() + change * (float)delta * speed);
 		}
 
 		ctx->update();

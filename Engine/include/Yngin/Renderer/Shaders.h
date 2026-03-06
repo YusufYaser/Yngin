@@ -22,6 +22,7 @@ namespace Yngin {
 
 		Shader* getActive();
 		void setActive(SHADER_TYPE shaderType);
+		void setActive(Shader* shader);
 
 	private:
 		friend class Context;
@@ -38,6 +39,7 @@ namespace Yngin {
 	class Shader {
 	public:
 		SHADER_TYPE getType();
+		Context* getContext();
 
 		bool setSource(const ShaderSource& src);
 		void activate();

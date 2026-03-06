@@ -14,13 +14,18 @@ namespace Yngin {
 		Scene* getScene();
 
 		GameObject* getParent();
+		void setParent(uint32_t newParentId);
 		void setParent(GameObject* newParent);
 
 		GameObject* getChild(uint32_t childId);
 		GameObject* createChild();
 		void deleteChild(uint32_t childId);
+		void deleteChild(GameObject* child);
 
 		void moveChild(uint32_t childId, GameObject* newParent);
+		void moveChild(GameObject* child, GameObject* newParent);
+		void moveChild(GameObject* child, uint32_t newParentId);
+		void moveChild(uint32_t childId, uint32_t newParentId);
 
 		glm::vec3 getPos();
 		void setPos(glm::vec3 newPos);
@@ -59,6 +64,7 @@ namespace Yngin {
 		GameObject* getGameObject(uint32_t gameObjectId);
 
 		void deleteGameObject(uint32_t gameObjectId);
+		void deleteGameObject(GameObject* gameObject);
 
 	private:
 		friend class Scene;

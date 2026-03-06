@@ -53,6 +53,10 @@ namespace Yngin {
 		return impl->id;
 	}
 
+	Context* Model::getContext() {
+		return impl->ctx;
+	}
+
 	void Model::render() {
 		impl->ctx->makeCurrent();
 

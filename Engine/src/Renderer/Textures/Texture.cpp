@@ -17,6 +17,10 @@ namespace Yngin {
 		return impl->id;
 	}
 
+	Context* Texture::getContext() {
+		return impl->ctx;
+	}
+
 	void Texture::activate() {
 		glBindTexture(GL_TEXTURE_2D, impl->texId);
 	}

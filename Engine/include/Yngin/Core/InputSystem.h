@@ -52,9 +52,11 @@ namespace Yngin {
 
 		bool isMousePressed(const MOUSE_BUTTON& button);
 		bool isMouseJustPressed(const MOUSE_BUTTON& button);
+		bool isMouseJustReleased(const MOUSE_BUTTON& button);
 
 		bool isKeyPressed(const KEY& key);
 		bool isKeyJustPressed(const KEY& key);
+		bool isKeyJustReleased(const KEY& key);
 
 	private:
 		friend class Context;

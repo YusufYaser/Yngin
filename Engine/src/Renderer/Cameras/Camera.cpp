@@ -14,6 +14,14 @@ namespace Yngin {
 		return impl->id;
 	}
 
+	Context* Camera::getContext() {
+		return impl->ctx;
+	}
+
+	Scene* Camera::getScene() {
+		return impl->scene;
+	}
+
 	glm::vec3 Camera::getPos() const {
 		return impl->pos;
 	}
@@ -43,14 +51,14 @@ namespace Yngin {
 		impl->orientation = diff / glm::length(diff);
 	}
 
-	glm::mat4 Camera::getView() {
-		return glm::lookAt(impl->pos, impl->pos + impl->orientation, { 0, 0, 1 });
+	glm::mat4 Camera::Impl::getView() {
+		return glm::lookAt(pos, pos + orientation, { 0, 0, 1 });
 	}
 
-	glm::mat4 Camera::getProjection() {
-		glm::ivec2 viewportSize = impl->ctx->getViewportSize();
+	glm::mat4 Camera::Impl::getPerspectiveProjection() {
+		glm::ivec2 viewportSize = ctx->getViewportSize();
 		float aspectRatio = viewportSize.x * 1.0f / viewportSize.y;
-		return glm::perspective(impl->fov, aspectRatio, 0.1f, 1000.0f);
+		return glm::perspective(fov, aspectRatio, 0.1f, 1000.0f);
 	}
 
 	float Camera::getWeight() {

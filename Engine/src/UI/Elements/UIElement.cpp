@@ -139,6 +139,12 @@ namespace Yngin {
 		}
 
 		void UIElement::deleteChild(uint32_t childId) {
+			UIElement* child = getChild(childId);
+			if (child) deleteChild(child);
+		}
+
+		void UIElement::deleteChild(UIElement* child) {
+			uint32_t childId = child->getId();
 			impl->childs.erase(childId);
 			impl->scene->getUIManager()->impl->elements.erase(childId);
 		}
@@ -150,8 +156,25 @@ namespace Yngin {
 			if (newParent->getContext() != impl->ctx) return;
 			if (newParent->getScene() != impl->scene) return;
 
-			newParent->impl->childs[childId] = std::move(impl->childs[childId]);
+			auto it = impl->childs.find(childId);
+			if (it == impl->childs.end()) return;
+
+			newParent->impl->childs[childId] = std::move(it->second);
 			impl->childs.erase(childId);
+		}
+
+		void UIElement::moveChild(UIElement* child, UIElement* newParent) {
+			moveChild(child->getId(), newParent);
+		}
+
+		void UIElement::moveChild(UIElement* child, uint32_t newParentId) {
+			UIElement* newParent = impl->scene->getUIManager()->getElement(newParentId);
+			if (newParent) moveChild(child->getId(), newParent);
+		}
+
+		void UIElement::moveChild(uint32_t childId, uint32_t newParentId) {
+			UIElement* newParent = impl->scene->getUIManager()->getElement(newParentId);
+			if (newParent) moveChild(childId, newParent);
 		}
 
 		void UIElement::render() {

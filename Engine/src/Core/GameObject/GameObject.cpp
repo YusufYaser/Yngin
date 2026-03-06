@@ -37,6 +37,11 @@ namespace Yngin {
 		return impl->parent;
 	}
 
+	void GameObject::setParent(uint32_t newParentId) {
+		GameObject* newParent = impl->scene->getGameObjectsManager()->getGameObject(newParentId);
+		if (newParent) setParent(newParent);
+	}
+
 	void GameObject::setParent(GameObject* newParent) {
 		impl->parent->moveChild(impl->id, newParent);
 	}
@@ -63,6 +68,12 @@ namespace Yngin {
 	}
 
 	void GameObject::deleteChild(uint32_t childId) {
+		GameObject* child = getChild(childId);
+		if (child) deleteChild(child);
+	}
+
+	void GameObject::deleteChild(GameObject* child) {
+		uint32_t childId = child->getId();
 		impl->childs.erase(childId);
 		impl->scene->getGameObjectsManager()->impl->gameObjects.erase(childId);
 	}
@@ -74,8 +85,25 @@ namespace Yngin {
 		if (newParent->getContext() != impl->ctx) return;
 		if (newParent->getScene() != impl->scene) return;
 
-		newParent->impl->childs[childId] = std::move(impl->childs[childId]);
+		auto it = impl->childs.find(childId);
+		if (it == impl->childs.end()) return;
+
+		newParent->impl->childs[childId] = std::move(it->second);
 		impl->childs.erase(childId);
+	}
+
+	void GameObject::moveChild(GameObject* child, GameObject* newParent) {
+		moveChild(child->getId(), newParent);
+	}
+
+	void GameObject::moveChild(GameObject* child, uint32_t newParentId) {
+		GameObject* newParent = impl->scene->getGameObjectsManager()->getGameObject(newParentId);
+		if (newParent) moveChild(child->getId(), newParent);
+	}
+
+	void GameObject::moveChild(uint32_t childId, uint32_t newParentId) {
+		GameObject* newParent = impl->scene->getGameObjectsManager()->getGameObject(newParentId);
+		if (newParent) moveChild(childId, newParent);
 	}
 
 	glm::vec3 GameObject::getPos() {

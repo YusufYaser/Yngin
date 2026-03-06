@@ -39,8 +39,12 @@ namespace Yngin {
 			template<typename T>
 			T* createChild();
 			void deleteChild(uint32_t childId);
+			void deleteChild(UIElement* child);
 
 			void moveChild(uint32_t childId, UIElement* newParent);
+			void moveChild(UIElement* child, UIElement* newParent);
+			void moveChild(UIElement* child, uint32_t newParentId);
+			void moveChild(uint32_t childId, uint32_t newParentId);
 
 			void setPos(UITransform newPos);
 			UITransform getPos();

@@ -8,6 +8,7 @@
 #include <glad/glad.h>
 #include <stdexcept>
 #include "Scenes_Internal.h"
+#include "../../Renderer/Cameras/Cameras_Internal.h"
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Yngin {
@@ -34,6 +35,10 @@ namespace Yngin {
 		return impl->ctx;
 	}
 
+	void Scene::activate() {
+		impl->ctx->getScenesManager()->setActive(impl->id);
+	}
+
 	CamerasManager* Scene::getCamerasManager() {
 		return impl->camerasManager.get();
 	}
@@ -50,8 +55,14 @@ namespace Yngin {
 		return impl->skyboxTexId;
 	}
 
+	void Scene::setSkyboxTexture(uint32_t texId) {
+		impl->skyboxTexId = texId;
+	}
+
 	void Scene::setSkyboxTexture(Texture* tex) {
-		impl->skyboxTexId = tex->getId();
+		if (tex->getContext() == impl->ctx) {
+			impl->skyboxTexId = tex->getId();
+		}
 	}
 
 	void Scene::render() {
@@ -59,8 +70,8 @@ namespace Yngin {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 proj = getCamerasManager()->getFinalProjection();
-		glm::mat4 view = getCamerasManager()->getFinalView();
+		glm::mat4 proj = getCamerasManager()->impl->getFinalPerspectiveProjection();
+		glm::mat4 view = getCamerasManager()->impl->getFinalView();
 
 		Model* skybox = impl->ctx->getSkyboxModel();
 		Texture* skyboxTex = impl->ctx->getTexturesManager()->getTexture(impl->skyboxTexId);

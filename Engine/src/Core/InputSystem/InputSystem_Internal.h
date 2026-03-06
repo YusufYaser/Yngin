@@ -8,5 +8,8 @@ namespace Yngin {
 
 		std::map<Yngin::MOUSE_BUTTON, uint64_t> lastFrameMouseReleased;
 		std::map<Yngin::KEY, uint64_t> lastFrameKeyReleased;
+
+		std::map<Yngin::MOUSE_BUTTON, uint64_t> lastFrameMousePressed;
+		std::map<Yngin::KEY, uint64_t> lastFrameKeyPressed;
 	};
 }

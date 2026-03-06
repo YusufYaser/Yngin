@@ -17,6 +17,10 @@ namespace Yngin {
 		return impl->type;
 	}
 
+	Context* Shader::getContext() {
+		return impl->ctx;
+	}
+
 	bool Shader::setSource(const ShaderSource& src) {
 		bool shadersFailed = false;
 		GLuint vertexShader, fragmentShader;

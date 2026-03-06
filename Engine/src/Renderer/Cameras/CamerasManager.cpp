@@ -14,6 +14,7 @@ namespace Yngin {
 
 		impl->ctx = scene->getContext();
 		impl->scene = scene;
+		impl->owner = this;
 
 		Camera* defaultCamera = createCamera();
 		defaultCamera->setWeight(1.0f);
@@ -39,6 +40,12 @@ namespace Yngin {
 		impl->cameras.erase(cameraId);
 	}
 
+	void CamerasManager::deleteCamera(Camera* camera) {
+		if (camera->impl->scene == impl->scene) {
+			deleteCamera(camera->impl->id);
+		}
+	}
+
 	Camera* CamerasManager::getCamera(uint32_t cameraId) {
 		auto it = impl->cameras.find(cameraId);
 		if (it == impl->cameras.end()) return nullptr;
@@ -59,6 +66,11 @@ namespace Yngin {
 	void CamerasManager::setActive(uint32_t cameraId) {
 		Camera* camera = getCamera(cameraId);
 		if (camera == nullptr) return;
+		setActive(camera);
+	}
+
+	void CamerasManager::setActive(Camera* camera) {
+		if (camera->impl->scene != impl->scene) return;
 
 		for (auto& kvp : impl->cameras) {
 			kvp.second->setWeight(0.0f);
@@ -97,21 +109,21 @@ namespace Yngin {
 		return finalFov;
 	}
 
-	glm::mat4 CamerasManager::getFinalView() {
-		glm::vec3 pos = getFinalPos();
-		glm::vec3 orientation = getFinalOrientation();
+	glm::mat4 CamerasManager::Impl::getFinalView() {
+		glm::vec3 pos = owner->getFinalPos();
+		glm::vec3 orientation = owner->getFinalOrientation();
 
 		return glm::lookAt(pos, pos + orientation, { 0, 0, 1 });
 	}
 
-	glm::mat4 CamerasManager::getFinalProjection() {
-		glm::ivec2 viewportSize = impl->ctx->getViewportSize();
+	glm::mat4 CamerasManager::Impl::getFinalPerspectiveProjection() {
+		glm::ivec2 viewportSize = ctx->getViewportSize();
 		float aspectRatio = 1.0f;
 		if (viewportSize.y != 0) {
 			aspectRatio = viewportSize.x * 1.0f / viewportSize.y;
 		}
 
-		float fov = getFinalFov();
+		float fov = owner->getFinalFov();
 
 		return glm::perspective(fov, aspectRatio, 0.1f, 1000.0f);
 	}
