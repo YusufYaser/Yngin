@@ -7,6 +7,7 @@ namespace Yngin {
 		struct UIElement::Impl {
 			Context* ctx;
 			Scene* scene;
+			UIManager* mgr;
 
 			uint32_t id;
 

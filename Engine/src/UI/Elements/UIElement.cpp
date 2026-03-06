@@ -8,11 +8,12 @@
 
 namespace Yngin {
 	namespace UI {
-		UIElement::UIElement(Context* ctx, Scene* scene, UIElement* parent) {
+		UIElement::UIElement(Context* ctx, Scene* scene, UIManager* mgr, UIElement* parent) {
 			impl = std::make_unique<Impl>();
 
 			impl->ctx = ctx;
 			impl->scene = scene;
+			impl->mgr = mgr;
 			impl->parent = parent;
 		}
 
@@ -104,14 +105,14 @@ namespace Yngin {
 
 		template<typename T>
 		T* UIElement::createChild() {
-			auto element = std::unique_ptr<T>(new T(impl->ctx, impl->scene, this));
+			auto element = std::unique_ptr<T>(new T(impl->ctx, impl->scene, impl->mgr, this));
 
-			uint32_t id = impl->scene->getUIManager()->acquireId();
+			uint32_t id = impl->mgr->acquireId();
 			dynamic_cast<UIElement*>(element.get())->impl->id = id;
 
 			impl->childs[id] = std::move(element);
 			T* obj = dynamic_cast<T*>(impl->childs[id].get());
-			impl->scene->getUIManager()->impl->elements[id] = obj;
+			impl->mgr->impl->elements[id] = obj;
 
 			return obj;
 		}

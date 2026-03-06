@@ -20,6 +20,7 @@ namespace Yngin {
 			friend class Scene;
 			friend struct std::default_delete<UIManager>;
 			friend class UIElement;
+			friend class Context;
 
 			UIManager(Context* ctx, Scene* scene);
 			~UIManager();

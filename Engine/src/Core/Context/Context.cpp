@@ -3,6 +3,8 @@
 #include <Yngin/Core/InputSystem.h>
 #include <Yngin/Renderer/Shaders.h>
 #include <Yngin/Renderer/Textures.h>
+#include <Yngin/UI/UIManager.h>
+#include <Yngin/UI/Elements/UIElement.h>
 #include <Yngin/Core/Window.h>
 #include "../Window/Window_Internal.h"
 #include <glad/glad.h>
@@ -52,6 +54,7 @@ namespace Yngin {
 		m.scenesManager = std::unique_ptr<ScenesManager>(new ScenesManager(this));
 		m.texturesManager = std::unique_ptr<TexturesManager>(new TexturesManager(this));
 		m.shadersManager = std::unique_ptr<ShadersManager>(new ShadersManager(this));
+		m.uiManager = std::unique_ptr<UI::UIManager>(new UI::UIManager(this, nullptr));
 
 		m.inputSystem = std::unique_ptr<InputSystem>(new InputSystem(this));
 
@@ -131,7 +134,11 @@ namespace Yngin {
 		Scene* scene = m.scenesManager->getActive();
 		if (scene) {
 			m.scenesManager->getActive()->render();
+		} else {
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
+
+		m.uiManager->getRootElement()->render();
 
 		glfwSwapInterval(m.maxFPS == 0);
 
@@ -207,6 +214,10 @@ namespace Yngin {
 
 	ShadersManager* Context::getShadersManager() {
 		return impl->shadersManager.get();
+	}
+
+	UI::UIManager* Context::getGlobalUIManager() {
+		return impl->uiManager.get();
 	}
 
 	InputSystem* Context::getInputSystem() {

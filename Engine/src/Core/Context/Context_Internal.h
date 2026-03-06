@@ -13,6 +13,7 @@ namespace Yngin {
 		std::unique_ptr<ScenesManager> scenesManager;
 		std::unique_ptr<TexturesManager> texturesManager;
 		std::unique_ptr<ShadersManager> shadersManager;
+		std::unique_ptr<UI::UIManager> uiManager;
 
 		std::unique_ptr<InputSystem> inputSystem;
 

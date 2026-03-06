@@ -23,7 +23,7 @@ namespace Yngin {
 			friend class UIElement;
 			friend struct std::default_delete<Image>;
 
-			Image(Context* ctx, Scene* scene, UIElement* parent);
+			Image(Context* ctx, Scene* scene, UIManager* mgr, UIElement* parent);
 			~Image();
 
 			void render();

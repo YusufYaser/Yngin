@@ -61,8 +61,9 @@ namespace Yngin {
 			friend struct std::default_delete<UIElement>;
 			friend class Image;
 			friend class Scene;
+			friend class Context;
 
-			UIElement(Context* ctx, Scene* scene, UIElement* parent);
+			UIElement(Context* ctx, Scene* scene, UIManager* mgr, UIElement* parent);
 			~UIElement();
 
 			virtual void render();

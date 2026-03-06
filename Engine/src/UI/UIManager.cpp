@@ -9,7 +9,7 @@ namespace Yngin {
 			impl = std::make_unique<Impl>();
 			impl->ctx = ctx;
 			impl->scene = scene;
-			impl->rootElement = std::unique_ptr<UIElement>(new UIElement(ctx, scene, nullptr));
+			impl->rootElement = std::unique_ptr<UIElement>(new UIElement(ctx, scene, this, nullptr));
 		}
 
 		UIManager::~UIManager() = default;
@@ -43,7 +43,7 @@ namespace Yngin {
 		}
 
 		void UIManager::deleteElement(UIElement* element) {
-			if (element->impl->scene == impl->scene) {
+			if (element->impl->ctx == impl->ctx && element->impl->scene == impl->scene) {
 				deleteElement(element->getId());
 			}
 		}

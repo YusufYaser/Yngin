@@ -9,7 +9,7 @@
 
 namespace Yngin {
 	namespace UI {
-		Image::Image(Context* ctx, Scene* scene, UIElement* parent) : UIElement(ctx, scene, parent) {
+		Image::Image(Context* ctx, Scene* scene, UIManager* mgr, UIElement* parent) : UIElement(ctx, scene, mgr, parent) {
 			impl = std::make_unique<Impl>();
 		}
 

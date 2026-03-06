@@ -20,6 +20,10 @@ namespace Yngin {
 	class Model;
 	class InputSystem;
 
+	namespace UI {
+		class UIManager;
+	}
+
 	enum class CONTEXT_STATUS : uint8_t {
 		RUNNING,
 		INITIALIZING,
@@ -64,6 +68,7 @@ namespace Yngin {
 		ScenesManager* getScenesManager();
 		TexturesManager* getTexturesManager();
 		ShadersManager* getShadersManager();
+		UI::UIManager* getGlobalUIManager();
 
 		InputSystem* getInputSystem();
 
