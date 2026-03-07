@@ -8,8 +8,8 @@
 #include <sstream>
 #include <Yngin/Yngin.h>
 #include <glm/glm.hpp>
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+//#define STB_IMAGE_IMPLEMENTATION
+//#include "stb_image.h"
 
 using namespace Yngin;
 
@@ -77,7 +77,7 @@ int main() {
 
 	// https://freestylized.com/skybox/sky_36/
 	Texture* skyboxTex = texMgr->createTexture();
-	{
+	/*{
 		TextureData skyboxData{};
 		unsigned char* bytes = stbi_load("skybox.png", &skyboxData.width, &skyboxData.height, &skyboxData.numCh, 0);
 		skyboxData.data = (const char*)bytes;
@@ -89,12 +89,12 @@ int main() {
 		} else {
 			printf("Failed to load skybox: %s\n", stbi_failure_reason());
 		}
-	}
+	}*/
 
 	scene->setSkyboxTexture(skyboxTex);
 
 	Texture* githubTex = texMgr->createTexture();
-	{
+	/*{
 		TextureData data{};
 		unsigned char* bytes = stbi_load("github.png", &data.width, &data.height, &data.numCh, 0);
 		data.data = (const char*)bytes;
@@ -106,7 +106,7 @@ int main() {
 		} else {
 			printf("Failed to load github.png: %s\n", stbi_failure_reason());
 		}
-	}
+	}*/
 
 	TextureData texData{};
 	texData.width = 2;
