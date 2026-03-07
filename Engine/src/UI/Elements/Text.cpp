@@ -76,8 +76,7 @@ namespace Yngin {
 					pos.y++;
 					continue;
 				}
-				if (c == '\r') {
-					pos.x = 0;
+				if (c == '\r' || c == '\b') {
 					continue;
 				}
 
@@ -94,8 +93,8 @@ namespace Yngin {
 				uiShader->setVec2("uiCrop.start", start);
 				uiShader->setVec2("uiCrop.end", end);
 
-				uiShader->setInt("uiPosition.xOffset", UIElement::impl->pos.xOffset + impl->textSize * pos.x);
-				uiShader->setInt("uiPosition.yOffset", UIElement::impl->pos.xOffset + impl->textSize * 2 * pos.y);
+				uiShader->setInt("uiPosition.xOffset", UIElement::impl->pos.xOffset + impl->textSize * pos.x + impl->textSize / 2);
+				uiShader->setInt("uiPosition.yOffset", UIElement::impl->pos.yOffset + impl->textSize * 2 * pos.y + impl->textSize);
 
 				Model* model = UIElement::impl->ctx->getImageModel();
 				glDisable(GL_DEPTH_TEST);

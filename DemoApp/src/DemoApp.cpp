@@ -110,6 +110,7 @@ int main() {
 	};
 	Texture* whiteTex = texMgr->createTexture(whiteTexData);
 
+	// https://github.com/shannpersand/comic-shanns/blob/master/v2/comic%20shanns%202.ttf
 	Texture* glyphTex = texMgr->createTexture("glyph.png", {
 		.wrap = TEXTURE_WRAP::CLAMP,
 		.filter = TEXTURE_FILTER::LINEAR
@@ -213,7 +214,7 @@ int main() {
 	}
 
 	UI::Text* text = scene->getUIManager()->getRootElement()->createChild<UI::Text>();
-	text->setPos({ 0, 32, 0, 32 });
+	text->setPos({ 0, 8, 0, 0 });
 	text->setGlyph(glyphTex);
 	text->setText("");
 	text->setTextSize(24);
@@ -222,6 +223,10 @@ int main() {
 
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();
+
+		if (input->isKeyJustPressed(Yngin::KEY::F11) || (input->isKeyPressed(Yngin::KEY::RALT) && input->isKeyJustPressed(Yngin::KEY::ENTER))) {
+			window->setFullscreen(!window->isFullscreen());
+		}
 
 		if (input->isKeyJustPressed(Yngin::KEY::NUM_1)) {
 			textShown = (textShown + 1) % 2;

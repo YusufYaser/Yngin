@@ -11,6 +11,10 @@ namespace Yngin {
 
 		Window* owner;
 
+		glm::ivec2 posPreFullscreen;
+		glm::ivec2 sizePreFullscreen;
+		bool fullscreen = false;
+
 		void swapBuffers();
 		bool shouldClose();
 		void update();

@@ -15,7 +15,9 @@ int keyToGlfw(Yngin::KEY key) {
 		return GLFW_KEY_0 + (int(key) - int(Yngin::KEY::NUM_0));
 	}
 
-	if (key == Yngin::KEY::SPACE) return GLFW_KEY_SPACE;
+	if (Yngin::KEY::F1 <= key && key <= Yngin::KEY::F25) {
+		return GLFW_KEY_F1 + (int(key) - int(Yngin::KEY::F1));
+	}
 
 	if (Yngin::KEY::ESCAPE <= key && key <= Yngin::KEY::BACKSPACE) {
 		return GLFW_KEY_ESCAPE + (int(key) - int(Yngin::KEY::ESCAPE));
@@ -28,6 +30,8 @@ int keyToGlfw(Yngin::KEY key) {
 	if (Yngin::KEY::LSHIFT <= key && key <= Yngin::KEY::RSUPER) {
 		return GLFW_KEY_LEFT_SHIFT + (int(key) - int(Yngin::KEY::LSHIFT));
 	}
+
+	if (key == Yngin::KEY::SPACE) return GLFW_KEY_SPACE;
 
 	return 0;
 }
