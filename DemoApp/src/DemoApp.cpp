@@ -158,12 +158,13 @@ int main() {
 		light->setPos({ 0, 0, 2 });
 
 		Components::Light* lightComp = light->createComponent<Components::Light>();
-		lightComp->setDistance(100.0f);
+		lightComp->setIntensity(2.0f);
+		lightComp->setDistance(32.0f);
 		lightComp->setColor({ 1.0f, 0.8f, 0.45f });
 
 		mesh->setColor(lightComp->getColor());
 	}
-	/*{
+	{
 		GameObject* light = gameObjMgr->getRootGameObject()->createChild();
 		Components::Mesh* mesh = light->createComponent<Components::Mesh>();
 		mesh->setModel(cubeModel);
@@ -172,6 +173,9 @@ int main() {
 
 		Components::Light* lightComp = light->createComponent<Components::Light>();
 		lightComp->setColor({ 1.0f, 0, 0 });
+		lightComp->setIntensity(10.0f);
+
+		mesh->setColor(lightComp->getColor());
 	}
 
 	{
@@ -183,7 +187,10 @@ int main() {
 
 		Components::Light* lightComp = light->createComponent<Components::Light>();
 		lightComp->setColor({ 0, 0, 1.0f });
-	}*/
+		lightComp->setIntensity(10.0f);
+
+		mesh->setColor(lightComp->getColor());
+	}
 
 	ctx->setMaxFPS(120);
 

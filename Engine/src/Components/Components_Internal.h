@@ -21,7 +21,8 @@ namespace Yngin {
 
 		struct Light::Impl {
 			glm::vec3 color = glm::vec3(1.0f);
-			float distance = 1.0f;
+			float distance = 12.0f;
+			float intensity = 1.0f;
 		};
 	}
 }

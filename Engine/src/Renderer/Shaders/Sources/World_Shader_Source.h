@@ -42,6 +42,11 @@ struct Light {
 	vec3 position;
 	vec3 color;
 	float distance;
+	float intensity;
+};
+
+struct SceneSettings {
+	vec3 ambientLight;
 };
 
 in vec3 fPosition;
@@ -50,36 +55,51 @@ in vec3 fNormal;
 
 out vec4 FragColor;
 
+uniform bool isLight;
 uniform int lightsCount;
 uniform Light lights[MAX_LIGHTS];
+uniform vec3 cameraPos;
 
-uniform bool isLight;
+uniform SceneSettings scene;
 
 uniform sampler2D tex0;
 uniform vec4 color;
 
 void main() {
-	vec3 totalLightColor = vec3(0.1, 0.1, 0.1);
+	vec3 totalLight = vec3(0.0);
+
+	vec3 ambient = scene.ambientLight;
+	vec3 diffusion = vec3(0.0);
+	vec3 specular = vec3(0.0);
+	
 	if (!isLight) {
 		for (int i = 0; i < lightsCount; i++) {
-			vec3 diff = lights[i].position - fPosition;
+			Light l = lights[i];
+			vec3 diff = l.position - fPosition;
 			float dist = length(diff);
-			vec3 dir = diff / (dist + 0.0001);
+			vec3 lightDir = diff / (dist + 0.0001);
 
-			float dotProduct = max(dot(fNormal, dir), 0.0);
+			float dotProduct = max(dot(fNormal, lightDir), 0.0);
+			
+			float distRatio = clamp(dist / l.distance, 0.0, 1.0);
+			float attenuation = 1.0 - (distRatio * distRatio);
+			attenuation *= attenuation;
 
-			float intensity = clamp(1.0 - (dist / lights[i].distance), 0.0, 1.0);
-			intensity *= intensity;
-
-			totalLightColor += dotProduct * intensity * lights[i].color;
+			diffusion += dotProduct * l.intensity * attenuation * l.color;
+			
+			vec3 viewDir = normalize(cameraPos - fPosition);
+			vec3 reflectDir = reflect(-lightDir, fNormal);
+			
+			specular += pow(max(dot(viewDir, reflectDir), 0.0), 64) * l.color * l.intensity * 0.5;
 		}
 
-		totalLightColor = clamp(totalLightColor + vec3(0.1), vec3(0.0), vec3(1.0));
+		totalLight = ambient + diffusion + specular;
+		totalLight = clamp(totalLight / (totalLight + vec3(1.0f)), vec3(0.0), vec3(1.0));
 	} else {
-		totalLightColor = vec3(1.0);
+		totalLight = vec3(1.0);
 	}
 
-	FragColor = texture(tex0, fTexCoord) * color * vec4(totalLightColor, 1.0);
+	FragColor = texture(tex0, fTexCoord) * color * vec4(totalLight, 1.0);
 }
 			)",
 		};

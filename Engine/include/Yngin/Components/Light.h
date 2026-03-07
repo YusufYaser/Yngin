@@ -13,6 +13,9 @@ namespace Yngin {
 			float getDistance();
 			void setDistance(float distance);
 
+			float getIntensity();
+			void setIntensity(float intensity);
+
 		private:
 			Light(GameObject* gameObject);
 			~Light();

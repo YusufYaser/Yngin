@@ -20,6 +20,14 @@ namespace Yngin::Components {
 		impl->distance = distance;
 	}
 
+	float Light::getIntensity() {
+		return impl->intensity;
+	}
+
+	void Light::setIntensity(float intensity) {
+		impl->intensity = intensity;
+	}
+
 	glm::vec3 Light::getColor() {
 		return impl->color;
 	}

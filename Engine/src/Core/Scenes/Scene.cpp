@@ -69,6 +69,14 @@ namespace Yngin {
 		}
 	}
 
+	LightSettings Scene::getLightSettings() {
+		return impl->lightSettings;
+	}
+
+	void Scene::setLightSettings(LightSettings& lightSettings) {
+		impl->lightSettings = lightSettings;
+	}
+
 	void Scene::render() {
 		impl->ctx->makeCurrent();
 
@@ -108,6 +116,7 @@ namespace Yngin {
 			worldShader->setVec3(std::string("lights[" + std::to_string(lightsCount) + "].position").c_str(), obj->getPos());
 			worldShader->setVec3(std::string("lights[" + std::to_string(lightsCount) + "].color").c_str(), light->getColor());
 			worldShader->setFloat(std::string("lights[" + std::to_string(lightsCount) + "].distance").c_str(), light->getDistance());
+			worldShader->setFloat(std::string("lights[" + std::to_string(lightsCount) + "].intensity").c_str(), light->getIntensity());
 
 			lightsCount++;
 
@@ -117,6 +126,10 @@ namespace Yngin {
 		}
 
 		worldShader->setInt("lightsCount", lightsCount);
+
+		worldShader->setVec3("cameraPos", impl->camerasManager->getFinalPos());
+
+		worldShader->setVec3("scene.ambientLight", impl->lightSettings.ambientLight);
 
 		impl->gameObjectsManager->getRootGameObject()->render();
 		impl->uiManager->getRootElement()->render();

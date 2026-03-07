@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <glm/vec3.hpp>
 
 namespace Yngin {
 	class CamerasManager;
@@ -8,6 +9,10 @@ namespace Yngin {
 	class Scene;
 	class Context;
 	class Texture;
+
+	struct LightSettings {
+		glm::vec3 ambientLight = glm::vec3(0.1f);
+	};
 
 	namespace UI {
 		class UIManager;
@@ -52,6 +57,9 @@ namespace Yngin {
 		uint32_t getSkyboxTextureId();
 		void setSkyboxTexture(uint32_t texId);
 		void setSkyboxTexture(Texture* tex);
+
+		LightSettings getLightSettings();
+		void setLightSettings(LightSettings& lightSettings);
 
 		void render();
 
