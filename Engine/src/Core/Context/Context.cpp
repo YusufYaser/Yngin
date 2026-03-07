@@ -65,7 +65,7 @@ namespace Yngin {
 		texData.width = 1;
 		texData.height = 1;
 		texData.numCh = 1;
-		texData.data = "\x00";
+		texData.bytes = "\x00";
 		m.texturesManager->createTexture(texData);
 
 		Shader* worldShader = m.shadersManager->getShader(SHADER_TYPE::WORLD);

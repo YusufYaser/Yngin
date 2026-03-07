@@ -28,9 +28,15 @@ namespace Yngin {
 		return impl->textures[textureId].get();
 	}
 
-	Texture* TexturesManager::createTexture(TextureData& data) {
+	Texture* TexturesManager::createTexture(const TextureData& data, const TextureSettings& settings) {
 		Texture* tex = createTexture();
-		tex->setData(data);
+		tex->setData(data, settings);
+		return tex;
+	}
+
+	Texture* TexturesManager::createTexture(const char* path, const TextureSettings& settings) {
+		Texture* tex = createTexture();
+		tex->setData(path, settings);
 		return tex;
 	}
 

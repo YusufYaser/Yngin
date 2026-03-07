@@ -15,14 +15,17 @@ namespace Yngin {
 		NEAREST
 	};
 
+	struct TextureSettings {
+		TEXTURE_WRAP wrap = TEXTURE_WRAP::REPEAT;
+		TEXTURE_FILTER filter = TEXTURE_FILTER::LINEAR;
+	};
+
 	struct TextureData {
 		int width;
 		int height;
 		int numCh;
-		TEXTURE_WRAP wrap = TEXTURE_WRAP::REPEAT;
-		TEXTURE_FILTER filter = TEXTURE_FILTER::LINEAR;
 
-		const char* data;
+		const char* bytes;
 	};
 
 	class Texture {
@@ -32,7 +35,8 @@ namespace Yngin {
 
 		void activate();
 
-		void setData(TextureData& data);
+		void setData(const TextureData& data, const TextureSettings& settings = {});
+		void setData(const char* path, const TextureSettings& settings = {});
 
 		glm::ivec2 getSize();
 
@@ -50,7 +54,8 @@ namespace Yngin {
 	class TexturesManager {
 	public:
 		Texture* createTexture();
-		Texture* createTexture(TextureData& data);
+		Texture* createTexture(const TextureData& data, const TextureSettings& settings = {});
+		Texture* createTexture(const char* path, const TextureSettings& settings = {});
 		void deleteTexture(uint32_t textureId);
 
 		Texture* getTexture(uint32_t textureId);

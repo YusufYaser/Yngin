@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c" />
+    <ClCompile Include="deps\implementations\stb_image.c" />
     <ClCompile Include="src\Components\Light.cpp" />
     <ClCompile Include="src\Core\Context\Init.cpp" />
     <ClCompile Include="src\Core\InputSystem\InputSystem.cpp" />

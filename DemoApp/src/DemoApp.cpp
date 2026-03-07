@@ -8,8 +8,6 @@
 #include <sstream>
 #include <Yngin/Yngin.h>
 #include <glm/glm.hpp>
-//#define STB_IMAGE_IMPLEMENTATION
-//#include "stb_image.h"
 
 using namespace Yngin;
 
@@ -76,52 +74,33 @@ int main() {
 	TexturesManager* texMgr = ctx->getTexturesManager();
 
 	// https://freestylized.com/skybox/sky_36/
-	Texture* skyboxTex = texMgr->createTexture();
-	/*{
-		TextureData skyboxData{};
-		unsigned char* bytes = stbi_load("skybox.png", &skyboxData.width, &skyboxData.height, &skyboxData.numCh, 0);
-		skyboxData.data = (const char*)bytes;
-		skyboxData.wrap = TEXTURE_WRAP::CLAMP;
-		skyboxData.filter = TEXTURE_FILTER::NEAREST;
-		if (skyboxData.data) {
-			skyboxTex->setData(skyboxData);
-			stbi_image_free(bytes);
-		} else {
-			printf("Failed to load skybox: %s\n", stbi_failure_reason());
-		}
-	}*/
+	Texture* skyboxTex = texMgr->createTexture("skybox.png", {
+		.wrap = TEXTURE_WRAP::CLAMP,
+		.filter = TEXTURE_FILTER::NEAREST
+		});
 
 	scene->setSkyboxTexture(skyboxTex);
 
-	Texture* githubTex = texMgr->createTexture();
-	/*{
-		TextureData data{};
-		unsigned char* bytes = stbi_load("github.png", &data.width, &data.height, &data.numCh, 0);
-		data.data = (const char*)bytes;
-		data.wrap = TEXTURE_WRAP::CLAMP;
-		data.filter = TEXTURE_FILTER::LINEAR;
-		if (data.data) {
-			githubTex->setData(data);
-			stbi_image_free(bytes);
-		} else {
-			printf("Failed to load github.png: %s\n", stbi_failure_reason());
-		}
-	}*/
+	Texture* githubTex = texMgr->createTexture("github.png", {
+		.wrap = TEXTURE_WRAP::CLAMP,
+		.filter = TEXTURE_FILTER::LINEAR
+		});
 
 	TextureData texData{};
 	texData.width = 2;
 	texData.height = 2;
 	texData.numCh = 1;
-	texData.wrap = TEXTURE_WRAP::REPEAT;
-	texData.filter = TEXTURE_FILTER::NEAREST;
-	texData.data = "\xff\x80\x80\xff";
-	Texture* tex = texMgr->createTexture(texData);
+	texData.bytes = "\xff\x80\x80\xff";
+	TextureSettings texSettings{};
+	texSettings.wrap = TEXTURE_WRAP::REPEAT;
+	texSettings.filter = TEXTURE_FILTER::NEAREST;
+	Texture* tex = texMgr->createTexture(texData, texSettings);
 
 	TextureData whiteTexData = {
 		.width = 1,
 		.height = 1,
 		.numCh = 1,
-		.data = "\xff"
+		.bytes = "\xff"
 	};
 	Texture* whiteTex = texMgr->createTexture(whiteTexData);
 

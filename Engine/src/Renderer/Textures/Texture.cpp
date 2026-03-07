@@ -2,6 +2,7 @@
 #include "Textures_Internal.h"
 #include <glad/glad.h>
 #include <stdexcept>
+#include <stb_image/stb_image.h>
 
 namespace Yngin {
 	Texture::Texture(Context* ctx) {
@@ -25,12 +26,12 @@ namespace Yngin {
 		glBindTexture(GL_TEXTURE_2D, impl->texId);
 	}
 
-	void Texture::setData(TextureData& texData) {
-		int w = texData.width;
-		int h = texData.height;
-		int n = texData.numCh;
+	void Texture::setData(const TextureData& data, const TextureSettings& settings) {
+		int w = data.width;
+		int h = data.height;
+		int n = data.numCh;
 
-		const char* data = texData.data;
+		const char* bytes = data.bytes;
 
 		bool active = impl->ctx->getTexturesManager()->getActive() == this;
 		if (active)	glBindTexture(GL_TEXTURE_2D, 0);
@@ -39,7 +40,7 @@ namespace Yngin {
 		glBindTexture(GL_TEXTURE_2D, impl->texId);
 
 		GLint glFilter = GL_LINEAR;
-		switch (texData.filter) {
+		switch (settings.filter) {
 		case TEXTURE_FILTER::LINEAR:
 			glFilter = GL_LINEAR;
 			break;
@@ -52,7 +53,7 @@ namespace Yngin {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glFilter);
 
 		GLint glWrap = GL_REPEAT;
-		switch (texData.wrap) {
+		switch (settings.wrap) {
 		case TEXTURE_WRAP::REPEAT:
 			glWrap = GL_REPEAT;
 			break;
@@ -64,53 +65,65 @@ namespace Yngin {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrap);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrap);
 
-		char* finalData = new char[w * h * 4 + 1];
+		char* finalBytes = new char[w * h * 4 + 1];
 		int cIdx = 0;
 
 		// convert to RGBA
 		if (n == 1) {
 			for (int i = 0; i < w * h; i++) {
-				finalData[cIdx++] = data[i * n];
-				finalData[cIdx++] = data[i * n];
-				finalData[cIdx++] = data[i * n];
-				finalData[cIdx++] = '\xff';
+				finalBytes[cIdx++] = bytes[i * n];
+				finalBytes[cIdx++] = bytes[i * n];
+				finalBytes[cIdx++] = bytes[i * n];
+				finalBytes[cIdx++] = '\xff';
 			}
-			finalData[cIdx] += '\0';
+			finalBytes[cIdx] += '\0';
 		} else if (n == 2) {
 			for (int i = 0; i < w * h; i++) {
-				finalData[cIdx++] = data[i * n];
-				finalData[cIdx++] = data[i * n];
-				finalData[cIdx++] = data[i * n];
-				finalData[cIdx++] = data[i * n + 1];
+				finalBytes[cIdx++] = bytes[i * n];
+				finalBytes[cIdx++] = bytes[i * n];
+				finalBytes[cIdx++] = bytes[i * n];
+				finalBytes[cIdx++] = bytes[i * n + 1];
 			}
-			finalData[cIdx] += '\0';
+			finalBytes[cIdx] += '\0';
 		} else if (n == 3) {
 			for (int i = 0; i < w * h; i++) {
-				finalData[cIdx++] = data[i * n];
-				finalData[cIdx++] = data[i * n + 1];
-				finalData[cIdx++] = data[i * n + 2];
-				finalData[cIdx++] = '\xff';
+				finalBytes[cIdx++] = bytes[i * n];
+				finalBytes[cIdx++] = bytes[i * n + 1];
+				finalBytes[cIdx++] = bytes[i * n + 2];
+				finalBytes[cIdx++] = '\xff';
 			}
-			finalData[cIdx] += '\0';
-		} else if (n > 4) {
-			throw std::invalid_argument("Number of channels cannot be more than 4");
+			finalBytes[cIdx] += '\0';
+		} else if (n > 4 || n < 1) {
+			throw std::invalid_argument("Number of channels cannot be more than 4 or less than 1");
 		} else {
-			delete[] finalData;
-			finalData = (char*)data;
+			delete[] finalBytes;
+			finalBytes = (char*)bytes;
 		}
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, finalData);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, finalBytes);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 		if (n != 4) {
-			delete[] finalData;
+			delete[] finalBytes;
 		} else {
-			finalData = nullptr;
+			finalBytes = nullptr;
 		}
 
 		if (active)	glBindTexture(GL_TEXTURE_2D, impl->texId);
 
 		impl->size = glm::ivec2(w, h);
+	}
+
+	void Texture::setData(const char* path, const TextureSettings& settings) {
+		TextureData data{};
+		unsigned char* bytes = stbi_load(path, &data.width, &data.height, &data.numCh, 0);
+		if (!bytes) return;
+
+		data.bytes = (const char*)bytes;
+
+		setData(data, settings);
+
+		stbi_image_free(bytes);
 	}
 
 	glm::ivec2 Texture::getSize() {
