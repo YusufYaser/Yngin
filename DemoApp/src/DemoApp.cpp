@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <sstream>
+#include <format>
 #include <Yngin/Yngin.h>
 #include <glm/glm.hpp>
 
@@ -16,7 +17,7 @@ int main() {
 
 	ContextSettings settings = {};
 	settings.windowSettings = {
-		.title = "Yngin Demo App"
+		.title = "Yngin Demo"
 	};
 
 	Context* ctx = createContext(settings);
@@ -109,6 +110,11 @@ int main() {
 	};
 	Texture* whiteTex = texMgr->createTexture(whiteTexData);
 
+	Texture* glyphTex = texMgr->createTexture("glyph.png", {
+		.wrap = TEXTURE_WRAP::CLAMP,
+		.filter = TEXTURE_FILTER::LINEAR
+		});
+
 	GameObject* obj = gameObjMgr->getRootGameObject()->createChild();
 	Components::Mesh* mesh = obj->createComponent<Components::Mesh>();
 	obj->setRotation({ glm::radians(90.0f), 0, 0 });
@@ -194,10 +200,38 @@ int main() {
 	github->setSize({ 0, 64, 0, 64 });
 	github->setPivot({ 0, 1 });
 
+	int textShown = 0;
+	std::string testText;
+
+	for (int c = 0; c < 256; c++) {
+		if (c % 16 == 0) testText += '\n';
+		if (c == '\n' || c == '\r') {
+			testText += ' ';
+			continue;
+		}
+		testText += c;
+	}
+
+	UI::Text* text = scene->getUIManager()->getRootElement()->createChild<UI::Text>();
+	text->setPos({ 0, 32, 0, 32 });
+	text->setGlyph(glyphTex);
+	text->setText("");
+	text->setTextSize(24);
+
 	glm::ivec2 oldMousePos = {};
 
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();
+
+		if (input->isKeyJustPressed(Yngin::KEY::NUM_1)) {
+			textShown = (textShown + 1) % 2;
+		}
+
+		if (textShown == 0) {
+			text->setText(std::format("Yngin Demo\nFPS: {}", round(1 / ctx->getDeltaTime())));
+		} else if (textShown == 1) {
+			text->setText(testText);
+		}
 
 		window->setCursorLocked(input->isMousePressed(MOUSE_BUTTON::RIGHT));
 

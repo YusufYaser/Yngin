@@ -121,8 +121,11 @@ namespace Yngin {
 
 			if (impl->parent->getType() != T::staticType) return nullptr;
 
-			return impl->parent;
+			return dynamic_cast<T*>(impl->parent);
 		}
+
+		template Image* UIElement::getParent<Image>();
+		template Text* UIElement::getParent<Text>();
 
 		void UIElement::setParent(UIElement* newParent) {
 			impl->parent->moveChild(impl->id, newParent);
@@ -143,6 +146,7 @@ namespace Yngin {
 		}
 
 		template Image* UIElement::createChild<Image>();
+		template Text* UIElement::createChild<Text>();
 
 		UIElement* UIElement::getChild(uint32_t childId) {
 			auto it = impl->childs.find(childId);
@@ -161,8 +165,11 @@ namespace Yngin {
 
 			if (child->getType() != T::staticType) return nullptr;
 
-			return child;
+			return dynamic_cast<T*>(child);
 		}
+
+		template Image* UIElement::getChild<Image>(uint32_t);
+		template Text* UIElement::getChild<Text>(uint32_t);
 
 		void UIElement::deleteChild(uint32_t childId) {
 			UIElement* child = getChild(childId);

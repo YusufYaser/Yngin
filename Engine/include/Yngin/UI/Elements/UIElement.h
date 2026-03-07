@@ -11,7 +11,8 @@ namespace Yngin {
 	namespace UI {
 		enum class UIType : uint8_t {
 			None,
-			Image
+			Image,
+			Text
 		};
 
 		struct UITransform {
@@ -62,21 +63,23 @@ namespace Yngin {
 			bool isClicked(Yngin::MOUSE_BUTTON btn = Yngin::MOUSE_BUTTON::LEFT);
 			bool isHeld(Yngin::MOUSE_BUTTON btn = Yngin::MOUSE_BUTTON::LEFT);
 
-			void setCrop(UICrop newCrop);
-			UICrop getCrop();
+			virtual void setCrop(UICrop newCrop);
+			virtual UICrop getCrop();
 
 			void setColor(glm::vec4 newColor);
 			glm::vec4 getColor();
 
-			void setPivot(glm::vec2 newPivot);
-			glm::vec2 getPivot();
+			virtual void setPivot(glm::vec2 newPivot);
+			virtual glm::vec2 getPivot();
 
 		private:
 			friend class UIManager;
 			friend struct std::default_delete<UIElement>;
-			friend class Image;
 			friend class Scene;
 			friend class Context;
+
+			friend class Image;
+			friend class Text;
 
 			UIElement(Context* ctx, Scene* scene, UIManager* mgr, UIElement* parent);
 			~UIElement();

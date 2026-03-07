@@ -22,7 +22,8 @@ namespace Yngin {
 		void Image::render() {
 			UIElement::impl->prepareUniforms();
 
-			UIElement::impl->ctx->getTexturesManager()->getTexture(impl->texId)->activate();
+			Texture* tex = UIElement::impl->ctx->getTexturesManager()->getTexture(impl->texId);
+			if (tex) tex->activate();
 
 			Model* model = UIElement::impl->ctx->getImageModel();
 			glDisable(GL_DEPTH_TEST);

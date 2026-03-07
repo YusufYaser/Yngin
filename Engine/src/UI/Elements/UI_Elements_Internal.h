@@ -29,5 +29,11 @@ namespace Yngin {
 		struct Image::Impl {
 			uint32_t texId;
 		};
+
+		struct Text::Impl {
+			std::string text = "Text";
+			int textSize = 24;
+			uint32_t texId;
+		};
 	}
 }
