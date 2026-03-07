@@ -8,7 +8,9 @@
 #pragma comment(lib, "winmm.lib")
 #endif
 
-bool initialized = false;
+namespace {
+	bool initialized = false;
+}
 
 namespace Yngin {
 	bool init() {

@@ -15,13 +15,19 @@ namespace Yngin {
 
 			std::map<uint32_t, std::unique_ptr<UIElement>> childs;
 
+			glm::vec4 color = glm::vec4(1.0f);
+
 			UITransform pos = {};
 			UITransform size = { 0.5f, 0, 0.5f, 0 };
+			UICrop crop = {};
+
+			glm::vec2 pivot = glm::vec2(0.5f);
+
+			void prepareUniforms();
 		};
 
 		struct Image::Impl {
 			uint32_t texId;
-			glm::vec4 color = glm::vec4(1.0f);
 		};
 	}
 }

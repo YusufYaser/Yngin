@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 #include <Yngin/Core/InputSystem.h>
 
 namespace Yngin {
@@ -18,6 +19,11 @@ namespace Yngin {
 			int xOffset;
 			float yScale;
 			int yOffset;
+		};
+
+		struct UICrop {
+			glm::vec2 start = glm::vec2(0.0f);
+			glm::vec2 end = glm::vec2(1.0f);
 		};
 
 		class UIElement {
@@ -55,6 +61,15 @@ namespace Yngin {
 			bool isHovered();
 			bool isClicked(Yngin::MOUSE_BUTTON btn = Yngin::MOUSE_BUTTON::LEFT);
 			bool isHeld(Yngin::MOUSE_BUTTON btn = Yngin::MOUSE_BUTTON::LEFT);
+
+			void setCrop(UICrop newCrop);
+			UICrop getCrop();
+
+			void setColor(glm::vec4 newColor);
+			glm::vec4 getColor();
+
+			void setPivot(glm::vec2 newPivot);
+			glm::vec2 getPivot();
 
 		private:
 			friend class UIManager;

@@ -20,22 +20,7 @@ namespace Yngin {
 		}
 
 		void Image::render() {
-			Shader* uiShader = UIElement::impl->ctx->getShadersManager()->getShader(SHADER_TYPE::UI);
-			uiShader->activate();
-
-			uiShader->setFloat("uiPosition.xScale", UIElement::impl->pos.xScale);
-			uiShader->setInt("uiPosition.xOffset", UIElement::impl->pos.xOffset);
-			uiShader->setFloat("uiPosition.yScale", UIElement::impl->pos.yScale);
-			uiShader->setInt("uiPosition.yOffset", UIElement::impl->pos.yOffset);
-
-			uiShader->setFloat("uiSize.xScale", UIElement::impl->size.xScale);
-			uiShader->setInt("uiSize.xOffset", UIElement::impl->size.xOffset);
-			uiShader->setFloat("uiSize.yScale", UIElement::impl->size.yScale);
-			uiShader->setInt("uiSize.yOffset", UIElement::impl->size.yOffset);
-
-			uiShader->setIVec2("screenSize", UIElement::impl->ctx->getViewportSize());
-
-			uiShader->setVec4("color", impl->color);
+			UIElement::impl->prepareUniforms();
 
 			UIElement::impl->ctx->getTexturesManager()->getTexture(impl->texId)->activate();
 
@@ -59,14 +44,6 @@ namespace Yngin {
 
 		uint32_t Image::getTexture() {
 			return impl->texId;
-		}
-
-		void Image::setColor(glm::vec4 newColor) {
-			impl->color = newColor;
-		}
-
-		glm::vec4 Image::getColor() {
-			return impl->color;
 		}
 	}
 }

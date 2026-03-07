@@ -23,6 +23,11 @@ int main() {
 
 	printf("Context: %p\n", ctx);
 
+	if (ctx == nullptr || ctx->getStatus() == CONTEXT_STATUS::FAILED_TO_INIT) {
+		printf("Failed to create context\n");
+		return 1;
+	}
+
 	ModelsManager* modelsMgr = ctx->getModelsManager();
 	ScenesManager* scenesManager = ctx->getScenesManager();
 	Scene* scene = scenesManager->createScene();
@@ -185,8 +190,9 @@ int main() {
 
 	UI::Image* github = scene->getUIManager()->getRootElement()->createChild<UI::Image>();
 	github->setTexture(githubTex->getId());
-	github->setPos({ 0, 48, 1.0f, -48 });
+	github->setPos({ 0, 16, 1.0f, -16 });
 	github->setSize({ 0, 64, 0, 64 });
+	github->setPivot({ 0, 1 });
 
 	glm::ivec2 oldMousePos = {};
 

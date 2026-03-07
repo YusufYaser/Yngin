@@ -66,11 +66,11 @@ uniform sampler2D tex0;
 uniform vec4 color;
 
 void main() {
-	vec3 totalLight = vec3(0.0);
+	vec3 totalLight;
 
 	vec3 ambient = scene.ambientLight;
-	vec3 diffusion = vec3(0.0);
-	vec3 specular = vec3(0.0);
+	vec3 diffusion;
+	vec3 specular;
 	
 	if (!isLight) {
 		for (int i = 0; i < lightsCount; i++) {

@@ -5,6 +5,7 @@
 #include <Yngin/Core/Scenes.h>
 #include <Yngin/Core/Context.h>
 #include <Yngin/Core/InputSystem.h>
+#include <Yngin/Renderer/Shaders.h>
 
 namespace Yngin {
 	namespace UI {
@@ -86,6 +87,30 @@ namespace Yngin {
 
 		bool UIElement::isHeld(Yngin::MOUSE_BUTTON btn) {
 			return isHovered() && impl->ctx->getInputSystem()->isMousePressed(btn);
+		}
+
+		void UIElement::setCrop(UICrop newCrop) {
+			impl->crop = newCrop;
+		}
+
+		UICrop UIElement::getCrop() {
+			return impl->crop;
+		}
+
+		void UIElement::setColor(glm::vec4 newColor) {
+			impl->color = newColor;
+		}
+
+		glm::vec4 UIElement::getColor() {
+			return impl->color;
+		}
+
+		void UIElement::setPivot(glm::vec2 newPivot) {
+			impl->pivot = newPivot;
+		}
+
+		glm::vec2 UIElement::getPivot() {
+			return impl->pivot;
 		}
 
 		template<typename T>
@@ -176,6 +201,40 @@ namespace Yngin {
 		void UIElement::moveChild(uint32_t childId, uint32_t newParentId) {
 			UIElement* newParent = impl->scene->getUIManager()->getElement(newParentId);
 			if (newParent) moveChild(childId, newParent);
+		}
+
+		void UIElement::Impl::prepareUniforms() {
+			Shader* uiShader = ctx->getShadersManager()->getShader(SHADER_TYPE::UI);
+			uiShader->activate();
+
+			glm::ivec2 screenSize = ctx->getViewportSize();
+
+			glm::ivec2 sizePixels = {
+				size.xScale * screenSize.x + size.xOffset,
+				size.yScale * screenSize.y + size.yOffset,
+			};
+
+			glm::ivec2 pivotOffset = {
+				sizePixels.x * (pivot.x - 0.5f),
+				sizePixels.y * (pivot.y - 0.5f)
+			};
+
+			uiShader->setFloat("uiPosition.xScale", pos.xScale);
+			uiShader->setInt("uiPosition.xOffset", pos.xOffset - pivotOffset.x);
+			uiShader->setFloat("uiPosition.yScale", pos.yScale);
+			uiShader->setInt("uiPosition.yOffset", pos.yOffset - pivotOffset.y);
+
+			uiShader->setFloat("uiSize.xScale", size.xScale);
+			uiShader->setInt("uiSize.xOffset", size.xOffset);
+			uiShader->setFloat("uiSize.yScale", size.yScale);
+			uiShader->setInt("uiSize.yOffset", size.yOffset);
+
+			uiShader->setIVec2("screenSize", screenSize);
+
+			uiShader->setVec2("uiCrop.start", crop.start);
+			uiShader->setVec2("uiCrop.end", crop.end);
+
+			uiShader->setVec4("color", color);
 		}
 
 		void UIElement::render() {

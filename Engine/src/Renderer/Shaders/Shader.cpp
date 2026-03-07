@@ -97,6 +97,11 @@ namespace Yngin {
 		glUniform2iv(loc, 1, glm::value_ptr(v));
 	}
 
+	void Shader::setVec2(const char* name, glm::vec2 v) {
+		GLuint loc = glGetUniformLocation(impl->glId, name);
+		glUniform2fv(loc, 1, glm::value_ptr(v));
+	}
+
 	void Shader::setVec3(const char* name, glm::vec3 v) {
 		GLuint loc = glGetUniformLocation(impl->glId, name);
 		glUniform3fv(loc, 1, glm::value_ptr(v));
