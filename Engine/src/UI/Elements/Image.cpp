@@ -15,8 +15,8 @@ namespace Yngin {
 
 		Image::~Image() = default;
 
-		UIType Image::getType() {
-			return UIType::Image;
+		UI_TYPE Image::getType() {
+			return UI_TYPE::IMAGE;
 		}
 
 		void Image::render() {

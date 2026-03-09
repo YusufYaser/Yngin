@@ -11,13 +11,19 @@ namespace Yngin {
 	};
 
 	enum class TEXTURE_FILTER : uint8_t {
+		NEAREST,
 		LINEAR,
-		NEAREST
+		NEAREST_MIPMAP_NEAREST,
+		LINEAR_MIPMAP_NEAREST,
+		NEAREST_MIPMAP_LINEAR,
+		LINEAR_MIPMAP_LINEAR
 	};
 
 	struct TextureSettings {
 		TEXTURE_WRAP wrap = TEXTURE_WRAP::REPEAT;
-		TEXTURE_FILTER filter = TEXTURE_FILTER::LINEAR;
+		TEXTURE_FILTER filterMin = TEXTURE_FILTER::LINEAR_MIPMAP_LINEAR;
+		// only LINEAR and NEAREST should be used
+		TEXTURE_FILTER filterMag = TEXTURE_FILTER::LINEAR;
 	};
 
 	struct TextureData {

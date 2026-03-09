@@ -7,9 +7,9 @@ namespace Yngin {
 	namespace UI {
 		class Image : public UIElement {
 		public:
-			static const UIType staticType = UIType::Image;
+			static const UI_TYPE staticType = UI_TYPE::IMAGE;
 
-			UIType getType();
+			UI_TYPE getType();
 
 			void setTexture(uint32_t newTextureId);
 			void setTexture(Texture* newTexture);

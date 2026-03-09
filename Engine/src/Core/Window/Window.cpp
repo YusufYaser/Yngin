@@ -2,14 +2,16 @@
 #include <glad/glad.h>
 #include "Window_Internal.h"
 
-void fb_resize_callback(GLFWwindow* window, int width, int height) {
-	GLFWwindow* oldContext = glfwGetCurrentContext();
-	glfwMakeContextCurrent(window);
-	glViewport(0, 0, width, height);
-	glfwMakeContextCurrent(oldContext);
-}
-
 namespace Yngin {
+	namespace {
+		void fb_resize_callback(GLFWwindow* window, int width, int height) {
+			GLFWwindow* oldContext = glfwGetCurrentContext();
+			glfwMakeContextCurrent(window);
+			glViewport(0, 0, width, height);
+			glfwMakeContextCurrent(oldContext);
+		}
+	}
+
 	Window::Window(Context* ctx, const WindowSettings& settings) {
 		impl = std::make_unique<Impl>();
 		impl->ctx = ctx;

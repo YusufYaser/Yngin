@@ -4,7 +4,36 @@
 #include <stdexcept>
 #include <stb_image/stb_image.h>
 
+
 namespace Yngin {
+	namespace {
+		GLint texFilterToGlFilter(const TEXTURE_FILTER& filter) {
+			GLint glFilter = GL_LINEAR;
+			switch (filter) {
+			case TEXTURE_FILTER::NEAREST:
+				glFilter = GL_NEAREST;
+				break;
+			case TEXTURE_FILTER::LINEAR:
+				glFilter = GL_LINEAR;
+				break;
+			case TEXTURE_FILTER::NEAREST_MIPMAP_NEAREST:
+				glFilter = GL_NEAREST_MIPMAP_NEAREST;
+				break;
+			case TEXTURE_FILTER::LINEAR_MIPMAP_NEAREST:
+				glFilter = GL_LINEAR_MIPMAP_NEAREST;
+				break;
+			case TEXTURE_FILTER::NEAREST_MIPMAP_LINEAR:
+				glFilter = GL_NEAREST_MIPMAP_LINEAR;
+				break;
+			case TEXTURE_FILTER::LINEAR_MIPMAP_LINEAR:
+				glFilter = GL_LINEAR_MIPMAP_LINEAR;
+				break;
+			}
+
+			return glFilter;
+		}
+	}
+
 	Texture::Texture(Context* ctx) {
 		impl = std::make_unique<Impl>();
 		impl->ctx = ctx;
@@ -39,18 +68,8 @@ namespace Yngin {
 		glGenTextures(1, &impl->texId);
 		glBindTexture(GL_TEXTURE_2D, impl->texId);
 
-		GLint glFilter = GL_LINEAR;
-		switch (settings.filter) {
-		case TEXTURE_FILTER::LINEAR:
-			glFilter = GL_LINEAR;
-			break;
-		case TEXTURE_FILTER::NEAREST:
-			glFilter = GL_NEAREST;
-			break;
-		}
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glFilter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texFilterToGlFilter(settings.filterMin));
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texFilterToGlFilter(settings.filterMag));
 
 		GLint glWrap = GL_REPEAT;
 		switch (settings.wrap) {

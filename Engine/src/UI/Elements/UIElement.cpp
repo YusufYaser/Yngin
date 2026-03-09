@@ -20,8 +20,8 @@ namespace Yngin {
 
 		UIElement::~UIElement() = default;
 
-		UIType UIElement::getType() {
-			return UIType::None;
+		UI_TYPE UIElement::getType() {
+			return UI_TYPE::NONE;
 		}
 
 		uint32_t UIElement::getId() {
@@ -66,9 +66,14 @@ namespace Yngin {
 				m->size.yOffset + int(m->size.yScale * screenSize.y)
 			};
 
+			glm::ivec2 pivotOffset = {
+				size.x * (m->pivot.x - 0.5f),
+				size.y * (m->pivot.y - 0.5f)
+			};
+
 			glm::ivec2 boundsStart = {
-				m->pos.xOffset + int(m->pos.xScale * screenSize.x) - size.x / 2,
-				m->pos.yOffset + int(m->pos.yScale * screenSize.y) - size.y / 2
+				m->pos.xOffset - pivotOffset.x + int(m->pos.xScale * screenSize.x) - size.x / 2,
+				m->pos.yOffset - pivotOffset.y + int(m->pos.yScale * screenSize.y) - size.y / 2
 			};
 
 			glm::ivec2 boundsEnd = boundsStart + size;
@@ -124,6 +129,7 @@ namespace Yngin {
 			return dynamic_cast<T*>(impl->parent);
 		}
 
+		template UIElement* UIElement::getParent<UIElement>();
 		template Image* UIElement::getParent<Image>();
 		template Text* UIElement::getParent<Text>();
 
@@ -145,6 +151,7 @@ namespace Yngin {
 			return obj;
 		}
 
+		template UIElement* UIElement::createChild<UIElement>();
 		template Image* UIElement::createChild<Image>();
 		template Text* UIElement::createChild<Text>();
 
@@ -168,6 +175,7 @@ namespace Yngin {
 			return dynamic_cast<T*>(child);
 		}
 
+		template UIElement* UIElement::getChild<UIElement>(uint32_t);
 		template Image* UIElement::getChild<Image>(uint32_t);
 		template Text* UIElement::getChild<Text>(uint32_t);
 

@@ -6,37 +6,39 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
-int keyToGlfw(Yngin::KEY key) {
-	if (Yngin::KEY::A <= key && key <= Yngin::KEY::Z) {
-		return GLFW_KEY_A + (int(key) - int(Yngin::KEY::A));
-	}
-
-	if (Yngin::KEY::NUM_0 <= key && key <= Yngin::KEY::NUM_9) {
-		return GLFW_KEY_0 + (int(key) - int(Yngin::KEY::NUM_0));
-	}
-
-	if (Yngin::KEY::F1 <= key && key <= Yngin::KEY::F25) {
-		return GLFW_KEY_F1 + (int(key) - int(Yngin::KEY::F1));
-	}
-
-	if (Yngin::KEY::ESCAPE <= key && key <= Yngin::KEY::BACKSPACE) {
-		return GLFW_KEY_ESCAPE + (int(key) - int(Yngin::KEY::ESCAPE));
-	}
-
-	if (Yngin::KEY::RIGHT <= key && key <= Yngin::KEY::UP) {
-		return GLFW_KEY_RIGHT + (int(key) - int(Yngin::KEY::RIGHT));
-	}
-
-	if (Yngin::KEY::LSHIFT <= key && key <= Yngin::KEY::RSUPER) {
-		return GLFW_KEY_LEFT_SHIFT + (int(key) - int(Yngin::KEY::LSHIFT));
-	}
-
-	if (key == Yngin::KEY::SPACE) return GLFW_KEY_SPACE;
-
-	return 0;
-}
-
 namespace Yngin {
+	namespace {
+		int keyToGlfw(Yngin::KEY key) {
+			if (Yngin::KEY::A <= key && key <= Yngin::KEY::Z) {
+				return GLFW_KEY_A + (int(key) - int(Yngin::KEY::A));
+			}
+
+			if (Yngin::KEY::NUM_0 <= key && key <= Yngin::KEY::NUM_9) {
+				return GLFW_KEY_0 + (int(key) - int(Yngin::KEY::NUM_0));
+			}
+
+			if (Yngin::KEY::F1 <= key && key <= Yngin::KEY::F25) {
+				return GLFW_KEY_F1 + (int(key) - int(Yngin::KEY::F1));
+			}
+
+			if (Yngin::KEY::ESCAPE <= key && key <= Yngin::KEY::BACKSPACE) {
+				return GLFW_KEY_ESCAPE + (int(key) - int(Yngin::KEY::ESCAPE));
+			}
+
+			if (Yngin::KEY::RIGHT <= key && key <= Yngin::KEY::UP) {
+				return GLFW_KEY_RIGHT + (int(key) - int(Yngin::KEY::RIGHT));
+			}
+
+			if (Yngin::KEY::LSHIFT <= key && key <= Yngin::KEY::RSUPER) {
+				return GLFW_KEY_LEFT_SHIFT + (int(key) - int(Yngin::KEY::LSHIFT));
+			}
+
+			if (key == Yngin::KEY::SPACE) return GLFW_KEY_SPACE;
+
+			return 0;
+		}
+	}
+
 	InputSystem::InputSystem(Context* ctx) {
 		impl = std::make_unique<Impl>();
 

@@ -60,6 +60,7 @@ namespace Yngin {
 				normals[nNormalId++] = v;
 			} else if (cmd == "f") {
 				// TODO: add support for more than 4 vertices
+				// TODO: calculate normal if there are no normals in model file
 				std::string p[4];
 				s >> p[0] >> p[1] >> p[2] >> p[3];
 

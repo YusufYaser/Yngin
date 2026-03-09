@@ -8,27 +8,29 @@ namespace Yngin {
 	namespace UI {
 		class Text : public UIElement {
 		public:
-			static const UIType staticType = UIType::Text;
+			static const UI_TYPE staticType = UI_TYPE::TEXT;
 
-			UIType getType();
+			UI_TYPE getType();
 
 			void setText(std::string newText);
 			std::string getText();
 
+			// 0 for auto size based on the UI element size
 			void setTextSize(int textSize);
 			int getTextSize();
-			void setSize(int textSize);
-			int getSize();
 
 			void setGlyph(Texture* texture);
 			void setGlyph(uint32_t texId);
 			uint32_t getGlyph();
 
+			void setSpacing(glm::ivec2 spacing);
+			glm::ivec2 getSpacing();
+
+			glm::ivec2 getTextDimensions();
+			glm::ivec2 getTextDimensionsPixels();
+
 			void setCrop(UICrop newCrop) override;
 			UICrop getCrop() override;
-
-			void setPivot(glm::vec2 newPivot) override;
-			glm::vec2 getPivot() override;
 
 		private:
 			friend class UIElement;

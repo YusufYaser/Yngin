@@ -33,6 +33,7 @@ int main() {
 	ScenesManager* scenesManager = ctx->getScenesManager();
 	Scene* scene = scenesManager->createScene();
 	GameObjectsManager* gameObjMgr = scene->getGameObjectsManager();
+	UI::UIManager* uiMgr = scene->getUIManager();
 
 	Window* window = ctx->getWindow();
 	InputSystem* input = ctx->getInputSystem();
@@ -82,15 +83,13 @@ int main() {
 	// https://freestylized.com/skybox/sky_36/
 	Texture* skyboxTex = texMgr->createTexture("skybox.png", {
 		.wrap = TEXTURE_WRAP::CLAMP,
-		.filter = TEXTURE_FILTER::NEAREST
+		.filterMin = TEXTURE_FILTER::NEAREST,
+		.filterMag = TEXTURE_FILTER::NEAREST,
 		});
 
 	scene->setSkyboxTexture(skyboxTex);
 
-	Texture* githubTex = texMgr->createTexture("github.png", {
-		.wrap = TEXTURE_WRAP::CLAMP,
-		.filter = TEXTURE_FILTER::LINEAR
-		});
+	Texture* githubTex = texMgr->createTexture("github.png");
 
 	TextureData texData{};
 	texData.width = 2;
@@ -99,7 +98,8 @@ int main() {
 	texData.bytes = "\xff\x80\x80\xff";
 	TextureSettings texSettings{};
 	texSettings.wrap = TEXTURE_WRAP::REPEAT;
-	texSettings.filter = TEXTURE_FILTER::NEAREST;
+	texSettings.filterMin = TEXTURE_FILTER::NEAREST;
+	texSettings.filterMag = TEXTURE_FILTER::NEAREST;
 	Texture* tex = texMgr->createTexture(texData, texSettings);
 
 	TextureData whiteTexData = {
@@ -113,7 +113,8 @@ int main() {
 	// https://github.com/shannpersand/comic-shanns/blob/master/v2/comic%20shanns%202.ttf
 	Texture* glyphTex = texMgr->createTexture("glyph.png", {
 		.wrap = TEXTURE_WRAP::CLAMP,
-		.filter = TEXTURE_FILTER::LINEAR
+		.filterMin = TEXTURE_FILTER::LINEAR_MIPMAP_LINEAR,
+		.filterMag = TEXTURE_FILTER::LINEAR,
 		});
 
 	GameObject* obj = gameObjMgr->getRootGameObject()->createChild();
@@ -195,12 +196,6 @@ int main() {
 	int tweenId = 0;
 	int cycle = 0;
 
-	UI::Image* github = scene->getUIManager()->getRootElement()->createChild<UI::Image>();
-	github->setTexture(githubTex->getId());
-	github->setPos({ 0, 16, 1.0f, -16 });
-	github->setSize({ 0, 64, 0, 64 });
-	github->setPivot({ 0, 1 });
-
 	int textShown = 0;
 	std::string testText;
 
@@ -213,11 +208,27 @@ int main() {
 		testText += c;
 	}
 
-	UI::Text* text = scene->getUIManager()->getRootElement()->createChild<UI::Text>();
-	text->setPos({ 0, 8, 0, 0 });
+	UI::Text* text = uiMgr->getRootElement()->createChild<UI::Text>();
 	text->setGlyph(glyphTex);
 	text->setText("");
 	text->setTextSize(24);
+
+
+	UI::UIElement* github = uiMgr->getRootElement()->createChild<UI::UIElement>();
+
+	UI::Image* githubImg = github->createChild<UI::Image>();
+	githubImg->setTexture(githubTex->getId());
+	githubImg->setPos({ 0, 48, 1.0f, -24 });
+	githubImg->setSize({ 0, 64, 0, 64 });
+	githubImg->setPivot({ 0.5, 1 });
+
+	UI::Text* githubText = github->createChild<UI::Text>();
+	githubText->setGlyph(glyphTex);
+	githubText->setText(__TIMESTAMP__);
+	githubText->setTextSize(12);
+	githubText->setPos({ 0, 48, 1.0f, -6 });
+	githubText->setPivot({ 0.5, 1 });
+	githubText->setText("GitHub");
 
 	glm::ivec2 oldMousePos = {};
 
@@ -233,7 +244,14 @@ int main() {
 		}
 
 		if (textShown == 0) {
-			text->setText(std::format("Yngin Demo\nFPS: {}", round(1 / ctx->getDeltaTime())));
+			glm::vec3 pos = defaultCamera->getPos();
+
+			text->setText(std::format("Yngin Demo\nFPS: {}\nPos: {}, {}, {}",
+				round(1 / ctx->getDeltaTime()),
+				round(pos.x),
+				round(pos.y),
+				round(pos.z)
+			));
 		} else if (textShown == 1) {
 			text->setText(testText);
 		}
@@ -249,16 +267,16 @@ int main() {
 			tween->setPaused(tweenId, !tween->isPaused(tweenId));
 		}
 
-		if (github->isClicked()) {
+		if (githubImg->isClicked()) {
 			system("start https://github.com/YusufYaser/Yngin");
 		}
 
-		if (github->isHeld()) {
-			github->setColor(glm::vec4(0.5f));
-		} else if (github->isHovered()) {
-			github->setColor(glm::vec4(0.75f));
+		if (githubImg->isHeld()) {
+			githubImg->setColor(glm::vec4(0.5f));
+		} else if (githubImg->isHovered()) {
+			githubImg->setColor(glm::vec4(0.75f));
 		} else {
-			github->setColor(glm::vec4(1.0f));
+			githubImg->setColor(glm::vec4(1.0f));
 		}
 
 		double delta = ctx->getDeltaTime();

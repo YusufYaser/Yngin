@@ -9,10 +9,10 @@ namespace Yngin {
 	class Scene;
 
 	namespace UI {
-		enum class UIType : uint8_t {
-			None,
-			Image,
-			Text
+		enum class UI_TYPE : uint8_t {
+			NONE,
+			IMAGE,
+			TEXT
 		};
 
 		struct UITransform {
@@ -29,11 +29,13 @@ namespace Yngin {
 
 		class UIElement {
 		public:
+			static const UI_TYPE staticType = UI_TYPE::NONE;
+
 			uint32_t getId();
 			Context* getContext();
 			Scene* getScene();
 
-			virtual UIType getType();
+			virtual UI_TYPE getType();
 
 			UIElement* getParent();
 			template<typename T>
@@ -43,8 +45,11 @@ namespace Yngin {
 			UIElement* getChild(uint32_t childId);
 			template<typename T>
 			T* getChild(uint32_t childId);
+
+			UIElement* createChild();
 			template<typename T>
 			T* createChild();
+
 			void deleteChild(uint32_t childId);
 			void deleteChild(UIElement* child);
 

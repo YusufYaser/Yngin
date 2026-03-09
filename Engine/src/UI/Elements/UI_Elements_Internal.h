@@ -17,7 +17,7 @@ namespace Yngin {
 
 			glm::vec4 color = glm::vec4(1.0f);
 
-			UITransform pos = {};
+			UITransform pos = { 0.5f, 0, 0.5f, 0 };
 			UITransform size = { 0.5f, 0, 0.5f, 0 };
 			UICrop crop = {};
 
@@ -34,6 +34,9 @@ namespace Yngin {
 			std::string text = "Text";
 			int textSize = 24;
 			uint32_t texId;
+			glm::ivec2 spacing = {};
+
+			glm::ivec2 textDims = { -1, -1 };
 		};
 	}
 }
