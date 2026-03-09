@@ -27,7 +27,7 @@ namespace Yngin {
 			}
 		}
 
-		uint32_t Mesh::getModel() {
+		uint32_t Mesh::getModel() const {
 			return impl->modelId;
 		}
 
@@ -41,7 +41,7 @@ namespace Yngin {
 			}
 		}
 
-		uint32_t Mesh::getTexture() {
+		uint32_t Mesh::getTexture() const {
 			return impl->texId;
 		}
 
@@ -49,7 +49,7 @@ namespace Yngin {
 			impl->color = newColor;
 		}
 
-		glm::vec3 Mesh::getColor() {
+		glm::vec3 Mesh::getColor() const {
 			return impl->color;
 		}
 
@@ -57,7 +57,7 @@ namespace Yngin {
 			impl->scale = newScale;
 		}
 
-		glm::vec3 Mesh::getScale() {
+		glm::vec3 Mesh::getScale() const {
 			return impl->scale;
 		}
 
@@ -73,7 +73,7 @@ namespace Yngin {
 
 			glm::mat4 modelMat = glm::mat4(1.0f);
 
-			modelMat = glm::translate(modelMat, obj->getPos());
+			modelMat = glm::translate(modelMat, obj->getPosition());
 			modelMat = glm::rotate(modelMat, obj->getRotation().x, glm::vec3(1, 0, 0));
 			modelMat = glm::rotate(modelMat, obj->getRotation().y, glm::vec3(0, 1, 0));
 			modelMat = glm::rotate(modelMat, obj->getRotation().z, glm::vec3(0, 0, 1));

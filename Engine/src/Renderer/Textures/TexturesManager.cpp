@@ -48,14 +48,14 @@ namespace Yngin {
 		impl->textures.erase(textureId);
 	}
 
-	Texture* TexturesManager::getTexture(uint32_t textureId) {
+	Texture* TexturesManager::getTexture(uint32_t textureId) const {
 		auto it = impl->textures.find(textureId);
 		if (it == impl->textures.end()) return nullptr;
 
 		return it->second.get();
 	}
 
-	Texture* TexturesManager::getActive() {
+	Texture* TexturesManager::getActive() const {
 		return impl->activeTexture;
 	}
 

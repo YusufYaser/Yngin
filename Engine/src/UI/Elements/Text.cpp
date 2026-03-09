@@ -18,7 +18,7 @@ namespace Yngin {
 
 		Text::~Text() = default;
 
-		UI_TYPE Text::getType() {
+		UI_TYPE Text::getType() const {
 			return UI_TYPE::TEXT;
 		}
 
@@ -27,7 +27,7 @@ namespace Yngin {
 			impl->textDims = { -1, -1 };
 		}
 
-		std::string Text::getText() {
+		std::string Text::getText() const {
 			return impl->text;
 		}
 
@@ -35,7 +35,7 @@ namespace Yngin {
 			impl->textSize = textSize;
 		}
 
-		int Text::getTextSize() {
+		int Text::getTextSize() const {
 			return impl->textSize;
 		}
 
@@ -47,7 +47,7 @@ namespace Yngin {
 			impl->texId = texId;
 		}
 
-		uint32_t Text::getGlyph() {
+		uint32_t Text::getGlyph() const {
 			return impl->texId;
 		}
 
@@ -55,11 +55,11 @@ namespace Yngin {
 			impl->spacing = spacing;
 		}
 
-		glm::ivec2 Text::getSpacing() {
+		glm::ivec2 Text::getSpacing() const {
 			return impl->spacing;
 		}
 
-		glm::ivec2 Text::getTextDimensions() {
+		glm::ivec2 Text::getTextDimensions() const {
 			if (impl->textDims.x != -1) return impl->textDims;
 
 			glm::ivec2 pos = {};
@@ -99,7 +99,7 @@ namespace Yngin {
 			return dims;
 		}
 
-		glm::ivec2 Text::getTextDimensionsPixels() {
+		glm::ivec2 Text::getTextDimensionsPixels() const {
 			glm::ivec2 dims = getTextDimensions();
 			dims.x *= impl->textSize;
 			dims.y *= (int)round(impl->textSize * 1.5);
@@ -200,7 +200,7 @@ namespace Yngin {
 
 		void Text::setCrop(UICrop newCrop) {}
 
-		UICrop Text::getCrop() {
+		UICrop Text::getCrop() const {
 			return {};
 		}
 	}

@@ -31,20 +31,20 @@ namespace Yngin {
 		public:
 			static const UI_TYPE staticType = UI_TYPE::NONE;
 
-			uint32_t getId();
-			Context* getContext();
-			Scene* getScene();
+			uint32_t getId() const;
+			Context* getContext() const;
+			Scene* getScene() const;
 
-			virtual UI_TYPE getType();
+			virtual UI_TYPE getType() const;
 
-			UIElement* getParent();
+			UIElement* getParent() const;
 			template<typename T>
-			T* getParent();
+			T* getParent() const;
 			void setParent(UIElement* newParent);
 
-			UIElement* getChild(uint32_t childId);
+			UIElement* getChild(uint32_t childId) const;
 			template<typename T>
-			T* getChild(uint32_t childId);
+			T* getChild(uint32_t childId) const;
 
 			UIElement* createChild();
 			template<typename T>
@@ -58,24 +58,24 @@ namespace Yngin {
 			void moveChild(UIElement* child, uint32_t newParentId);
 			void moveChild(uint32_t childId, uint32_t newParentId);
 
-			void setPos(UITransform newPos);
-			UITransform getPos();
+			void setPosition(UITransform newPos);
+			UITransform getPosition() const;
 
 			void setSize(UITransform newSize);
-			UITransform getSize();
+			UITransform getSize() const;
 
-			bool isHovered();
-			bool isClicked(Yngin::MOUSE_BUTTON btn = Yngin::MOUSE_BUTTON::LEFT);
-			bool isHeld(Yngin::MOUSE_BUTTON btn = Yngin::MOUSE_BUTTON::LEFT);
+			bool isHovered() const;
+			bool isClicked(const Yngin::MOUSE_BUTTON& btn = Yngin::MOUSE_BUTTON::LEFT) const;
+			bool isHeld(const Yngin::MOUSE_BUTTON& btn = Yngin::MOUSE_BUTTON::LEFT) const;
 
 			virtual void setCrop(UICrop newCrop);
-			virtual UICrop getCrop();
+			virtual UICrop getCrop() const;
 
 			void setColor(glm::vec4 newColor);
-			glm::vec4 getColor();
+			glm::vec4 getColor() const;
 
 			virtual void setPivot(glm::vec2 newPivot);
-			virtual glm::vec2 getPivot();
+			virtual glm::vec2 getPivot() const;
 
 		private:
 			friend class UIManager;

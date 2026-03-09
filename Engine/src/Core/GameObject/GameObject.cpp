@@ -21,19 +21,19 @@ namespace Yngin {
 
 	GameObject::~GameObject() = default;
 
-	uint32_t GameObject::getId() {
+	uint32_t GameObject::getId() const {
 		return impl->id;
 	}
 
-	Context* GameObject::getContext() {
+	Context* GameObject::getContext() const {
 		return impl->ctx;
 	}
 
-	Scene* GameObject::getScene() {
+	Scene* GameObject::getScene() const {
 		return impl->scene;
 	}
 
-	GameObject* GameObject::getParent() {
+	GameObject* GameObject::getParent() const {
 		return impl->parent;
 	}
 
@@ -46,7 +46,7 @@ namespace Yngin {
 		impl->parent->moveChild(impl->id, newParent);
 	}
 
-	GameObject* GameObject::getChild(uint32_t childId) {
+	GameObject* GameObject::getChild(uint32_t childId) const {
 		auto it = impl->childs.find(childId);
 
 		if (it == impl->childs.end()) return nullptr;
@@ -106,15 +106,15 @@ namespace Yngin {
 		if (newParent) moveChild(childId, newParent);
 	}
 
-	glm::vec3 GameObject::getPos() {
+	glm::vec3 GameObject::getPosition() const {
 		return impl->pos;
 	}
 
-	void GameObject::setPos(glm::vec3 newPos) {
+	void GameObject::setPosition(glm::vec3 newPos) {
 		impl->pos = newPos;
 	}
 
-	glm::vec3 GameObject::getRotation() {
+	glm::vec3 GameObject::getRotation() const {
 		return impl->rotation;
 	}
 
@@ -123,7 +123,7 @@ namespace Yngin {
 	}
 
 	template<typename T>
-	inline T* GameObject::getComponent() {
+	inline T* GameObject::getComponent() const {
 		static_assert(std::is_base_of<Component, T>::value, "Type must be a component class");
 		auto it = impl->components.find(std::type_index(typeid(T)));
 
@@ -156,11 +156,11 @@ namespace Yngin {
 
 	template void GameObject::deleteComponent<Components::Mesh>();
 	template Components::Mesh* GameObject::createComponent<Components::Mesh>();
-	template Components::Mesh* GameObject::getComponent<Components::Mesh>();
+	template Components::Mesh* GameObject::getComponent<Components::Mesh>() const;
 
 	template void GameObject::deleteComponent<Components::Light>();
 	template Components::Light* GameObject::createComponent<Components::Light>();
-	template Components::Light* GameObject::getComponent<Components::Light>();
+	template Components::Light* GameObject::getComponent<Components::Light>() const;
 
 	void GameObject::render() {
 		for (auto& kvp : impl->components) {

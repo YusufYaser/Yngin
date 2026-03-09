@@ -10,21 +10,21 @@ namespace Yngin {
 
 	class Camera {
 	public:
-		uint32_t getId();
-		Context* getContext();
-		Scene* getScene();
+		uint32_t getId() const;
+		Context* getContext() const;
+		Scene* getScene() const;
 
-		glm::vec3 getPos() const;
+		glm::vec3 getPosition() const;
 		glm::vec3 getOrientation() const;
 		float getFov() const;
 
-		void setPos(glm::vec3 newPos);
+		void setPosition(glm::vec3 newPos);
 		void setOrientation(glm::vec3 newOrientation);
 		void setFov(float newFov);
 
 		void lookAt(glm::vec3 target);
 
-		float getWeight();
+		float getWeight() const;
 		void setWeight(float newWeight);
 
 	private:
@@ -45,17 +45,17 @@ namespace Yngin {
 		void deleteCamera(uint32_t cameraId);
 		void deleteCamera(Camera* camera);
 
-		Camera* getCamera(uint32_t cameraId);
+		Camera* getCamera(uint32_t cameraId) const;
 
-		float getTotalWeight();
+		float getTotalWeight() const;
 
 		// sets all cameras' weights to zero and this cameraId to 1
 		void setActive(uint32_t cameraId);
 		void setActive(Camera* camera);
 
-		glm::vec3 getFinalPos();
-		glm::vec3 getFinalOrientation();
-		float getFinalFov();
+		glm::vec3 getFinalPos() const;
+		glm::vec3 getFinalOrientation() const;
+		float getFinalFov() const;
 
 	private:
 		friend class Scene;

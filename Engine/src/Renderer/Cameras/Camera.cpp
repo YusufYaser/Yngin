@@ -10,19 +10,19 @@ namespace Yngin {
 
 	Camera::~Camera() = default;
 
-	uint32_t Camera::getId() {
+	uint32_t Camera::getId() const {
 		return impl->id;
 	}
 
-	Context* Camera::getContext() {
+	Context* Camera::getContext() const {
 		return impl->ctx;
 	}
 
-	Scene* Camera::getScene() {
+	Scene* Camera::getScene() const {
 		return impl->scene;
 	}
 
-	glm::vec3 Camera::getPos() const {
+	glm::vec3 Camera::getPosition() const {
 		return impl->pos;
 	}
 
@@ -34,7 +34,7 @@ namespace Yngin {
 		return impl->fov;
 	}
 
-	void Camera::setPos(glm::vec3 newPos) {
+	void Camera::setPosition(glm::vec3 newPos) {
 		impl->pos = newPos;
 	}
 
@@ -61,7 +61,7 @@ namespace Yngin {
 		return glm::perspective(glm::radians(fov), aspectRatio, 0.1f, 1000.0f);
 	}
 
-	float Camera::getWeight() {
+	float Camera::getWeight() const {
 		return impl->weight;
 	}
 

@@ -10,8 +10,8 @@ namespace Yngin {
 
 		class UIManager {
 		public:
-			UIElement* getRootElement();
-			UIElement* getElement(uint32_t id);
+			UIElement* getRootElement() const;
+			UIElement* getElement(uint32_t id) const;
 
 			void deleteElement(uint32_t id);
 			void deleteElement(UIElement* element);

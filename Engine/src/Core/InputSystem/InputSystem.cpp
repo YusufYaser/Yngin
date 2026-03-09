@@ -69,7 +69,7 @@ namespace Yngin {
 		}
 	}
 
-	glm::ivec2 InputSystem::getMousePos() {
+	glm::ivec2 InputSystem::getMousePos() const {
 		Window* window = impl->ctx->getWindow();
 		GLFWwindow* glfwWindow = window->impl->glfwWindow;
 
@@ -79,7 +79,7 @@ namespace Yngin {
 		return { x, y };
 	}
 
-	bool InputSystem::isMousePressed(const MOUSE_BUTTON& button) {
+	bool InputSystem::isMousePressed(const MOUSE_BUTTON& button) const {
 		int glfwButton = -1;
 		switch (button) {
 		case MOUSE_BUTTON::LEFT:
@@ -100,15 +100,15 @@ namespace Yngin {
 		return glfwGetMouseButton(glfwWindow, glfwButton);
 	}
 
-	bool InputSystem::isMouseJustPressed(const MOUSE_BUTTON& button) {
+	bool InputSystem::isMouseJustPressed(const MOUSE_BUTTON& button) const {
 		return impl->lastFrameMouseReleased[button] == impl->ctx->getFrame() - 2;
 	}
 
-	bool InputSystem::isMouseJustReleased(const MOUSE_BUTTON& button) {
+	bool InputSystem::isMouseJustReleased(const MOUSE_BUTTON& button) const {
 		return impl->lastFrameMousePressed[button] == impl->ctx->getFrame() - 2;
 	}
 
-	bool InputSystem::isKeyPressed(const KEY& key) {
+	bool InputSystem::isKeyPressed(const KEY& key) const {
 		int glfwKey = keyToGlfw(key);
 
 		Window* window = impl->ctx->getWindow();
@@ -117,11 +117,11 @@ namespace Yngin {
 		return glfwGetKey(glfwWindow, glfwKey) == GLFW_PRESS;
 	}
 
-	bool InputSystem::isKeyJustPressed(const KEY& key) {
+	bool InputSystem::isKeyJustPressed(const KEY& key) const {
 		return impl->lastFrameKeyReleased[key] == impl->ctx->getFrame() - 2;
 	}
 
-	bool InputSystem::isKeyJustReleased(const KEY& key) {
+	bool InputSystem::isKeyJustReleased(const KEY& key) const {
 		return impl->lastFrameKeyPressed[key] == impl->ctx->getFrame() - 2;
 	}
 }

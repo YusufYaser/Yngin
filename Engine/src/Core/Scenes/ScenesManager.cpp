@@ -16,7 +16,7 @@ namespace Yngin {
 
 	ScenesManager::~ScenesManager() = default;
 
-	Scene* ScenesManager::getScene(uint32_t sceneId) {
+	Scene* ScenesManager::getScene(uint32_t sceneId) const {
 		auto it = impl->scenes.find(sceneId);
 		if (it == impl->scenes.end()) return nullptr;
 
@@ -49,7 +49,7 @@ namespace Yngin {
 		}
 	}
 
-	Scene* ScenesManager::getActive() {
+	Scene* ScenesManager::getActive() const {
 		return impl->activeScene;
 	}
 

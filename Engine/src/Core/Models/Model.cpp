@@ -51,11 +51,11 @@ namespace Yngin {
 		this->frontFace = frontFace;
 	}
 
-	uint32_t Model::getId() {
+	uint32_t Model::getId() const {
 		return impl->id;
 	}
 
-	Context* Model::getContext() {
+	Context* Model::getContext() const {
 		return impl->ctx;
 	}
 

@@ -31,11 +31,11 @@ namespace Yngin {
 	class ModelsManager {
 	public:
 		Model* createModel(const ModelData& data);
-		Model* createModel(MODEL_FILE_TYPE type, const char* data, size_t length);
+		Model* createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length);
 		void deleteModel(uint32_t modelId);
 		void deleteModel(Model* model);
 
-		Model* getModel(uint32_t modelId);
+		Model* getModel(uint32_t modelId) const;
 
 	private:
 		friend class Context;
@@ -50,8 +50,8 @@ namespace Yngin {
 
 	class Model {
 	public:
-		uint32_t getId();
-		Context* getContext();
+		uint32_t getId() const;
+		Context* getContext() const;
 
 		void render();
 

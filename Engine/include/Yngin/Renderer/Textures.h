@@ -36,15 +36,15 @@ namespace Yngin {
 
 	class Texture {
 	public:
-		uint32_t getId();
-		Context* getContext();
+		uint32_t getId() const;
+		Context* getContext() const;
 
 		void activate();
 
 		void setData(const TextureData& data, const TextureSettings& settings = {});
 		void setData(const char* path, const TextureSettings& settings = {});
 
-		glm::ivec2 getSize();
+		glm::ivec2 getSize() const;
 
 	private:
 		friend class TexturesManager;
@@ -64,9 +64,9 @@ namespace Yngin {
 		Texture* createTexture(const char* path, const TextureSettings& settings = {});
 		void deleteTexture(uint32_t textureId);
 
-		Texture* getTexture(uint32_t textureId);
+		Texture* getTexture(uint32_t textureId) const;
 
-		Texture* getActive();
+		Texture* getActive() const;
 		void setActive(uint32_t textureId);
 
 	private:

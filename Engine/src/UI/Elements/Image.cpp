@@ -15,7 +15,7 @@ namespace Yngin {
 
 		Image::~Image() = default;
 
-		UI_TYPE Image::getType() {
+		UI_TYPE Image::getType() const {
 			return UI_TYPE::IMAGE;
 		}
 
@@ -43,7 +43,7 @@ namespace Yngin {
 			}
 		}
 
-		uint32_t Image::getTexture() {
+		uint32_t Image::getTexture() const {
 			return impl->texId;
 		}
 	}

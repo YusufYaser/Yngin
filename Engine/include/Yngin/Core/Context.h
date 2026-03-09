@@ -46,38 +46,38 @@ namespace Yngin {
 		// if you're using multiple contexts
 		void makeCurrent();
 
-		CONTEXT_STATUS getStatus();
+		CONTEXT_STATUS getStatus() const;
 		// this should be at the end of your loop
 		void update();
 
-		uint64_t getFrame();
+		uint64_t getFrame() const;
 
-		int getMaxFPS();
+		int getMaxFPS() const;
 		// -1 for max, 0 for vsync
 		void setMaxFPS(int newMaxFPS);
 
-		double getFrameStartTime();
+		double getFrameStartTime() const;
 		double getTime();
-		double getDeltaTime();
+		double getDeltaTime() const;
 
-		Window* getWindow();
-		glm::ivec2 getViewportSize();
+		Window* getWindow() const;
+		glm::ivec2 getViewportSize() const;
 
 		// TODO: replace these with getManager<T>()
-		ModelsManager* getModelsManager();
-		ScenesManager* getScenesManager();
-		TexturesManager* getTexturesManager();
-		ShadersManager* getShadersManager();
-		UI::UIManager* getGlobalUIManager();
+		ModelsManager* getModelsManager() const;
+		ScenesManager* getScenesManager() const;
+		TexturesManager* getTexturesManager() const;
+		ShadersManager* getShadersManager() const;
+		UI::UIManager* getGlobalUIManager() const;
 
-		InputSystem* getInputSystem();
+		InputSystem* getInputSystem() const;
 
 		template <typename T>
-		T* getService();
+		T* getService() const;
 
 		// TODO: implement internal models
-		Model* getSkyboxModel();
-		Model* getImageModel();
+		Model* getSkyboxModel() const;
+		Model* getImageModel() const;
 
 	private:
 		static std::vector<Context*> contexts;

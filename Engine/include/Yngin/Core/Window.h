@@ -15,19 +15,19 @@ namespace Yngin {
 	class Window {
 	public:
 		void setTitle(const char* title);
-		const char* getTitle();
+		const char* getTitle() const;
 
 		void setSize(glm::ivec2 size);
-		glm::ivec2 getSize();
+		glm::ivec2 getSize() const;
 
 		void setPosition(glm::ivec2);
-		glm::ivec2 getPosition();
+		glm::ivec2 getPosition() const;
 
 		void setCursorLocked(bool locked);
-		bool isCursorLocked();
+		bool isCursorLocked() const;
 
 		void setFullscreen(bool fullscreen);
-		bool isFullscreen();
+		bool isFullscreen() const;
 
 	private:
 		friend class Context;

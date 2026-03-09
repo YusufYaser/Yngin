@@ -43,11 +43,11 @@ namespace Yngin {
 		glDeleteTextures(1, &impl->texId);
 	}
 
-	uint32_t Texture::getId() {
+	uint32_t Texture::getId() const {
 		return impl->id;
 	}
 
-	Context* Texture::getContext() {
+	Context* Texture::getContext() const {
 		return impl->ctx;
 	}
 
@@ -145,7 +145,7 @@ namespace Yngin {
 		stbi_image_free(bytes);
 	}
 
-	glm::ivec2 Texture::getSize() {
+	glm::ivec2 Texture::getSize() const {
 		return impl->size;
 	}
 }

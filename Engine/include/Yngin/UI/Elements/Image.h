@@ -9,11 +9,11 @@ namespace Yngin {
 		public:
 			static const UI_TYPE staticType = UI_TYPE::IMAGE;
 
-			UI_TYPE getType();
+			UI_TYPE getType() const;
 
 			void setTexture(uint32_t newTextureId);
 			void setTexture(Texture* newTexture);
-			uint32_t getTexture();
+			uint32_t getTexture() const;
 
 		private:
 			friend class UIElement;

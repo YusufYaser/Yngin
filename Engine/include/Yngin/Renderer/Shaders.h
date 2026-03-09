@@ -18,10 +18,10 @@ namespace Yngin {
 
 	class ShadersManager {
 	public:
-		Shader* getShader(SHADER_TYPE shaderType);
+		Shader* getShader(const SHADER_TYPE& shaderType) const;
 
-		Shader* getActive();
-		void setActive(SHADER_TYPE shaderType);
+		Shader* getActive() const;
+		void setActive(const SHADER_TYPE& shaderType);
 		void setActive(Shader* shader);
 
 	private:
@@ -38,8 +38,8 @@ namespace Yngin {
 
 	class Shader {
 	public:
-		SHADER_TYPE getType();
-		Context* getContext();
+		SHADER_TYPE getType() const;
+		Context* getContext() const;
 
 		bool setSource(const ShaderSource& src);
 		void activate();

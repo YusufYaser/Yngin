@@ -13,11 +13,11 @@ namespace Yngin {
 
 	Shader::~Shader() = default;
 
-	SHADER_TYPE Shader::getType() {
+	SHADER_TYPE Shader::getType() const {
 		return impl->type;
 	}
 
-	Context* Shader::getContext() {
+	Context* Shader::getContext() const {
 		return impl->ctx;
 	}
 

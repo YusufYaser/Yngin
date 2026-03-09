@@ -27,11 +27,11 @@ namespace Yngin {
 		return impl->nextId++;
 	}
 
-	GameObject* GameObjectsManager::getRootGameObject() {
+	GameObject* GameObjectsManager::getRootGameObject() const {
 		return impl->rootGameObject.get();
 	}
 
-	GameObject* GameObjectsManager::getGameObject(uint32_t gameObjectId) {
+	GameObject* GameObjectsManager::getGameObject(uint32_t gameObjectId) const {
 		auto it = impl->gameObjects.find(gameObjectId);
 
 		if (it == impl->gameObjects.end()) return nullptr;

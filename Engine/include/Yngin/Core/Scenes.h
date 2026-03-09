@@ -20,13 +20,13 @@ namespace Yngin {
 
 	class ScenesManager {
 	public:
-		Scene* getScene(uint32_t sceneId);
+		Scene* getScene(uint32_t sceneId) const;
 
 		Scene* createScene();
 		void deleteScene(uint32_t sceneId);
 		void deleteScene(Scene* scene);
 
-		Scene* getActive();
+		Scene* getActive() const;
 		void setActive(uint32_t sceneId);
 		void setActive(Scene* scene);
 
@@ -44,22 +44,22 @@ namespace Yngin {
 
 	class Scene {
 	public:
-		uint32_t getId();
+		uint32_t getId() const;
 
-		Context* getContext();
+		Context* getContext() const;
 
 		void activate();
 
-		CamerasManager* getCamerasManager();
-		GameObjectsManager* getGameObjectsManager();
-		UI::UIManager* getUIManager();
+		CamerasManager* getCamerasManager() const;
+		GameObjectsManager* getGameObjectsManager() const;
+		UI::UIManager* getUIManager() const;
 
-		uint32_t getSkyboxTextureId();
+		uint32_t getSkyboxTextureId() const;
 		void setSkyboxTexture(uint32_t texId);
 		void setSkyboxTexture(Texture* tex);
 
-		LightSettings getLightSettings();
-		void setLightSettings(LightSettings& lightSettings);
+		LightSettings getLightSettings() const;
+		void setLightSettings(const LightSettings& lightSettings);
 
 		void render();
 

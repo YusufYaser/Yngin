@@ -116,7 +116,7 @@ namespace Yngin {
 		impl->window->impl->makeCurrent();
 	}
 
-	CONTEXT_STATUS Context::getStatus() {
+	CONTEXT_STATUS Context::getStatus() const {
 		return impl->status;
 	}
 
@@ -166,11 +166,11 @@ namespace Yngin {
 		m.lastFrameEnd = frameEnd;
 	}
 
-	uint64_t Context::getFrame() {
+	uint64_t Context::getFrame() const {
 		return impl->frame;
 	}
 
-	int Context::getMaxFPS() {
+	int Context::getMaxFPS() const {
 		return impl->maxFPS;
 	}
 
@@ -178,7 +178,7 @@ namespace Yngin {
 		impl->maxFPS = newMaxFPS;
 	}
 
-	double Context::getFrameStartTime() {
+	double Context::getFrameStartTime() const {
 		return impl->lastFrameEnd;
 	}
 
@@ -187,58 +187,58 @@ namespace Yngin {
 		return glfwGetTime();
 	}
 
-	double Context::getDeltaTime() {
+	double Context::getDeltaTime() const {
 		return impl->deltaTime;
 	}
 
-	Window* Context::getWindow() {
+	Window* Context::getWindow() const {
 		return impl->window.get();
 	}
 
-	glm::ivec2 Context::getViewportSize() {
+	glm::ivec2 Context::getViewportSize() const {
 		GLint viewportData[4];
 		glGetIntegerv(GL_VIEWPORT, viewportData);
 		return { viewportData[2], viewportData[3] };
 	}
 
-	ModelsManager* Context::getModelsManager() {
+	ModelsManager* Context::getModelsManager() const {
 		return impl->modelsManager.get();
 	}
 
-	ScenesManager* Context::getScenesManager() {
+	ScenesManager* Context::getScenesManager() const {
 		return impl->scenesManager.get();
 	}
 
-	TexturesManager* Context::getTexturesManager() {
+	TexturesManager* Context::getTexturesManager() const {
 		return impl->texturesManager.get();
 	}
 
-	ShadersManager* Context::getShadersManager() {
+	ShadersManager* Context::getShadersManager() const {
 		return impl->shadersManager.get();
 	}
 
-	UI::UIManager* Context::getGlobalUIManager() {
+	UI::UIManager* Context::getGlobalUIManager() const {
 		return impl->uiManager.get();
 	}
 
-	InputSystem* Context::getInputSystem() {
+	InputSystem* Context::getInputSystem() const {
 		return impl->inputSystem.get();
 	}
 
-	Model* Context::getSkyboxModel() {
+	Model* Context::getSkyboxModel() const {
 		return impl->skyboxModel;
 	}
 
-	Model* Context::getImageModel() {
+	Model* Context::getImageModel() const {
 		return impl->imageModel;
 	}
 
 
 
 	template<typename T>
-	inline T* Context::getService() {
+	inline T* Context::getService() const {
 		return dynamic_cast<T*>(impl->services[std::type_index(typeid(T))].get());
 	}
 
-	template Services::Tween* Context::getService<Services::Tween>();
+	template Services::Tween* Context::getService<Services::Tween>() const;
 }

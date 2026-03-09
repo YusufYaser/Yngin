@@ -9,15 +9,15 @@ namespace Yngin {
 
 	class GameObject {
 	public:
-		uint32_t getId();
-		Context* getContext();
-		Scene* getScene();
+		uint32_t getId() const;
+		Context* getContext() const;
+		Scene* getScene() const;
 
-		GameObject* getParent();
+		GameObject* getParent() const;
 		void setParent(uint32_t newParentId);
 		void setParent(GameObject* newParent);
 
-		GameObject* getChild(uint32_t childId);
+		GameObject* getChild(uint32_t childId) const;
 		GameObject* createChild();
 		void deleteChild(uint32_t childId);
 		void deleteChild(GameObject* child);
@@ -27,14 +27,14 @@ namespace Yngin {
 		void moveChild(GameObject* child, uint32_t newParentId);
 		void moveChild(uint32_t childId, uint32_t newParentId);
 
-		glm::vec3 getPos();
-		void setPos(glm::vec3 newPos);
+		glm::vec3 getPosition() const;
+		void setPosition(glm::vec3 newPos);
 
-		glm::vec3 getRotation();
+		glm::vec3 getRotation() const;
 		void setRotation(glm::vec3 newRotation);
 
 		template <typename T>
-		T* getComponent();
+		T* getComponent() const;
 
 		template <typename T>
 		T* createComponent();
@@ -60,8 +60,8 @@ namespace Yngin {
 
 	class GameObjectsManager {
 	public:
-		GameObject* getRootGameObject();
-		GameObject* getGameObject(uint32_t gameObjectId);
+		GameObject* getRootGameObject() const;
+		GameObject* getGameObject(uint32_t gameObjectId) const;
 
 		void deleteGameObject(uint32_t gameObjectId);
 		void deleteGameObject(GameObject* gameObject);

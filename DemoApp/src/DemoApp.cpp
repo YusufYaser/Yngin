@@ -74,7 +74,7 @@ int main() {
 
 	Camera* defaultCamera = camerasManager->getCamera(0);
 
-	defaultCamera->setPos({ 10, 0, 0 });
+	defaultCamera->setPosition({ 10, 0, 0 });
 	defaultCamera->lookAt(glm::vec3());
 	defaultCamera->setFov(90.0f);
 
@@ -140,14 +140,14 @@ int main() {
 	wallMesh->setModel(wallModel->getId());
 	wallMesh->setTexture(tex->getId());
 	wallMesh->setScale(glm::vec3(1, 1, 1) * 100.0f);
-	wall->setPos({ 0, 0, -5.0f });
+	wall->setPosition({ 0, 0, -5.0f });
 
 	{
 		GameObject* light = gameObjMgr->getRootGameObject()->createChild();
 		Components::Mesh* mesh = light->createComponent<Components::Mesh>();
 		mesh->setModel(cubeModel);
 		mesh->setTexture(whiteTex);
-		light->setPos({ 0, 0, 2 });
+		light->setPosition({ 0, 0, 2 });
 
 		Components::Light* lightComp = light->createComponent<Components::Light>();
 		lightComp->setIntensity(2.0f);
@@ -161,7 +161,7 @@ int main() {
 		Components::Mesh* mesh = light->createComponent<Components::Mesh>();
 		mesh->setModel(cubeModel);
 		mesh->setTexture(whiteTex);
-		light->setPos({ 0, 3.0f, -0.5f });
+		light->setPosition({ 0, 3.0f, -0.5f });
 
 		Components::Light* lightComp = light->createComponent<Components::Light>();
 		lightComp->setColor({ 1.0f, 0, 0 });
@@ -175,7 +175,7 @@ int main() {
 		Components::Mesh* mesh = light->createComponent<Components::Mesh>();
 		mesh->setModel(cubeModel);
 		mesh->setTexture(whiteTex);
-		light->setPos({ 3.0f, 0, 0.5f });
+		light->setPosition({ 3.0f, 0, 0.5f });
 
 		Components::Light* lightComp = light->createComponent<Components::Light>();
 		lightComp->setColor({ 0, 0, 1.0f });
@@ -218,7 +218,7 @@ int main() {
 
 	UI::Image* githubImg = github->createChild<UI::Image>();
 	githubImg->setTexture(githubTex->getId());
-	githubImg->setPos({ 0, 48, 1.0f, -24 });
+	githubImg->setPosition({ 0, 48, 1.0f, -24 });
 	githubImg->setSize({ 0, 64, 0, 64 });
 	githubImg->setPivot({ 0.5, 1 });
 
@@ -226,7 +226,7 @@ int main() {
 	githubText->setGlyph(glyphTex);
 	githubText->setText(__TIMESTAMP__);
 	githubText->setTextSize(12);
-	githubText->setPos({ 0, 48, 1.0f, -6 });
+	githubText->setPosition({ 0, 48, 1.0f, -6 });
 	githubText->setPivot({ 0.5, 1 });
 	githubText->setText("GitHub");
 
@@ -244,7 +244,7 @@ int main() {
 		}
 
 		if (textShown == 0) {
-			glm::vec3 pos = defaultCamera->getPos();
+			glm::vec3 pos = defaultCamera->getPosition();
 
 			text->setText(std::format("Yngin Demo\nFPS: {}\nPos: {}, {}, {}",
 				round(1 / ctx->getDeltaTime()),
@@ -331,7 +331,7 @@ int main() {
 				speed *= 1.5f;
 			}
 
-			defaultCamera->setPos(defaultCamera->getPos() + change * (float)delta * speed);
+			defaultCamera->setPosition(defaultCamera->getPosition() + change * (float)delta * speed);
 		}
 
 		ctx->update();

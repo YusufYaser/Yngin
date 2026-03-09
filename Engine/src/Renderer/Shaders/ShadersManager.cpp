@@ -19,15 +19,15 @@ namespace Yngin {
 
 	ShadersManager::~ShadersManager() = default;
 
-	Shader* ShadersManager::getShader(SHADER_TYPE shaderType) {
+	Shader* ShadersManager::getShader(const SHADER_TYPE& shaderType) const {
 		return impl->shaders[shaderType].get();
 	}
 
-	Shader* ShadersManager::getActive() {
+	Shader* ShadersManager::getActive() const {
 		return impl->activeShader;
 	}
 
-	void ShadersManager::setActive(SHADER_TYPE type) {
+	void ShadersManager::setActive(const SHADER_TYPE& type) {
 		Shader* shader = getShader(type);
 		shader->activate();
 	}

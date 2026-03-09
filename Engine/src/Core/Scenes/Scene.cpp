@@ -31,11 +31,11 @@ namespace Yngin {
 		uiManager = std::unique_ptr<UI::UIManager>(new UI::UIManager(ctx, owner));
 	}
 
-	uint32_t Scene::getId() {
+	uint32_t Scene::getId() const {
 		return impl->id;
 	}
 
-	Context* Scene::getContext() {
+	Context* Scene::getContext() const {
 		return impl->ctx;
 	}
 
@@ -43,19 +43,19 @@ namespace Yngin {
 		impl->ctx->getScenesManager()->setActive(impl->id);
 	}
 
-	CamerasManager* Scene::getCamerasManager() {
+	CamerasManager* Scene::getCamerasManager() const {
 		return impl->camerasManager.get();
 	}
 
-	GameObjectsManager* Scene::getGameObjectsManager() {
+	GameObjectsManager* Scene::getGameObjectsManager() const {
 		return impl->gameObjectsManager.get();
 	}
 
-	UI::UIManager* Scene::getUIManager() {
+	UI::UIManager* Scene::getUIManager() const {
 		return impl->uiManager.get();
 	}
 
-	uint32_t Scene::getSkyboxTextureId() {
+	uint32_t Scene::getSkyboxTextureId() const {
 		return impl->skyboxTexId;
 	}
 
@@ -69,11 +69,11 @@ namespace Yngin {
 		}
 	}
 
-	LightSettings Scene::getLightSettings() {
+	LightSettings Scene::getLightSettings() const {
 		return impl->lightSettings;
 	}
 
-	void Scene::setLightSettings(LightSettings& lightSettings) {
+	void Scene::setLightSettings(const LightSettings& lightSettings) {
 		impl->lightSettings = lightSettings;
 	}
 
@@ -113,7 +113,7 @@ namespace Yngin {
 
 			if (light == nullptr) continue;
 
-			worldShader->setVec3(std::string("lights[" + std::to_string(lightsCount) + "].position").c_str(), obj->getPos());
+			worldShader->setVec3(std::string("lights[" + std::to_string(lightsCount) + "].position").c_str(), obj->getPosition());
 			worldShader->setVec3(std::string("lights[" + std::to_string(lightsCount) + "].color").c_str(), light->getColor());
 			worldShader->setFloat(std::string("lights[" + std::to_string(lightsCount) + "].distance").c_str(), light->getDistance());
 			worldShader->setFloat(std::string("lights[" + std::to_string(lightsCount) + "].intensity").c_str(), light->getIntensity());

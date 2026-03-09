@@ -38,7 +38,7 @@ namespace Yngin {
 		glfwSetWindowTitle(impl->glfwWindow, title);
 	}
 
-	const char* Window::getTitle() {
+	const char* Window::getTitle() const {
 		return glfwGetWindowTitle(impl->glfwWindow);
 	}
 
@@ -46,7 +46,7 @@ namespace Yngin {
 		glfwSetWindowSize(impl->glfwWindow, size.x, size.y);
 	}
 
-	glm::ivec2 Window::getSize() {
+	glm::ivec2 Window::getSize() const {
 		glm::ivec2 size;
 		glfwGetWindowSize(impl->glfwWindow, &size.x, &size.y);
 		return size;
@@ -56,7 +56,7 @@ namespace Yngin {
 		glfwSetWindowPos(impl->glfwWindow, pos.x, pos.y);
 	}
 
-	glm::ivec2 Window::getPosition() {
+	glm::ivec2 Window::getPosition() const {
 		glm::ivec2 pos;
 		glfwGetWindowPos(impl->glfwWindow, &pos.x, &pos.y);
 		return pos;
@@ -66,7 +66,7 @@ namespace Yngin {
 		glfwSetInputMode(impl->glfwWindow, GLFW_CURSOR, locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 	}
 
-	bool Window::isCursorLocked() {
+	bool Window::isCursorLocked() const {
 		return glfwGetInputMode(impl->glfwWindow, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
 	}
 
@@ -92,7 +92,7 @@ namespace Yngin {
 		}
 	}
 
-	bool Window::isFullscreen() {
+	bool Window::isFullscreen() const {
 		return impl->fullscreen;
 	}
 

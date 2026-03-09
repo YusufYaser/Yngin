@@ -10,27 +10,27 @@ namespace Yngin {
 		public:
 			static const UI_TYPE staticType = UI_TYPE::TEXT;
 
-			UI_TYPE getType();
+			UI_TYPE getType() const;
 
 			void setText(std::string newText);
-			std::string getText();
+			std::string getText() const;
 
 			// 0 for auto size based on the UI element size
 			void setTextSize(int textSize);
-			int getTextSize();
+			int getTextSize() const;
 
 			void setGlyph(Texture* texture);
 			void setGlyph(uint32_t texId);
-			uint32_t getGlyph();
+			uint32_t getGlyph() const;
 
 			void setSpacing(glm::ivec2 spacing);
-			glm::ivec2 getSpacing();
+			glm::ivec2 getSpacing() const;
 
-			glm::ivec2 getTextDimensions();
-			glm::ivec2 getTextDimensionsPixels();
+			glm::ivec2 getTextDimensions() const;
+			glm::ivec2 getTextDimensionsPixels() const;
 
 			void setCrop(UICrop newCrop) override;
-			UICrop getCrop() override;
+			UICrop getCrop() const override;
 
 		private:
 			friend class UIElement;

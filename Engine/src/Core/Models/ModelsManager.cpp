@@ -28,7 +28,7 @@ namespace Yngin {
 		return model;
 	}
 
-	Model* ModelsManager::createModel(MODEL_FILE_TYPE type, const char* data, size_t length) {
+	Model* ModelsManager::createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length) {
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
 
@@ -57,7 +57,7 @@ namespace Yngin {
 		}
 	}
 
-	Model* ModelsManager::getModel(uint32_t modelId) {
+	Model* ModelsManager::getModel(uint32_t modelId) const {
 		auto it = impl->models.find(modelId);
 		if (it == impl->models.end()) return nullptr;
 

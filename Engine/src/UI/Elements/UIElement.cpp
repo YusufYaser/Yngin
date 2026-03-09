@@ -20,31 +20,31 @@ namespace Yngin {
 
 		UIElement::~UIElement() = default;
 
-		UI_TYPE UIElement::getType() {
+		UI_TYPE UIElement::getType() const {
 			return UI_TYPE::NONE;
 		}
 
-		uint32_t UIElement::getId() {
+		uint32_t UIElement::getId() const {
 			return impl->id;
 		}
 
-		Context* UIElement::getContext() {
+		Context* UIElement::getContext() const {
 			return impl->ctx;
 		}
 
-		Scene* UIElement::getScene() {
+		Scene* UIElement::getScene() const {
 			return impl->scene;
 		}
 
-		UIElement* UIElement::getParent() {
+		UIElement* UIElement::getParent() const {
 			return impl->parent;
 		}
 
-		void UIElement::setPos(UITransform newPos) {
+		void UIElement::setPosition(UITransform newPos) {
 			impl->pos = newPos;
 		}
 
-		UITransform UIElement::getPos() {
+		UITransform UIElement::getPosition() const {
 			return impl->pos;
 		}
 
@@ -52,11 +52,11 @@ namespace Yngin {
 			impl->size = newSize;
 		}
 
-		UITransform UIElement::getSize() {
+		UITransform UIElement::getSize() const {
 			return impl->size;
 		}
 
-		bool UIElement::isHovered() {
+		bool UIElement::isHovered() const {
 			auto& m = impl;
 
 			glm::ivec2 screenSize = impl->ctx->getViewportSize();
@@ -86,11 +86,11 @@ namespace Yngin {
 			return x && y;
 		}
 
-		bool UIElement::isClicked(Yngin::MOUSE_BUTTON btn) {
+		bool UIElement::isClicked(const Yngin::MOUSE_BUTTON& btn) const {
 			return isHovered() && impl->ctx->getInputSystem()->isMouseJustPressed(btn);
 		}
 
-		bool UIElement::isHeld(Yngin::MOUSE_BUTTON btn) {
+		bool UIElement::isHeld(const Yngin::MOUSE_BUTTON& btn) const {
 			return isHovered() && impl->ctx->getInputSystem()->isMousePressed(btn);
 		}
 
@@ -98,7 +98,7 @@ namespace Yngin {
 			impl->crop = newCrop;
 		}
 
-		UICrop UIElement::getCrop() {
+		UICrop UIElement::getCrop() const {
 			return impl->crop;
 		}
 
@@ -106,7 +106,7 @@ namespace Yngin {
 			impl->color = newColor;
 		}
 
-		glm::vec4 UIElement::getColor() {
+		glm::vec4 UIElement::getColor() const {
 			return impl->color;
 		}
 
@@ -114,12 +114,12 @@ namespace Yngin {
 			impl->pivot = newPivot;
 		}
 
-		glm::vec2 UIElement::getPivot() {
+		glm::vec2 UIElement::getPivot() const {
 			return impl->pivot;
 		}
 
 		template<typename T>
-		T* UIElement::getParent() {
+		T* UIElement::getParent() const {
 			if (impl->parent == nullptr) return nullptr;
 
 			assert(impl->parent->getType() == T::staticType);
@@ -129,9 +129,9 @@ namespace Yngin {
 			return dynamic_cast<T*>(impl->parent);
 		}
 
-		template UIElement* UIElement::getParent<UIElement>();
-		template Image* UIElement::getParent<Image>();
-		template Text* UIElement::getParent<Text>();
+		template UIElement* UIElement::getParent<UIElement>() const;
+		template Image* UIElement::getParent<Image>() const;
+		template Text* UIElement::getParent<Text>() const;
 
 		void UIElement::setParent(UIElement* newParent) {
 			impl->parent->moveChild(impl->id, newParent);
@@ -155,7 +155,7 @@ namespace Yngin {
 		template Image* UIElement::createChild<Image>();
 		template Text* UIElement::createChild<Text>();
 
-		UIElement* UIElement::getChild(uint32_t childId) {
+		UIElement* UIElement::getChild(uint32_t childId) const {
 			auto it = impl->childs.find(childId);
 			if (it == impl->childs.end()) return nullptr;
 
@@ -163,7 +163,7 @@ namespace Yngin {
 		}
 
 		template<typename T>
-		T* UIElement::getChild(uint32_t childId) {
+		T* UIElement::getChild(uint32_t childId) const {
 			UIElement* child = getChild(childId);
 
 			if (child == nullptr) return nullptr;
@@ -175,9 +175,9 @@ namespace Yngin {
 			return dynamic_cast<T*>(child);
 		}
 
-		template UIElement* UIElement::getChild<UIElement>(uint32_t);
-		template Image* UIElement::getChild<Image>(uint32_t);
-		template Text* UIElement::getChild<Text>(uint32_t);
+		template UIElement* UIElement::getChild<UIElement>(uint32_t) const;
+		template Image* UIElement::getChild<Image>(uint32_t) const;
+		template Text* UIElement::getChild<Text>(uint32_t) const;
 
 		void UIElement::deleteChild(uint32_t childId) {
 			UIElement* child = getChild(childId);

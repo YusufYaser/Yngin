@@ -51,15 +51,15 @@ namespace Yngin {
 	class InputSystem {
 	public:
 		// get mouse position relative to the window position
-		glm::ivec2 getMousePos();
+		glm::ivec2 getMousePos() const;
 
-		bool isMousePressed(const MOUSE_BUTTON& button);
-		bool isMouseJustPressed(const MOUSE_BUTTON& button);
-		bool isMouseJustReleased(const MOUSE_BUTTON& button);
+		bool isMousePressed(const MOUSE_BUTTON& button) const;
+		bool isMouseJustPressed(const MOUSE_BUTTON& button) const;
+		bool isMouseJustReleased(const MOUSE_BUTTON& button) const;
 
-		bool isKeyPressed(const KEY& key);
-		bool isKeyJustPressed(const KEY& key);
-		bool isKeyJustReleased(const KEY& key);
+		bool isKeyPressed(const KEY& key) const;
+		bool isKeyJustPressed(const KEY& key) const;
+		bool isKeyJustReleased(const KEY& key) const;
 
 	private:
 		friend class Context;

@@ -15,17 +15,17 @@ namespace Yngin {
 		public:
 			void setModel(uint32_t newModelId);
 			void setModel(Model* newModel);
-			uint32_t getModel();
+			uint32_t getModel() const;
 
 			void setTexture(uint32_t newTextureId);
 			void setTexture(Texture* newTexture);
-			uint32_t getTexture();
+			uint32_t getTexture() const;
 
 			void setColor(glm::vec3 newColor);
-			glm::vec3 getColor();
+			glm::vec3 getColor() const;
 
 			void setScale(glm::vec3 newScale);
-			glm::vec3 getScale();
+			glm::vec3 getScale() const;
 
 		private:
 			Mesh(GameObject* gameObject);

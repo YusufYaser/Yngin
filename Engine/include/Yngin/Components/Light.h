@@ -7,13 +7,13 @@ namespace Yngin {
 	namespace Components {
 		class Light : public Component {
 		public:
-			glm::vec3 getColor();
+			glm::vec3 getColor() const;
 			void setColor(glm::vec3 color);
 
-			float getDistance();
+			float getDistance() const;
 			void setDistance(float distance);
 
-			float getIntensity();
+			float getIntensity() const;
 			void setIntensity(float intensity);
 
 		private:

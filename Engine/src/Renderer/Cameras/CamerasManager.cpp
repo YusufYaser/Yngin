@@ -46,14 +46,14 @@ namespace Yngin {
 		}
 	}
 
-	Camera* CamerasManager::getCamera(uint32_t cameraId) {
+	Camera* CamerasManager::getCamera(uint32_t cameraId) const {
 		auto it = impl->cameras.find(cameraId);
 		if (it == impl->cameras.end()) return nullptr;
 
 		return it->second.get();
 	}
 
-	float CamerasManager::getTotalWeight() {
+	float CamerasManager::getTotalWeight() const {
 		float totalWeight = 0.0f;
 
 		for (auto& kvp : impl->cameras) {
@@ -79,17 +79,17 @@ namespace Yngin {
 		camera->setWeight(1.0f);
 	}
 
-	glm::vec3 CamerasManager::getFinalPos() {
+	glm::vec3 CamerasManager::getFinalPos() const {
 		glm::vec3 finalPos = {};
 		for (auto& kvp : impl->cameras) {
 			// pos * weight
-			finalPos += kvp.second->getPos() * kvp.second->getWeight();
+			finalPos += kvp.second->getPosition() * kvp.second->getWeight();
 		}
 		finalPos /= getTotalWeight();
 		return finalPos;
 	}
 
-	glm::vec3 CamerasManager::getFinalOrientation() {
+	glm::vec3 CamerasManager::getFinalOrientation() const {
 		glm::vec3 finalOrientation = {};
 		for (auto& kvp : impl->cameras) {
 			// orientation * weight
@@ -99,7 +99,7 @@ namespace Yngin {
 		return finalOrientation;
 	}
 
-	float CamerasManager::getFinalFov() {
+	float CamerasManager::getFinalFov() const {
 		float finalFov = 0.0f;
 		for (auto& kvp : impl->cameras) {
 			// fov * weight

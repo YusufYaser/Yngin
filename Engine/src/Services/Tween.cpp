@@ -122,7 +122,7 @@ namespace Yngin {
 
 			if (obj->impl->ctx != Service::impl->ctx) return 0;
 
-			glm::vec3 pos = obj->getPos();
+			glm::vec3 pos = obj->getPosition();
 
 			int id = impl->nextId++;
 
@@ -152,7 +152,7 @@ namespace Yngin {
 
 			if (obj->impl->ctx != Service::impl->ctx) return 0;
 
-			glm::vec3 pos = obj->getPos();
+			glm::vec3 pos = obj->getPosition();
 
 			int id = impl->nextId++;
 

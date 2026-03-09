@@ -18,11 +18,11 @@ namespace Yngin {
 			return impl->nextId++;
 		}
 
-		UIElement* UIManager::getRootElement() {
+		UIElement* UIManager::getRootElement() const {
 			return impl->rootElement.get();
 		}
 
-		UIElement* UIManager::getElement(uint32_t id) {
+		UIElement* UIManager::getElement(uint32_t id) const {
 			auto it = impl->elements.find(id);
 			if (it == impl->elements.end()) return nullptr;
 

@@ -12,7 +12,7 @@ namespace Yngin::Components {
 		impl->color = color;
 	}
 
-	float Light::getDistance() {
+	float Light::getDistance() const {
 		return impl->distance;
 	}
 
@@ -20,7 +20,7 @@ namespace Yngin::Components {
 		impl->distance = distance;
 	}
 
-	float Light::getIntensity() {
+	float Light::getIntensity() const {
 		return impl->intensity;
 	}
 
@@ -28,7 +28,7 @@ namespace Yngin::Components {
 		impl->intensity = intensity;
 	}
 
-	glm::vec3 Light::getColor() {
+	glm::vec3 Light::getColor() const {
 		return impl->color;
 	}
 }
