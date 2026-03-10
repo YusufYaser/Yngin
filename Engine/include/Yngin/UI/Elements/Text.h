@@ -29,6 +29,10 @@ namespace Yngin {
 			glm::ivec2 getTextDimensions() const;
 			glm::ivec2 getTextDimensionsPixels() const;
 
+			// 0 or 1 only
+			void setTextCentered(glm::ivec2 centering);
+			glm::ivec2 isTextCentered();
+
 			void setCrop(UICrop newCrop) override;
 			UICrop getCrop() const override;
 

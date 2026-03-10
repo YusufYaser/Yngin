@@ -35,6 +35,7 @@ namespace Yngin {
 			int textSize = 24;
 			uint32_t texId;
 			glm::ivec2 spacing = {};
+			glm::ivec2 centering = {};
 
 			mutable glm::ivec2 textDims = { -1, -1 };
 		};
