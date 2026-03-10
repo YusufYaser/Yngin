@@ -38,5 +38,15 @@ namespace Yngin {
 
 			AABBBounds getBounds();
 		};
+
+		struct RigidBody::Impl {
+			float mass = 1.0f;
+			glm::vec3 velocity;
+
+			glm::vec3 impulseForceAccumulation;
+
+			// xyz time
+			std::vector<glm::vec4> forces;
+		};
 	}
 }

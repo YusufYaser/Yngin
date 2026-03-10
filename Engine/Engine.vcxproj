@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="include\Yngin\Components\Collider.h" />
     <ClInclude Include="include\Yngin\Components\Light.h" />
+    <ClInclude Include="include\Yngin\Components\RigidBody.h" />
     <ClInclude Include="include\Yngin\Core\InputSystem.h" />
     <ClInclude Include="include\Yngin\Physics\Physics.h" />
     <ClInclude Include="include\Yngin\Physics\PhysicsEngine.h" />
@@ -73,6 +74,7 @@
     <ClCompile Include="deps\implementations\stb_image.c" />
     <ClCompile Include="src\Components\Collider.cpp" />
     <ClCompile Include="src\Components\Light.cpp" />
+    <ClCompile Include="src\Components\RigidBody.cpp" />
     <ClCompile Include="src\Core\Context\Init.cpp" />
     <ClCompile Include="src\Core\InputSystem\InputSystem.cpp" />
     <ClCompile Include="src\Physics\PhysicsEngine.cpp" />

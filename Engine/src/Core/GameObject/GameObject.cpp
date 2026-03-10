@@ -158,9 +158,13 @@ namespace Yngin {
 	template Components::Light* GameObject::createComponent<Components::Light>();
 	template Components::Light* GameObject::getComponent<Components::Light>() const;
 
-	template void GameObject::deleteComponent<Components::Mesh>();
+	template void GameObject::deleteComponent<Components::BoxCollider>();
 	template Components::BoxCollider* GameObject::createComponent<Components::BoxCollider>();
 	template Components::BoxCollider* GameObject::getComponent<Components::BoxCollider>() const;
+
+	template void GameObject::deleteComponent<Components::RigidBody>();
+	template Components::RigidBody* GameObject::createComponent<Components::RigidBody>();
+	template Components::RigidBody* GameObject::getComponent<Components::RigidBody>() const;
 
 	void GameObject::render() {
 		for (auto& kvp : impl->components) {

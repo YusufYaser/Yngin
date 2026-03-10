@@ -8,6 +8,8 @@ namespace Yngin {
 		struct PhysicsEngine::Impl {
 			Context* ctx;
 
+			float gravity = 9.8f;
+
 			void updatePhysics(Scene* scene);
 		};
 	}

@@ -7,6 +7,10 @@ namespace Yngin {
 	class Context;
 	class Scene;
 
+	namespace Physics {
+		class PhysicsEngine;
+	}
+
 	class GameObject {
 	public:
 		uint32_t getId() const;
@@ -70,6 +74,7 @@ namespace Yngin {
 		friend class Scene;
 		friend struct std::default_delete<GameObjectsManager>;
 		friend class GameObject;
+		friend class Physics::PhysicsEngine;
 
 		GameObjectsManager(Context* ctx, Scene* scene);
 		~GameObjectsManager();

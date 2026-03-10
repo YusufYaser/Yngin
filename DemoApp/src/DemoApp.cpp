@@ -267,12 +267,17 @@ int main() {
 
 	Components::Collider* testCollider = test->createComponent<Components::BoxCollider>();
 
-	printf("Physics Engine: %p\n", ctx->getPhysicsEngine());
+	GameObject* fallingBody = gameObjMgr->getRootGameObject()->createChild();
+	Components::Mesh* fallingBodyMesh = fallingBody->createComponent<Components::Mesh>();
+	fallingBodyMesh->setModel(cubeModel);
+	fallingBodyMesh->setTexture(whiteTex);
+	Components::RigidBody* rigidBody = fallingBody->createComponent<Components::RigidBody>();
+	rigidBody->setVelocity({ 0, 1, 0 });
+	rigidBody->applyForce({ 0.1f, 0, 9.8f }, 10);
 
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();
 
-		//if (physicsEngine->checkCollision(testCollider, obj->getComponent<Components::BoxCollider>())) {
 		if (testCollider->checkCollision(obj->getComponent<Components::BoxCollider>())) {
 			testMesh->setColor(glm::vec3(1, 0, 0));
 		} else {
