@@ -12,7 +12,8 @@ namespace Yngin {
 		enum class UI_TYPE : uint8_t {
 			NONE,
 			IMAGE,
-			TEXT
+			TEXT,
+			BUTTON
 		};
 
 		struct UITransform {
@@ -85,6 +86,7 @@ namespace Yngin {
 
 			friend class Image;
 			friend class Text;
+			friend class Button;
 
 			UIElement(Context* ctx, Scene* scene, UIManager* mgr, UIElement* parent);
 			~UIElement();

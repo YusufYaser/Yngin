@@ -37,6 +37,7 @@
     <ClInclude Include="include\Yngin\Services\Service.h" />
     <ClInclude Include="include\Yngin\Services\Services.h" />
     <ClInclude Include="include\Yngin\Services\Tween.h" />
+    <ClInclude Include="include\Yngin\UI\Elements\Button.h" />
     <ClInclude Include="include\Yngin\UI\Elements\Elements.h" />
     <ClInclude Include="include\Yngin\UI\Elements\Image.h" />
     <ClInclude Include="include\Yngin\UI\Elements\Text.h" />
@@ -88,6 +89,7 @@
     <ClCompile Include="src\Core\Window\Window.cpp" />
     <ClCompile Include="src\Services\Service.cpp" />
     <ClCompile Include="src\Services\Tween.cpp" />
+    <ClCompile Include="src\UI\Elements\Button.cpp" />
     <ClCompile Include="src\UI\Elements\Image.cpp" />
     <ClCompile Include="src\UI\Elements\Text.cpp" />
     <ClCompile Include="src\UI\Elements\UIElement.cpp" />

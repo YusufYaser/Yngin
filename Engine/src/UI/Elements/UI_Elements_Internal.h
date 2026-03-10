@@ -39,5 +39,13 @@ namespace Yngin {
 
 			mutable glm::ivec2 textDims = { -1, -1 };
 		};
+
+		struct Button::Impl {
+			std::unique_ptr<Image> image;
+			std::unique_ptr<Text> text;
+
+			glm::vec4 hoverColor = glm::vec4(.5f, .5f, .5f, 1);
+			glm::vec4 clickColor = glm::vec4(.25f, .25f, .25f, 1);
+		};
 	}
 }

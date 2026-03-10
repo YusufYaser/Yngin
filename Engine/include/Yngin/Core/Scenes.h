@@ -61,11 +61,12 @@ namespace Yngin {
 		LightSettings getLightSettings() const;
 		void setLightSettings(const LightSettings& lightSettings);
 
-		void render();
-
 	private:
 		friend class ScenesManager;
 		friend struct std::default_delete<Scene>;
+		friend class Context;
+
+		void render();
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;

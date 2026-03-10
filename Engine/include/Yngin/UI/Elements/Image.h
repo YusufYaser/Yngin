@@ -18,6 +18,7 @@ namespace Yngin {
 		private:
 			friend class UIElement;
 			friend struct std::default_delete<Image>;
+			friend class Button;
 
 			Image(Context* ctx, Scene* scene, UIManager* mgr, UIElement* parent);
 			~Image();

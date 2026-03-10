@@ -32,8 +32,10 @@ int main() {
 	ModelsManager* modelsMgr = ctx->getModelsManager();
 	ScenesManager* scenesManager = ctx->getScenesManager();
 	Scene* scene = scenesManager->createScene();
+	Scene* scene2 = scenesManager->createScene();
 	GameObjectsManager* gameObjMgr = scene->getGameObjectsManager();
 	UI::UIManager* uiMgr = scene->getUIManager();
+	UI::UIManager* globalUiMgr = ctx->getGlobalUIManager();
 
 	Window* window = ctx->getWindow();
 	InputSystem* input = ctx->getInputSystem();
@@ -117,6 +119,8 @@ int main() {
 		.filterMag = TEXTURE_FILTER::LINEAR,
 		});
 
+	Texture* buttonText = texMgr->createTexture("button.png");
+
 	GameObject* obj = gameObjMgr->getRootGameObject()->createChild();
 	Components::Mesh* mesh = obj->createComponent<Components::Mesh>();
 	obj->setRotation({ glm::radians(90.0f), 0, 0 });
@@ -195,6 +199,7 @@ int main() {
 
 	int tweenId = 0;
 	int cycle = 0;
+	int currentScene = 0;
 
 	int textShown = 0;
 	std::string testText;
@@ -208,7 +213,7 @@ int main() {
 		testText += c;
 	}
 
-	UI::Text* text = uiMgr->getRootElement()->createChild<UI::Text>();
+	UI::Text* text = globalUiMgr->getRootElement()->createChild<UI::Text>();
 	text->setGlyph(glyphTex);
 	text->setText("");
 	text->setTextSize(24);
@@ -230,7 +235,24 @@ int main() {
 	githubText->setPivot({ 0.5, 1 });
 	githubText->setText("GitHub");
 
+	UI::Text* scene2Text = scene2->getUIManager()->getRootElement()->createChild<UI::Text>();
+	scene2Text->setText("Scene 2");
+	scene2Text->setPosition({ .5f, 0, .5f, 0 });
+	scene2Text->setPivot({ .5f, .5f });
+	scene2Text->setGlyph(glyphTex);
+
+	scene2->setSkyboxTexture(skyboxTex);
+
+	scene2->getGameObjectsManager()->getRootGameObject()->createComponent<Components::Mesh>()->setModel(cubeModel);
+
 	glm::ivec2 oldMousePos = {};
+
+	UI::Button* button = globalUiMgr->getRootElement()->createChild<UI::Button>();
+	button->getTextElement()->setGlyph(glyphTex);
+	button->getTextElement()->setText("Switch Scene");
+	button->getImage()->setTexture(buttonText);
+	button->setPivot({ 1, 1 });
+	button->setPosition({ 1, -16, 1, -16 });
 
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();
@@ -241,6 +263,10 @@ int main() {
 
 		if (input->isKeyJustPressed(Yngin::KEY::NUM_1)) {
 			textShown = (textShown + 1) % 2;
+		}
+
+		if (button->isClicked()) {
+			currentScene = (currentScene + 1) % 2;
 		}
 
 		if (textShown == 0) {
@@ -254,6 +280,14 @@ int main() {
 			));
 		} else if (textShown == 1) {
 			text->setText(testText);
+		}
+
+		if (currentScene == 0) {
+			scene->activate();
+			defaultCamera = scene->getCamerasManager()->getCamera(0);
+		} else if (currentScene == 1) {
+			scene2->activate();
+			defaultCamera = scene2->getCamerasManager()->getCamera(0);
 		}
 
 		window->setCursorLocked(input->isMousePressed(MOUSE_BUTTON::RIGHT));

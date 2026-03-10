@@ -39,6 +39,7 @@ namespace Yngin {
 		private:
 			friend class UIElement;
 			friend struct std::default_delete<Text>;
+			friend class Button;
 
 			Text(Context* ctx, Scene* scene, UIManager* mgr, UIElement* parent);
 			~Text();
