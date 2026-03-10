@@ -12,8 +12,12 @@ namespace Yngin {
 			impl->gameObject = gameObject;
 		}
 
-		void Component::onRender() {}
-
 		Component::~Component() = default;
+
+		GameObject* Component::getGameObject() {
+			return impl->gameObject;
+		}
+
+		void Component::onRender() {}
 	}
 }

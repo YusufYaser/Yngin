@@ -7,6 +7,9 @@ namespace Yngin {
 
 	namespace Components {
 		class Component {
+		public:
+			GameObject* getGameObject();
+
 		private:
 			virtual void onRender();
 
@@ -16,6 +19,8 @@ namespace Yngin {
 		protected:
 			Component(GameObject* gameObject);
 			~Component();
+
+			friend class BoxCollider;
 
 			struct Impl;
 			std::unique_ptr<Impl> impl;

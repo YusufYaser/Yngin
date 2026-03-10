@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Yngin\Components\Collider.h" />
     <ClInclude Include="include\Yngin\Components\Light.h" />
     <ClInclude Include="include\Yngin\Core\InputSystem.h" />
     <ClInclude Include="include\Yngin\Renderer\Shaders.h" />
@@ -67,6 +68,7 @@
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c" />
     <ClCompile Include="deps\implementations\stb_image.c" />
+    <ClCompile Include="src\Components\Collider.cpp" />
     <ClCompile Include="src\Components\Light.cpp" />
     <ClCompile Include="src\Core\Context\Init.cpp" />
     <ClCompile Include="src\Core\InputSystem\InputSystem.cpp" />

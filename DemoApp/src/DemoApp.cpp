@@ -126,7 +126,7 @@ int main() {
 	obj->setRotation({ glm::radians(90.0f), 0, 0 });
 
 	mesh->setModel(cubeModel->getId());
-	mesh->setTexture(tex->getId());
+	mesh->setTexture(whiteTex->getId());
 
 	std::vector<Vertex> wallVertices;
 	std::vector<uint32_t> wallIndices = { 0, 1, 2, 0, 2, 3 };
@@ -193,7 +193,7 @@ int main() {
 	Services::Tween* tween = ctx->getService<Services::Tween>();
 
 	Services::TweenSettings tweenSettings = {
-		.duration = 1.0f,
+		.duration = 2.0f,
 		.function = Services::TWEEN_FUNCTION::EASE_INOUT
 	};
 
@@ -254,8 +254,26 @@ int main() {
 	button->setPivot({ 1, 1 });
 	button->setPosition({ 1, -16, 1, -16 });
 
+
+	Components::Collider* objCollider = obj->createComponent<Components::BoxCollider>();
+
+	GameObject* test = gameObjMgr->getRootGameObject()->createChild();
+	test->setPosition(glm::vec3(2.5f, 0, -2.0f));
+	Components::Mesh* testMesh = test->createComponent<Components::Mesh>();
+	testMesh->setModel(cubeModel);
+	testMesh->setTexture(whiteTex);
+	test->setRotation({ 0, 0, (45 / 180.0) * 3.14f });
+
+	Components::Collider* testCollider = test->createComponent<Components::BoxCollider>();
+
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();
+
+		if (testCollider->checkCollision(obj->getComponent<Components::BoxCollider>())) {
+			testMesh->setColor(glm::vec3(1, 0, 0));
+		} else {
+			testMesh->setColor(glm::vec3(1, 1, 1));
+		}
 
 		if (input->isKeyJustPressed(Yngin::KEY::F11) || (input->isKeyPressed(Yngin::KEY::RALT) && input->isKeyJustPressed(Yngin::KEY::ENTER))) {
 			window->setFullscreen(!window->isFullscreen());

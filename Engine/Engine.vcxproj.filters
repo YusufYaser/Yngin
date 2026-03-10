@@ -147,6 +147,9 @@
     <ClInclude Include="include\Yngin\UI\Elements\Button.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Yngin\Components\Collider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c">
@@ -234,6 +237,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\UI\Elements\Button.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Components\Collider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

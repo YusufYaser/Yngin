@@ -124,7 +124,6 @@ namespace Yngin {
 
 	template<typename T>
 	inline T* GameObject::getComponent() const {
-		static_assert(std::is_base_of<Component, T>::value, "Type must be a component class");
 		auto it = impl->components.find(std::type_index(typeid(T)));
 
 		if (it == impl->components.end()) return nullptr;
@@ -134,8 +133,6 @@ namespace Yngin {
 
 	template<typename T>
 	T* GameObject::createComponent() {
-		static_assert(std::is_base_of<Component, T>::value, "Type must be a component class");
-
 		assert(getComponent<T>() == nullptr);
 		if (getComponent<T>() != nullptr) {
 			return nullptr;
@@ -150,7 +147,6 @@ namespace Yngin {
 
 	template<typename T>
 	void GameObject::deleteComponent() {
-		static_assert(std::is_base_of<Component, T>::value, "Type must be a component class");
 		impl->components.erase(std::type_index(typeid(T)));
 	}
 
@@ -161,6 +157,10 @@ namespace Yngin {
 	template void GameObject::deleteComponent<Components::Light>();
 	template Components::Light* GameObject::createComponent<Components::Light>();
 	template Components::Light* GameObject::getComponent<Components::Light>() const;
+
+	template void GameObject::deleteComponent<Components::Mesh>();
+	template Components::BoxCollider* GameObject::createComponent<Components::BoxCollider>();
+	template Components::BoxCollider* GameObject::getComponent<Components::BoxCollider>() const;
 
 	void GameObject::render() {
 		for (auto& kvp : impl->components) {

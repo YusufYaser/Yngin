@@ -8,14 +8,14 @@ namespace Yngin {
 	class Context;
 	class Scene;
 
-	namespace UI {
-		enum class UI_TYPE : uint8_t {
-			NONE,
-			IMAGE,
-			TEXT,
-			BUTTON
-		};
+	enum class UI_TYPE : uint8_t {
+		NONE,
+		IMAGE,
+		TEXT,
+		BUTTON
+	};
 
+	namespace UI {
 		struct UITransform {
 			float xScale;
 			int xOffset;
