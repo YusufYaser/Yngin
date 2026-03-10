@@ -42,7 +42,7 @@ int main() {
 
 	scenesManager->setActive(scene->getId());
 
-	std::ifstream modelFile("test_model");
+	std::ifstream modelFile("assets/test_model");
 
 	if (!modelFile.is_open()) {
 		printf("Test model not found\n");
@@ -57,7 +57,7 @@ int main() {
 
 	Model* model = modelsMgr->createModel(MODEL_FILE_TYPE::OBJ, modelFileData.str().c_str(), modelFileData.str().length());
 
-	std::ifstream cubeModelFile("cube_model");
+	std::ifstream cubeModelFile("assets/cube_model");
 
 	if (!cubeModelFile.is_open()) {
 		printf("Cube model not found\n");
@@ -83,7 +83,7 @@ int main() {
 	TexturesManager* texMgr = ctx->getTexturesManager();
 
 	// https://freestylized.com/skybox/sky_36/
-	Texture* skyboxTex = texMgr->createTexture("skybox.png", {
+	Texture* skyboxTex = texMgr->createTexture("assets/skybox.png", {
 		.wrap = TEXTURE_WRAP::CLAMP,
 		.filterMin = TEXTURE_FILTER::NEAREST,
 		.filterMag = TEXTURE_FILTER::NEAREST,
@@ -91,7 +91,7 @@ int main() {
 
 	scene->setSkyboxTexture(skyboxTex);
 
-	Texture* githubTex = texMgr->createTexture("github.png");
+	Texture* githubTex = texMgr->createTexture("assets/github.png");
 
 	TextureData texData{};
 	texData.width = 2;
@@ -113,13 +113,13 @@ int main() {
 	Texture* whiteTex = texMgr->createTexture(whiteTexData);
 
 	// https://github.com/shannpersand/comic-shanns/blob/master/v2/comic%20shanns%202.ttf
-	Texture* glyphTex = texMgr->createTexture("glyph.png", {
+	Texture* glyphTex = texMgr->createTexture("assets/glyph.png", {
 		.wrap = TEXTURE_WRAP::CLAMP,
 		.filterMin = TEXTURE_FILTER::LINEAR_MIPMAP_LINEAR,
 		.filterMag = TEXTURE_FILTER::LINEAR,
 		});
 
-	Texture* buttonText = texMgr->createTexture("button.png");
+	Texture* buttonText = texMgr->createTexture("assets/button.png");
 
 	GameObject* obj = gameObjMgr->getRootGameObject()->createChild();
 	Components::Mesh* mesh = obj->createComponent<Components::Mesh>();
