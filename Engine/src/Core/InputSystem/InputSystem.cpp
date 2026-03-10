@@ -69,8 +69,10 @@ namespace Yngin {
 		}
 	}
 
-	glm::ivec2 InputSystem::getMousePos() const {
+	glm::ivec2 InputSystem::getMousePos(bool bypassLock) const {
 		Window* window = impl->ctx->getWindow();
+
+		if (!bypassLock && window->isCursorLocked()) return { -1, -1 };
 		GLFWwindow* glfwWindow = window->impl->glfwWindow;
 
 		double x, y;
