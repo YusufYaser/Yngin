@@ -1,11 +1,4 @@
-#include <Yngin/Core/Models.h>
-#include <Yngin/Core/Scenes.h>
-#include <Yngin/Core/InputSystem.h>
-#include <Yngin/Renderer/Shaders.h>
-#include <Yngin/Renderer/Textures.h>
-#include <Yngin/UI/UIManager.h>
-#include <Yngin/UI/Elements/UIElement.h>
-#include <Yngin/Core/Window.h>
+#include <Yngin/Yngin.h>
 #include "../Window/Window_Internal.h"
 #include <glad/glad.h>
 #include <stdexcept>
@@ -18,6 +11,7 @@
 #include "../../Renderer/Shaders/Sources/UI_Shader_Source.h"
 #include "../Models/DefaultModels/Skybox_Model.h"
 #include "../Models/DefaultModels/Square_Model.h"
+#include "../../Physics/Physics_Internal.h"
 #include <Yngin/Services/Services.h>
 
 namespace Yngin {
@@ -57,6 +51,7 @@ namespace Yngin {
 		m.shadersManager = std::unique_ptr<ShadersManager>(new ShadersManager(this));
 		m.uiManager = std::unique_ptr<UI::UIManager>(new UI::UIManager(this, nullptr));
 
+		m.physicsEngine = std::unique_ptr<Physics::PhysicsEngine>(new Physics::PhysicsEngine(this));
 		m.inputSystem = std::unique_ptr<InputSystem>(new InputSystem(this));
 
 		m.services[std::type_index(typeid(Services::Tween))] = std::unique_ptr<Services::Tween>(new Services::Tween(this));
@@ -134,6 +129,7 @@ namespace Yngin {
 
 		Scene* scene = m.scenesManager->getActive();
 		if (scene) {
+			m.physicsEngine->impl->updatePhysics(scene);
 			m.scenesManager->getActive()->render();
 		} else {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -219,6 +215,10 @@ namespace Yngin {
 
 	UI::UIManager* Context::getGlobalUIManager() const {
 		return impl->uiManager.get();
+	}
+
+	Physics::PhysicsEngine* Context::getPhysicsEngine() const {
+		return impl->physicsEngine.get();
 	}
 
 	InputSystem* Context::getInputSystem() const {

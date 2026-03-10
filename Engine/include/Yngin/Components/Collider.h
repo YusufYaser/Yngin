@@ -6,6 +6,10 @@
 namespace Yngin {
 	class GameObject;
 
+	namespace Physics {
+		class PhysicsEngine;
+	}
+
 	enum class COLLIDER_TYPE {
 		NONE,
 		BOX
@@ -17,7 +21,7 @@ namespace Yngin {
 			static const COLLIDER_TYPE staticType = COLLIDER_TYPE::NONE;
 			virtual COLLIDER_TYPE getType() const;
 
-			virtual bool checkCollision(Collider* collider, bool fast = false) const;
+			bool checkCollision(Collider* collider, bool fast = false) const;
 
 		private:
 			Collider(GameObject* gameObject);
@@ -26,6 +30,7 @@ namespace Yngin {
 			friend class GameObject;
 			friend struct std::default_delete<Collider>;
 			friend class BoxCollider;
+			friend class Physics::PhysicsEngine;
 		};
 
 		class BoxCollider : public Collider {
@@ -39,14 +44,13 @@ namespace Yngin {
 			void setOffset(glm::vec3 offset);
 			glm::vec3 getOffset();
 
-			bool checkCollision(Collider* collider, bool fast = false) const;
-
 		private:
 			BoxCollider(GameObject* gameObject);
 			~BoxCollider();
 
 			friend class GameObject;
 			friend struct std::default_delete<BoxCollider>;
+			friend class Physics::PhysicsEngine;
 
 			struct Impl;
 			std::unique_ptr<Impl> impl;

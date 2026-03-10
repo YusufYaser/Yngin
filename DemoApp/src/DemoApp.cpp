@@ -36,6 +36,7 @@ int main() {
 	GameObjectsManager* gameObjMgr = scene->getGameObjectsManager();
 	UI::UIManager* uiMgr = scene->getUIManager();
 	UI::UIManager* globalUiMgr = ctx->getGlobalUIManager();
+	Physics::PhysicsEngine* physicsEngine = ctx->getPhysicsEngine();
 
 	Window* window = ctx->getWindow();
 	InputSystem* input = ctx->getInputSystem();
@@ -258,7 +259,7 @@ int main() {
 	Components::Collider* objCollider = obj->createComponent<Components::BoxCollider>();
 
 	GameObject* test = gameObjMgr->getRootGameObject()->createChild();
-	test->setPosition(glm::vec3(2.5f, 0, -2.0f));
+	test->setPosition(glm::vec3(0, 2.5f, -2.0f));
 	Components::Mesh* testMesh = test->createComponent<Components::Mesh>();
 	testMesh->setModel(cubeModel);
 	testMesh->setTexture(whiteTex);
@@ -266,9 +267,12 @@ int main() {
 
 	Components::Collider* testCollider = test->createComponent<Components::BoxCollider>();
 
+	printf("Physics Engine: %p\n", ctx->getPhysicsEngine());
+
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();
 
+		//if (physicsEngine->checkCollision(testCollider, obj->getComponent<Components::BoxCollider>())) {
 		if (testCollider->checkCollision(obj->getComponent<Components::BoxCollider>())) {
 			testMesh->setColor(glm::vec3(1, 0, 0));
 		} else {

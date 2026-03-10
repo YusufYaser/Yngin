@@ -5,6 +5,10 @@ namespace Yngin {
 	class Context;
 	class GameObject;
 
+	namespace Physics {
+		class PhysicsEngine;
+	}
+
 	namespace Components {
 		class Component {
 		public:
@@ -20,7 +24,9 @@ namespace Yngin {
 			Component(GameObject* gameObject);
 			~Component();
 
+			friend class Collider;
 			friend class BoxCollider;
+			friend class Physics::PhysicsEngine;
 
 			struct Impl;
 			std::unique_ptr<Impl> impl;

@@ -1,13 +1,12 @@
 #include <Yngin/Components/Collider.h>
 #include <Yngin/Core/GameObject.h>
+#include <Yngin/Physics/PhysicsEngine.h>
 #include "Components_Internal.h"
 #include <glm/vec2.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Yngin::Components {
-	Collider::Collider(GameObject* gameObject) : Component(gameObject) {
-		impl = std::make_unique<Impl>();
-	}
+	Collider::Collider(GameObject* gameObject) : Component(gameObject) {}
 
 	Collider::~Collider() = default;
 
@@ -16,14 +15,13 @@ namespace Yngin::Components {
 	}
 
 	bool Collider::checkCollision(Collider* collider, bool fast) const {
-		return false;
+		return Component::impl->gameObject->getContext()->getPhysicsEngine()->checkCollision(this, collider, fast);
 	}
 
 	BoxCollider::BoxCollider(GameObject* gameObject) : Collider(gameObject) {
 		impl = std::make_unique<Impl>();
 
 		impl->owner = this;
-		impl->gameObject = gameObject;
 	}
 
 	BoxCollider::~BoxCollider() = default;
@@ -49,7 +47,7 @@ namespace Yngin::Components {
 	}
 
 	AABBBounds BoxCollider::Impl::getBounds() {
-		GameObject* obj = gameObject;
+		GameObject* obj = owner->getGameObject();
 
 		glm::mat4 model = glm::mat4(1.0f);
 
@@ -77,32 +75,5 @@ namespace Yngin::Components {
 			.min = min,
 			.max = max
 		};
-	}
-
-	bool BoxCollider::checkCollision(Collider* collider, bool fast) const {
-		switch (collider->getType()) {
-		case COLLIDER_TYPE::BOX:
-		{
-			AABBBounds a = impl->getBounds();
-			AABBBounds b = dynamic_cast<BoxCollider*>(collider)->impl->getBounds();
-
-			bool aabb =
-				(a.min.x <= b.max.x && a.max.x >= b.min.x) &&
-				(a.min.y <= b.max.y && a.max.y >= b.min.y) &&
-				(a.min.z <= b.max.z && a.max.z >= b.min.z);
-
-			if (!aabb) return false;
-
-			if (fast) return true;
-
-			// TODO: do SAT test
-			return true;
-		}
-
-		default:
-			return false;
-		}
-
-		return false;
 	}
 }

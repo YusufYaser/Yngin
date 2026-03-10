@@ -24,6 +24,10 @@ namespace Yngin {
 		class UIManager;
 	}
 
+	namespace Physics {
+		class PhysicsEngine;
+	}
+
 	enum class CONTEXT_STATUS : uint8_t {
 		RUNNING,
 		INITIALIZING,
@@ -70,6 +74,7 @@ namespace Yngin {
 		ShadersManager* getShadersManager() const;
 		UI::UIManager* getGlobalUIManager() const;
 
+		Physics::PhysicsEngine* getPhysicsEngine() const;
 		InputSystem* getInputSystem() const;
 
 		template <typename T>
