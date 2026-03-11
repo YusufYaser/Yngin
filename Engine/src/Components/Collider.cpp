@@ -18,6 +18,10 @@ namespace Yngin::Components {
 		return Component::impl->gameObject->getContext()->getPhysicsEngine()->checkCollision(this, collider, fast);
 	}
 
+	bool Collider::isPointInCollider(glm::vec3 point) const {
+		return Component::impl->gameObject->getContext()->getPhysicsEngine()->isPointInCollider(this, point);
+	}
+
 	BoxCollider::BoxCollider(GameObject* gameObject) : Collider(gameObject) {
 		impl = std::make_unique<Impl>();
 
@@ -31,7 +35,7 @@ namespace Yngin::Components {
 	}
 
 	void BoxCollider::setSize(glm::vec3 size) {
-		impl->size = size;
+		impl->size = glm::max(size, glm::vec3(Physics::SMALLEST_UNIT));
 	}
 
 	glm::vec3 BoxCollider::getSize() {

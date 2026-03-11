@@ -27,7 +27,34 @@ namespace Yngin {
 			impl->gravity = gravity;
 		}
 
+		Components::Collider* PhysicsEngine::raycast(Scene* scene, const Ray& ray, float maxDistance) const {
+			if (scene->getContext() != impl->ctx) return nullptr;
+
+			float closestDist = std::numeric_limits<float>::infinity();
+			Components::Collider* closestCollider = nullptr;
+
+			for (auto& kvp : scene->impl->gameObjectsManager->impl->gameObjects) {
+				GameObject* obj = kvp.second;
+
+				// TODO: use getComponent<Components::Collider>() when implemented
+				Components::Collider* collider = obj->getComponent<Components::BoxCollider>();
+				if (collider) {
+					float dist = getRayIntersection(collider, ray);
+					if (dist < maxDistance && dist < closestDist) {
+						closestCollider = collider;
+						closestDist = dist;
+					}
+				}
+			}
+
+			return closestCollider;
+		}
+
 		bool PhysicsEngine::checkCollision(const Components::Collider* a, const Components::Collider* b, bool fast) const {
+			if (dynamic_cast<const Components::Component*>(a)->impl->gameObject->getScene() != dynamic_cast<const Components::Component*>(b)->impl->gameObject->getScene()) {
+				return false;
+			}
+
 			const Components::Component* componentA = dynamic_cast<const Components::Component*>(a);
 			const Components::Component* componentB = dynamic_cast<const Components::Component*>(b);
 			if (componentA->impl->ctx != componentB->impl->ctx) {
@@ -57,6 +84,45 @@ namespace Yngin {
 			}
 
 			return false;
+		}
+
+		bool PhysicsEngine::isPointInCollider(const Components::Collider* coll, glm::vec3 point) const {
+			switch (coll->getType()) {
+			case COLLIDER_TYPE::BOX:
+			{
+				const Components::BoxCollider* box = dynamic_cast<const Components::BoxCollider*>(coll);
+				AABBBounds aabbBounds = box->impl->getBounds();
+
+				return
+					(point.x >= aabbBounds.min.x && point.x <= aabbBounds.max.x) &&
+					(point.y >= aabbBounds.min.y && point.y <= aabbBounds.max.y) &&
+					(point.z >= aabbBounds.min.z && point.z <= aabbBounds.max.z);
+			}
+			}
+			return false;
+		}
+
+		float PhysicsEngine::getRayIntersection(const Components::Collider* coll, const Ray& ray) const {
+			switch (coll->getType()) {
+			case COLLIDER_TYPE::BOX:
+			{
+				const Components::BoxCollider* box = dynamic_cast<const Components::BoxCollider*>(coll);
+				AABBBounds aabb = box->impl->getBounds();
+
+				glm::vec3 min = (aabb.min - ray.origin) / ray.direction;
+				glm::vec3 max = (aabb.max - ray.origin) / ray.direction;
+
+				float near = std::max({ std::min(min.x, max.x), std::min(min.y, max.y), std::min(min.z, max.z) });
+				float far = std::min({ std::max(min.x, max.x), std::max(min.y, max.y), std::max(min.z, max.z) });
+
+				if (near <= far && far >= 0) {
+					return near;
+				}
+
+				return std::numeric_limits<float>::infinity();
+			}
+			}
+			return std::numeric_limits<float>::infinity();
 		}
 
 		void PhysicsEngine::Impl::updatePhysics(Scene* scene) {
@@ -105,7 +171,7 @@ namespace Yngin {
 					rigidBody->impl->velocity.z == 0 ? 0 : rigidBody->impl->velocity.z / abs(rigidBody->impl->velocity.z),
 				};
 
-				obj->setPosition(obj->getPosition() + velocityDir * 0.1f);
+				obj->setPosition(obj->getPosition() + velocityDir * SMALLEST_UNIT);
 
 				// TODO: use getComponent<Components::Collider>() when implemented
 				Components::BoxCollider* a = obj->getComponent<Components::BoxCollider>();
@@ -177,7 +243,7 @@ namespace Yngin {
 					}
 				}
 
-				obj->setPosition(obj->getPosition() + rigidBody->impl->velocity * t - velocityDir * 0.1f);
+				obj->setPosition(obj->getPosition() + rigidBody->impl->velocity * t - velocityDir * SMALLEST_UNIT);
 			}
 		}
 	}

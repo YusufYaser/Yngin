@@ -22,6 +22,7 @@ namespace Yngin {
 			virtual COLLIDER_TYPE getType() const;
 
 			bool checkCollision(Collider* collider, bool fast = false) const;
+			bool isPointInCollider(glm::vec3 point) const;
 
 		private:
 			Collider(GameObject* gameObject);
