@@ -21,6 +21,9 @@ namespace Yngin {
 
 		class PhysicsEngine {
 		public:
+			float getSimulationDistance();
+			void setSimulationDistance(float distance);
+
 			float getGravity();
 			void setGravity(float gravity);
 

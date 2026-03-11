@@ -7,6 +7,7 @@
 #include "../Core/Scenes/Scenes_Internal.h"
 #include "../Core/GameObject/GameObject_Internal.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <Yngin/Renderer/Cameras.h>
 
 namespace Yngin {
 	namespace Physics {
@@ -18,6 +19,14 @@ namespace Yngin {
 		}
 
 		PhysicsEngine::~PhysicsEngine() = default;
+
+		float PhysicsEngine::getSimulationDistance() {
+			return impl->simulationDistance;
+		}
+
+		void PhysicsEngine::setSimulationDistance(float distance) {
+			impl->simulationDistance = distance;
+		}
 
 		float PhysicsEngine::getGravity() {
 			return impl->gravity;
@@ -133,8 +142,13 @@ namespace Yngin {
 			std::vector<Components::RigidBody*> rigidBodies;
 			std::vector<Components::Collider*> colliders;
 
+			glm::vec3 pos = scene->getCamerasManager()->getFinalPos();
+
 			for (auto& kvp : scene->impl->gameObjectsManager->impl->gameObjects) {
 				GameObject* obj = kvp.second;
+
+				if (glm::distance(pos, obj->getPosition()) > simulationDistance) continue;
+
 				Components::RigidBody* rigidBody = obj->getComponent<Components::RigidBody>();
 				if (rigidBody) rigidBodies.push_back(rigidBody);
 

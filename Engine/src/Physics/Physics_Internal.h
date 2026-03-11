@@ -9,6 +9,8 @@ namespace Yngin {
 			Context* ctx;
 			PhysicsEngine* owner;
 
+			float simulationDistance = 200.0f;
+
 			float gravity = 9.8f;
 
 			void updatePhysics(Scene* scene);
