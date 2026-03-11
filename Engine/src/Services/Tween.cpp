@@ -1,10 +1,10 @@
 #include <Yngin/Services/Tween.h>
 #include <Yngin/Core/GameObject.h>
-#include <Yngin/Renderer/Cameras.h>
+#include <Yngin/Rendering/Cameras.h>
 #include <Yngin/Core/Scenes.h>
 #include "Services_Internal.h"
 #include "../Core/GameObject/GameObject_Internal.h"
-#include "../Renderer/Cameras/Cameras_Internal.h"
+#include "../Rendering/Cameras/Cameras_Internal.h"
 
 #define PI 3.14159265358979323846f
 #define HALF_PI 1.57079632679f

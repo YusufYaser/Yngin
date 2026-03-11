@@ -3,11 +3,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glad/glad.h>
-#include <Yngin/Renderer/Textures.h>
+#include <Yngin/Rendering/Textures.h>
 #include <Yngin/Core/Models.h>
 #include <Yngin/Core/GameObject.h>
 #include <Yngin/Core/Context.h>
-#include <Yngin/Renderer/Shaders.h>
+#include <Yngin/Rendering/Shaders.h>
 
 namespace Yngin {
 	namespace Components {

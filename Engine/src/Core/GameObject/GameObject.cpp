@@ -1,6 +1,6 @@
 #include <Yngin/Core/GameObject.h>
 #include <Yngin/Core/Models.h>
-#include <Yngin/Renderer/Textures.h>
+#include <Yngin/Rendering/Textures.h>
 #include <Yngin/Components/Mesh.h>
 #include "GameObject_Internal.h"
 #include <type_traits>

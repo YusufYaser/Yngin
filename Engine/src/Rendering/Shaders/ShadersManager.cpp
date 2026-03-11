@@ -1,4 +1,4 @@
-#include <Yngin/Renderer/Shaders.h>
+#include <Yngin/Rendering/Shaders.h>
 #include <stdexcept>
 #include "Shaders_Internal.h"
 

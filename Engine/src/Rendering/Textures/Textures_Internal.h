@@ -1,6 +1,6 @@
 #pragma once
 #include <Yngin/Core/Context.h>
-#include <Yngin/Renderer/Textures.h>
+#include <Yngin/Rendering/Textures.h>
 #include <glad/glad.h>
 
 namespace Yngin {

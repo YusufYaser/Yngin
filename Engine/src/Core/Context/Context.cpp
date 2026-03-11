@@ -6,9 +6,9 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <thread>
-#include "../../Renderer/Shaders/Sources/World_Shader_Source.h"
-#include "../../Renderer/Shaders/Sources/Skybox_Shader_Source.h"
-#include "../../Renderer/Shaders/Sources/UI_Shader_Source.h"
+#include "../../Rendering/Shaders/Sources/World_Shader_Source.h"
+#include "../../Rendering/Shaders/Sources/Skybox_Shader_Source.h"
+#include "../../Rendering/Shaders/Sources/UI_Shader_Source.h"
 #include "../../Physics/Physics_Internal.h"
 #include "../Models/Models_Internal.h"
 #include "../Models/DefaultModels/Skybox_Model.h"

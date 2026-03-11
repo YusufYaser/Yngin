@@ -7,7 +7,7 @@
 #include "../Core/Scenes/Scenes_Internal.h"
 #include "../Core/GameObject/GameObject_Internal.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include <Yngin/Renderer/Cameras.h>
+#include <Yngin/Rendering/Cameras.h>
 
 namespace Yngin {
 	namespace Physics {

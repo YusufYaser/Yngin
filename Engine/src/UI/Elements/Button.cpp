@@ -3,7 +3,7 @@
 #include <Yngin/UI/Elements/Image.h>
 #include <Yngin/UI/Elements/Text.h>
 #include <Yngin/UI/Elements/UIElement.h>
-#include <Yngin/Renderer/Shaders.h>
+#include <Yngin/Rendering/Shaders.h>
 #include "UI_Elements_Internal.h"
 
 namespace Yngin::UI {

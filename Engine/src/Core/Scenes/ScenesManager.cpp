@@ -1,5 +1,5 @@
 #include <Yngin/Core/Scenes.h>
-#include <Yngin/Renderer/Cameras.h>
+#include <Yngin/Rendering/Cameras.h>
 #include <stdexcept>
 #include "Scenes_Internal.h"
 

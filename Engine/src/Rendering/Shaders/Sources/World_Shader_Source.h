@@ -1,5 +1,5 @@
 #pragma once
-#include <Yngin/Renderer/Shaders.h>
+#include <Yngin/Rendering/Shaders.h>
 
 namespace Yngin {
 	namespace ShaderSources {

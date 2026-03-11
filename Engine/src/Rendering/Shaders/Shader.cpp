@@ -1,4 +1,4 @@
-#include <Yngin/Renderer/Shaders.h>
+#include <Yngin/Rendering/Shaders.h>
 #include "Shaders_Internal.h"
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/type_ptr.hpp>

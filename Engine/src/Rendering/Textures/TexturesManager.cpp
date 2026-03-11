@@ -1,4 +1,4 @@
-#include <Yngin/Renderer/Textures.h>
+#include <Yngin/Rendering/Textures.h>
 #include "Textures_Internal.h"
 #include <stdexcept>
 #include <glad/glad.h>

@@ -5,7 +5,7 @@
 #include <Yngin/Core/Scenes.h>
 #include <Yngin/Core/Context.h>
 #include <Yngin/Core/InputSystem.h>
-#include <Yngin/Renderer/Shaders.h>
+#include <Yngin/Rendering/Shaders.h>
 
 namespace Yngin::UI {
 	UIElement::UIElement(Context* ctx, Scene* scene, UIManager* mgr, UIElement* parent) {

@@ -2,13 +2,13 @@
 #include <Yngin/Core/Models.h>
 #include <Yngin/UI/Elements/UIElement.h>
 #include <Yngin/UI/UIManager.h>
-#include <Yngin/Renderer/Shaders.h>
-#include <Yngin/Renderer/Cameras.h>
-#include <Yngin/Renderer/Textures.h>
+#include <Yngin/Rendering/Shaders.h>
+#include <Yngin/Rendering/Cameras.h>
+#include <Yngin/Rendering/Textures.h>
 #include <glad/glad.h>
 #include <stdexcept>
 #include "Scenes_Internal.h"
-#include "../../Renderer/Cameras/Cameras_Internal.h"
+#include "../../Rendering/Cameras/Cameras_Internal.h"
 #include "../../Core/GameObject/GameObject_Internal.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <string>

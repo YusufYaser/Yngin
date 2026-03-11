@@ -1,5 +1,5 @@
 #pragma once
-#include <Yngin/Renderer/Shaders.h>
+#include <Yngin/Rendering/Shaders.h>
 #include <Yngin/Core/Context.h>
 #include <glad/glad.h>
 

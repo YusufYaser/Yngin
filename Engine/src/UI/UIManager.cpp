@@ -2,7 +2,7 @@
 #include "UI_Internal.h"
 #include "Elements/UI_Elements_Internal.h"
 #include <assert.h>
-#include <Yngin/Renderer/Textures.h>
+#include <Yngin/Rendering/Textures.h>
 
 namespace Yngin::UI {
 	UIManager::UIManager(Context* ctx, Scene* scene) {

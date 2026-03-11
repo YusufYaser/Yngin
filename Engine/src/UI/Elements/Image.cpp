@@ -1,9 +1,9 @@
 #include <Yngin/UI/Elements/Image.h>
 #include <Yngin/UI/Elements/UIElement.h>
-#include <Yngin/Renderer/Shaders.h>
+#include <Yngin/Rendering/Shaders.h>
 #include <Yngin/Core/Context.h>
 #include <Yngin/Core/Models.h>
-#include <Yngin/Renderer/Textures.h>
+#include <Yngin/Rendering/Textures.h>
 #include "UI_Elements_Internal.h"
 #include <glad/glad.h>
 #include "../../Core/Context/Context_Internal.h"

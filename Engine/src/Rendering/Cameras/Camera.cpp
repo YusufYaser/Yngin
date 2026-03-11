@@ -1,4 +1,4 @@
-#include <Yngin/Renderer/Cameras.h>
+#include <Yngin/Rendering/Cameras.h>
 #include "Cameras_Internal.h"
 
 namespace Yngin {
