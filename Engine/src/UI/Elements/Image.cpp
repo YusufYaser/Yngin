@@ -6,6 +6,7 @@
 #include <Yngin/Renderer/Textures.h>
 #include "UI_Elements_Internal.h"
 #include <glad/glad.h>
+#include "../../Core/Context/Context_Internal.h"
 
 namespace Yngin::UI {
 	Image::Image(Context* ctx, Scene* scene, UIManager* mgr, UIElement* parent) : UIElement(ctx, scene, mgr, parent) {
@@ -24,7 +25,7 @@ namespace Yngin::UI {
 		Texture* tex = UIElement::impl->ctx->getTexturesManager()->getTexture(impl->texId);
 		if (tex) tex->activate();
 
-		Model* model = UIElement::impl->ctx->getImageModel();
+		Model* model = UIElement::impl->ctx->getInternalModelsManager()->getModel(INTERNAL_MODEL_SQUARE_ID);
 		glDisable(GL_DEPTH_TEST);
 		model->render();
 		glEnable(GL_DEPTH_TEST);

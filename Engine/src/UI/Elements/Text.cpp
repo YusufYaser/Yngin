@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 #include <Yngin/Core/Models.h>
 #include <Yngin/Renderer/Textures.h>
+#include "../../Core/Context/Context_Internal.h"
 
 namespace Yngin::UI {
 	Text::Text(Context* ctx, Scene* scene, UIManager* mgr, UIElement* parent) : UIElement(ctx, scene, mgr, parent) {
@@ -210,7 +211,7 @@ namespace Yngin::UI {
 			uiShader->setInt("uiPosition.xOffset", offset.x);
 			uiShader->setInt("uiPosition.yOffset", offset.y);
 
-			Model* model = UIElement::impl->ctx->getImageModel();
+			Model* model = UIElement::impl->ctx->getInternalModelsManager()->getModel(INTERNAL_MODEL_SQUARE_ID);
 			glDisable(GL_DEPTH_TEST);
 			model->render();
 			glEnable(GL_DEPTH_TEST);

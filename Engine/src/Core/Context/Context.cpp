@@ -9,9 +9,10 @@
 #include "../../Renderer/Shaders/Sources/World_Shader_Source.h"
 #include "../../Renderer/Shaders/Sources/Skybox_Shader_Source.h"
 #include "../../Renderer/Shaders/Sources/UI_Shader_Source.h"
+#include "../../Physics/Physics_Internal.h"
+#include "../Models/Models_Internal.h"
 #include "../Models/DefaultModels/Skybox_Model.h"
 #include "../Models/DefaultModels/Square_Model.h"
-#include "../../Physics/Physics_Internal.h"
 #include <Yngin/Services/Services.h>
 
 namespace Yngin {
@@ -54,6 +55,8 @@ namespace Yngin {
 		m.physicsEngine = std::unique_ptr<Physics::PhysicsEngine>(new Physics::PhysicsEngine(this));
 		m.inputSystem = std::unique_ptr<InputSystem>(new InputSystem(this));
 
+		m.internalModelsManager = std::unique_ptr<ModelsManager>(new ModelsManager(this));
+
 		m.services[std::type_index(typeid(Services::Tween))] = std::unique_ptr<Services::Tween>(new Services::Tween(this));
 
 		TextureData texData{};
@@ -77,8 +80,27 @@ namespace Yngin {
 
 		worldShader->activate();
 
-		impl->skyboxModel = m.modelsManager->createModel(DefaultModels::skybox);
-		impl->imageModel = m.modelsManager->createModel(DefaultModels::square);
+		Model* skyboxModel = m.internalModelsManager->createModel(DefaultModels::skybox);
+		{
+			int oldId = skyboxModel->impl->id;
+			int newId = INTERNAL_MODEL_SKYBOX_ID;
+
+			skyboxModel->impl->id = newId;
+			auto modelPtr = std::move(m.internalModelsManager->impl->models[oldId]);
+			m.internalModelsManager->impl->models.erase(oldId);
+			m.internalModelsManager->impl->models[newId] = std::move(modelPtr);
+		}
+
+		Model* imageModel = m.internalModelsManager->createModel(DefaultModels::square);
+		{
+			int oldId = imageModel->impl->id;
+			int newId = INTERNAL_MODEL_SQUARE_ID;
+
+			imageModel->impl->id = newId;
+			auto modelPtr = std::move(m.internalModelsManager->impl->models[oldId]);
+			m.internalModelsManager->impl->models.erase(oldId);
+			m.internalModelsManager->impl->models[newId] = std::move(modelPtr);
+		}
 
 		impl->status = CONTEXT_STATUS::RUNNING;
 	}
@@ -95,6 +117,10 @@ namespace Yngin {
 		makeCurrent();
 
 		contexts.erase(std::find(contexts.begin(), contexts.end(), this));
+	}
+
+	ModelsManager* Context::getInternalModelsManager() const {
+		return impl->internalModelsManager.get();
 	}
 
 	void Yngin::Context::deleteAllContexts() {
@@ -219,14 +245,6 @@ namespace Yngin {
 
 	InputSystem* Context::getInputSystem() const {
 		return impl->inputSystem.get();
-	}
-
-	Model* Context::getSkyboxModel() const {
-		return impl->skyboxModel;
-	}
-
-	Model* Context::getImageModel() const {
-		return impl->imageModel;
 	}
 
 

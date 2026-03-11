@@ -77,12 +77,11 @@ namespace Yngin {
 		Physics::PhysicsEngine* getPhysicsEngine() const;
 		InputSystem* getInputSystem() const;
 
+		// You should use getModelsManager() instead
+		ModelsManager* getInternalModelsManager() const;
+
 		template <typename T>
 		T* getService() const;
-
-		// TODO: implement internal models
-		Model* getSkyboxModel() const;
-		Model* getImageModel() const;
 
 	private:
 		static std::vector<Context*> contexts;

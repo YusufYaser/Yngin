@@ -3,6 +3,9 @@
 #include <Yngin/Services/Services.h>
 #include <typeindex>
 
+#define INTERNAL_MODEL_SKYBOX_ID	0
+#define INTERNAL_MODEL_SQUARE_ID	1
+
 namespace Yngin {
 	struct Context::Impl {
 		CONTEXT_STATUS status = CONTEXT_STATUS::INITIALIZING;
@@ -18,14 +21,12 @@ namespace Yngin {
 		std::unique_ptr<Physics::PhysicsEngine> physicsEngine;
 		std::unique_ptr<InputSystem> inputSystem;
 
+		std::unique_ptr<ModelsManager> internalModelsManager;
+
 		uint64_t frame = 0;
 		double deltaTime = 1;
 		double lastFrameEnd = 0;
 		int maxFPS = -1;
-
-		// these will be removed later
-		Model* skyboxModel = nullptr;
-		Model* imageModel = nullptr;
 
 		std::map<std::type_index, std::unique_ptr<Services::Service>> services;
 	};

@@ -5,10 +5,6 @@
 
 namespace Yngin {
 	ModelsManager::ModelsManager(Context* ctx) {
-		if (ctx->getModelsManager()) {
-			throw std::invalid_argument("Context already has a model manager!");
-		}
-
 		impl = std::make_unique<Impl>();
 
 		impl->ctx = ctx;

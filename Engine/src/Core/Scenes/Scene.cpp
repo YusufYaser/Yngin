@@ -12,6 +12,7 @@
 #include "../../Core/GameObject/GameObject_Internal.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
+#include "../../Core/Context/Context_Internal.h"
 
 #define MAX_LIGHTS 32
 
@@ -85,7 +86,7 @@ namespace Yngin {
 		glm::mat4 proj = getCamerasManager()->impl->getFinalPerspectiveProjection();
 		glm::mat4 view = getCamerasManager()->impl->getFinalView();
 
-		Model* skybox = impl->ctx->getSkyboxModel();
+		Model* skybox = impl->ctx->getInternalModelsManager()->getModel(INTERNAL_MODEL_SKYBOX_ID);
 		Texture* skyboxTex = impl->ctx->getTexturesManager()->getTexture(impl->skyboxTexId);
 		if (skyboxTex && skybox) {
 			Shader* skyboxShader = impl->ctx->getShadersManager()->getShader(SHADER_TYPE::SKYBOX);

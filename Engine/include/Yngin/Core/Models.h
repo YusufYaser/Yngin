@@ -61,6 +61,7 @@ namespace Yngin {
 
 		friend class ModelsManager;
 		friend struct std::default_delete<Model>;
+		friend class Context;
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;
