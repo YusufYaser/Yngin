@@ -13,6 +13,8 @@ namespace Yngin::UI {
 		UIElement::impl->pos = {};
 		UIElement::impl->size = { 1.0f, 0, 1.0f, 0 };
 		UIElement::impl->pivot = {};
+
+		if (mgr) impl->texId = mgr->getDefaultTextGlyph();
 	}
 
 	Text::~Text() = default;
@@ -39,7 +41,8 @@ namespace Yngin::UI {
 	}
 
 	void Text::setGlyph(Texture* glyph) {
-		impl->texId = glyph->getId();
+		if (glyph->getContext() == UIElement::impl->ctx)
+			impl->texId = glyph->getId();
 	}
 
 	void Text::setGlyph(uint32_t texId) {

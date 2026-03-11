@@ -4,6 +4,7 @@
 namespace Yngin {
 	class Context;
 	class Scene;
+	class Texture;
 
 	namespace UI {
 		class UIElement;
@@ -15,6 +16,10 @@ namespace Yngin {
 
 			void deleteElement(uint32_t id);
 			void deleteElement(UIElement* element);
+
+			void setDefaultTextGlyph(Texture* tex);
+			void setDefaultTextGlyph(uint32_t tex);
+			uint32_t getDefaultTextGlyph() const;
 
 		private:
 			friend class Scene;

@@ -2,6 +2,7 @@
 #include "UI_Internal.h"
 #include "Elements/UI_Elements_Internal.h"
 #include <assert.h>
+#include <Yngin/Renderer/Textures.h>
 
 namespace Yngin::UI {
 	UIManager::UIManager(Context* ctx, Scene* scene) {
@@ -48,5 +49,18 @@ namespace Yngin::UI {
 		if (element->impl->ctx == impl->ctx && element->impl->scene == impl->scene) {
 			deleteElement(element->getId());
 		}
+	}
+
+	void UIManager::setDefaultTextGlyph(Texture* glyph) {
+		if (glyph->getContext() == impl->ctx)
+			impl->defaultTextGlyph = glyph->getId();
+	}
+
+	void UIManager::setDefaultTextGlyph(uint32_t glyph) {
+		impl->defaultTextGlyph = glyph;
+	}
+
+	uint32_t UIManager::getDefaultTextGlyph() const {
+		return impl->defaultTextGlyph;
 	}
 }

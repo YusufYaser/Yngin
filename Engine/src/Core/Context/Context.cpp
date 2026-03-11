@@ -94,10 +94,6 @@ namespace Yngin {
 
 		makeCurrent();
 
-		m.modelsManager.reset();
-		m.scenesManager.reset();
-		m.texturesManager.reset();
-
 		contexts.erase(std::find(contexts.begin(), contexts.end(), this));
 	}
 

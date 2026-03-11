@@ -120,6 +120,9 @@ int main() {
 		.filterMag = TEXTURE_FILTER::LINEAR,
 		});
 
+	uiMgr->setDefaultTextGlyph(glyphTex);
+	globalUiMgr->setDefaultTextGlyph(glyphTex);
+
 	Texture* buttonText = texMgr->createTexture("assets/button.png");
 
 	GameObject* obj = gameObjMgr->getRootGameObject()->createChild();
@@ -132,10 +135,10 @@ int main() {
 	std::vector<Vertex> wallVertices;
 	std::vector<uint32_t> wallIndices = { 0, 1, 2, 0, 2, 3 };
 
-	wallVertices.push_back({ glm::vec3(+0.5f, +0.5f, 0.0f), glm::vec2(100.0f, 000.0f), glm::vec3(0, 0, 1.0f) });
+	wallVertices.push_back({ glm::vec3(+0.5f, +0.5f, 0.0f), glm::vec2(75.0f, 000.0f), glm::vec3(0, 0, 1.0f) });
 	wallVertices.push_back({ glm::vec3(-0.5f, +0.5f, 0.0f), glm::vec2(000.0f, 000.0f), glm::vec3(0, 0, 1.0f) });
-	wallVertices.push_back({ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(000.0f, 100.0f), glm::vec3(0, 0, 1.0f) });
-	wallVertices.push_back({ glm::vec3(+0.5f, -0.5f, 0.0f), glm::vec2(100.0f, 100.0f), glm::vec3(0, 0, 1.0f) });
+	wallVertices.push_back({ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(000.0f, 75.0f), glm::vec3(0, 0, 1.0f) });
+	wallVertices.push_back({ glm::vec3(+0.5f, -0.5f, 0.0f), glm::vec2(75.0f, 75.0f), glm::vec3(0, 0, 1.0f) });
 
 	ModelData wallModelData = { wallVertices, wallIndices, MODEL_FRONT_FACE::NONE };
 	Model* wallModel = modelsMgr->createModel(wallModelData);
@@ -219,7 +222,6 @@ int main() {
 	}
 
 	UI::Text* text = globalUiMgr->getRootElement()->createChild<UI::Text>();
-	text->setGlyph(glyphTex);
 	text->setText("");
 	text->setTextSize(24);
 
@@ -233,7 +235,6 @@ int main() {
 	githubImg->setPivot({ 0.5, 1 });
 
 	UI::Text* githubText = github->createChild<UI::Text>();
-	githubText->setGlyph(glyphTex);
 	githubText->setText(__TIMESTAMP__);
 	githubText->setTextSize(12);
 	githubText->setPosition({ 0, 48, 1.0f, -6 });
@@ -241,10 +242,10 @@ int main() {
 	githubText->setText("GitHub");
 
 	UI::Text* scene2Text = scene2->getUIManager()->getRootElement()->createChild<UI::Text>();
+	scene2Text->setGlyph(glyphTex);
 	scene2Text->setText("Scene 2");
 	scene2Text->setPosition({ .5f, 0, .5f, 0 });
 	scene2Text->setPivot({ .5f, .5f });
-	scene2Text->setGlyph(glyphTex);
 
 	scene2->setSkyboxTexture(skyboxTex);
 
@@ -253,7 +254,6 @@ int main() {
 	glm::ivec2 oldMousePos = {};
 
 	UI::Button* button = globalUiMgr->getRootElement()->createChild<UI::Button>();
-	button->getTextElement()->setGlyph(glyphTex);
 	button->getTextElement()->setText("Switch Scene");
 	button->getImage()->setTexture(buttonText);
 	button->setPivot({ 1, 1 });
@@ -442,6 +442,8 @@ int main() {
 
 		ctx->update();
 	}
+
+	delete ctx;
 
 	Yngin::terminate();
 

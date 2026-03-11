@@ -13,6 +13,8 @@ namespace Yngin {
 			std::unique_ptr<UIElement> rootElement;
 
 			std::map<uint32_t, UIElement*> elements;
+
+			uint32_t defaultTextGlyph = 0;
 		};
 	}
 }

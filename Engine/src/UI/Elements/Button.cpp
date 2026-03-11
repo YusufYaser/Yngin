@@ -17,6 +17,7 @@ namespace Yngin::UI {
 
 		impl->text->setTextSize(0);
 		impl->text->setTextCentered({ 1, 1 });
+		impl->text->setGlyph(mgr->getDefaultTextGlyph());
 	}
 
 	Button::~Button() = default;
