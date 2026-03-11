@@ -6,6 +6,7 @@
 #include <Yngin/Core/GameObject.h>
 #include "../Core/Scenes/Scenes_Internal.h"
 #include "../Core/GameObject/GameObject_Internal.h"
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace Yngin {
 	namespace Physics {
@@ -13,6 +14,7 @@ namespace Yngin {
 			impl = std::make_unique<Impl>();
 
 			impl->ctx = ctx;
+			impl->owner = this;
 		}
 
 		PhysicsEngine::~PhysicsEngine() = default;
@@ -60,12 +62,24 @@ namespace Yngin {
 		void PhysicsEngine::Impl::updatePhysics(Scene* scene) {
 			if (scene->getContext() != ctx) return;
 
-			float t = (float)ctx->getDeltaTime();
+			float t = std::min((float)ctx->getDeltaTime(), 1.0f / 15);
+
+			std::vector<Components::RigidBody*> rigidBodies;
+			std::vector<Components::Collider*> colliders;
 
 			for (auto& kvp : scene->impl->gameObjectsManager->impl->gameObjects) {
 				GameObject* obj = kvp.second;
 				Components::RigidBody* rigidBody = obj->getComponent<Components::RigidBody>();
-				if (!rigidBody) continue;
+				if (rigidBody) rigidBodies.push_back(rigidBody);
+
+				// TODO: use getComponent<Components::Collider>() when implemented
+				Components::Collider* collider = obj->getComponent<Components::BoxCollider>();
+				if (collider) colliders.push_back(collider);
+			}
+
+			// TOOD: add rotation when hit from the side
+			for (auto& rigidBody : rigidBodies) {
+				GameObject* obj = rigidBody->getGameObject();
 
 				if (rigidBody->impl->mass != 0.0f) {
 					float mass = rigidBody->impl->mass;
@@ -85,9 +99,85 @@ namespace Yngin {
 					}
 				}
 
-				obj->setPosition(obj->getPosition() + rigidBody->impl->velocity * t);
+				glm::vec3 velocityDir = {
+					rigidBody->impl->velocity.x == 0 ? 0 : rigidBody->impl->velocity.x / abs(rigidBody->impl->velocity.x),
+					rigidBody->impl->velocity.y == 0 ? 0 : rigidBody->impl->velocity.y / abs(rigidBody->impl->velocity.y),
+					rigidBody->impl->velocity.z == 0 ? 0 : rigidBody->impl->velocity.z / abs(rigidBody->impl->velocity.z),
+				};
 
-				// TODO: handle collisions
+				obj->setPosition(obj->getPosition() + velocityDir * 0.1f);
+
+				// TODO: use getComponent<Components::Collider>() when implemented
+				Components::BoxCollider* a = obj->getComponent<Components::BoxCollider>();
+				if (a) {
+					for (auto& b : colliders) {
+						if (a == b) continue;
+						if (!owner->checkCollision(a, b)) continue;
+
+						// not the physical weight
+						float weight = 1.0f;
+
+						GameObject* otherObj = b->getGameObject();
+						Components::RigidBody* otherRigidBody = otherObj->getComponent<Components::RigidBody>();
+						if (otherRigidBody) {
+							weight = rigidBody->impl->mass / (rigidBody->impl->mass + otherRigidBody->impl->mass);
+						}
+
+						AABBBounds ab = a->impl->getBounds();
+						AABBBounds bb = dynamic_cast<Components::BoxCollider*>(b)->impl->getBounds();
+
+						glm::vec3 positive = {
+							bb.max.x - ab.min.x,
+							bb.max.y - ab.min.y,
+							bb.max.z - ab.min.z,
+						};
+
+						glm::vec3 negative = {
+							ab.max.x - bb.min.x,
+							ab.max.y - bb.min.y,
+							ab.max.z - bb.min.z,
+						};
+
+						glm::vec3 direction = positive;
+
+						glm::vec3 transferedMomentum = glm::vec3();
+
+						for (int i = 0; i < 3; i++) {
+							if (negative[i] < positive[i]) direction[i] = -negative[i];
+						}
+
+						for (int i = 0; i < 3; i++) {
+							int a = i;
+							int b = (i + 1) % 3;
+							int c = (i + 2) % 3;
+
+							if (abs(direction[a]) < abs(direction[b]) && abs(direction[a]) < abs(direction[c])) {
+								transferedMomentum[a] = rigidBody->getMomentum()[a];
+								direction[b] = 0;
+								direction[c] = 0;
+								break;
+							}
+						}
+
+						float elasticity = rigidBody->impl->elasticity;
+
+						if (otherRigidBody) {
+							elasticity = std::min(elasticity, otherRigidBody->impl->elasticity);
+
+							rigidBody->setMomentum(rigidBody->getMomentum() - transferedMomentum * elasticity);
+							otherRigidBody->setMomentum(otherRigidBody->getMomentum() + transferedMomentum * elasticity);
+						} else {
+							rigidBody->setMomentum(rigidBody->getMomentum() - transferedMomentum * ((rigidBody->impl->canBounce ? 1 : 0) + elasticity));
+						}
+
+						obj->impl->pos += direction * weight;
+						if (otherRigidBody) {
+							otherObj->impl->pos -= direction * (1 - weight);
+						}
+					}
+				}
+
+				obj->setPosition(obj->getPosition() + rigidBody->impl->velocity * t - velocityDir * 0.1f);
 			}
 		}
 	}

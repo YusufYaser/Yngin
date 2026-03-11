@@ -13,8 +13,19 @@ namespace Yngin {
 			void setVelocity(glm::vec3 velocity);
 			glm::vec3 getVelocity();
 
+			void setMomentum(glm::vec3 momentum);
+			glm::vec3 getMomentum();
+
+			void setElasticity(float elasticity);
+			float getElasticity();
+
+			// control bouncing when hitting a collider with no RigidBody
+			void setCanBounce(bool canBounce);
+			bool canBounce();
+
 			void applyImpulseForce(glm::vec3 force);
 			void applyForce(glm::vec3 force, float time);
+
 
 		private:
 			friend class GameObject;

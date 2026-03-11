@@ -51,6 +51,7 @@ namespace Yngin {
 		friend class GameObjectsManager;
 		friend class Services::Tween;
 		friend struct std::default_delete<GameObject>;
+		friend class Physics::PhysicsEngine;
 
 		GameObject(Context* ctx, Scene* scene, GameObject* parent);
 		~GameObject();

@@ -24,6 +24,30 @@ namespace Yngin::Components {
 		return impl->velocity;
 	}
 
+	void RigidBody::setMomentum(glm::vec3 momentum) {
+		impl->velocity = momentum / impl->mass;
+	}
+
+	glm::vec3 RigidBody::getMomentum() {
+		return impl->mass * impl->velocity;
+	}
+
+	void RigidBody::setElasticity(float elasticity) {
+		impl->elasticity = elasticity;
+	}
+
+	float RigidBody::getElasticity() {
+		return impl->elasticity;
+	}
+
+	void RigidBody::setCanBounce(bool canBounce) {
+		impl->canBounce = canBounce;
+	}
+
+	bool RigidBody::canBounce() {
+		return impl->canBounce;
+	}
+
 	void RigidBody::applyImpulseForce(glm::vec3 force) {
 		impl->impulseForceAccumulation += force;
 	}

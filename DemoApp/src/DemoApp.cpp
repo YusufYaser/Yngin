@@ -144,8 +144,12 @@ int main() {
 	Components::Mesh* wallMesh = wall->createComponent<Components::Mesh>();
 	wallMesh->setModel(wallModel->getId());
 	wallMesh->setTexture(tex->getId());
-	wallMesh->setScale(glm::vec3(1, 1, 1) * 100.0f);
+	wallMesh->setScale(glm::vec3(75.0f, 75.0f, 1));
 	wall->setPosition({ 0, 0, -5.0f });
+
+	Components::BoxCollider* wallCollider = wall->createComponent<Components::BoxCollider>();
+	wallCollider->setSize(glm::vec3(75, 75, 0.1f));
+	wallCollider->setOffset({ 0, 0, -0.05f });
 
 	{
 		GameObject* light = gameObjMgr->getRootGameObject()->createChild();
@@ -268,12 +272,42 @@ int main() {
 	Components::Collider* testCollider = test->createComponent<Components::BoxCollider>();
 
 	GameObject* fallingBody = gameObjMgr->getRootGameObject()->createChild();
+	fallingBody->setPosition({ 5, 0, 0 });
 	Components::Mesh* fallingBodyMesh = fallingBody->createComponent<Components::Mesh>();
 	fallingBodyMesh->setModel(cubeModel);
 	fallingBodyMesh->setTexture(whiteTex);
 	Components::RigidBody* rigidBody = fallingBody->createComponent<Components::RigidBody>();
 	rigidBody->setVelocity({ 0, 1, 0 });
-	rigidBody->applyForce({ 0.1f, 0, 9.8f }, 10);
+	rigidBody->applyForce({ 2.0f, 3.0f, 9.8f }, 1);
+	Components::Collider* fallingBodyCollider = fallingBody->createComponent<Components::BoxCollider>();
+	Components::Light* light = fallingBody->createComponent<Components::Light>();
+	light->setDistance(15.0f);
+
+	GameObject* wall2 = gameObjMgr->getRootGameObject()->createChild();
+	Components::Mesh* wall2Mesh = wall2->createComponent<Components::Mesh>();
+	wall2Mesh->setModel(cubeModel->getId());
+	wall2Mesh->setTexture(tex->getId());
+	wall2Mesh->setScale(glm::vec3(1, 50, 50));
+	wall2->setPosition({ 10.0f, 0, 0 });
+
+	Components::BoxCollider* wall2Collider = wall2->createComponent<Components::BoxCollider>();
+	wall2Collider->setSize(glm::vec3(1, 50, 50));
+
+	GameObject* body2 = gameObjMgr->getRootGameObject()->createChild();
+	Components::Mesh* body2Mesh = body2->createComponent<Components::Mesh>();
+	body2Mesh->setModel(cubeModel);
+	body2Mesh->setTexture(tex);
+	Components::RigidBody* body2RigidBody = body2->createComponent<Components::RigidBody>();
+	Components::Collider* body2Collider = body2->createComponent<Components::BoxCollider>();
+	body2->setPosition({ 8.5f, 25, 50 });
+
+	GameObject* body3 = gameObjMgr->getRootGameObject()->createChild();
+	Components::Mesh* body3Mesh = body3->createComponent<Components::Mesh>();
+	body3Mesh->setModel(cubeModel);
+	body3Mesh->setTexture(tex);
+	Components::RigidBody* body3RigidBody = body3->createComponent<Components::RigidBody>();
+	Components::Collider* body3Collider = body3->createComponent<Components::BoxCollider>();
+	body3->setPosition({ 8.5f, 30, 50 });
 
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();

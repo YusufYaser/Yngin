@@ -7,6 +7,7 @@ namespace Yngin {
 	namespace Physics {
 		struct PhysicsEngine::Impl {
 			Context* ctx;
+			PhysicsEngine* owner;
 
 			float gravity = 9.8f;
 

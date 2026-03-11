@@ -41,6 +41,9 @@ namespace Yngin {
 
 		struct RigidBody::Impl {
 			float mass = 1.0f;
+			float elasticity = 0.5f;
+			bool canBounce = false;
+
 			glm::vec3 velocity;
 
 			glm::vec3 impulseForceAccumulation;
