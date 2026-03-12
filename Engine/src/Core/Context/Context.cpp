@@ -215,6 +215,23 @@ namespace Yngin {
 		return impl->window.get();
 	}
 
+	void Context::forceViewport(glm::ivec2 pos, glm::ivec2 size) {
+		impl->forcedViewPort = glm::ivec4(pos, size);
+		impl->window->impl->callSizeUpdateCallback();
+	}
+
+	glm::ivec4 Context::getForcedViewport() const {
+		return impl->forcedViewPort;
+	}
+
+	glm::ivec2 Context::getViewportPos() const {
+		glm::ivec2 windowSize = impl->window->getSize();
+
+		GLint viewportData[4];
+		glGetIntegerv(GL_VIEWPORT, viewportData);
+		return { viewportData[0], windowSize.y - viewportData[1] - viewportData[3] };
+	}
+
 	glm::ivec2 Context::getViewportSize() const {
 		GLint viewportData[4];
 		glGetIntegerv(GL_VIEWPORT, viewportData);

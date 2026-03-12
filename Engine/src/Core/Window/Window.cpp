@@ -7,7 +7,21 @@ namespace Yngin {
 		void fb_resize_callback(GLFWwindow* window, int width, int height) {
 			GLFWwindow* oldContext = glfwGetCurrentContext();
 			glfwMakeContextCurrent(window);
-			glViewport(0, 0, width, height);
+
+			Context* ctx = (Context*)glfwGetWindowUserPointer(window);
+
+			glm::ivec4 forcedViewport = ctx->getForcedViewport();
+			if (forcedViewport != glm::ivec4(0)) {
+				glViewport(
+					forcedViewport[0],
+					height - forcedViewport[1] - forcedViewport[3],
+					forcedViewport[2],
+					forcedViewport[3]
+				);
+			} else {
+				glViewport(0, 0, width, height);
+			}
+
 			glfwMakeContextCurrent(oldContext);
 		}
 	}
@@ -23,6 +37,7 @@ namespace Yngin {
 		impl->makeCurrent();
 		glfwSetFramebufferSizeCallback(m.glfwWindow, fb_resize_callback);
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		glfwSetWindowUserPointer(m.glfwWindow, ctx);
 
 		fb_resize_callback(m.glfwWindow, settings.size.x, settings.size.y);
 
@@ -113,5 +128,14 @@ namespace Yngin {
 		if (glfwGetCurrentContext() != glfwWindow) {
 			glfwMakeContextCurrent(glfwWindow);
 		}
+	}
+
+	void Window::Impl::callSizeUpdateCallback() {
+		glm::ivec2 size = owner->getSize();
+		fb_resize_callback(
+			glfwWindow,
+			size.x,
+			size.y
+		);
 	}
 }

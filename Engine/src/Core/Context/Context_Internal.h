@@ -24,6 +24,8 @@ namespace Yngin {
 
 		std::unique_ptr<ModelsManager> internalModelsManager;
 
+		glm::ivec4 forcedViewPort;
+
 		uint64_t frame = 0;
 		double deltaTime = 1;
 		double lastFrameEnd = 0;

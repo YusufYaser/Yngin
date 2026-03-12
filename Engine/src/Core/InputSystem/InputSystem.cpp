@@ -78,7 +78,7 @@ namespace Yngin {
 		double x, y;
 		glfwGetCursorPos(glfwWindow, &x, &y);
 
-		return { x, y };
+		return glm::ivec2(x, y) - impl->ctx->getViewportPos();
 	}
 
 	bool InputSystem::isMousePressed(const MOUSE_BUTTON& button) const {

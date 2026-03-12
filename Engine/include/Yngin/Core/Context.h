@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdint.h>
 #include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 #include <Yngin/Core/Window.h>
 
 namespace Yngin {
@@ -69,6 +70,10 @@ namespace Yngin {
 		double getDeltaTime() const;
 
 		Window* getWindow() const;
+
+		void forceViewport(glm::ivec2 pos, glm::ivec2 size);
+		glm::ivec4 getForcedViewport() const;
+		glm::ivec2 getViewportPos() const;
 		glm::ivec2 getViewportSize() const;
 
 		// TODO: replace these with getManager<T>()
