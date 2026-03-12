@@ -153,7 +153,9 @@
     <ClCompile Include="deps\vendor\ImGui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="deps\vendor\ImGui\imgui_tables.cpp" />
     <ClCompile Include="deps\vendor\ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="src\Editor.cpp" />
+    <ClCompile Include="src\Editor\Camera.cpp" />
+    <ClCompile Include="src\Editor\Editor.cpp" />
+    <ClCompile Include="src\Editor\Explorer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
@@ -170,6 +172,8 @@
     <ClInclude Include="deps\vendor\ImGui\imstb_rectpack.h" />
     <ClInclude Include="deps\vendor\ImGui\imstb_textedit.h" />
     <ClInclude Include="deps\vendor\ImGui\imstb_truetype.h" />
+    <ClInclude Include="src\Editor\Camera.h" />
+    <ClInclude Include="src\Editor\Explorer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

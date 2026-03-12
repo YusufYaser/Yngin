@@ -1,12 +1,10 @@
-#include <stdio.h>
-#include <Yngin/Yngin.h>
-#include <ImGui/imgui.h>
-#include <ImGui/imgui_impl_opengl3.h>
-#include <ImGui/imgui_impl_glfw.h>
+#include "Camera.h"
+#include <Yngin/Core/Context.h>
+#include <Yngin/Core/InputSystem.h>
 
 using namespace Yngin;
 
-void handleCameraMovement(Camera* camera) {
+void handleCameraMovement(Yngin::Camera* camera) {
 	Context* ctx = camera->getContext();
 	InputSystem* input = ctx->getInputSystem();
 
@@ -66,50 +64,4 @@ void handleCameraMovement(Camera* camera) {
 
 		camera->setPosition(camera->getPosition() + change * (float)delta * speed);
 	}
-}
-
-int main() {
-	initializeYngin();
-
-	if (!isYnginInitialized()) {
-		printf("Failed to initialize Yngin\n");
-		return 1;
-	}
-
-	Context* ctx = createContext();
-
-	if (ctx == nullptr || ctx->getStatus() != CONTEXT_STATUS::RUNNING) {
-		printf("Failed to create context\n");
-		return 1;
-	}
-
-	Scene* scene = ctx->getScenesManager()->createScene();
-	scene->activate();
-
-	TexturesManager* texturesManager = ctx->getTexturesManager();
-
-	Texture* skyboxTex = ctx->getTexturesManager()->createTexture("assets/default_skybox.png", {
-		.wrap = TEXTURE_WRAP::CLAMP,
-		.filterMin = TEXTURE_FILTER::NEAREST,
-		.filterMag = TEXTURE_FILTER::NEAREST,
-		});
-	scene->setSkyboxTexture(skyboxTex);
-
-	InputSystem* input = ctx->getInputSystem();
-	Camera* editorCamera = scene->getCamerasManager()->getCamera(0);
-
-	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
-		ctx->update(false);
-
-		handleCameraMovement(editorCamera);
-
-		ctx->swapBuffers();
-	}
-
-	delete ctx;
-	ctx = nullptr;
-
-	terminateYngin();
-
-	return 0;
 }
