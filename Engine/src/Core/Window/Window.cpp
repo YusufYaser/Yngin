@@ -80,6 +80,7 @@ namespace Yngin {
 	}
 
 	void Window::setMousePosition(glm::ivec2 pos) {
+		pos += impl->ctx->getViewportPos();
 		glfwSetCursorPos(impl->glfwWindow, pos.x, pos.y);
 	}
 
