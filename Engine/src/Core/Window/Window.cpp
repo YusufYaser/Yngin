@@ -67,6 +67,14 @@ namespace Yngin {
 		return size;
 	}
 
+	void Window::maximize() {
+		glfwMaximizeWindow(impl->glfwWindow);
+	}
+
+	void Window::minimize() {
+		glfwRestoreWindow(impl->glfwWindow);
+	}
+
 	void Window::setPosition(glm::ivec2 pos) {
 		glfwSetWindowPos(impl->glfwWindow, pos.x, pos.y);
 	}

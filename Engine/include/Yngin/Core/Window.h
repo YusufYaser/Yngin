@@ -21,6 +21,9 @@ namespace Yngin {
 		void setSize(glm::ivec2 size);
 		glm::ivec2 getSize() const;
 
+		void maximize();
+		void minimize();
+
 		void setPosition(glm::ivec2);
 		glm::ivec2 getPosition() const;
 
