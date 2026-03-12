@@ -3,6 +3,8 @@
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 
+struct GLFWwindow;
+
 namespace Yngin {
 	class Context;
 
@@ -15,6 +17,8 @@ namespace Yngin {
 
 	class Window {
 	public:
+		GLFWwindow* getGLFWwindow() const;
+
 		void setTitle(const char* title);
 		const char* getTitle() const;
 

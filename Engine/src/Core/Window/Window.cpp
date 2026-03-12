@@ -23,6 +23,10 @@ namespace Yngin {
 		glfwDestroyWindow(impl->glfwWindow);
 	}
 
+	GLFWwindow* Window::getGLFWwindow() const {
+		return impl->glfwWindow;
+	}
+
 	void Window::setTitle(const char* title) {
 		glfwSetWindowTitle(impl->glfwWindow, title);
 	}

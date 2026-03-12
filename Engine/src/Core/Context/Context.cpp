@@ -139,7 +139,7 @@ namespace Yngin {
 		return impl->status;
 	}
 
-	void Context::update() {
+	void Context::update(bool swap) {
 		assert(getStatus() == CONTEXT_STATUS::RUNNING);
 		makeCurrent();
 
@@ -177,7 +177,7 @@ namespace Yngin {
 
 		glfwSwapInterval(m.maxFPS == 0);
 
-		m.window->impl->swapBuffers();
+		if (swap) swapBuffers();
 
 		glViewport(0, 0, windowSize.x, windowSize.y);
 
@@ -200,6 +200,10 @@ namespace Yngin {
 		double frameEnd = getTime();
 		m.deltaTime = frameEnd - m.lastFrameEnd;
 		m.lastFrameEnd = frameEnd;
+	}
+
+	void Context::swapBuffers() {
+		impl->window->impl->swapBuffers();
 	}
 
 	uint64_t Context::getFrame() const {

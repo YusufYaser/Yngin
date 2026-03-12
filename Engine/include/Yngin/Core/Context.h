@@ -56,8 +56,10 @@ namespace Yngin {
 		void makeCurrent();
 
 		CONTEXT_STATUS getStatus() const;
-		// this should be at the end of your loop
-		void update();
+		// Set swapBuffers to false if you're using another library like ImGui
+		// but you need to call Context::swapBuffers() at the end of your frame
+		void update(bool swapBuffers = true);
+		void swapBuffers();
 
 		uint64_t getFrame() const;
 
