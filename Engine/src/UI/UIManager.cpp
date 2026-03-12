@@ -9,10 +9,13 @@ namespace Yngin::UI {
 		impl = std::make_unique<Impl>();
 		impl->ctx = ctx;
 		impl->scene = scene;
+
 		impl->rootElement = std::unique_ptr<UIElement>(new UIElement(ctx, scene, this, nullptr));
 		impl->rootElement->setSize({ 1.0f, 0, 1.0f, 0 });
 		impl->rootElement->setPivot({ 0, 0 });
 		impl->rootElement->setPosition({ 0, 0, 0, 0 });
+
+		impl->elements[impl->rootElement->getId()] = impl->rootElement.get();
 	}
 
 	UIManager::~UIManager() = default;
@@ -30,6 +33,18 @@ namespace Yngin::UI {
 		if (it == impl->elements.end()) return nullptr;
 
 		return it->second;
+	}
+
+	size_t UIManager::getElementsCount() const {
+		return impl->elements.size();
+	}
+
+	std::vector<UIElement*> UIManager::getElements() const {
+		std::vector<UIElement*> elements;
+		for (auto& kvp : impl->elements) {
+			elements.push_back(kvp.second);
+		}
+		return elements;
 	}
 
 	void UIManager::deleteElement(uint32_t id) {

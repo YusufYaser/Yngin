@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <vector>
 
 namespace Yngin {
 	class Context;
@@ -13,6 +14,9 @@ namespace Yngin {
 		public:
 			UIElement* getRootElement() const;
 			UIElement* getElement(uint32_t id) const;
+
+			size_t getElementsCount() const;
+			std::vector<UIElement*> getElements() const;
 
 			void deleteElement(uint32_t id);
 			void deleteElement(UIElement* element);

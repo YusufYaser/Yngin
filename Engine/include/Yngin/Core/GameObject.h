@@ -72,6 +72,9 @@ namespace Yngin {
 		GameObject* getRootGameObject() const;
 		GameObject* getGameObject(uint32_t gameObjectId) const;
 
+		size_t getGameObjectsCount() const;
+		std::vector<GameObject*> getGameObjects() const;
+
 		void deleteGameObject(uint32_t gameObjectId);
 		void deleteGameObject(GameObject* gameObject);
 

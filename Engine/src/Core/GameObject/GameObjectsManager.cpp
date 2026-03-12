@@ -39,6 +39,18 @@ namespace Yngin {
 		return it->second;
 	}
 
+	size_t GameObjectsManager::getGameObjectsCount() const {
+		return impl->gameObjects.size();
+	}
+
+	std::vector<GameObject*> GameObjectsManager::getGameObjects() const {
+		std::vector<GameObject*> objects;
+		for (auto& kvp : impl->gameObjects) {
+			objects.push_back(kvp.second);
+		}
+		return objects;
+	}
+
 	void GameObjectsManager::deleteGameObject(uint32_t gameObjectId) {
 		auto it = impl->gameObjects.find(gameObjectId);
 

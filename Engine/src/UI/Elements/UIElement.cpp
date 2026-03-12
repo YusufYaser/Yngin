@@ -137,6 +137,10 @@ namespace Yngin::UI {
 		impl->parent->moveChild(impl->id, newParent);
 	}
 
+	UIElement* UIElement::createChild() {
+		return createChild<UIElement>();
+	}
+
 	template<typename T>
 	T* UIElement::createChild() {
 		auto element = std::unique_ptr<T>(new T(impl->ctx, impl->scene, impl->mgr, this));
