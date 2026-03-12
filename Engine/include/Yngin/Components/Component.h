@@ -9,6 +9,10 @@ namespace Yngin {
 		class PhysicsEngine;
 	}
 
+	namespace Rendering {
+		class Renderer;
+	}
+
 	namespace Components {
 		class Component {
 		public:
@@ -19,6 +23,7 @@ namespace Yngin {
 
 			friend class GameObject;
 			friend struct std::default_delete<Component>;
+			friend class Rendering::Renderer;
 
 		protected:
 			Component(GameObject* gameObject);

@@ -29,8 +29,6 @@ namespace Yngin::UI {
 		glDisable(GL_DEPTH_TEST);
 		model->render();
 		glEnable(GL_DEPTH_TEST);
-
-		UIElement::render();
 	}
 
 	void Image::setTexture(uint32_t newTextureId) {

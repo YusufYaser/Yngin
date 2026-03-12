@@ -8,6 +8,10 @@ namespace Yngin {
 	class Context;
 	class Scene;
 
+	namespace Rendering {
+		class Renderer;
+	}
+
 	class Camera {
 	public:
 		uint32_t getId() const;
@@ -60,6 +64,7 @@ namespace Yngin {
 	private:
 		friend class Scene;
 		friend struct std::default_delete<CamerasManager>;
+		friend class Rendering::Renderer;
 
 		CamerasManager(Scene* scene);
 		~CamerasManager();

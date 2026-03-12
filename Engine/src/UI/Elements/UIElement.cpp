@@ -259,9 +259,5 @@ namespace Yngin::UI {
 		uiShader->setVec4("color", color);
 	}
 
-	void UIElement::render() {
-		for (auto& kvp : impl->childs) {
-			kvp.second->render();
-		}
-	}
+	void UIElement::render() {}
 }

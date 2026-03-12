@@ -25,6 +25,7 @@
     <ClInclude Include="include\Yngin\Core\InputSystem.h" />
     <ClInclude Include="include\Yngin\Physics\Physics.h" />
     <ClInclude Include="include\Yngin\Physics\PhysicsEngine.h" />
+    <ClInclude Include="include\Yngin\Rendering\Renderer.h" />
     <ClInclude Include="include\Yngin\Rendering\Shaders.h" />
     <ClInclude Include="include\Yngin\Rendering\Cameras.h" />
     <ClInclude Include="include\Yngin\Components\Component.h" />
@@ -53,6 +54,7 @@
     <ClInclude Include="src\Core\Models\DefaultModels\Skybox_Model.h" />
     <ClInclude Include="src\Core\Models\DefaultModels\Square_Model.h" />
     <ClInclude Include="src\Physics\Physics_Internal.h" />
+    <ClInclude Include="src\Rendering\Renderer\Renderer_Internal.h" />
     <ClInclude Include="src\Rendering\Shaders\Shaders_Internal.h" />
     <ClInclude Include="src\Rendering\Cameras\Cameras_Internal.h" />
     <ClInclude Include="src\Components\Components_Internal.h" />
@@ -78,6 +80,7 @@
     <ClCompile Include="src\Core\Context\Init.cpp" />
     <ClCompile Include="src\Core\InputSystem\InputSystem.cpp" />
     <ClCompile Include="src\Physics\PhysicsEngine.cpp" />
+    <ClCompile Include="src\Rendering\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Rendering\Shaders\Shader.cpp" />
     <ClCompile Include="src\Rendering\Shaders\ShadersManager.cpp" />
     <ClCompile Include="src\Rendering\Cameras\Camera.cpp" />

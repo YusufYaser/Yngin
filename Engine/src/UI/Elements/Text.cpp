@@ -218,8 +218,6 @@ namespace Yngin::UI {
 
 			pos.x++;
 		}
-
-		UIElement::render();
 	}
 
 

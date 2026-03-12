@@ -15,6 +15,10 @@ namespace Yngin {
 		BUTTON
 	};
 
+	namespace Rendering {
+		class Renderer;
+	}
+
 	namespace UI {
 		struct UITransform {
 			float xScale;
@@ -83,6 +87,7 @@ namespace Yngin {
 			friend struct std::default_delete<UIElement>;
 			friend class Scene;
 			friend class Context;
+			friend class Rendering::Renderer;
 
 			friend class Image;
 			friend class Text;

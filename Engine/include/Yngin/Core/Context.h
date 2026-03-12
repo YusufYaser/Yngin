@@ -28,6 +28,10 @@ namespace Yngin {
 		class PhysicsEngine;
 	}
 
+	namespace Rendering {
+		class Renderer;
+	}
+
 	enum class CONTEXT_STATUS : uint8_t {
 		RUNNING,
 		INITIALIZING,
@@ -74,6 +78,7 @@ namespace Yngin {
 		ShadersManager* getShadersManager() const;
 		UI::UIManager* getGlobalUIManager() const;
 
+		Rendering::Renderer* getRenderer() const;
 		Physics::PhysicsEngine* getPhysicsEngine() const;
 		InputSystem* getInputSystem() const;
 

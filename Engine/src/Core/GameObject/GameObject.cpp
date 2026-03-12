@@ -165,14 +165,4 @@ namespace Yngin {
 	template void GameObject::deleteComponent<Components::RigidBody>();
 	template Components::RigidBody* GameObject::createComponent<Components::RigidBody>();
 	template Components::RigidBody* GameObject::getComponent<Components::RigidBody>() const;
-
-	void GameObject::render() {
-		for (auto& kvp : impl->components) {
-			kvp.second->onRender();
-		}
-
-		for (auto& kvp : impl->childs) {
-			kvp.second->render();
-		}
-	}
 }

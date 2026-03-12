@@ -10,6 +10,7 @@
 #include "../../Rendering/Shaders/Sources/Skybox_Shader_Source.h"
 #include "../../Rendering/Shaders/Sources/UI_Shader_Source.h"
 #include "../../Physics/Physics_Internal.h"
+#include "../../Rendering/Renderer/Renderer_Internal.h"
 #include "../Models/Models_Internal.h"
 #include "../Models/DefaultModels/Skybox_Model.h"
 #include "../Models/DefaultModels/Square_Model.h"
@@ -52,6 +53,7 @@ namespace Yngin {
 		m.shadersManager = std::unique_ptr<ShadersManager>(new ShadersManager(this));
 		m.uiManager = std::unique_ptr<UI::UIManager>(new UI::UIManager(this, nullptr));
 
+		m.renderer = std::unique_ptr<Rendering::Renderer>(new Rendering::Renderer(this));
 		m.physicsEngine = std::unique_ptr<Physics::PhysicsEngine>(new Physics::PhysicsEngine(this));
 		m.inputSystem = std::unique_ptr<InputSystem>(new InputSystem(this));
 
@@ -152,12 +154,12 @@ namespace Yngin {
 		Scene* scene = m.scenesManager->getActive();
 		if (scene) {
 			m.physicsEngine->impl->updatePhysics(scene);
-			m.scenesManager->getActive()->render();
+			m.renderer->impl->render(scene);
 		} else {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
 
-		m.uiManager->getRootElement()->render();
+		m.renderer->impl->render(m.uiManager->getRootElement(), -1);
 
 		glfwSwapInterval(m.maxFPS == 0);
 
@@ -237,6 +239,10 @@ namespace Yngin {
 
 	UI::UIManager* Context::getGlobalUIManager() const {
 		return impl->uiManager.get();
+	}
+
+	Rendering::Renderer* Context::getRenderer() const {
+		return impl->renderer.get();
 	}
 
 	Physics::PhysicsEngine* Context::getPhysicsEngine() const {

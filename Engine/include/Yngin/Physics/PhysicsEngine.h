@@ -21,6 +21,8 @@ namespace Yngin {
 
 		class PhysicsEngine {
 		public:
+			Context* getContext() const;
+
 			float getSimulationDistance();
 			void setSimulationDistance(float distance);
 

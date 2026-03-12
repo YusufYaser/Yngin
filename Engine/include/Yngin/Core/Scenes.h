@@ -22,6 +22,10 @@ namespace Yngin {
 		class PhysicsEngine;
 	}
 
+	namespace Rendering {
+		class Renderer;
+	}
+
 	class ScenesManager {
 	public:
 		Scene* getScene(uint32_t sceneId) const;
@@ -70,8 +74,7 @@ namespace Yngin {
 		friend struct std::default_delete<Scene>;
 		friend class Context;
 		friend class Physics::PhysicsEngine;
-
-		void render();
+		friend class Rendering::Renderer;
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;

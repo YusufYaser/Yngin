@@ -20,6 +20,10 @@ namespace Yngin {
 
 		PhysicsEngine::~PhysicsEngine() = default;
 
+		Context* PhysicsEngine::getContext() const {
+			return impl->ctx;
+		}
+
 		float PhysicsEngine::getSimulationDistance() {
 			return impl->simulationDistance;
 		}
@@ -147,7 +151,10 @@ namespace Yngin {
 			for (auto& kvp : scene->impl->gameObjectsManager->impl->gameObjects) {
 				GameObject* obj = kvp.second;
 
-				if (glm::distance(pos, obj->getPosition()) > simulationDistance) continue;
+				glm::vec3 delta = obj->impl->pos - pos;
+				float distSq = glm::dot(delta, delta);
+
+				if (distSq > simulationDistance * simulationDistance) continue;
 
 				Components::RigidBody* rigidBody = obj->getComponent<Components::RigidBody>();
 				if (rigidBody) rigidBodies.push_back(rigidBody);

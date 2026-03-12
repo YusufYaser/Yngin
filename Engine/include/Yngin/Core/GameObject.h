@@ -11,6 +11,10 @@ namespace Yngin {
 		class PhysicsEngine;
 	}
 
+	namespace Rendering {
+		class Renderer;
+	}
+
 	class GameObject {
 	public:
 		uint32_t getId() const;
@@ -52,12 +56,10 @@ namespace Yngin {
 		friend class Services::Tween;
 		friend struct std::default_delete<GameObject>;
 		friend class Physics::PhysicsEngine;
+		friend class Rendering::Renderer;
 
 		GameObject(Context* ctx, Scene* scene, GameObject* parent);
 		~GameObject();
-
-		// calls onRender() on all components and renders child OameObjects
-		void render();
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;
@@ -76,6 +78,7 @@ namespace Yngin {
 		friend struct std::default_delete<GameObjectsManager>;
 		friend class GameObject;
 		friend class Physics::PhysicsEngine;
+		friend class Rendering::Renderer;
 
 		GameObjectsManager(Context* ctx, Scene* scene);
 		~GameObjectsManager();

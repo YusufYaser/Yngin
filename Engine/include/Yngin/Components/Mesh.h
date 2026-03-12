@@ -10,6 +10,10 @@ namespace Yngin {
 	class Model;
 	class Texture;
 
+	namespace Rendering {
+		class Renderer;
+	}
+
 	namespace Components {
 		class Mesh : public Component {
 		public:
@@ -33,11 +37,10 @@ namespace Yngin {
 
 			friend class GameObject;
 			friend struct std::default_delete<Mesh>;
+			friend class Rendering::Renderer;
 
 			struct Impl;
 			std::unique_ptr<Impl> impl;
-
-			void onRender();
 		};
 	}
 }
