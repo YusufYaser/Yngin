@@ -147,16 +147,10 @@ namespace Yngin {
 
 		glm::ivec2 windowSize = m.window->getSize();
 
-		if (m.forcedViewport != glm::ivec4(0)) {
-			glViewport(
-				m.forcedViewport[0],
-				windowSize.y - m.forcedViewport[1] - m.forcedViewport[3],
-				m.forcedViewport[2],
-				m.forcedViewport[3]
-			);
-		} else {
-			glViewport(0, 0, windowSize.x, windowSize.y);
-		}
+		glm::ivec2 viewportPos = getViewportPos();
+		glm::ivec2 viewportSize = getViewportSize();
+
+		glViewport(viewportPos.x, windowSize.y - viewportPos.y - viewportSize.y, viewportSize.x, viewportSize.y);
 
 		for (auto& kvp : m.services) {
 			kvp.second.get()->onUpdate();
@@ -246,12 +240,26 @@ namespace Yngin {
 	glm::ivec2 Context::getViewportPos() const {
 		glm::ivec2 windowSize = impl->window->getSize();
 
+		if (impl->forcedViewport != glm::ivec4()) {
+			return glm::ivec2(
+				impl->forcedViewport[0],
+				impl->forcedViewport[1]
+			);
+		}
+
 		GLint viewportData[4];
 		glGetIntegerv(GL_VIEWPORT, viewportData);
 		return { viewportData[0], windowSize.y - viewportData[1] - viewportData[3] };
 	}
 
 	glm::ivec2 Context::getViewportSize() const {
+		if (impl->forcedViewport != glm::ivec4()) {
+			return glm::ivec2(
+				impl->forcedViewport[2],
+				impl->forcedViewport[3]
+			);
+		}
+
 		GLint viewportData[4];
 		glGetIntegerv(GL_VIEWPORT, viewportData);
 		return { viewportData[2], viewportData[3] };

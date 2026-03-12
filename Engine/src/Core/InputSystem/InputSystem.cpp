@@ -86,6 +86,16 @@ namespace Yngin {
 	}
 
 	bool InputSystem::isMousePressed(const MOUSE_BUTTON& button) const {
+		if (!impl->ctx->getWindow()->isFocused()) return false;
+
+		glm::ivec2 mousePos = getMousePosition();
+		if (mousePos.x != -1) {
+			glm::ivec2 viewportSize = impl->ctx->getViewportSize();
+			if (mousePos.x < 0 || mousePos.y < 0 || mousePos.x >= viewportSize.x || mousePos.y >= viewportSize.y) {
+				return false;
+			}
+		}
+
 		int glfwButton = -1;
 		switch (button) {
 		case MOUSE_BUTTON::LEFT:
@@ -115,6 +125,8 @@ namespace Yngin {
 	}
 
 	bool InputSystem::isKeyPressed(const KEY& key) const {
+		if (!impl->ctx->getWindow()->isFocused()) return false;
+
 		int glfwKey = keyToGlfw(key);
 
 		Window* window = impl->ctx->getWindow();

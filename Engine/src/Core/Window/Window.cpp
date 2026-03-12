@@ -27,6 +27,14 @@ namespace Yngin {
 		return impl->glfwWindow;
 	}
 
+	void Window::setFocused() {
+		glfwFocusWindow(impl->glfwWindow);
+	}
+
+	bool Window::isFocused() {
+		return glfwGetWindowAttrib(impl->glfwWindow, GLFW_FOCUSED);
+	}
+
 	void Window::setTitle(const char* title) {
 		glfwSetWindowTitle(impl->glfwWindow, title);
 	}

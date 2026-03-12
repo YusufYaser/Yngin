@@ -19,6 +19,9 @@ namespace Yngin {
 	public:
 		GLFWwindow* getGLFWwindow() const;
 
+		void setFocused();
+		bool isFocused();
+
 		void setTitle(const char* title);
 		const char* getTitle() const;
 
