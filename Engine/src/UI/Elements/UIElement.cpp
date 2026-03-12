@@ -192,6 +192,9 @@ namespace Yngin::UI {
 	}
 
 	void UIElement::deleteChild(UIElement* child) {
+		for (auto& obj : child->getChildren()) {
+			child->deleteChild(obj);
+		}
 		uint32_t childId = child->getId();
 		impl->childs.erase(childId);
 		impl->scene->getUIManager()->impl->elements.erase(childId);
@@ -223,6 +226,14 @@ namespace Yngin::UI {
 	void UIElement::moveChild(uint32_t childId, uint32_t newParentId) {
 		UIElement* newParent = impl->scene->getUIManager()->getElement(newParentId);
 		if (newParent) moveChild(childId, newParent);
+	}
+
+	std::vector<UIElement*> UIElement::getChildren() const {
+		std::vector<UIElement*> children;
+		for (auto& kvp : impl->childs) {
+			children.push_back(kvp.second.get());
+		}
+		return children;
 	}
 
 	void UIElement::Impl::prepareUniforms() {

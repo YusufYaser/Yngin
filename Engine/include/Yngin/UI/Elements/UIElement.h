@@ -47,6 +47,8 @@ namespace Yngin {
 			T* getParent() const;
 			void setParent(UIElement* newParent);
 
+			std::vector<UIElement*> getChildren() const;
+
 			UIElement* getChild(uint32_t childId) const;
 			template<typename T>
 			T* getChild(uint32_t childId) const;

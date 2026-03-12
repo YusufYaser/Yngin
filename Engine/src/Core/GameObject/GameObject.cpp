@@ -46,6 +46,14 @@ namespace Yngin {
 		impl->parent->moveChild(impl->id, newParent);
 	}
 
+	std::vector<GameObject*> GameObject::getChildren() const {
+		std::vector<GameObject*> children;
+		for (auto& kvp : impl->childs) {
+			children.push_back(kvp.second.get());
+		}
+		return children;
+	}
+
 	GameObject* GameObject::getChild(uint32_t childId) const {
 		auto it = impl->childs.find(childId);
 
@@ -73,6 +81,9 @@ namespace Yngin {
 	}
 
 	void GameObject::deleteChild(GameObject* child) {
+		for (auto& obj : child->getChildren()) {
+			child->deleteChild(obj);
+		}
 		uint32_t childId = child->getId();
 		impl->childs.erase(childId);
 		impl->scene->getGameObjectsManager()->impl->gameObjects.erase(childId);

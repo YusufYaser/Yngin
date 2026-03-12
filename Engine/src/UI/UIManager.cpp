@@ -38,8 +38,6 @@ namespace Yngin::UI {
 
 		auto element = it->second;
 
-		impl->elements.erase(id);
-
 		if (element->getParent()) {
 			element->getParent()->deleteChild(id);
 		}

@@ -46,8 +46,6 @@ namespace Yngin {
 
 		auto gameObject = it->second;
 
-		impl->gameObjects.erase(gameObjectId);
-
 		if (gameObject->getParent()) {
 			gameObject->getParent()->deleteChild(gameObjectId);
 		}

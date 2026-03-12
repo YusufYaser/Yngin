@@ -25,6 +25,8 @@ namespace Yngin {
 		void setParent(uint32_t newParentId);
 		void setParent(GameObject* newParent);
 
+		std::vector<GameObject*> getChildren() const;
+
 		GameObject* getChild(uint32_t childId) const;
 		GameObject* createChild();
 		void deleteChild(uint32_t childId);
