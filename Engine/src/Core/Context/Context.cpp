@@ -141,8 +141,22 @@ namespace Yngin {
 
 	void Context::update() {
 		assert(getStatus() == CONTEXT_STATUS::RUNNING);
+		makeCurrent();
 
 		auto& m = *impl;
+
+		glm::ivec2 windowSize = m.window->getSize();
+
+		if (m.forcedViewport != glm::ivec4(0)) {
+			glViewport(
+				m.forcedViewport[0],
+				windowSize.y - m.forcedViewport[1] - m.forcedViewport[3],
+				m.forcedViewport[2],
+				m.forcedViewport[3]
+			);
+		} else {
+			glViewport(0, 0, windowSize.x, windowSize.y);
+		}
 
 		for (auto& kvp : m.services) {
 			kvp.second.get()->onUpdate();
@@ -164,6 +178,8 @@ namespace Yngin {
 		glfwSwapInterval(m.maxFPS == 0);
 
 		m.window->impl->swapBuffers();
+
+		glViewport(0, 0, windowSize.x, windowSize.y);
 
 		if (getStatus() == CONTEXT_STATUS::RUNNING && m.window->impl->shouldClose()) {
 			m.status = CONTEXT_STATUS::NEEDS_TO_STOP;
@@ -216,12 +232,11 @@ namespace Yngin {
 	}
 
 	void Context::forceViewport(glm::ivec2 pos, glm::ivec2 size) {
-		impl->forcedViewPort = glm::ivec4(pos, size);
-		impl->window->impl->callSizeUpdateCallback();
+		impl->forcedViewport = glm::ivec4(pos, size);
 	}
 
 	glm::ivec4 Context::getForcedViewport() const {
-		return impl->forcedViewPort;
+		return impl->forcedViewport;
 	}
 
 	glm::ivec2 Context::getViewportPos() const {

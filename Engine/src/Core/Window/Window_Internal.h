@@ -19,7 +19,5 @@ namespace Yngin {
 		bool shouldClose();
 		void update();
 		void makeCurrent();
-
-		void callSizeUpdateCallback();
 	};
 }
