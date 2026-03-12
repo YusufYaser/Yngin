@@ -8,9 +8,9 @@
 #include <Yngin/Core/Window.h>
 
 namespace Yngin {
-	bool init();
-	void terminate();
-	bool isInitialized();
+	bool initializeYngin();
+	void terminateYngin();
+	bool isYnginInitialized();
 
 	class Window;
 	class ModelsManager;

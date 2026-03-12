@@ -21,12 +21,12 @@ namespace Yngin {
 
 	Context* createContext(const ContextSettings& settings) {
 		Context* ctx = nullptr;
-		if (Yngin::isInitialized()) ctx = new Context(settings);
+		if (isYnginInitialized()) ctx = new Context(settings);
 		return ctx;
 	}
 
 	Context::Context(const ContextSettings& settings) {
-		if (!Yngin::isInitialized()) {
+		if (!isYnginInitialized()) {
 			impl->status = CONTEXT_STATUS::FAILED_TO_INIT;
 			throw std::exception("Cannot create new context before initialization");
 		}

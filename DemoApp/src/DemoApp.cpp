@@ -13,7 +13,7 @@
 using namespace Yngin;
 
 int main() {
-	Yngin::init();
+	Yngin::initializeYngin();
 
 	ContextSettings settings = {};
 	settings.windowSettings = {
@@ -47,7 +47,7 @@ int main() {
 
 	if (!modelFile.is_open()) {
 		printf("Test model not found\n");
-		Yngin::terminate();
+		Yngin::terminateYngin();
 		return 1;
 	}
 
@@ -62,7 +62,7 @@ int main() {
 
 	if (!cubeModelFile.is_open()) {
 		printf("Cube model not found\n");
-		Yngin::terminate();
+		Yngin::terminateYngin();
 		return 1;
 	}
 
@@ -445,7 +445,7 @@ int main() {
 
 	delete ctx;
 
-	Yngin::terminate();
+	Yngin::terminateYngin();
 
 	return 0;
 }

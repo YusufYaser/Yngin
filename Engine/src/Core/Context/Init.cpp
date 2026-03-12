@@ -13,7 +13,7 @@ namespace {
 }
 
 namespace Yngin {
-	bool init() {
+	bool initializeYngin() {
 		if (!glfwInit()) {
 			terminate();
 			return false;
@@ -32,11 +32,11 @@ namespace Yngin {
 		return true;
 	}
 
-	bool isInitialized() {
+	bool isYnginInitialized() {
 		return initialized;
 	}
 
-	void terminate() {
+	void terminateYngin() {
 		Context::deleteAllContexts();
 		glfwTerminate();
 #ifdef _WIN32
