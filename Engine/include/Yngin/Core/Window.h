@@ -34,6 +34,8 @@ namespace Yngin {
 		void setCursorLocked(bool locked);
 		bool isCursorLocked() const;
 
+		void setMousePosition(glm::ivec2 pos);
+
 		void setFullscreen(bool fullscreen);
 		bool isFullscreen() const;
 

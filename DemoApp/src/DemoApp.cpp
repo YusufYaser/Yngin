@@ -388,13 +388,13 @@ int main() {
 		double delta = ctx->getDeltaTime();
 
 		if (input->isMouseJustPressed(MOUSE_BUTTON::RIGHT)) {
-			oldMousePos = input->getMousePos(true);
+			oldMousePos = input->getMousePosition(true);
 		}
 
 		if (input->isMousePressed(MOUSE_BUTTON::RIGHT)) {
 			glm::vec3 o = defaultCamera->getOrientation();
-			glm::ivec2 m = input->getMousePos(true) - oldMousePos;
-			oldMousePos = input->getMousePos(true);
+			glm::ivec2 m = input->getMousePosition(true) - oldMousePos;
+			oldMousePos = input->getMousePosition(true);
 
 			float senstivity = 0.002f;
 

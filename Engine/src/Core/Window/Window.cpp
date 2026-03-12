@@ -71,6 +71,10 @@ namespace Yngin {
 		return glfwGetInputMode(impl->glfwWindow, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
 	}
 
+	void Window::setMousePosition(glm::ivec2 pos) {
+		glfwSetCursorPos(impl->glfwWindow, pos.x, pos.y);
+	}
+
 	void Window::setFullscreen(bool fullscreen) {
 		if (impl->fullscreen == fullscreen) return;
 

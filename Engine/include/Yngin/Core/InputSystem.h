@@ -51,7 +51,8 @@ namespace Yngin {
 	class InputSystem {
 	public:
 		// get mouse position relative to the window position
-		glm::ivec2 getMousePos(bool bypassLock = false) const;
+		glm::ivec2 getMousePosition(bool bypassLock = false) const;
+		void setMousePosition(glm::ivec2 pos);
 
 		bool isMousePressed(const MOUSE_BUTTON& button) const;
 		bool isMouseJustPressed(const MOUSE_BUTTON& button) const;

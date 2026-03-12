@@ -77,7 +77,7 @@ namespace Yngin::UI {
 
 		glm::ivec2 boundsEnd = boundsStart + size;
 
-		glm::ivec2 mousePos = impl->ctx->getInputSystem()->getMousePos();
+		glm::ivec2 mousePos = impl->ctx->getInputSystem()->getMousePosition();
 
 		bool x = boundsStart.x <= mousePos.x && mousePos.x <= boundsEnd.x;
 		bool y = boundsStart.y <= mousePos.y && mousePos.y <= boundsEnd.y;
