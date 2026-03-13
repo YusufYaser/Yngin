@@ -1,10 +1,10 @@
-#include "Camera.h"
 #include <Yngin/Core/Context.h>
 #include <Yngin/Core/InputSystem.h>
+#include "Editor.h"
 
 using namespace Yngin;
 
-void handleCameraMovement(Yngin::Camera* camera) {
+void Editor::handleCameraMovement(Yngin::Camera* camera) {
 	Context* ctx = camera->getContext();
 	InputSystem* input = ctx->getInputSystem();
 

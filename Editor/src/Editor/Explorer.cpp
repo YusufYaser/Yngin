@@ -1,15 +1,11 @@
-#include "Explorer.h"
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_internal.h>
 #include <Yngin/Core/GameObject.h>
 #include <Yngin/UI/UI.h>
 #include <Yngin/Core/Scenes.h>
+#include "Editor.h"
 
 using namespace Yngin;
-
-extern Yngin::Scene* editorScene;
-
-std::pair<EXPLORER_SELECTION_TYPE, int> explorerSelection;
 
 namespace {
 	GameObject* drawChildrenTree(GameObject* obj) {
@@ -57,15 +53,15 @@ namespace {
 	}
 }
 
-void showExplorer() {
+void Editor::showExplorer() {
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 
 	if (ImGui::BeginViewportSideBar("##Explorer", viewport, ImGuiDir_Left, 250.0f, 0)) {
 		ImGui::Text("Scene Explorer");
 		ImGui::Separator();
 		if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth)) {
-			GameObject* gameObject = drawChildrenTree(editorScene->getGameObjectsManager()->getRootGameObject());
-			UI::UIElement* uiElement = drawChildrenTree(editorScene->getUIManager()->getRootElement());
+			GameObject* gameObject = drawChildrenTree(activeScene->getGameObjectsManager()->getRootGameObject());
+			UI::UIElement* uiElement = drawChildrenTree(activeScene->getUIManager()->getRootElement());
 			ImGui::TreePop();
 			if (gameObject) explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, gameObject->getId() };
 			if (uiElement) explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, uiElement->getId() };

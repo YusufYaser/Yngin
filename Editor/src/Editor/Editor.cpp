@@ -6,31 +6,15 @@
 #include <ImGui/imgui_internal.h>
 #include <GLFW/glfw3.h>
 
-#include "Camera.h"
-#include "Explorer.h"
-#include "Properties/GameObjectProps.h"
+#include "Editor.h"
 
 using namespace Yngin;
 
-Camera* editorCamera = nullptr;
-Yngin::Scene* editorScene = nullptr;
-
-extern std::pair<EXPLORER_SELECTION_TYPE, int> explorerSelection;
-
-int main() {
-	initializeYngin();
-
-	if (!isYnginInitialized()) {
-		printf("Failed to initialize Yngin\n");
-		return 1;
-	}
-
-	// initialize Yngin
-
+Editor::Editor() {
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-	Context* ctx = createContext({
+	ctx = createContext({
 		.windowSettings = {
 			.size = glm::ivec2(1280, 720),
 			.position = glm::ivec2((mode->width - 1280) / 2, (mode->height - 720) / 2),
@@ -38,15 +22,16 @@ int main() {
 			}
 		});
 
+
 	ctx->setMaxFPS(0);
 
 	if (ctx == nullptr || ctx->getStatus() != CONTEXT_STATUS::RUNNING) {
 		printf("Failed to create context\n");
-		return 1;
+		return;
 	}
 
-	editorScene = ctx->getScenesManager()->createScene();
-	editorScene->activate();
+	activeScene = ctx->getScenesManager()->createScene();
+	activeScene->activate();
 
 	TexturesManager* texturesManager = ctx->getTexturesManager();
 
@@ -55,10 +40,21 @@ int main() {
 		.filterMin = TEXTURE_FILTER::NEAREST,
 		.filterMag = TEXTURE_FILTER::NEAREST,
 		});
-	editorScene->setSkyboxTexture(skyboxTex);
+	activeScene->setSkyboxTexture(skyboxTex);
 
-	InputSystem* input = ctx->getInputSystem();
-	editorCamera = editorScene->getCamerasManager()->getCamera(0);
+	Texture* gridTex = ctx->getTexturesManager()->createTexture({
+		.width = 2,
+		.height = 2,
+		.numCh = 1,
+		.bytes = "\xff\x80\x80\xff"
+		}, {
+		.wrap = TEXTURE_WRAP::REPEAT,
+		.filterMin = TEXTURE_FILTER::NEAREST,
+		.filterMag = TEXTURE_FILTER::NEAREST
+		}
+	);
+
+	editorCamera = activeScene->getCamerasManager()->getCamera(0);
 
 	const ModelData square = {
 		{
@@ -78,131 +74,131 @@ int main() {
 
 	ctx->getPhysicsEngine()->setSimulationDistance(0);
 
+
 	// initialize ImGui
-	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGui_ImplGlfw_InitForOpenGL(ctx->getWindow()->getGLFWwindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
-	ImGuiIO& io = ImGui::GetIO();
-
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.FrameRounding = 5.0f;
+}
 
-	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
-		glm::ivec2 windowSize = ctx->getWindow()->getSize();
-		handleCameraMovement(editorCamera);
-
-		if (input->isKeyJustPressed(Yngin::KEY::F11) || (input->isKeyPressed(Yngin::KEY::RALT) && input->isKeyJustPressed(Yngin::KEY::ENTER))) {
-			ctx->getWindow()->setFullscreen(!ctx->getWindow()->isFullscreen());
-		}
-
-		if (input->isKeyJustPressed(Yngin::KEY::SPACE)) {
-			ctx->getPhysicsEngine()->setSimulationDistance(ctx->getPhysicsEngine()->getSimulationDistance() == 0.0f ? 256.0f : 0.0f);
-		}
-
-		ctx->update(false);
-		io.DisplaySize = ImVec2((float)windowSize.x, (float)windowSize.y);
-
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui::NewFrame();
-
-		float menubarHeight = 0;
-
-		if (ImGui::BeginMainMenuBar()) {
-			if (ctx->getWindow()->isFullscreen()) {
-				ImGui::Text(ctx->getWindow()->getTitle());
-				ImGui::Separator();
-			}
-
-			if (ImGui::BeginMenu("File")) {
-				ImGui::MenuItem("Example Project", 0, false, false);
-				ImGui::Separator();
-				if (ImGui::MenuItem("Exit", "Alt+F4")) {
-					break;
-				}
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::BeginMenu("Help")) {
-				if (ImGui::MenuItem("GitHub")) {
-					system("start https://github.com/YusufYaser/Yngin");
-				}
-				ImGui::EndMenu();
-			}
-
-			if (ctx->getWindow()->isFullscreen()) {
-				ImGui::SameLine(ctx->getWindow()->getSize().x - 55.0f);
-				if (ImGui::BeginMenu("-")) {
-					ctx->getWindow()->setFullscreen(false);
-					ImGui::EndMenu();
-				}
-				ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(1, 0, 0, 1));
-				if (ImGui::BeginMenu("X")) {
-					ImGui::EndMenu();
-					break;
-				}
-				ImGui::PopStyleColor();
-			}
-
-			menubarHeight = ImGui::GetFrameHeight();
-
-			ImGui::EndMainMenuBar();
-		}
-
-		ImGuiViewport* viewport = ImGui::GetMainViewport();
-		showExplorer();
-
-		if (ImGui::BeginViewportSideBar("##Properties", viewport, ImGuiDir_Right, 300.0f, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNavFocus)) {
-			if (explorerSelection.first == EXPLORER_SELECTION_TYPE::GAMEOBJECT) {
-				GameObject* obj = editorScene->getGameObjectsManager()->getGameObject(explorerSelection.second);
-				if (obj) {
-					gameObjectProps(obj);
-				}
-			} else if (explorerSelection.first == EXPLORER_SELECTION_TYPE::UIELEMENT) {
-				UI::UIElement* element = editorScene->getUIManager()->getElement(explorerSelection.second);
-				if (element) {
-					if (element->getId() != 0) {
-						ImGui::Text("Properties (UI Element #%i)", element->getId());
-						ImGui::Separator();
-
-						if (ImGui::Button("Delete")) {
-							editorScene->getUIManager()->deleteElement(element);
-							explorerSelection = {};
-						}
-					} else {
-						ImGui::Text("Root UI Element");
-					}
-				}
-			}
-			ImGui::End();
-		}
-
-		ImGui::SetNextWindowPos(ImVec2(250, windowSize.y - 300.0f));
-		ImGui::SetNextWindowSize(ImVec2(windowSize.x - 250 - 300.0f, 300.0f));
-		ImGui::Begin("Information", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
-		ImGui::Text("FPS: %.1f", 1 / ctx->getDeltaTime());
-		ImGui::Text("%i GameObjects", editorScene->getGameObjectsManager()->getGameObjectsCount());
-		ImGui::Text("%i UI Elements", editorScene->getUIManager()->getElementsCount());
-		ImGui::Text("Position: %f %f %f", editorCamera->getPosition().x, editorCamera->getPosition().y, editorCamera->getPosition().z);
-		ImGui::End();
-
-		ctx->forceViewport({ 250.0f, menubarHeight }, { windowSize.x - 250.0f - 300.0f, windowSize.y - menubarHeight - 300.0f });
-
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		ctx->swapBuffers();
-	}
-
+Editor::~Editor() {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
 	delete ctx;
 	ctx = nullptr;
+}
 
-	Yngin::terminateYngin();
+void Editor::update() {
+	ImGuiIO& io = ImGui::GetIO();
 
-	return 0;
+	glm::ivec2 windowSize = ctx->getWindow()->getSize();
+	handleCameraMovement(editorCamera);
+
+	InputSystem* input = ctx->getInputSystem();
+
+	if (input->isKeyJustPressed(Yngin::KEY::F11) || (input->isKeyPressed(Yngin::KEY::RALT) && input->isKeyJustPressed(Yngin::KEY::ENTER))) {
+		ctx->getWindow()->setFullscreen(!ctx->getWindow()->isFullscreen());
+	}
+
+	if (input->isKeyJustPressed(Yngin::KEY::SPACE)) {
+		ctx->getPhysicsEngine()->setSimulationDistance(ctx->getPhysicsEngine()->getSimulationDistance() == 0.0f ? 256.0f : 0.0f);
+	}
+
+	ctx->update(false);
+	io.DisplaySize = ImVec2((float)windowSize.x, (float)windowSize.y);
+
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui::NewFrame();
+
+	float menubarHeight = 0;
+
+	if (ImGui::BeginMainMenuBar()) {
+		if (ctx->getWindow()->isFullscreen()) {
+			ImGui::Text(ctx->getWindow()->getTitle());
+			ImGui::Separator();
+		}
+
+		if (ImGui::BeginMenu("File")) {
+			ImGui::MenuItem("Example Project", 0, false, false);
+			ImGui::Separator();
+			if (ImGui::MenuItem("Exit", "Alt+F4")) {
+				return;
+			}
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Help")) {
+			if (ImGui::MenuItem("GitHub Wiki")) {
+				system("start https://github.com/YusufYaser/Yngin/wiki");
+			}
+			ImGui::EndMenu();
+		}
+
+		if (ctx->getWindow()->isFullscreen()) {
+			ImGui::SameLine(ctx->getWindow()->getSize().x - 55.0f);
+			if (ImGui::BeginMenu("-")) {
+				ctx->getWindow()->setFullscreen(false);
+				ImGui::EndMenu();
+			}
+			ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(1, 0, 0, 1));
+			if (ImGui::BeginMenu("X")) {
+				ImGui::EndMenu();
+				return;
+			}
+			ImGui::PopStyleColor();
+		}
+
+		menubarHeight = ImGui::GetFrameHeight();
+
+		ImGui::EndMainMenuBar();
+	}
+
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	showExplorer();
+
+	if (ImGui::BeginViewportSideBar("##Properties", viewport, ImGuiDir_Right, 300.0f, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNavFocus)) {
+		if (explorerSelection.first == EXPLORER_SELECTION_TYPE::GAMEOBJECT) {
+			GameObject* obj = activeScene->getGameObjectsManager()->getGameObject(explorerSelection.second);
+			if (obj) {
+				gameObjectProps(obj);
+			}
+		} else if (explorerSelection.first == EXPLORER_SELECTION_TYPE::UIELEMENT) {
+			UI::UIElement* element = activeScene->getUIManager()->getElement(explorerSelection.second);
+			if (element) {
+				if (element->getId() != 0) {
+					ImGui::Text("Properties (UI Element #%i)", element->getId());
+					ImGui::Separator();
+
+					if (ImGui::Button("Delete")) {
+						activeScene->getUIManager()->deleteElement(element);
+						explorerSelection = {};
+					}
+				} else {
+					ImGui::Text("Root UI Element");
+				}
+			}
+		}
+		ImGui::End();
+	}
+
+	ImGui::SetNextWindowPos(ImVec2(250, windowSize.y - 300.0f));
+	ImGui::SetNextWindowSize(ImVec2(windowSize.x - 250 - 300.0f, 300.0f));
+	ImGui::Begin("Information", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+	ImGui::Text("FPS: %.1f", 1 / ctx->getDeltaTime());
+	ImGui::Text("%i GameObjects", activeScene->getGameObjectsManager()->getGameObjectsCount());
+	ImGui::Text("%i UI Elements", activeScene->getUIManager()->getElementsCount());
+	ImGui::Text("Position: %f %f %f", editorCamera->getPosition().x, editorCamera->getPosition().y, editorCamera->getPosition().z);
+	ImGui::End();
+
+	ctx->forceViewport({ 250.0f, menubarHeight }, { windowSize.x - 250.0f - 300.0f, windowSize.y - menubarHeight - 300.0f });
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	ctx->swapBuffers();
 }
