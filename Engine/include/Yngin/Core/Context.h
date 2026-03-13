@@ -49,6 +49,7 @@ namespace Yngin {
 	public:
 		Context(const ContextSettings& settings = {});
 		~Context();
+		void close();
 		static void deleteAllContexts();
 
 		// it is strongly recommended to call this at the start of every frame
@@ -96,8 +97,8 @@ namespace Yngin {
 		T* getService() const;
 
 	private:
-		static std::vector<Context*> contexts;
 		void cleanup();
+		static std::vector<Context*> contexts;
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;

@@ -14,6 +14,7 @@ namespace Yngin {
 		glm::ivec2 posPreFullscreen;
 		glm::ivec2 sizePreFullscreen;
 		bool fullscreen = false;
+		bool hasTitleBar = true;
 
 		void swapBuffers();
 		bool shouldClose();

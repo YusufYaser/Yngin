@@ -13,6 +13,7 @@ namespace Yngin {
 		bool fullScreen = false;
 		glm::ivec2 position = { 100, 100 };
 		const char* title = "Yngin Context";
+		bool hasTitleBar = true;
 	};
 
 	class Window {
@@ -20,7 +21,9 @@ namespace Yngin {
 		GLFWwindow* getGLFWwindow() const;
 
 		void setFocused();
-		bool isFocused();
+		bool isFocused() const;
+
+		bool hasTitleBar() const;
 
 		void setTitle(const char* title);
 		const char* getTitle() const;

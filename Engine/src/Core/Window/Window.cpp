@@ -7,9 +7,11 @@ namespace Yngin {
 		impl = std::make_unique<Impl>();
 		impl->ctx = ctx;
 		impl->owner = this;
+		impl->hasTitleBar = settings.hasTitleBar;
 
 		auto& m = *impl;
 
+		glfwWindowHint(GLFW_DECORATED, settings.hasTitleBar ? GLFW_TRUE : GLFW_FALSE);
 		m.glfwWindow = glfwCreateWindow(settings.size.x, settings.size.y, settings.title, nullptr, nullptr);
 		impl->makeCurrent();
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -31,8 +33,12 @@ namespace Yngin {
 		glfwFocusWindow(impl->glfwWindow);
 	}
 
-	bool Window::isFocused() {
+	bool Window::isFocused() const {
 		return glfwGetWindowAttrib(impl->glfwWindow, GLFW_FOCUSED);
+	}
+
+	bool Window::hasTitleBar() const {
+		return impl->hasTitleBar;
 	}
 
 	void Window::setTitle(const char* title) {

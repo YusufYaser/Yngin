@@ -111,6 +111,10 @@ namespace Yngin {
 		cleanup();
 	}
 
+	void Context::close() {
+		impl->status = CONTEXT_STATUS::NEEDS_TO_STOP;
+	}
+
 	void Context::cleanup() {
 		auto& m = *impl;
 
