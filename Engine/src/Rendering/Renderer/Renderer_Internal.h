@@ -14,6 +14,8 @@ namespace Yngin {
 		struct Renderer::Impl {
 			Context* ctx;
 
+			bool lightingEnabled = true;
+
 			float renderDistance = 512.0f;
 
 			void render(Scene* scene);

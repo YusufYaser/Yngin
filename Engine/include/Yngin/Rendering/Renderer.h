@@ -9,6 +9,9 @@ namespace Yngin {
 		public:
 			Context* getContext() const;
 
+			bool isLightingEnabled() const;
+			void setLightingEnabled(bool enabled);
+
 			float getRenderDistance() const;
 			void setRenderDistance(float renderDistance);
 

@@ -34,6 +34,14 @@ namespace Yngin::Rendering {
 		return impl->ctx;
 	}
 
+	bool Renderer::isLightingEnabled() const {
+		return impl->lightingEnabled;
+	}
+
+	void Renderer::setLightingEnabled(bool enabled) {
+		impl->lightingEnabled = enabled;
+	}
+
 	float Renderer::getRenderDistance() const {
 		return impl->renderDistance;
 	}
@@ -72,37 +80,38 @@ namespace Yngin::Rendering {
 		worldShader->setMat4("projection", proj);
 		worldShader->setMat4("view", view);
 
-		// register lights
-		int lightsCount = 0;
-		for (auto& kvp : scene->impl->gameObjectsManager->impl->gameObjects) {
-			GameObject* obj = kvp.second;
+		if (lightingEnabled) {
+			// register lights
+			int lightsCount = 0;
+			for (auto& kvp : scene->impl->gameObjectsManager->impl->gameObjects) {
+				GameObject* obj = kvp.second;
 
-			glm::vec3 delta = obj->impl->pos - camPos;
-			float distSq = glm::dot(delta, delta);
+				glm::vec3 delta = obj->impl->pos - camPos;
+				float distSq = glm::dot(delta, delta);
 
-			if (distSq > renderDistance * renderDistance) continue;
+				if (distSq > renderDistance * renderDistance) continue;
 
-			Components::Light* light = obj->getComponent<Components::Light>();
+				Components::Light* light = obj->getComponent<Components::Light>();
 
-			if (light == nullptr) continue;
+				if (light == nullptr) continue;
 
-			worldShader->setVec3(std::string("lights[" + std::to_string(lightsCount) + "].position").c_str(), obj->getPosition());
-			worldShader->setVec3(std::string("lights[" + std::to_string(lightsCount) + "].color").c_str(), light->getColor());
-			worldShader->setFloat(std::string("lights[" + std::to_string(lightsCount) + "].distance").c_str(), light->getDistance());
-			worldShader->setFloat(std::string("lights[" + std::to_string(lightsCount) + "].intensity").c_str(), light->getIntensity());
+				worldShader->setVec3(std::string("lights[" + std::to_string(lightsCount) + "].position").c_str(), obj->getPosition());
+				worldShader->setVec3(std::string("lights[" + std::to_string(lightsCount) + "].color").c_str(), light->getColor());
+				worldShader->setFloat(std::string("lights[" + std::to_string(lightsCount) + "].distance").c_str(), light->getDistance());
+				worldShader->setFloat(std::string("lights[" + std::to_string(lightsCount) + "].intensity").c_str(), light->getIntensity());
 
-			lightsCount++;
+				lightsCount++;
 
-			if (lightsCount >= MAX_LIGHTS) {
-				break;
+				if (lightsCount >= MAX_LIGHTS) {
+					break;
+				}
 			}
+
+			worldShader->setInt("lightsCount", lightsCount);
+			worldShader->setVec3("scene.ambientLight", scene->impl->lightSettings.ambientLight);
 		}
 
-		worldShader->setInt("lightsCount", lightsCount);
-
 		worldShader->setVec3("cameraPos", scene->impl->camerasManager->getFinalPos());
-
-		worldShader->setVec3("scene.ambientLight", scene->impl->lightSettings.ambientLight);
 
 		render(scene->impl->gameObjectsManager->getRootGameObject(), -1);
 		render(scene->impl->uiManager->getRootElement(), -1);
@@ -167,7 +176,7 @@ namespace Yngin::Rendering {
 		worldShader->setMat3("normalMatrix", normalMatrix);
 		worldShader->setMat4("model", modelMat);
 
-		worldShader->setInt("isLight", obj->getComponent<Components::Light>() != nullptr);
+		worldShader->setInt("isLight", obj->getComponent<Components::Light>() != nullptr || !lightingEnabled);
 
 		worldShader->setVec4("color", glm::vec4(mimpl->color, 1));
 

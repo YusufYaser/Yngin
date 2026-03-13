@@ -24,6 +24,14 @@ namespace Yngin {
 			return impl->ctx;
 		}
 
+		bool PhysicsEngine::isSimulationEnabled() const {
+			return impl->simulationEnabled;
+		}
+
+		void PhysicsEngine::setSimulationEnabled(bool enabled) {
+			impl->simulationEnabled = enabled;
+		}
+
 		float PhysicsEngine::getSimulationDistance() {
 			return impl->simulationDistance;
 		}
@@ -139,6 +147,7 @@ namespace Yngin {
 		}
 
 		void PhysicsEngine::Impl::updatePhysics(Scene* scene) {
+			if (!simulationEnabled) return;
 			if (scene->getContext() != ctx) return;
 
 			float t = std::min((float)ctx->getDeltaTime(), 1.0f / 15);

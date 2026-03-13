@@ -23,6 +23,9 @@ namespace Yngin {
 		public:
 			Context* getContext() const;
 
+			bool isSimulationEnabled() const;
+			void setSimulationEnabled(bool enabled);
+
 			float getSimulationDistance();
 			void setSimulationDistance(float distance);
 

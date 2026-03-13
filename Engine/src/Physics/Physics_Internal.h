@@ -9,6 +9,7 @@ namespace Yngin {
 			Context* ctx;
 			PhysicsEngine* owner;
 
+			bool simulationEnabled = true;
 			float simulationDistance = 256.0f;
 
 			float gravity = 9.8f;
