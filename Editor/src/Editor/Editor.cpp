@@ -56,10 +56,10 @@ int main() {
 
 	const ModelData square = {
 		{
-			Vertex{glm::vec3(+0.5f, +0.5f, 0.0f), glm::vec2(1.0f, 0.0f)},
-			Vertex{glm::vec3(-0.5f, +0.5f, 0.0f), glm::vec2(0.0f, 0.0f)},
-			Vertex{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 1.0f)},
-			Vertex{glm::vec3(+0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 1.0f)},
+			Vertex{glm::vec3(+0.5f, +0.5f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec3(0, 0, 1.0f)},
+			Vertex{glm::vec3(-0.5f, +0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec3(0, 0, 1.0f)},
+			Vertex{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 1.0f), glm::vec3(0, 0, 1.0f)},
+			Vertex{glm::vec3(+0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec3(0, 0, 1.0f)},
 		},
 
 		{
@@ -92,6 +92,8 @@ int main() {
 		}
 	}
 
+	ctx->getPhysicsEngine()->setSimulationDistance(0);
+
 	// initialize ImGui
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -107,12 +109,23 @@ int main() {
 	glm::vec3 pos{};
 	glm::vec3 rotation{};
 
+	int meshModelInput = 0;
+	int meshTexInput = 0;
+	float lightIntensityInput = 0;
+	float lightDistanceInput = 0;
+	float lightColorInput[3] = {};
+	float rigidBodyMassInput = 0.0f;
+
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		glm::ivec2 windowSize = ctx->getWindow()->getSize();
 		handleCameraMovement(editorCamera);
 
 		if (input->isKeyJustPressed(Yngin::KEY::F11) || (input->isKeyPressed(Yngin::KEY::RALT) && input->isKeyJustPressed(Yngin::KEY::ENTER))) {
 			ctx->getWindow()->setFullscreen(!ctx->getWindow()->isFullscreen());
+		}
+
+		if (input->isKeyJustPressed(Yngin::KEY::SPACE)) {
+			ctx->getPhysicsEngine()->setSimulationDistance(ctx->getPhysicsEngine()->getSimulationDistance() == 0.0f ? 256.0f : 0.0f);
 		}
 
 		ctx->update(false);
@@ -182,43 +195,138 @@ int main() {
 						ImGui::Separator();
 						ImGui::Text("Position");
 						ImGui::SameLine();
-						ImGui::SetNextItemWidth(68.0f);
-						changingPos |= ImGui::InputFloat("##PosX", &pos.x);
-						ImGui::SameLine();
-						ImGui::SetNextItemWidth(68.0f);
-						changingPos |= ImGui::InputFloat("##PosY", &pos.y);
-						ImGui::SameLine();
-						ImGui::SetNextItemWidth(68.0f);
-						changingPos |= ImGui::InputFloat("##PosZ", &pos.z);
-
-						if (ImGui::Button("Move to Camera", ImVec2(284.0f, 0))) {
+						if (ImGui::SmallButton("Move to Camera")) {
 							obj->setPosition(editorCamera->getPosition());
 						}
+						ImGui::SetNextItemWidth(90.0f);
+						changingPos |= ImGui::InputFloat("##PosX", &pos.x, 1.0f, 1.0f, "%.2f");
+						ImGui::SameLine();
+						ImGui::SetNextItemWidth(90.0f);
+						changingPos |= ImGui::InputFloat("##PosY", &pos.y, 1.0f, 1.0f, "%.2f");
+						ImGui::SameLine();
+						ImGui::SetNextItemWidth(90.0f);
+						changingPos |= ImGui::InputFloat("##PosZ", &pos.z, 1.0f, 1.0f, "%.2f");
 
 						ImGui::Separator();
 						ImGui::Text("Rotation");
+						ImGui::SetNextItemWidth(90.0f);
+						changingRotation |= ImGui::InputFloat("##RotationX", &rotation.x, 1.0f, 22.5f, "%.1f");
 						ImGui::SameLine();
-						ImGui::SetNextItemWidth(68.0f);
-						changingRotation |= ImGui::InputFloat("##RotationX", &rotation.x, 0, 0, "%.1f");
+						ImGui::SetNextItemWidth(90.0f);
+						changingRotation |= ImGui::InputFloat("##RotationY", &rotation.y, 1.0f, 22.5f, "%.1f");
 						ImGui::SameLine();
-						ImGui::SetNextItemWidth(68.0f);
-						changingRotation |= ImGui::InputFloat("##RotationY", &rotation.y, 0, 0, "%.1f");
-						ImGui::SameLine();
-						ImGui::SetNextItemWidth(68.0f);
-						changingRotation |= ImGui::InputFloat("##RotationZ", &rotation.z, 0, 0, "%.1f");
+						ImGui::SetNextItemWidth(90.0f);
+						changingRotation |= ImGui::InputFloat("##RotationZ", &rotation.z, 1.0f, 22.5f, "%.1f");
 
 						ImGui::Separator();
 
+						ImGui::Text("Mesh Component");
+						Components::Mesh* mesh = obj->getComponent<Components::Mesh>();
+						if (mesh) {
+							ImGui::SameLine();
+							if (!ImGui::SmallButton("Delete##MeshComp")) {
+								ImGui::Text("Model ID");
+								ImGui::SameLine(100);
+								if (ImGui::InputInt("##MeshModelID", &meshModelInput)) {
+									mesh->setModel(meshModelInput);
+								} else {
+									meshModelInput = mesh->getModel();
+								}
+								ImGui::Text("Texture ID");
+								ImGui::SameLine(100);
+								if (ImGui::InputInt("##MeshTextureID", &meshTexInput)) {
+									mesh->setTexture(meshTexInput);
+								} else {
+									meshTexInput = mesh->getTexture();
+								}
+							} else {
+								obj->deleteComponent<Components::Mesh>();
+							}
+						} else {
+							if (ImGui::Button("Create Component##Mesh", ImVec2(284.0f, 0))) {
+								obj->createComponent<Components::Mesh>();
+							}
+						}
+
+						ImGui::Separator();
+
+						ImGui::Text("Light Component");
+						Components::Light* light = obj->getComponent<Components::Light>();
+						if (light) {
+							ImGui::SameLine();
+							if (!ImGui::SmallButton("Delete##LightComp")) {
+								ImGui::Text("Intensity");
+								ImGui::SameLine();
+								if (ImGui::InputFloat("##LightIntensity", &lightIntensityInput)) {
+									light->setIntensity(lightIntensityInput);
+								} else {
+									lightIntensityInput = light->getIntensity();
+								}
+								ImGui::Text("Distance");
+								ImGui::SameLine();
+								if (ImGui::InputFloat("##LightDistance", &lightDistanceInput)) {
+									light->setDistance(lightDistanceInput);
+								} else {
+									lightDistanceInput = light->getDistance();
+								}
+								if (ImGui::ColorPicker3("Color", lightColorInput)) {
+									light->setColor(glm::vec3(lightColorInput[0], lightColorInput[1], lightColorInput[2]));
+								} else {
+									lightColorInput[0] = light->getColor()[0];
+									lightColorInput[1] = light->getColor()[1];
+									lightColorInput[2] = light->getColor()[2];
+								}
+							} else {
+								obj->deleteComponent<Components::Light>();
+							}
+						} else {
+							if (ImGui::Button("Create Component##Light", ImVec2(284.0f, 0))) {
+								obj->createComponent<Components::Light>();
+							}
+						}
+
+						ImGui::Separator();
+
+						ImGui::Text("RigidBody Component");
+						Components::RigidBody* rigidBody = obj->getComponent<Components::RigidBody>();
+						if (rigidBody) {
+							ImGui::SameLine();
+							if (!ImGui::SmallButton("Delete##RigidBodyComp")) {
+								ImGui::Text("Mass");
+								ImGui::SameLine();
+								if (ImGui::InputFloat("##RigidBodyMass", &rigidBodyMassInput)) {
+									rigidBody->setMass(rigidBodyMassInput);
+								} else {
+									rigidBodyMassInput = rigidBody->getMass();
+								}
+							} else {
+								obj->deleteComponent<Components::RigidBody>();
+							}
+						} else {
+							if (ImGui::Button("Create Component##RigidBody", ImVec2(284.0f, 0))) {
+								obj->createComponent<Components::RigidBody>();
+							}
+						}
+
+						ImGui::Separator();
+
+						if (ImGui::Button("Create Child")) {
+							explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, obj->createChild()->getId() };
+						}
+						ImGui::SameLine();
 						if (ImGui::Button("Teleport")) {
 							editorCamera->setPosition(obj->getPosition());
 						}
-						ImGui::SameLine();
+
 						if (ImGui::Button("Delete")) {
 							scene->getGameObjectsManager()->deleteGameObject(obj);
 							explorerSelection = {};
 						}
 					} else {
 						ImGui::Text("Root Game Object");
+						if (ImGui::Button("Create GameObject")) {
+							explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, obj->createChild()->getId() };
+						}
 					}
 				}
 			} else if (explorerSelection.first == EXPLORER_SELECTION_TYPE::UIELEMENT) {
