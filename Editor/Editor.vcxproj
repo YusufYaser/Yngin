@@ -156,6 +156,7 @@
     <ClCompile Include="src\Editor\Camera.cpp" />
     <ClCompile Include="src\Editor\Editor.cpp" />
     <ClCompile Include="src\Editor\Explorer.cpp" />
+    <ClCompile Include="src\Editor\Properties\GameObjectProps.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
@@ -174,6 +175,7 @@
     <ClInclude Include="deps\vendor\ImGui\imstb_truetype.h" />
     <ClInclude Include="src\Editor\Camera.h" />
     <ClInclude Include="src\Editor\Explorer.h" />
+    <ClInclude Include="src\Editor\Properties\GameObjectProps.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,6 +1,5 @@
 #pragma once
 #include <utility>
-#include <Yngin/Core/Scenes.h>
 
 enum class EXPLORER_SELECTION_TYPE {
 	NONE,
@@ -8,4 +7,4 @@ enum class EXPLORER_SELECTION_TYPE {
 	UIELEMENT
 };
 
-std::pair<EXPLORER_SELECTION_TYPE, int> showExplorer(Yngin::Scene* scene);
+void showExplorer();

@@ -42,6 +42,9 @@
     <ClCompile Include="src\Editor\Explorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Editor\Properties\GameObjectProps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="deps\vendor\ImGui\imgui_internal.h">
@@ -75,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Editor\Explorer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\Properties\GameObjectProps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
