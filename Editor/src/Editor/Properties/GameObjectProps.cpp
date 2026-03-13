@@ -3,6 +3,7 @@
 #include <Yngin/Rendering/Cameras.h>
 #include <ImGui/imgui.h>
 #include "../Editor.h"
+#include <string>
 
 using namespace Yngin;
 
@@ -75,9 +76,11 @@ void Editor::gameObjectProps(Yngin::GameObject* obj) {
 
 		ImGui::Separator();
 
-		ImGui::Text("Mesh Component");
+		std::vector<const char*> componentsToCreate = { "Select Component" };
+
 		Components::Mesh* mesh = obj->getComponent<Components::Mesh>();
 		if (mesh) {
+			ImGui::Text("Mesh Component");
 			ImGui::SameLine();
 			if (!ImGui::SmallButton("Delete##MeshComp")) {
 				ImGui::Text("Model ID");
@@ -102,8 +105,19 @@ void Editor::gameObjectProps(Yngin::GameObject* obj) {
 				}
 				{
 					static float v[3] = {};
-					if (ImGui::ColorPicker3("Color##MeshColor", v)) {
-						mesh->setColor(glm::vec3(v[0], v[1], v[2]));
+					ImGui::Text("Color");
+					ImGui::SameLine();
+					ImGui::ColorButton("MeshColorPreview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
+					ImGui::SameLine();
+					if (ImGui::Button("Change Color##MeshColorButton", ImVec2(-1, 0))) {
+						ImGui::OpenPopup("Mesh Color Picker");
+					}
+
+					if (ImGui::BeginPopup("Mesh Color Picker")) {
+						if (ImGui::ColorPicker3("Color##MeshColor", v)) {
+							mesh->setColor(glm::vec3(v[0], v[1], v[2]));
+						}
+						ImGui::EndPopup();
 					} else {
 						v[0] = mesh->getColor()[0];
 						v[1] = mesh->getColor()[1];
@@ -113,34 +127,34 @@ void Editor::gameObjectProps(Yngin::GameObject* obj) {
 			} else {
 				obj->deleteComponent<Components::Mesh>();
 			}
+			ImGui::Separator();
 		} else {
-			if (ImGui::Button("Create Component##Mesh", ImVec2(284.0f, 0))) {
-				obj->createComponent<Components::Mesh>();
-			}
+			componentsToCreate.push_back("Mesh");
 		}
 
-		ImGui::Separator();
 
-		ImGui::Text("Light Component");
 		Components::Light* light = obj->getComponent<Components::Light>();
 		if (light) {
+			ImGui::Text("Light Component");
 			ImGui::SameLine();
 			if (!ImGui::SmallButton("Delete##LightComp")) {
 				ImGui::Text("Intensity");
-				ImGui::SameLine();
+				ImGui::SameLine(100);
 				{
 					static float v = 0;
-					if (ImGui::InputFloat("##LightIntensity", &v)) {
+					if (ImGui::InputFloat("##LightIntensity", &v, 0.05f, 0.1f)) {
+						if (v > 1) v = 1;
 						light->setIntensity(v);
 					} else {
 						v = light->getIntensity();
 					}
 				}
 				ImGui::Text("Distance");
-				ImGui::SameLine();
+				ImGui::SameLine(100);
 				{
 					static float v = 0;
-					if (ImGui::InputFloat("##LightDistance", &v)) {
+					if (ImGui::InputFloat("##LightDistance", &v, 1.0f, 2.0f)) {
+						if (v < 0) v = 0;
 						light->setDistance(v);
 					} else {
 						v = light->getDistance();
@@ -148,8 +162,19 @@ void Editor::gameObjectProps(Yngin::GameObject* obj) {
 				}
 				{
 					static float v[3] = {};
-					if (ImGui::ColorPicker3("Color##LightColor", v)) {
-						light->setColor(glm::vec3(v[0], v[1], v[2]));
+					ImGui::Text("Color");
+					ImGui::SameLine();
+					ImGui::ColorButton("LightColorPreview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
+					ImGui::SameLine();
+					if (ImGui::Button("Change Color##LightColorButton", ImVec2(-1, 0))) {
+						ImGui::OpenPopup("Light Color Picker");
+					}
+
+					if (ImGui::BeginPopup("Light Color Picker")) {
+						if (ImGui::ColorPicker3("Color##LightColor", v)) {
+							light->setColor(glm::vec3(v[0], v[1], v[2]));
+						}
+						ImGui::EndPopup();
 					} else {
 						v[0] = light->getColor()[0];
 						v[1] = light->getColor()[1];
@@ -159,21 +184,19 @@ void Editor::gameObjectProps(Yngin::GameObject* obj) {
 			} else {
 				obj->deleteComponent<Components::Light>();
 			}
+			ImGui::Separator();
 		} else {
-			if (ImGui::Button("Create Component##Light", ImVec2(284.0f, 0))) {
-				obj->createComponent<Components::Light>();
-			}
+			componentsToCreate.push_back("Light");
 		}
 
-		ImGui::Separator();
 
-		ImGui::Text("RigidBody Component");
 		Components::RigidBody* rigidBody = obj->getComponent<Components::RigidBody>();
 		if (rigidBody) {
+			ImGui::Text("RigidBody Component");
 			ImGui::SameLine();
 			if (!ImGui::SmallButton("Delete##RigidBodyComp")) {
 				ImGui::Text("Mass");
-				ImGui::SameLine();
+				ImGui::SameLine(100);
 				{
 					static float v = 0;
 					if (ImGui::InputFloat("##RigidBodyMass", &v)) {
@@ -185,9 +208,31 @@ void Editor::gameObjectProps(Yngin::GameObject* obj) {
 			} else {
 				obj->deleteComponent<Components::RigidBody>();
 			}
+			ImGui::Separator();
 		} else {
-			if (ImGui::Button("Create Component##RigidBody", ImVec2(284.0f, 0))) {
-				obj->createComponent<Components::RigidBody>();
+			componentsToCreate.push_back("RigidBody");
+		}
+
+
+		{
+			static int selected = 0;
+			if (componentsToCreate.size() != 1) {
+				ImGui::Text("Create Component");
+				ImGui::Combo("##CreateComponentDropdown", &selected, componentsToCreate.data(), (int)componentsToCreate.size());
+
+				ImGui::BeginDisabled(selected == 0);
+				ImGui::SameLine();
+				if (ImGui::Button("Create", ImVec2(-1, 0)) && selected != 0) {
+					const char* compName = componentsToCreate[selected];
+					if (compName == "Mesh") obj->createComponent<Components::Mesh>();
+					else if (compName == "Light") obj->createComponent<Components::Light>();
+					else if (compName == "RigidBody") obj->createComponent<Components::RigidBody>();
+
+					selected = 0;
+				}
+				ImGui::EndDisabled();
+			} else {
+				selected = 0;
 			}
 		}
 
