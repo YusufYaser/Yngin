@@ -205,6 +205,18 @@ void Editor::gameObjectProps(Yngin::GameObject* obj) {
 						v = rigidBody->getMass();
 					}
 				}
+				ImGui::Text("Elasticity");
+				ImGui::SameLine(100);
+				{
+					static float v = 0;
+					if (ImGui::InputFloat("##RigidBodyElasticity", &v)) {
+						if (v > 1) v = 1;
+						if (v < 1) v = 0;
+						rigidBody->setElasticity(v);
+					} else {
+						v = rigidBody->getElasticity();
+					}
+				}
 			} else {
 				obj->deleteComponent<Components::RigidBody>();
 			}

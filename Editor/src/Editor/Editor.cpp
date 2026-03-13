@@ -18,7 +18,8 @@ Editor::Editor() {
 		.windowSettings = {
 			.size = glm::ivec2(1280, 720),
 			.position = glm::ivec2((mode->width - 1280) / 2, (mode->height - 720) / 2),
-			.title = "Yngin Editor"
+			.title = "Yngin Editor",
+			.hasTitleBar = false
 			}
 		});
 
@@ -96,13 +97,15 @@ Editor::~Editor() {
 void Editor::update() {
 	ImGuiIO& io = ImGui::GetIO();
 
-	glm::ivec2 windowSize = ctx->getWindow()->getSize();
+	Window* window = ctx->getWindow();
+
+	glm::ivec2 windowSize = window->getSize();
 	handleCameraMovement(editorCamera);
 
 	InputSystem* input = ctx->getInputSystem();
 
 	if (input->isKeyJustPressed(Yngin::KEY::F11) || (input->isKeyPressed(Yngin::KEY::RALT) && input->isKeyJustPressed(Yngin::KEY::ENTER))) {
-		ctx->getWindow()->setFullscreen(!ctx->getWindow()->isFullscreen());
+		window->setFullscreen(!window->isFullscreen());
 	}
 
 	if (input->isKeyJustPressed(Yngin::KEY::SPACE)) {
@@ -118,8 +121,29 @@ void Editor::update() {
 	float menubarHeight = 0;
 
 	if (ImGui::BeginMainMenuBar()) {
-		if (ctx->getWindow()->isFullscreen()) {
-			ImGui::Text(ctx->getWindow()->getTitle());
+		{
+			static ImVec2 startPos = { -1, -1 };
+
+			if (ImGui::IsItemActive()) {
+				if (startPos.x == -1) {
+					startPos = io.MousePos;
+				}
+
+				glm::ivec2 delta = {
+					io.MousePos.x - startPos.x,
+					io.MousePos.y - startPos.y
+				};
+
+				if (delta.x != 0 || delta.y != 0) window->minimize();
+
+				window->setPosition(window->getPosition() + delta);
+			} else {
+				startPos = { -1, -1 };
+			}
+		}
+
+		if (window->isFullscreen() || !window->hasTitleBar()) {
+			ImGui::Text(window->getTitle());
 			ImGui::Separator();
 		}
 
@@ -127,7 +151,7 @@ void Editor::update() {
 			ImGui::MenuItem("Example Project", 0, false, false);
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "Alt+F4")) {
-				return;
+				ctx->close();
 			}
 			ImGui::EndMenu();
 		}
@@ -139,18 +163,38 @@ void Editor::update() {
 			ImGui::EndMenu();
 		}
 
-		if (ctx->getWindow()->isFullscreen()) {
-			ImGui::SameLine(ctx->getWindow()->getSize().x - 55.0f);
-			if (ImGui::BeginMenu("-")) {
-				ctx->getWindow()->setFullscreen(false);
-				ImGui::EndMenu();
+		if (window->isFullscreen() || !window->hasTitleBar()) {
+			static bool wasClickedLastFrame = false;
+			if (!wasClickedLastFrame) {
+				ImGui::SameLine(window->getSize().x - 55.0f * (window->isFullscreen() ? 1.0f : 1.5f));
+				if (ImGui::BeginMenu("-")) {
+					wasClickedLastFrame = true;
+					if (window->isFullscreen()) {
+						window->setFullscreen(false);
+					} else {
+						window->minimize();
+					}
+					ImGui::EndMenu();
+				}
+
+				if (!window->isFullscreen()) {
+					if (ImGui::BeginMenu("O")) {
+						wasClickedLastFrame = true;
+						window->maximize();
+						ImGui::EndMenu();
+					}
+				}
+
+				ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(1, 0, 0, 1));
+				if (ImGui::BeginMenu("X")) {
+					wasClickedLastFrame = true;
+					ctx->close();
+					ImGui::EndMenu();
+				}
+				ImGui::PopStyleColor();
+			} else {
+				wasClickedLastFrame = false;
 			}
-			ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(1, 0, 0, 1));
-			if (ImGui::BeginMenu("X")) {
-				ImGui::EndMenu();
-				return;
-			}
-			ImGui::PopStyleColor();
 		}
 
 		menubarHeight = ImGui::GetFrameHeight();
