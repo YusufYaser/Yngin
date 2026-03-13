@@ -166,7 +166,7 @@ namespace Yngin::Rendering {
 		modelMat = glm::rotate(modelMat, obj->getRotation().x, glm::vec3(1, 0, 0));
 		modelMat = glm::rotate(modelMat, obj->getRotation().y, glm::vec3(0, 1, 0));
 		modelMat = glm::rotate(modelMat, obj->getRotation().z, glm::vec3(0, 0, 1));
-		modelMat = glm::scale(modelMat, mimpl->scale);
+		modelMat = glm::scale(modelMat, obj->getScale());
 
 		Shader* worldShader = cimpl->ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
 		worldShader->activate();

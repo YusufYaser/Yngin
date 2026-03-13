@@ -133,6 +133,14 @@ namespace Yngin {
 		impl->rotation = newRotation;
 	}
 
+	void GameObject::setScale(glm::vec3 newScale) {
+		impl->scale = newScale;
+	}
+
+	glm::vec3 GameObject::getScale() const {
+		return impl->scale;
+	}
+
 	template<typename T>
 	inline T* GameObject::getComponent() const {
 		auto it = impl->components.find(std::type_index(typeid(T)));

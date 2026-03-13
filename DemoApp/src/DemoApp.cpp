@@ -147,7 +147,7 @@ int main() {
 	Components::Mesh* wallMesh = wall->createComponent<Components::Mesh>();
 	wallMesh->setModel(wallModel->getId());
 	wallMesh->setTexture(tex->getId());
-	wallMesh->setScale(glm::vec3(75.0f, 75.0f, 1));
+	wall->setScale(glm::vec3(75.0f, 75.0f, 1));
 	wall->setPosition({ 0, 0, -5.0f });
 
 	Components::BoxCollider* wallCollider = wall->createComponent<Components::BoxCollider>();
@@ -287,7 +287,7 @@ int main() {
 	Components::Mesh* wall2Mesh = wall2->createComponent<Components::Mesh>();
 	wall2Mesh->setModel(cubeModel->getId());
 	wall2Mesh->setTexture(tex->getId());
-	wall2Mesh->setScale(glm::vec3(1, 50, 50));
+	wall2->setScale(glm::vec3(1, 50, 50));
 	wall2->setPosition({ 10.0f, 0, 0 });
 
 	Components::BoxCollider* wall2Collider = wall2->createComponent<Components::BoxCollider>();

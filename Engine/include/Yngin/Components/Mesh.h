@@ -28,9 +28,6 @@ namespace Yngin {
 			void setColor(glm::vec3 newColor);
 			glm::vec3 getColor() const;
 
-			void setScale(glm::vec3 newScale);
-			glm::vec3 getScale() const;
-
 		private:
 			Mesh(GameObject* gameObject);
 			~Mesh();

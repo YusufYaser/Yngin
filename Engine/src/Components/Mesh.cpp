@@ -52,13 +52,5 @@ namespace Yngin {
 		glm::vec3 Mesh::getColor() const {
 			return impl->color;
 		}
-
-		void Mesh::setScale(glm::vec3 newScale) {
-			impl->scale = newScale;
-		}
-
-		glm::vec3 Mesh::getScale() const {
-			return impl->scale;
-		}
 	}
 }

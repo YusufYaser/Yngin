@@ -43,6 +43,9 @@ namespace Yngin {
 		glm::vec3 getRotation() const;
 		void setRotation(glm::vec3 newRotation);
 
+		glm::vec3 getScale() const;
+		void setScale(glm::vec3 scale);
+
 		template <typename T>
 		T* getComponent() const;
 

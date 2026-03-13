@@ -59,7 +59,7 @@ namespace Yngin::Components {
 		model = glm::rotate(model, obj->getRotation().x, glm::vec3(1, 0, 0));
 		model = glm::rotate(model, obj->getRotation().y, glm::vec3(0, 1, 0));
 		model = glm::rotate(model, obj->getRotation().z, glm::vec3(0, 0, 1));
-		model = glm::scale(model, size);
+		model = glm::scale(model, size * obj->getScale());
 
 		glm::vec3 corners[8] = {
 			{-0.5, -0.5, -0.5}, {0.5, -0.5, -0.5}, {-0.5, 0.5, -0.5}, {0.5, 0.5, -0.5},

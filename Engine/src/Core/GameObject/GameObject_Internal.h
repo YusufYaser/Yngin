@@ -16,6 +16,7 @@ namespace Yngin {
 
 		glm::vec3 pos = {};
 		glm::vec3 rotation = {};
+		glm::vec3 scale = glm::vec3(1.0f);
 
 		std::map<std::type_index, std::unique_ptr<Components::Component>> components;
 	};
