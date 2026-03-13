@@ -4,6 +4,7 @@
 #include <ImGui/imgui_impl_opengl3.h>
 #include <ImGui/imgui_impl_glfw.h>
 #include <ImGui/imgui_internal.h>
+#include <GLFW/glfw3.h>
 
 #include "Camera.h"
 #include "Explorer.h"
@@ -19,9 +20,14 @@ int main() {
 	}
 
 	// initialize Yngin
+
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
 	Context* ctx = createContext({
 		.windowSettings = {
 			.size = glm::ivec2(1280, 720),
+			.position = glm::ivec2((mode->width - 1280) / 2, (mode->height - 720) / 2),
 			.title = "Yngin Editor"
 			}
 		});
@@ -118,6 +124,11 @@ int main() {
 		float menubarHeight = 0;
 
 		if (ImGui::BeginMainMenuBar()) {
+			if (ctx->getWindow()->isFullscreen()) {
+				ImGui::Text(ctx->getWindow()->getTitle());
+				ImGui::Separator();
+			}
+
 			if (ImGui::BeginMenu("File")) {
 				ImGui::MenuItem("Example Project", 0, false, false);
 				ImGui::Separator();
@@ -132,6 +143,20 @@ int main() {
 					system("start https://github.com/YusufYaser/Yngin");
 				}
 				ImGui::EndMenu();
+			}
+
+			if (ctx->getWindow()->isFullscreen()) {
+				ImGui::SameLine(ctx->getWindow()->getSize().x - 55.0f);
+				if (ImGui::BeginMenu("-")) {
+					ctx->getWindow()->setFullscreen(false);
+					ImGui::EndMenu();
+				}
+				ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(1, 0, 0, 1));
+				if (ImGui::BeginMenu("X")) {
+					ImGui::EndMenu();
+					break;
+				}
+				ImGui::PopStyleColor();
 			}
 
 			menubarHeight = ImGui::GetFrameHeight();
