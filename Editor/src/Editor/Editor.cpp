@@ -84,6 +84,9 @@ Editor::Editor() {
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.FrameRounding = 5.0f;
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.IniFilename = nullptr;
 }
 
 Editor::~Editor() {

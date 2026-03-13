@@ -75,6 +75,35 @@ void Editor::gameObjectProps(Yngin::GameObject* obj) {
 		}
 
 		ImGui::Separator();
+		ImGui::Text("Scale");
+		{
+			glm::vec3 scale = obj->getScale();
+			static glm::vec3 v = {};
+
+			ImGui::SetNextItemWidth(90.0f);
+			if (ImGui::InputFloat("##ScaleX", &v.x, 0.1f, 1.0f, "%.1f")) {
+				scale.x = v.x;
+			} else {
+				v.x = scale.x;
+			}
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(90.0f);
+			if (ImGui::InputFloat("##ScaleY", &v.y, 0.1f, 1.0f, "%.1f")) {
+				scale.y = v.y;
+			} else {
+				v.y = scale.y;
+			}
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(90.0f);
+			if (ImGui::InputFloat("##ScaleZ", &v.z, 0.1f, 1.0f, "%.1f")) {
+				scale.z = v.z;
+			} else {
+				v.z = scale.z;
+			}
+			obj->setScale(scale);
+		}
+
+		ImGui::Separator();
 
 		std::vector<const char*> componentsToCreate = { "Select Component" };
 
@@ -143,7 +172,6 @@ void Editor::gameObjectProps(Yngin::GameObject* obj) {
 				{
 					static float v = 0;
 					if (ImGui::InputFloat("##LightIntensity", &v, 0.05f, 0.1f)) {
-						if (v > 1) v = 1;
 						light->setIntensity(v);
 					} else {
 						v = light->getIntensity();
@@ -217,12 +245,35 @@ void Editor::gameObjectProps(Yngin::GameObject* obj) {
 						v = rigidBody->getElasticity();
 					}
 				}
+				ImGui::Text("Can Bounce?");
+				ImGui::SameLine(100);
+				{
+					static bool v = 0;
+					if (ImGui::Checkbox("##RigidBodyCanBounce", &v)) {
+						rigidBody->setCanBounce(v);
+					} else {
+						v = rigidBody->canBounce();
+					}
+				}
 			} else {
 				obj->deleteComponent<Components::RigidBody>();
 			}
 			ImGui::Separator();
 		} else {
 			componentsToCreate.push_back("RigidBody");
+		}
+
+
+		Components::BoxCollider* boxCollider = obj->getComponent<Components::BoxCollider>();
+		if (boxCollider) {
+			ImGui::Text("BoxCollider Component");
+			ImGui::SameLine();
+			if (ImGui::SmallButton("Delete##BoxColliderComp")) {
+				obj->deleteComponent<Components::BoxCollider>();
+			}
+			ImGui::Separator();
+		} else {
+			componentsToCreate.push_back("BoxCollider");
 		}
 
 
@@ -239,6 +290,7 @@ void Editor::gameObjectProps(Yngin::GameObject* obj) {
 					if (compName == "Mesh") obj->createComponent<Components::Mesh>();
 					else if (compName == "Light") obj->createComponent<Components::Light>();
 					else if (compName == "RigidBody") obj->createComponent<Components::RigidBody>();
+					else if (compName == "BoxCollider") obj->createComponent<Components::BoxCollider>();
 
 					selected = 0;
 				}
