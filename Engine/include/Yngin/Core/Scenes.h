@@ -30,6 +30,8 @@ namespace Yngin {
 	public:
 		Scene* getScene(uint32_t sceneId) const;
 
+		std::vector<Scene*> getScenes() const;
+
 		Scene* createScene();
 		void deleteScene(uint32_t sceneId);
 		void deleteScene(Scene* scene);

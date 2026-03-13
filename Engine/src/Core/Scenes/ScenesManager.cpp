@@ -23,6 +23,14 @@ namespace Yngin {
 		return it->second.get();
 	}
 
+	std::vector<Scene*> ScenesManager::getScenes() const {
+		std::vector<Scene*> scenes;
+		for (auto& kvp : impl->scenes) {
+			scenes.push_back(kvp.second.get());
+		}
+		return scenes;
+	}
+
 	Scene* ScenesManager::createScene() {
 		Scene* scene = new Scene(impl->ctx);
 
