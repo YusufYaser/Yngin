@@ -55,7 +55,9 @@ Editor::Editor() {
 		}
 	);
 
-	editorCamera = activeScene->getCamerasManager()->getCamera(0);
+	editorCamera = activeScene->getCamerasManager()->createCamera();
+	activeScene->getCamerasManager()->getCamera(0)->setWeight(0);
+	editorCamera->setWeight(1.0f);
 
 	const ModelData square = {
 		{
