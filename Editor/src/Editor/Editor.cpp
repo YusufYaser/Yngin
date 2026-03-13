@@ -19,7 +19,7 @@ Editor::Editor() {
 			.size = glm::ivec2(1280, 720),
 			.position = glm::ivec2((mode->width - 1280) / 2, (mode->height - 720) / 2),
 			.title = "Yngin Editor",
-			.hasTitleBar = false
+			.hasTitleBar = true
 			}
 		});
 
@@ -73,7 +73,8 @@ Editor::Editor() {
 	};
 	Model* model = ctx->getModelsManager()->createModel(square);
 
-	ctx->getPhysicsEngine()->setSimulationDistance(0);
+	ctx->getPhysicsEngine()->setSimulationEnabled(false);
+	ctx->getRenderer()->setLightingEnabled(false);
 
 
 	// initialize ImGui
@@ -106,10 +107,6 @@ void Editor::update() {
 
 	if (input->isKeyJustPressed(Yngin::KEY::F11) || (input->isKeyPressed(Yngin::KEY::RALT) && input->isKeyJustPressed(Yngin::KEY::ENTER))) {
 		window->setFullscreen(!window->isFullscreen());
-	}
-
-	if (input->isKeyJustPressed(Yngin::KEY::SPACE)) {
-		ctx->getPhysicsEngine()->setSimulationDistance(ctx->getPhysicsEngine()->getSimulationDistance() == 0.0f ? 256.0f : 0.0f);
 	}
 
 	ctx->update(false);
@@ -201,6 +198,17 @@ void Editor::update() {
 
 		ImGui::EndMainMenuBar();
 	}
+
+	ImGui::SetNextWindowPos(ImVec2(255.0f, 25.0f));
+	ImGui::Begin("Simulation Control", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+	ImGui::PushStyleColor(ImGuiCol_Button, simulating ? ImVec4(.5f, 0, 0, 1) : ImVec4(0, .5f, 0, 1));
+	if (ImGui::Button(((simulating ? "Stop" : "Start") + std::string("##ToggleSimulation")).c_str())) {
+		simulating = !simulating;
+	}
+	ImGui::PopStyleColor();
+	ImGui::End();
+	ctx->getPhysicsEngine()->setSimulationEnabled(simulating);
+	ctx->getRenderer()->setLightingEnabled(simulating);
 
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 	showExplorer();

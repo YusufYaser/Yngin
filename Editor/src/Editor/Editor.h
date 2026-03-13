@@ -24,6 +24,8 @@ public:
 
 	std::pair<EXPLORER_SELECTION_TYPE, int> explorerSelection = {};
 
+	bool simulating = false;
+
 private:
 	void handleCameraMovement(Yngin::Camera* camera);
 	void gameObjectProps(Yngin::GameObject* obj);
