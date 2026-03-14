@@ -94,11 +94,24 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\Engine\include;..\deps\include</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PreBuildEvent>
+      <Command>rmdir $(OutDir) /s /q &amp; exit 0</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Remove all files in output directory</Message>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>xcopy assets $(OutDir)assets\</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy the assets folder to build directory</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -110,11 +123,24 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\Engine\include;..\deps\include</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PreBuildEvent>
+      <Command>rmdir $(OutDir) /s /q &amp; exit 0</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Remove all files in output directory</Message>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>xcopy assets $(OutDir)assets\</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy the assets folder to build directory</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -124,11 +150,24 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\Engine\include;..\deps\include</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PreBuildEvent>
+      <Command>rmdir $(OutDir) /s /q &amp; exit 0</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Remove all files in output directory</Message>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>xcopy assets $(OutDir)assets\</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy the assets folder to build directory</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -140,11 +179,24 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\Engine\include;..\deps\include</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PreBuildEvent>
+      <Command>rmdir $(OutDir) /s /q &amp; exit 0</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Remove all files in output directory</Message>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>xcopy assets $(OutDir)assets\</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy the assets folder to build directory</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\DemoApp.cpp" />
