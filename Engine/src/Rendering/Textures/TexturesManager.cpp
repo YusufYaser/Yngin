@@ -48,6 +48,10 @@ namespace Yngin {
 		impl->textures.erase(textureId);
 	}
 
+	size_t TexturesManager::getTexturesCount() const {
+		return impl->textures.size();
+	}
+
 	std::vector<Texture*> TexturesManager::getTextures() const {
 		std::vector<Texture*> textures;
 		for (auto& kvp : impl->textures) {

@@ -65,6 +65,7 @@ namespace Yngin {
 		Texture* createTexture(const char* path, const TextureSettings& settings = {});
 		void deleteTexture(uint32_t textureId);
 
+		size_t getTexturesCount() const;
 		std::vector<Texture*> getTextures() const;
 		Texture* getTexture(uint32_t textureId) const;
 

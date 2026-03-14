@@ -53,6 +53,10 @@ namespace Yngin {
 		}
 	}
 
+	size_t ModelsManager::getModelsCount() const {
+		return impl->models.size();
+	}
+
 	std::vector<Model*> ModelsManager::getModels() const {
 		std::vector<Model*> models;
 		for (auto& kvp : impl->models) {
