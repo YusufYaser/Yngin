@@ -35,6 +35,8 @@ namespace Yngin {
 		void deleteModel(uint32_t modelId);
 		void deleteModel(Model* model);
 
+		std::vector<Model*> getModels() const;
+
 		Model* getModel(uint32_t modelId) const;
 
 	private:

@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <glm/vec2.hpp>
+#include <vector>
 
 namespace Yngin {
 	class Context;
@@ -64,6 +65,7 @@ namespace Yngin {
 		Texture* createTexture(const char* path, const TextureSettings& settings = {});
 		void deleteTexture(uint32_t textureId);
 
+		std::vector<Texture*> getTextures() const;
 		Texture* getTexture(uint32_t textureId) const;
 
 		Texture* getActive() const;

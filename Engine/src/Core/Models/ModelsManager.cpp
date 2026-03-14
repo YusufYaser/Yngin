@@ -53,6 +53,14 @@ namespace Yngin {
 		}
 	}
 
+	std::vector<Model*> ModelsManager::getModels() const {
+		std::vector<Model*> models;
+		for (auto& kvp : impl->models) {
+			models.push_back(kvp.second.get());
+		}
+		return models;
+	}
+
 	Model* ModelsManager::getModel(uint32_t modelId) const {
 		auto it = impl->models.find(modelId);
 		if (it == impl->models.end()) return nullptr;
