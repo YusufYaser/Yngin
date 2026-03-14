@@ -11,7 +11,15 @@ namespace {
 	GameObject* drawChildrenTree(GameObject* obj) {
 		GameObject* clicked = nullptr;
 
-		std::string name = obj->getId() != 0 ? std::string("GameObject #" + std::to_string(obj->getId())) : "Game Objects";
+		std::string name = "Game Object";
+
+		if (obj->getId() != 0) {
+			name = obj->getMetaString("Editor.Name", std::string("GameObject #" + std::to_string(obj->getId())));
+		} else {
+			name = "Game Objects";
+		}
+
+		name += "##ExplorerGameObject" + std::to_string(obj->getId());
 
 		bool open = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth);
 
@@ -33,7 +41,15 @@ namespace {
 	UI::UIElement* drawChildrenTree(UI::UIElement* obj) {
 		UI::UIElement* clicked = nullptr;
 
-		std::string name = obj->getId() != 0 ? std::string("UI Element #" + std::to_string(obj->getId())) : "UI Elements";
+		std::string name = "UI Element";
+
+		if (obj->getId() != 0) {
+			name = obj->getMetaString("Editor.Name", std::string("UI Element #" + std::to_string(obj->getId())));
+		} else {
+			name = "UI Elements";
+		}
+
+		name += "##ExplorerUIElement" + std::to_string(obj->getId());
 
 		bool open = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth);
 

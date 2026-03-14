@@ -9,7 +9,27 @@ using namespace Yngin;
 
 void Editor::gameObjectProps(Yngin::GameObject* obj) {
 	if (obj->getId() != 0) {
-		ImGui::Text("Properties (GameObject #%i)", obj->getId());
+		std::string name = "Game Object";
+
+		if (obj->getId() != 0) {
+			name = obj->getMetaString("Editor.Name", std::string("GameObject #" + std::to_string(obj->getId())));
+		} else {
+			name = "Game Objects";
+		}
+
+		ImGui::Text("Properties (%s)", name.c_str());
+		ImGui::Separator();
+		{
+			static char v[32] = {};
+			ImGui::Text("Name");
+			ImGui::SameLine(100);
+			if (ImGui::InputText("##GameObjectName", v, 32)) {
+				name = v;
+				obj->setMeta("Editor.Name", name);
+			} else {
+				strcpy_s(v, 32, name.c_str());
+			}
+		}
 		ImGui::Separator();
 		ImGui::Text("Position");
 		ImGui::SameLine();
