@@ -32,7 +32,7 @@ public:
 
 	std::pair<EXPLORER_SELECTION_TYPE, int> explorerSelection = {};
 
-	bool simulating = false;
+	bool running = false;
 
 	bool viewingObject = false;
 

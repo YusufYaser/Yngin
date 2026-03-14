@@ -166,6 +166,13 @@ void Editor::update() {
 			ImGui::EndMenu();
 		}
 
+		if (ImGui::BeginMenu("Play")) {
+			if (ImGui::MenuItem(running ? "Stop Play Mode" : "Start Play Mode")) {
+				running = !running;
+			}
+			ImGui::EndMenu();
+		}
+
 		if (ImGui::BeginMenu("Help")) {
 			if (ImGui::MenuItem("GitHub Wiki")) {
 				system("start https://github.com/YusufYaser/Yngin/wiki");
@@ -213,20 +220,21 @@ void Editor::update() {
 	}
 
 	ImGui::SetNextWindowPos(ImVec2(255.0f, 25.0f));
-	ImGui::SetNextWindowSize(ImVec2(125.0f, 25.0f));
-	ImGui::Begin("Simulation Control", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
-	ImGui::PushStyleColor(ImGuiCol_Button, simulating ? ImVec4(.5f, 0, 0, 1) : ImVec4(0, .5f, 0, 1));
+	ImGui::SetNextWindowSize(ImVec2(125.0f, 50.0f));
+	ImGui::Begin("Play Mode", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+	ImGui::PushStyleColor(ImGuiCol_Button, running ? ImVec4(.5f, 0, 0, 1) : ImVec4(0, .5f, 0, 1));
 	if (!viewingObject) {
-		if (ImGui::Button(((simulating ? "Stop" : "Start") + std::string("##ToggleSimulation")).c_str())) {
-			simulating = !simulating;
+		ImGui::Text("Scene Viewer");
+		if (ImGui::Button(((running ? "Stop" : "Start") + std::string("##TogglePlayMode")).c_str())) {
+			running = !running;
 		}
 	} else {
 		ImGui::Text("Resource Viewer");
 	}
 	ImGui::PopStyleColor();
 	ImGui::End();
-	ctx->getPhysicsEngine()->setSimulationEnabled(simulating);
-	ctx->getRenderer()->setLightingEnabled(simulating);
+	ctx->getPhysicsEngine()->setSimulationEnabled(running);
+	ctx->getRenderer()->setLightingEnabled(running);
 
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 
@@ -297,10 +305,13 @@ void Editor::update() {
 		activeScene->activate();
 	}
 
+	glm::ivec2 viewportSize = ctx->getViewportSize();
+
 	ImGui::SetNextWindowPos(ImVec2(250, windowSize.y - 300.0f));
 	ImGui::SetNextWindowSize(ImVec2(windowSize.x - 250 - 300.0f, 300.0f));
 	ImGui::Begin("Information", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 	ImGui::Text("FPS: %.1f", 1 / ctx->getDeltaTime());
+	ImGui::Text("Viewport Size: %ix%i", viewportSize.x, viewportSize.y);
 	ImGui::Text("%i GameObjects", activeScene->getGameObjectsManager()->getGameObjectsCount());
 	ImGui::Text("%i UI Elements", activeScene->getUIManager()->getElementsCount());
 	ImGui::Text("%i Textures", ctx->getTexturesManager()->getTexturesCount());
