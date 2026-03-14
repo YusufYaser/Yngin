@@ -37,7 +37,8 @@ void Editor::showModelProps(uint32_t id) {
 
 					modelFile.close();
 
-					ctx->getModelsManager()->createModel(MODEL_FILE_TYPE::OBJ, modelFileData.str().c_str(), modelFileData.str().length());
+					Model* model = ctx->getModelsManager()->createModel(MODEL_FILE_TYPE::OBJ, modelFileData.str().c_str(), modelFileData.str().length());
+					explorerSelection = { EXPLORER_SELECTION_TYPE::MODEL, model->getId() };
 				}
 
 				v[0] = '\0';
@@ -55,10 +56,13 @@ void Editor::showModelProps(uint32_t id) {
 		viewerObject->setScale(glm::vec3(1.0f));
 		viewerImage->setSize({ 0, 0, 0, 0 });
 
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
 		if (ImGui::Button("Delete", ImVec2(-1, 40))) {
 			ctx->getModelsManager()->deleteModel(explorerSelection.second);
 			explorerSelection = {};
 		}
+		ImGui::PopStyleColor(2);
 	}
 }
 
@@ -81,7 +85,8 @@ void Editor::showTextureProps(uint32_t id) {
 
 			if (ImGui::Button("Create Texture", ImVec2(-1, 40))) {
 				std::string path = v;
-				ctx->getTexturesManager()->createTexture(path.c_str());
+				Texture* texture = ctx->getTexturesManager()->createTexture(path.c_str());
+				explorerSelection = { EXPLORER_SELECTION_TYPE::TEXTURE, texture->getId() };
 				v[0] = '\0';
 			}
 		}
@@ -104,9 +109,30 @@ void Editor::showTextureProps(uint32_t id) {
 			viewerImage->setSize({ 0, int(viewportSize.y * ratio), 0, int(viewportSize.y) });
 		}
 
-		if (ImGui::Button("Delete", ImVec2(-1, 40))) {
+		// TODO: add file selector
+		{
+			static char v[256] = {};
+			ImGui::Text("Path");
+			ImGui::SameLine(50);
+			ImGui::PushItemWidth(-1);
+			ImGui::InputText("##New Texture Path", v, 256);
+			ImGui::PopItemWidth();
+
+			if (ImGui::Button("Change Texture", ImVec2(-1, 0))) {
+				std::string path = v;
+				texture->setData(path.c_str());
+				v[0] = '\0';
+			}
+		}
+
+		ImGui::Separator();
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
+		if (ImGui::Button("Delete", ImVec2(-1, 0))) {
 			ctx->getTexturesManager()->deleteTexture(explorerSelection.second);
 			explorerSelection = {};
 		}
+		ImGui::PopStyleColor(2);
 	}
 }

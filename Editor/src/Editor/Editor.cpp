@@ -62,12 +62,13 @@ Editor::Editor() {
 		}
 	);
 
-	Model* cubeModel = ctx->getModelsManager()->createModel(cubeModelData);
+	cubeModel = ctx->getModelsManager()->createModel(cubeModelData);
 
 	GameObject* defaultCube = activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
 	Components::Mesh* defaultCubeMesh = defaultCube->createComponent<Components::Mesh>();
 	defaultCubeMesh->setModel(cubeModel);
 	defaultCubeMesh->setTexture(gridTexture);
+	defaultCube->setMeta("Editor.Name", "Cube");
 
 	ctx->getPhysicsEngine()->setSimulationEnabled(false);
 	ctx->getRenderer()->setLightingEnabled(false);

@@ -11,7 +11,11 @@ void Editor::showGameObjectProps(uint32_t id) {
 	if (id == -1) {
 		ImGui::Text("Root Game Object");
 		if (ImGui::Button("Create GameObject", ImVec2(-1, 40))) {
-			explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, activeScene->getGameObjectsManager()->getRootGameObject()->createChild()->getId() };
+			GameObject* child = activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
+			Components::Mesh* mesh = child->createComponent<Components::Mesh>();
+			mesh->setModel(cubeModel);
+			mesh->setTexture(gridTexture);
+			explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, child->getId() };
 		}
 		return;
 	}
@@ -337,15 +341,22 @@ void Editor::showGameObjectProps(uint32_t id) {
 	ImGui::Separator();
 
 	if (ImGui::Button("Create Child")) {
-		explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, obj->createChild()->getId() };
+		GameObject* child = obj->createChild();
+		Components::Mesh* mesh = child->createComponent<Components::Mesh>();
+		mesh->setModel(cubeModel);
+		mesh->setTexture(gridTexture);
+		explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, child->getId() };
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Teleport")) {
 		editorCamera->setPosition(obj->getPosition());
 	}
 
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
 	if (ImGui::Button("Delete")) {
 		activeScene->getGameObjectsManager()->deleteGameObject(obj);
 		explorerSelection = {};
 	}
+	ImGui::PopStyleColor(2);
 }

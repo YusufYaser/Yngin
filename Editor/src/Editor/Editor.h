@@ -51,5 +51,5 @@ private:
 	Yngin::UI::Image* viewerImage;
 
 	Yngin::Texture* gridTexture;
-	Yngin::Model* squareModel;
+	Yngin::Model* cubeModel;
 };
