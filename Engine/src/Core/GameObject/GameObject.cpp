@@ -184,4 +184,40 @@ namespace Yngin {
 	template void GameObject::deleteComponent<Components::RigidBody>();
 	template Components::RigidBody* GameObject::createComponent<Components::RigidBody>();
 	template Components::RigidBody* GameObject::getComponent<Components::RigidBody>() const;
+
+	std::string GameObject::getMetaString(std::string name, std::string defaultValue) {
+		auto it = impl->metaString.find(name);
+
+		if (it == impl->metaString.end()) {
+			return defaultValue;
+		}
+
+		return it->second;
+	}
+
+	float GameObject::getMetaFloat(std::string name, float defaultValue) {
+		auto it = impl->metaFloat.find(name);
+
+		if (it == impl->metaFloat.end()) {
+			return defaultValue;
+		}
+
+		return it->second;
+	}
+
+	void GameObject::removeMetaString(std::string name) {
+		impl->metaString.erase(name);
+	}
+
+	void GameObject::removeMetaFloat(std::string name) {
+		impl->metaFloat.erase(name);
+	}
+
+	void GameObject::setMeta(std::string name, std::string val) {
+		impl->metaString[name] = val;
+	}
+
+	void GameObject::setMeta(std::string name, float val) {
+		impl->metaFloat[name] = val;
+	}
 }

@@ -3,6 +3,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 #include <Yngin/Core/InputSystem.h>
+#include <string>
 
 namespace Yngin {
 	class Context;
@@ -83,6 +84,13 @@ namespace Yngin {
 
 			virtual void setPivot(glm::vec2 newPivot);
 			virtual glm::vec2 getPivot() const;
+
+			std::string getMetaString(std::string name, std::string defaultValue = "");
+			float getMetaFloat(std::string name, float defaultValue = 0.0f);
+			void removeMetaString(std::string name);
+			void removeMetaFloat(std::string name);
+			void setMeta(std::string name, std::string val);
+			void setMeta(std::string name, float val);
 
 		private:
 			friend class UIManager;
