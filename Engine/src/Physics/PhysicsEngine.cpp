@@ -40,14 +40,6 @@ namespace Yngin {
 			impl->simulationDistance = distance;
 		}
 
-		float PhysicsEngine::getGravity() {
-			return impl->gravity;
-		}
-
-		void PhysicsEngine::setGravity(float gravity) {
-			impl->gravity = gravity;
-		}
-
 		Components::Collider* PhysicsEngine::raycast(Scene* scene, const Ray& ray, float maxDistance) const {
 			if (scene->getContext() != impl->ctx) return nullptr;
 
@@ -180,7 +172,7 @@ namespace Yngin {
 				if (rigidBody->impl->mass != 0.0f) {
 					float mass = rigidBody->impl->mass;
 
-					rigidBody->impl->velocity.z -= gravity * t;
+					rigidBody->impl->velocity.z -= scene->impl->gravity * t;
 
 					rigidBody->impl->velocity += rigidBody->impl->impulseForceAccumulation / mass;
 					rigidBody->impl->impulseForceAccumulation = glm::vec3();

@@ -21,6 +21,8 @@ namespace Yngin {
 		std::unique_ptr<UI::UIManager> uiManager;
 
 		LightSettings lightSettings;
+
+		float gravity = 9.8f;
 	};
 
 	struct ScenesManager::Impl {

@@ -29,9 +29,6 @@ namespace Yngin {
 			float getSimulationDistance();
 			void setSimulationDistance(float distance);
 
-			float getGravity();
-			void setGravity(float gravity);
-
 			// fast = true -> use AABB only
 			// fast = false -> use SAT if AABB is true (yet to be implemented)
 			bool checkCollision(const Components::Collider* a, const Components::Collider* b, bool fast = false) const;

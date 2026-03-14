@@ -71,6 +71,9 @@ namespace Yngin {
 		LightSettings getLightSettings() const;
 		void setLightSettings(const LightSettings& lightSettings);
 
+		float getGravity();
+		void setGravity(float gravity);
+
 	private:
 		friend class ScenesManager;
 		friend struct std::default_delete<Scene>;

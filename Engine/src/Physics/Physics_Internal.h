@@ -12,8 +12,6 @@ namespace Yngin {
 			bool simulationEnabled = true;
 			float simulationDistance = 256.0f;
 
-			float gravity = 9.8f;
-
 			void updatePhysics(Scene* scene);
 		};
 	}

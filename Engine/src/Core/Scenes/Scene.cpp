@@ -65,4 +65,12 @@ namespace Yngin {
 	void Scene::setLightSettings(const LightSettings& lightSettings) {
 		impl->lightSettings = lightSettings;
 	}
+
+	float Scene::getGravity() {
+		return impl->gravity;
+	}
+
+	void Scene::setGravity(float gravity) {
+		impl->gravity = gravity;
+	}
 }
