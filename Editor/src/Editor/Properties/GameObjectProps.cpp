@@ -48,12 +48,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 			strcpy_s(v, 32, name.c_str());
 		}
 	}
-	ImGui::Separator();
-	ImGui::Text("Position");
-	ImGui::SameLine();
-	if (ImGui::SmallButton("Move to Camera")) {
-		obj->setPosition(editorCamera->getPosition());
-	}
+	ImGui::SeparatorText("Position");
 	{
 		glm::vec3 pos = obj->getPosition();
 		static glm::vec3 v = {};
@@ -80,9 +75,11 @@ void Editor::showGameObjectProps(uint32_t id) {
 		}
 		obj->setPosition(pos);
 	}
+	if (ImGui::SmallButton("Move to Camera")) {
+		obj->setPosition(editorCamera->getPosition());
+	}
 
-	ImGui::Separator();
-	ImGui::Text("Rotation");
+	ImGui::SeparatorText("Rotation");
 	{
 		glm::vec3 rot = obj->getRotation();
 		static glm::vec3 v = {};
@@ -112,8 +109,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 		obj->setRotation(rot);
 	}
 
-	ImGui::Separator();
-	ImGui::Text("Scale");
+	ImGui::SeparatorText("Scale");
 	{
 		glm::vec3 scale = obj->getScale();
 		static glm::vec3 v = {};
@@ -141,60 +137,61 @@ void Editor::showGameObjectProps(uint32_t id) {
 		obj->setScale(scale);
 	}
 
-	ImGui::Separator();
 
 	std::vector<const char*> componentsToCreate = { "Select Component" };
 
 	Components::Mesh* mesh = obj->getComponent<Components::Mesh>();
 	if (mesh) {
-		ImGui::Text("Mesh Component");
-		ImGui::SameLine();
-		if (!ImGui::SmallButton("Delete##MeshComp")) {
-			ImGui::Text("Model ID");
-			ImGui::SameLine(100);
-			{
-				static int v = 0;
-				if (ImGui::InputInt("##MeshModelID", &v)) {
-					mesh->setModel(v);
-				} else {
-					v = mesh->getModel();
-				}
+		ImGui::SeparatorText("Mesh Component");
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
+		bool deleted = ImGui::SmallButton("Delete Component##MeshComp");
+		ImGui::PopStyleColor(2);
+		ImGui::Text("Model ID");
+		ImGui::SameLine(100);
+		{
+			static int v = 0;
+			if (ImGui::InputInt("##MeshModelID", &v)) {
+				mesh->setModel(v);
+			} else {
+				v = mesh->getModel();
 			}
-			ImGui::Text("Texture ID");
-			ImGui::SameLine(100);
-			{
-				static int v = 0;
-				if (ImGui::InputInt("##MeshTextureID", &v)) {
-					mesh->setTexture(v);
-				} else {
-					v = mesh->getTexture();
-				}
+		}
+		ImGui::Text("Texture ID");
+		ImGui::SameLine(100);
+		{
+			static int v = 0;
+			if (ImGui::InputInt("##MeshTextureID", &v)) {
+				mesh->setTexture(v);
+			} else {
+				v = mesh->getTexture();
 			}
-			{
-				static float v[3] = {};
-				ImGui::Text("Color");
-				ImGui::SameLine();
-				ImGui::ColorButton("MeshColorPreview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
-				ImGui::SameLine();
-				if (ImGui::Button("Change Color##MeshColorButton", ImVec2(-1, 0))) {
-					ImGui::OpenPopup("Mesh Color Picker");
-				}
+		}
+		{
+			static float v[3] = {};
+			ImGui::Text("Color");
+			ImGui::SameLine();
+			ImGui::ColorButton("MeshColorPreview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
+			ImGui::SameLine();
+			if (ImGui::Button("Change Color##MeshColorButton", ImVec2(-1, 0))) {
+				ImGui::OpenPopup("Mesh Color Picker");
+			}
 
-				if (ImGui::BeginPopup("Mesh Color Picker")) {
-					if (ImGui::ColorPicker3("Color##MeshColor", v)) {
-						mesh->setColor(glm::vec3(v[0], v[1], v[2]));
-					}
-					ImGui::EndPopup();
-				} else {
-					v[0] = mesh->getColor()[0];
-					v[1] = mesh->getColor()[1];
-					v[2] = mesh->getColor()[2];
+			if (ImGui::BeginPopup("Mesh Color Picker")) {
+				if (ImGui::ColorPicker3("Color##MeshColor", v)) {
+					mesh->setColor(glm::vec3(v[0], v[1], v[2]));
 				}
+				ImGui::EndPopup();
+			} else {
+				v[0] = mesh->getColor()[0];
+				v[1] = mesh->getColor()[1];
+				v[2] = mesh->getColor()[2];
 			}
-		} else {
+		}
+
+		if (deleted) {
 			obj->deleteComponent<Components::Mesh>();
 		}
-		ImGui::Separator();
 	} else {
 		componentsToCreate.push_back("Mesh");
 	}
@@ -202,55 +199,57 @@ void Editor::showGameObjectProps(uint32_t id) {
 
 	Components::Light* light = obj->getComponent<Components::Light>();
 	if (light) {
-		ImGui::Text("Light Component");
-		ImGui::SameLine();
-		if (!ImGui::SmallButton("Delete##LightComp")) {
-			ImGui::Text("Intensity");
-			ImGui::SameLine(100);
-			{
-				static float v = 0;
-				if (ImGui::InputFloat("##LightIntensity", &v, 0.05f, 0.1f)) {
-					light->setIntensity(v);
-				} else {
-					v = light->getIntensity();
-				}
+		ImGui::SeparatorText("Light Component");
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
+		bool deleted = ImGui::SmallButton("Delete Component##LightComp");
+		ImGui::PopStyleColor(2);
+		ImGui::Text("Intensity");
+		ImGui::SameLine(100);
+		{
+			static float v = 0;
+			if (ImGui::InputFloat("##LightIntensity", &v, 0.05f, 0.1f)) {
+				light->setIntensity(v);
+			} else {
+				v = light->getIntensity();
 			}
-			ImGui::Text("Distance");
-			ImGui::SameLine(100);
-			{
-				static float v = 0;
-				if (ImGui::InputFloat("##LightDistance", &v, 1.0f, 2.0f)) {
-					if (v < 0) v = 0;
-					light->setDistance(v);
-				} else {
-					v = light->getDistance();
-				}
+		}
+		ImGui::Text("Distance");
+		ImGui::SameLine(100);
+		{
+			static float v = 0;
+			if (ImGui::InputFloat("##LightDistance", &v, 1.0f, 2.0f)) {
+				if (v < 0) v = 0;
+				light->setDistance(v);
+			} else {
+				v = light->getDistance();
 			}
-			{
-				static float v[3] = {};
-				ImGui::Text("Color");
-				ImGui::SameLine();
-				ImGui::ColorButton("LightColorPreview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
-				ImGui::SameLine();
-				if (ImGui::Button("Change Color##LightColorButton", ImVec2(-1, 0))) {
-					ImGui::OpenPopup("Light Color Picker");
-				}
+		}
+		{
+			static float v[3] = {};
+			ImGui::Text("Color");
+			ImGui::SameLine();
+			ImGui::ColorButton("LightColorPreview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
+			ImGui::SameLine();
+			if (ImGui::Button("Change Color##LightColorButton", ImVec2(-1, 0))) {
+				ImGui::OpenPopup("Light Color Picker");
+			}
 
-				if (ImGui::BeginPopup("Light Color Picker")) {
-					if (ImGui::ColorPicker3("Color##LightColor", v)) {
-						light->setColor(glm::vec3(v[0], v[1], v[2]));
-					}
-					ImGui::EndPopup();
-				} else {
-					v[0] = light->getColor()[0];
-					v[1] = light->getColor()[1];
-					v[2] = light->getColor()[2];
+			if (ImGui::BeginPopup("Light Color Picker")) {
+				if (ImGui::ColorPicker3("Color##LightColor", v)) {
+					light->setColor(glm::vec3(v[0], v[1], v[2]));
 				}
+				ImGui::EndPopup();
+			} else {
+				v[0] = light->getColor()[0];
+				v[1] = light->getColor()[1];
+				v[2] = light->getColor()[2];
 			}
-		} else {
+		}
+
+		if (deleted) {
 			obj->deleteComponent<Components::Light>();
 		}
-		ImGui::Separator();
 	} else {
 		componentsToCreate.push_back("Light");
 	}
@@ -258,45 +257,47 @@ void Editor::showGameObjectProps(uint32_t id) {
 
 	Components::RigidBody* rigidBody = obj->getComponent<Components::RigidBody>();
 	if (rigidBody) {
-		ImGui::Text("RigidBody Component");
-		ImGui::SameLine();
-		if (!ImGui::SmallButton("Delete##RigidBodyComp")) {
-			ImGui::Text("Mass");
-			ImGui::SameLine(100);
-			{
-				static float v = 0;
-				if (ImGui::InputFloat("##RigidBodyMass", &v)) {
-					rigidBody->setMass(v);
-				} else {
-					v = rigidBody->getMass();
-				}
+		ImGui::SeparatorText("RigidBody Component");
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
+		bool deleted = ImGui::SmallButton("Delete Component##RigidBodyComp");
+		ImGui::PopStyleColor(2);
+		ImGui::Text("Mass");
+		ImGui::SameLine(100);
+		{
+			static float v = 0;
+			if (ImGui::InputFloat("##RigidBodyMass", &v)) {
+				rigidBody->setMass(v);
+			} else {
+				v = rigidBody->getMass();
 			}
-			ImGui::Text("Elasticity");
-			ImGui::SameLine(100);
-			{
-				static float v = 0;
-				if (ImGui::InputFloat("##RigidBodyElasticity", &v)) {
-					if (v > 1) v = 1;
-					if (v < 1) v = 0;
-					rigidBody->setElasticity(v);
-				} else {
-					v = rigidBody->getElasticity();
-				}
+		}
+		ImGui::Text("Elasticity");
+		ImGui::SameLine(100);
+		{
+			static float v = 0;
+			if (ImGui::InputFloat("##RigidBodyElasticity", &v)) {
+				if (v > 1) v = 1;
+				if (v < 0) v = 0;
+				rigidBody->setElasticity(v);
+			} else {
+				v = rigidBody->getElasticity();
 			}
-			ImGui::Text("Can Bounce?");
-			ImGui::SameLine(100);
-			{
-				static bool v = 0;
-				if (ImGui::Checkbox("##RigidBodyCanBounce", &v)) {
-					rigidBody->setCanBounce(v);
-				} else {
-					v = rigidBody->canBounce();
-				}
+		}
+		ImGui::Text("Can Bounce?");
+		ImGui::SameLine(100);
+		{
+			static bool v = 0;
+			if (ImGui::Checkbox("##RigidBodyCanBounce", &v)) {
+				rigidBody->setCanBounce(v);
+			} else {
+				v = rigidBody->canBounce();
 			}
-		} else {
+		}
+
+		if (deleted) {
 			obj->deleteComponent<Components::RigidBody>();
 		}
-		ImGui::Separator();
 	} else {
 		componentsToCreate.push_back("RigidBody");
 	}
@@ -304,11 +305,13 @@ void Editor::showGameObjectProps(uint32_t id) {
 
 	Components::BoxCollider* boxCollider = obj->getComponent<Components::BoxCollider>();
 	if (boxCollider) {
-		ImGui::Text("BoxCollider Component");
-		ImGui::SameLine();
-		if (ImGui::SmallButton("Delete##BoxColliderComp")) {
+		ImGui::SeparatorText("BoxCollider Component");
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
+		if (ImGui::SmallButton("Delete Component##BoxColliderComp")) {
 			obj->deleteComponent<Components::BoxCollider>();
 		}
+		ImGui::PopStyleColor(2);
 		ImGui::Separator();
 	} else {
 		componentsToCreate.push_back("BoxCollider");
