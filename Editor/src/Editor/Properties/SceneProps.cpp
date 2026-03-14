@@ -11,15 +11,17 @@ void Editor::showSceneProps(uint32_t id) {
 	ImGui::Text("Properties (Scene)");
 	ImGui::Separator();
 
-	ImGui::Text("Gravity");
-	ImGui::SameLine(100);
+	ImGui::Text("Skybox Texture ID");
+	ImGui::SameLine(150);
 	{
-		static float v = 0;
-		if (ImGui::InputFloat("##SceneGravity", &v, 1.0f, 2.0f)) {
-			scene->setGravity(v);
+		static int v = 0;
+		ImGui::PushItemWidth(-1);
+		if (ImGui::InputInt("##SceneSkybox", &v, 1)) {
+			scene->setSkyboxTexture(v);
 		} else {
-			v = scene->getGravity();
+			v = scene->getSkyboxTextureId();
 		}
+		ImGui::PopItemWidth();
 	}
 
 	{
@@ -46,5 +48,16 @@ void Editor::showSceneProps(uint32_t id) {
 		}
 
 		scene->setLightSettings(light);
+	}
+
+	ImGui::Text("Gravity");
+	ImGui::SameLine(100);
+	{
+		static float v = 0;
+		if (ImGui::InputFloat("##SceneGravity", &v, 1.0f, 2.0f)) {
+			scene->setGravity(v);
+		} else {
+			v = scene->getGravity();
+		}
 	}
 }

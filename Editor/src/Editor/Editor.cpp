@@ -85,6 +85,8 @@ Editor::Editor() {
 	viewerScene->getCamerasManager()->getCamera(0)->setPosition(glm::vec3(1.0f));
 	viewerScene->getCamerasManager()->getCamera(0)->lookAt(glm::vec3());
 
+	viewerImage = viewerScene->getUIManager()->getRootElement()->createChild<UI::Image>();
+
 
 	// initialize ImGui
 	ImGui::CreateContext();
@@ -216,10 +218,15 @@ void Editor::update() {
 	}
 
 	ImGui::SetNextWindowPos(ImVec2(255.0f, 25.0f));
+	ImGui::SetNextWindowSize(ImVec2(125.0f, 25.0f));
 	ImGui::Begin("Simulation Control", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
 	ImGui::PushStyleColor(ImGuiCol_Button, simulating ? ImVec4(.5f, 0, 0, 1) : ImVec4(0, .5f, 0, 1));
-	if (ImGui::Button(((simulating ? "Stop" : "Start") + std::string("##ToggleSimulation")).c_str())) {
-		simulating = !simulating;
+	if (!viewingObject) {
+		if (ImGui::Button(((simulating ? "Stop" : "Start") + std::string("##ToggleSimulation")).c_str())) {
+			simulating = !simulating;
+		}
+	} else {
+		ImGui::Text("Resource Viewer");
 	}
 	ImGui::PopStyleColor();
 	ImGui::End();

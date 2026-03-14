@@ -5,6 +5,7 @@
 #include <Yngin/Rendering/Cameras.h>
 #include <Yngin/Rendering/Textures.h>
 #include <Yngin/Core/Models.h>
+#include <Yngin/UI/Elements/Image.h>
 #include <ImGui/imgui.h>
 
 enum class EXPLORER_SELECTION_TYPE {
@@ -47,6 +48,7 @@ private:
 	void showResourceExplorer();
 
 	Yngin::GameObject* viewerObject;
+	Yngin::UI::Image* viewerImage;
 
 	Yngin::Texture* gridTexture;
 	Yngin::Model* squareModel;

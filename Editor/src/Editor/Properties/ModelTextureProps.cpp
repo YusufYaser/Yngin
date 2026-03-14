@@ -50,6 +50,7 @@ void Editor::showModelProps(uint32_t id) {
 		mesh->setModel(model);
 		mesh->setTexture(gridTexture);
 		viewerObject->setScale(glm::vec3(1.0f));
+		viewerImage->setSize({ 0, 0, 0, 0 });
 
 		if (ImGui::Button("Delete", ImVec2(-1, 40))) {
 			ctx->getModelsManager()->deleteModel(explorerSelection.second);
@@ -82,12 +83,19 @@ void Editor::showTextureProps(uint32_t id) {
 		if (texture == nullptr) return;
 
 		viewingObject = true;
-		viewerObject->getComponent<Components::Mesh>()->setModel(squareModel);
 
-		Components::Mesh* mesh = viewerObject->getComponent<Components::Mesh>();
-		mesh->setModel(squareModel);
-		mesh->setTexture(texture);
-		viewerObject->setScale(glm::vec3(1.0f));
+		viewerObject->setScale(glm::vec3(0.0f));
+		viewerImage->setSize({ 1, 0, 1, 0 });
+		viewerImage->setTexture(texture);
+
+		glm::vec2 viewportSize = ctx->getViewportSize();
+		glm::ivec2 texSize = texture->getSize();
+		float ratio = texSize.x * 1.0f / texSize.y;
+		if (int(viewportSize.y * ratio) > viewportSize.x) {
+			viewerImage->setSize({ 0, int(viewportSize.x), 0, int(viewportSize.x / ratio) });
+		} else {
+			viewerImage->setSize({ 0, int(viewportSize.y * ratio), 0, int(viewportSize.y) });
+		}
 
 		if (ImGui::Button("Delete", ImVec2(-1, 40))) {
 			ctx->getTexturesManager()->deleteTexture(explorerSelection.second);
