@@ -5,6 +5,8 @@
 #include <ImGui/imgui_impl_glfw.h>
 #include <ImGui/imgui_internal.h>
 #include <GLFW/glfw3.h>
+#include <fstream>
+#include <sstream>
 
 #include "Editor.h"
 
@@ -43,7 +45,7 @@ Editor::Editor() {
 		});
 	activeScene->setSkyboxTexture(skyboxTex);
 
-	Texture* gridTex = ctx->getTexturesManager()->createTexture({
+	gridTexture = ctx->getTexturesManager()->createTexture({
 		.width = 2,
 		.height = 2,
 		.numCh = 1,
@@ -73,11 +75,17 @@ Editor::Editor() {
 
 		MODEL_FRONT_FACE::NONE
 	};
-	Model* model = ctx->getModelsManager()->createModel(square);
-	for (int i = 0; i < 10; i++) ctx->getModelsManager()->createModel(square);
+	squareModel = ctx->getModelsManager()->createModel(square);
 
 	ctx->getPhysicsEngine()->setSimulationEnabled(false);
 	ctx->getRenderer()->setLightingEnabled(false);
+
+	viewerScene = ctx->getScenesManager()->createScene();
+	viewerObject = viewerScene->getGameObjectsManager()->getRootGameObject()->createChild();
+	viewerObject->createComponent<Components::Mesh>();
+	viewerObject->createComponent<Components::Light>();
+	viewerScene->getCamerasManager()->getCamera(0)->setPosition(glm::vec3(1.0f));
+	viewerScene->getCamerasManager()->getCamera(0)->lookAt(glm::vec3());
 
 
 	// initialize ImGui
@@ -107,7 +115,11 @@ void Editor::update() {
 	Window* window = ctx->getWindow();
 
 	glm::ivec2 windowSize = window->getSize();
-	handleCameraMovement(editorCamera);
+	if (!viewingObject) {
+		handleCameraMovement(editorCamera);
+	} else {
+		handleCameraMovement(viewerScene->getCamerasManager()->getCamera(0));
+	}
 
 	InputSystem* input = ctx->getInputSystem();
 
@@ -234,6 +246,7 @@ void Editor::update() {
 		ImGui::End();
 	}
 
+	viewingObject = false;
 	if (ImGui::BeginViewportSideBar("##Properties", viewport, ImGuiDir_Right, 300.0f, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNavFocus)) {
 		switch (explorerSelection.first) {
 		case EXPLORER_SELECTION_TYPE::GAMEOBJECT:
@@ -260,25 +273,100 @@ void Editor::update() {
 		}
 
 		case EXPLORER_SELECTION_TYPE::MODEL:
+		{
 			ImGui::Text("Model");
 			ImGui::Separator();
 			if (explorerSelection.second == -1) {
-				if (ImGui::Button("Create Model", ImVec2(-1, 40))) {
+				// TODO: add file selector
+				{
+					static char v[256] = {};
+					ImGui::Text("Path");
+					ImGui::SameLine(50);
+					ImGui::PushItemWidth(-1);
+					ImGui::InputText("##New Model Path", v, 256);
+					ImGui::PopItemWidth();
 
+					if (ImGui::Button("Create Model", ImVec2(-1, 40))) {
+						std::string path = v;
+
+						std::ifstream modelFile(path);
+
+						if (modelFile.is_open()) {
+							std::stringstream modelFileData;
+							modelFileData << modelFile.rdbuf();
+
+							modelFile.close();
+
+							ctx->getModelsManager()->createModel(MODEL_FILE_TYPE::OBJ, modelFileData.str().c_str(), modelFileData.str().length());
+						}
+
+						v[0] = '\0';
+					}
 				}
 			} else {
+				Model* model = ctx->getModelsManager()->getModel(explorerSelection.second);
+				if (model == nullptr) break;
+
+				viewingObject = true;
+
+				Components::Mesh* mesh = viewerObject->getComponent<Components::Mesh>();
+				mesh->setModel(model);
+				mesh->setTexture(gridTexture);
+				viewerObject->setScale(glm::vec3(1.0f));
+
 				if (ImGui::Button("Delete", ImVec2(-1, 40))) {
 					ctx->getModelsManager()->deleteModel(explorerSelection.second);
 					explorerSelection = {};
 				}
 			}
 			break;
+		}
 
 		case EXPLORER_SELECTION_TYPE::TEXTURE:
 			ImGui::Text("Texture");
+			ImGui::Separator();
+			if (explorerSelection.second == -1) {
+				// TODO: add file selector
+				{
+					static char v[256] = {};
+					ImGui::Text("Path");
+					ImGui::SameLine(50);
+					ImGui::PushItemWidth(-1);
+					ImGui::InputText("##New Texture Path", v, 256);
+					ImGui::PopItemWidth();
+
+					if (ImGui::Button("Create Texture", ImVec2(-1, 40))) {
+						std::string path = v;
+						ctx->getTexturesManager()->createTexture(path.c_str());
+						v[0] = '\0';
+					}
+				}
+			} else {
+				Texture* texture = ctx->getTexturesManager()->getTexture(explorerSelection.second);
+				if (texture == nullptr) break;
+
+				viewingObject = true;
+				viewerObject->getComponent<Components::Mesh>()->setModel(squareModel);
+
+				Components::Mesh* mesh = viewerObject->getComponent<Components::Mesh>();
+				mesh->setModel(squareModel);
+				mesh->setTexture(texture);
+				viewerObject->setScale(glm::vec3(1.0f));
+
+				if (ImGui::Button("Delete", ImVec2(-1, 40))) {
+					ctx->getTexturesManager()->deleteTexture(explorerSelection.second);
+					explorerSelection = {};
+				}
+			}
 			break;
 		}
 		ImGui::End();
+	}
+
+	if (viewingObject) {
+		viewerScene->activate();
+	} else {
+		activeScene->activate();
 	}
 
 	ImGui::SetNextWindowPos(ImVec2(250, windowSize.y - 300.0f));
