@@ -9,7 +9,7 @@ using namespace Yngin;
 namespace {
 	uint32_t drawModelsTree(std::vector<Model*> models) {
 		uint32_t clicked = -2;
-		bool open = ImGui::TreeNodeEx("Models", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth);
+		bool open = ImGui::TreeNodeEx("Models", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen);
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
 			clicked = -1;
@@ -32,7 +32,7 @@ namespace {
 
 	uint32_t drawTexturesTree(std::vector<Texture*> textures) {
 		uint32_t clicked = -2;
-		bool open = ImGui::TreeNodeEx("Textures", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth);
+		bool open = ImGui::TreeNodeEx("Textures", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen);
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
 			clicked = -1;

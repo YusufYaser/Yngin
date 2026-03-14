@@ -7,7 +7,7 @@
 
 using namespace Yngin;
 
-void Editor::gameObjectProps(uint32_t id) {
+void Editor::showGameObjectProps(uint32_t id) {
 	if (id == -1) {
 		ImGui::Text("Root Game Object");
 		if (ImGui::Button("Create GameObject", ImVec2(-1, 40))) {

@@ -12,7 +12,9 @@ enum class EXPLORER_SELECTION_TYPE {
 	GAMEOBJECT,
 	UIELEMENT,
 	MODEL,
-	TEXTURE
+	TEXTURE,
+	SCENE,
+	GAME
 };
 
 class Editor {
@@ -35,7 +37,12 @@ public:
 
 private:
 	void handleCameraMovement(Yngin::Camera* camera);
-	void gameObjectProps(uint32_t id);
+
+	void showGameObjectProps(uint32_t id);
+	void showModelProps(uint32_t id);
+	void showTextureProps(uint32_t id);
+	void showSceneProps(uint32_t id);
+
 	void showSceneExplorer();
 	void showResourceExplorer();
 

@@ -51,6 +51,12 @@
     <ClCompile Include="src\Editor\ResourceExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Editor\Properties\ModelTextureProps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\Properties\SceneProps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="deps\vendor\ImGui\imgui_internal.h">

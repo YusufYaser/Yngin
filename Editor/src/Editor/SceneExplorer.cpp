@@ -21,7 +21,7 @@ namespace {
 
 		name += "##ExplorerGameObject" + std::to_string(obj->getId());
 
-		bool open = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth);
+		bool open = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | (obj->getId() == 0 ? ImGuiTreeNodeFlags_DefaultOpen : 0));
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
 			clicked = obj;
@@ -51,7 +51,7 @@ namespace {
 
 		name += "##ExplorerUIElement" + std::to_string(obj->getId());
 
-		bool open = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth);
+		bool open = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | (obj->getId() == 0 ? ImGuiTreeNodeFlags_DefaultOpen : 0));
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
 			clicked = obj;
@@ -70,15 +70,26 @@ namespace {
 }
 
 void Editor::showSceneExplorer() {
-	GameObject* gameObject = drawChildrenTree(activeScene->getGameObjectsManager()->getRootGameObject());
-	UI::UIElement* uiElement = drawChildrenTree(activeScene->getUIManager()->getRootElement());
+	Scene* scene = activeScene;
 
-	if (gameObject) {
-		explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, gameObject->getId() };
-		if (explorerSelection.second == 0) explorerSelection.second = -1;
+	bool open = ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen);
+
+	if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
+		explorerSelection = { EXPLORER_SELECTION_TYPE::SCENE, scene->getId() };
 	}
-	if (uiElement) {
-		explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, uiElement->getId() };
-		if (explorerSelection.second == 0) explorerSelection.second = -1;
+
+	if (open) {
+		GameObject* gameObject = drawChildrenTree(scene->getGameObjectsManager()->getRootGameObject());
+		UI::UIElement* uiElement = drawChildrenTree(scene->getUIManager()->getRootElement());
+
+		if (gameObject) {
+			explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, gameObject->getId() };
+			if (explorerSelection.second == 0) explorerSelection.second = -1;
+		}
+		if (uiElement) {
+			explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, uiElement->getId() };
+			if (explorerSelection.second == 0) explorerSelection.second = -1;
+		}
+		ImGui::TreePop();
 	}
 }
