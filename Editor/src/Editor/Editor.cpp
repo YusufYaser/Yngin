@@ -5,6 +5,7 @@
 #include <ImGui/imgui_impl_glfw.h>
 #include <ImGui/imgui_internal.h>
 #include <GLFW/glfw3.h>
+#include "Cube_Model.h"
 
 #include "Editor.h"
 
@@ -34,6 +35,12 @@ Editor::Editor() {
 	activeScene = ctx->getScenesManager()->createScene();
 	activeScene->activate();
 
+	editorCamera = activeScene->getCamerasManager()->createCamera();
+	activeScene->getCamerasManager()->getCamera(0)->setWeight(0);
+	editorCamera->setWeight(1.0f);
+	editorCamera->setPosition(glm::vec3(2.0f));
+	editorCamera->lookAt(glm::vec3());
+
 	TexturesManager* texturesManager = ctx->getTexturesManager();
 
 	Texture* skyboxTex = ctx->getTexturesManager()->createTexture("assets/default_skybox.png", {
@@ -55,25 +62,12 @@ Editor::Editor() {
 		}
 	);
 
-	editorCamera = activeScene->getCamerasManager()->createCamera();
-	activeScene->getCamerasManager()->getCamera(0)->setWeight(0);
-	editorCamera->setWeight(1.0f);
+	Model* cubeModel = ctx->getModelsManager()->createModel(cubeModelData);
 
-	const ModelData square = {
-		{
-			Vertex{glm::vec3(+0.5f, +0.5f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec3(0, 0, 1.0f)},
-			Vertex{glm::vec3(-0.5f, +0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec3(0, 0, 1.0f)},
-			Vertex{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 1.0f), glm::vec3(0, 0, 1.0f)},
-			Vertex{glm::vec3(+0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec3(0, 0, 1.0f)},
-		},
-
-		{
-			0, 1, 2, 0, 2, 3
-		},
-
-		MODEL_FRONT_FACE::NONE
-	};
-	squareModel = ctx->getModelsManager()->createModel(square);
+	GameObject* defaultCube = activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
+	Components::Mesh* defaultCubeMesh = defaultCube->createComponent<Components::Mesh>();
+	defaultCubeMesh->setModel(cubeModel);
+	defaultCubeMesh->setTexture(gridTexture);
 
 	ctx->getPhysicsEngine()->setSimulationEnabled(false);
 	ctx->getRenderer()->setLightingEnabled(false);
@@ -308,6 +302,8 @@ void Editor::update() {
 	ImGui::Text("FPS: %.1f", 1 / ctx->getDeltaTime());
 	ImGui::Text("%i GameObjects", activeScene->getGameObjectsManager()->getGameObjectsCount());
 	ImGui::Text("%i UI Elements", activeScene->getUIManager()->getElementsCount());
+	ImGui::Text("%i Textures", ctx->getTexturesManager()->getTexturesCount());
+	ImGui::Text("%i Models", ctx->getModelsManager()->getModelsCount());
 	ImGui::Text("Position: %f %f %f", editorCamera->getPosition().x, editorCamera->getPosition().y, editorCamera->getPosition().z);
 	ImGui::End();
 

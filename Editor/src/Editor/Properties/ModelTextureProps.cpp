@@ -10,8 +10,11 @@
 using namespace Yngin;
 
 void Editor::showModelProps(uint32_t id) {
-
-	ImGui::Text("Model");
+	if (id != -1) {
+		ImGui::Text("Properties (Model #%i)", id);
+	} else {
+		ImGui::Text("Models");
+	}
 	ImGui::Separator();
 	if (explorerSelection.second == -1) {
 		// TODO: add file selector
@@ -60,7 +63,11 @@ void Editor::showModelProps(uint32_t id) {
 }
 
 void Editor::showTextureProps(uint32_t id) {
-	ImGui::Text("Texture");
+	if (id != -1) {
+		ImGui::Text("Properties (Texture #%i)", id);
+	} else {
+		ImGui::Text("Textures");
+	}
 	ImGui::Separator();
 	if (explorerSelection.second == -1) {
 		// TODO: add file selector
