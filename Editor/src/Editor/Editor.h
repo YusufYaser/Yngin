@@ -8,7 +8,9 @@
 enum class EXPLORER_SELECTION_TYPE {
 	NONE,
 	GAMEOBJECT,
-	UIELEMENT
+	UIELEMENT,
+	MODEL,
+	TEXTURE
 };
 
 class Editor {
@@ -28,6 +30,7 @@ public:
 
 private:
 	void handleCameraMovement(Yngin::Camera* camera);
-	void gameObjectProps(Yngin::GameObject* obj);
-	void showExplorer();
+	void gameObjectProps(uint32_t id);
+	void showSceneExplorer();
+	void showResourceExplorer();
 };

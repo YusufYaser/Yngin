@@ -155,7 +155,8 @@
     <ClCompile Include="deps\vendor\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="src\Editor\Camera.cpp" />
     <ClCompile Include="src\Editor\Editor.cpp" />
-    <ClCompile Include="src\Editor\Explorer.cpp" />
+    <ClCompile Include="src\Editor\ResourceExplorer.cpp" />
+    <ClCompile Include="src\Editor\SceneExplorer.cpp" />
     <ClCompile Include="src\Editor\Properties\GameObjectProps.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>

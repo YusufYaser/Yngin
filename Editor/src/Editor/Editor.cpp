@@ -74,6 +74,7 @@ Editor::Editor() {
 		MODEL_FRONT_FACE::NONE
 	};
 	Model* model = ctx->getModelsManager()->createModel(square);
+	for (int i = 0; i < 10; i++) ctx->getModelsManager()->createModel(square);
 
 	ctx->getPhysicsEngine()->setSimulationEnabled(false);
 	ctx->getRenderer()->setLightingEnabled(false);
@@ -216,18 +217,34 @@ void Editor::update() {
 	ctx->getRenderer()->setLightingEnabled(simulating);
 
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
-	showExplorer();
+
+	if (ImGui::BeginViewportSideBar("##Explorer", viewport, ImGuiDir_Left, 250.0f, 0)) {
+		ImGui::Text("Project Explorer");
+		ImGui::Separator();
+		ImGui::BeginTabBar("Explorer Tabs");
+		if (ImGui::BeginTabItem("Scene")) {
+			showSceneExplorer();
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Resources")) {
+			showResourceExplorer();
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+		ImGui::End();
+	}
 
 	if (ImGui::BeginViewportSideBar("##Properties", viewport, ImGuiDir_Right, 300.0f, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNavFocus)) {
-		if (explorerSelection.first == EXPLORER_SELECTION_TYPE::GAMEOBJECT) {
-			GameObject* obj = activeScene->getGameObjectsManager()->getGameObject(explorerSelection.second);
-			if (obj) {
-				gameObjectProps(obj);
-			}
-		} else if (explorerSelection.first == EXPLORER_SELECTION_TYPE::UIELEMENT) {
+		switch (explorerSelection.first) {
+		case EXPLORER_SELECTION_TYPE::GAMEOBJECT:
+			gameObjectProps(explorerSelection.second);
+			break;
+
+		case EXPLORER_SELECTION_TYPE::UIELEMENT:
+		{
 			UI::UIElement* element = activeScene->getUIManager()->getElement(explorerSelection.second);
 			if (element) {
-				if (element->getId() != 0) {
+				if (element->getId() != -1) {
 					ImGui::Text("Properties (UI Element #%i)", element->getId());
 					ImGui::Separator();
 
@@ -239,6 +256,27 @@ void Editor::update() {
 					ImGui::Text("Root UI Element");
 				}
 			}
+			break;
+		}
+
+		case EXPLORER_SELECTION_TYPE::MODEL:
+			ImGui::Text("Model");
+			ImGui::Separator();
+			if (explorerSelection.second == -1) {
+				if (ImGui::Button("Create Model", ImVec2(-1, 40))) {
+
+				}
+			} else {
+				if (ImGui::Button("Delete", ImVec2(-1, 40))) {
+					ctx->getModelsManager()->deleteModel(explorerSelection.second);
+					explorerSelection = {};
+				}
+			}
+			break;
+
+		case EXPLORER_SELECTION_TYPE::TEXTURE:
+			ImGui::Text("Texture");
+			break;
 		}
 		ImGui::End();
 	}

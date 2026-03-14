@@ -69,19 +69,16 @@ namespace {
 	}
 }
 
-void Editor::showExplorer() {
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
+void Editor::showSceneExplorer() {
+	GameObject* gameObject = drawChildrenTree(activeScene->getGameObjectsManager()->getRootGameObject());
+	UI::UIElement* uiElement = drawChildrenTree(activeScene->getUIManager()->getRootElement());
 
-	if (ImGui::BeginViewportSideBar("##Explorer", viewport, ImGuiDir_Left, 250.0f, 0)) {
-		ImGui::Text("Scene Explorer");
-		ImGui::Separator();
-		if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth)) {
-			GameObject* gameObject = drawChildrenTree(activeScene->getGameObjectsManager()->getRootGameObject());
-			UI::UIElement* uiElement = drawChildrenTree(activeScene->getUIManager()->getRootElement());
-			ImGui::TreePop();
-			if (gameObject) explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, gameObject->getId() };
-			if (uiElement) explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, uiElement->getId() };
-		}
-		ImGui::End();
+	if (gameObject) {
+		explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, gameObject->getId() };
+		if (explorerSelection.second == 0) explorerSelection.second = -1;
+	}
+	if (uiElement) {
+		explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, uiElement->getId() };
+		if (explorerSelection.second == 0) explorerSelection.second = -1;
 	}
 }
