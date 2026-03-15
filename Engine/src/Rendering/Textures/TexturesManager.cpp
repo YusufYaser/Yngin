@@ -25,7 +25,7 @@ namespace Yngin {
 	Texture* TexturesManager::createTexture(uint32_t id, bool override) {
 		if (getTexture(id) != nullptr) {
 			if (override) {
-				deleteTexture(id);
+				impl->textures.erase(id);
 			} else {
 				return nullptr;
 			}

@@ -131,6 +131,7 @@ namespace Yngin {
 		if (active)	glBindTexture(GL_TEXTURE_2D, impl->texId);
 
 		impl->size = glm::ivec2(w, h);
+		impl->settings = settings;
 	}
 
 	void Texture::setData(const char* path, const TextureSettings& settings) {
@@ -147,5 +148,9 @@ namespace Yngin {
 
 	glm::ivec2 Texture::getSize() const {
 		return impl->size;
+	}
+
+	const TextureSettings& Texture::getTextureSettings() {
+		return impl->settings;
 	}
 }

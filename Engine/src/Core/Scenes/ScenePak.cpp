@@ -245,8 +245,10 @@ namespace Yngin {
 				rigidBodyData.elasticity = rigidBody->getElasticity();
 				rigidBodyData.canBounce = rigidBody->canBounce();
 
+				std::memcpy(rigidBodyData.velocity, glm::value_ptr(rigidBody->getVelocity()), sizeof(float) * 3);
+
 				auto forces = rigidBody->getForces();
-				rigidBodyData.forcesCount = int(forces.size());
+				rigidBodyData.forcesCount = uint8_t(forces.size());
 
 				W(rigidBodyData, RigidBodyData);
 

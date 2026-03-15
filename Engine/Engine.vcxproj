@@ -75,7 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c" />
-    <ClCompile Include="deps\implementations\stb_image.c" />
+    <ClCompile Include="deps\implementations\stb.c" />
     <ClCompile Include="src\Components\Collider.cpp" />
     <ClCompile Include="src\Components\Light.cpp" />
     <ClCompile Include="src\Components\RigidBody.cpp" />

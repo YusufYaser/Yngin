@@ -2,16 +2,19 @@
 #include <stdint.h>
 
 namespace Yngin {
+	enum class TEXTURE_WRAP : uint8_t;
+	enum class TEXTURE_FILTER : uint8_t;
+	enum class MODEL_FRONT_FACE : uint8_t;
+
 	namespace GameData {
 		namespace ResourcesPak {
 			enum OP : uint8_t {
-				MODEL
+				MODEL,
+				TEXTURE
 			};
 
-			enum PAK_MODEL_FRONT_FACE : uint8_t {
-				NONE,
-				CCW,
-				CW
+			enum TEXTURE_FORMAT : uint8_t {
+				PNG
 			};
 
 #pragma pack(push, 1)
@@ -29,10 +32,9 @@ namespace Yngin {
 
 			struct PakModelData {
 				uint32_t id;
-				PAK_MODEL_FRONT_FACE frontFace;
-				uint8_t verticesCount;
-				uint8_t indicesCount;
-				uint8_t unused;
+				MODEL_FRONT_FACE frontFace;
+				uint16_t verticesCount;
+				uint16_t indicesCount;
 
 				// ModelVertex vertices[verticesCount]
 				// uint32_t indices[indicesCount]
@@ -42,6 +44,17 @@ namespace Yngin {
 				float position[3];
 				float texCoord[2];
 				float normal[3];
+			};
+
+			struct PakTextureData {
+				uint32_t id;
+				TEXTURE_WRAP wrap;
+				TEXTURE_FILTER filterMin;
+				TEXTURE_FILTER filterMag;
+				size_t dataSize;
+				TEXTURE_FORMAT dataFormat;
+
+				// unsigned char bytes[dataSize]
 			};
 
 #pragma pack(pop)

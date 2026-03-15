@@ -66,7 +66,7 @@ namespace Yngin {
 				float elasticity;
 				bool canBounce;
 				float velocity[3];
-				int forcesCount;
+				uint8_t forcesCount;
 			};
 
 			struct BoxColliderData {

@@ -254,7 +254,7 @@
     <ClCompile Include="src\Components\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="deps\implementations\stb_image.c">
+    <ClCompile Include="deps\implementations\stb.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\UI\Elements\Text.cpp">

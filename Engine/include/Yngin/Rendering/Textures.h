@@ -47,6 +47,8 @@ namespace Yngin {
 
 		glm::ivec2 getSize() const;
 
+		const TextureSettings& getTextureSettings();
+
 	private:
 		friend class TexturesManager;
 		friend struct std::default_delete<Texture>;

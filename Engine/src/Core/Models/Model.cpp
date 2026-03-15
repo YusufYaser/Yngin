@@ -84,7 +84,7 @@ namespace Yngin {
 		glBindVertexArray(0);
 	}
 
-	ModelData Model::getModelData() const {
+	const ModelData& Model::getModelData() const {
 		return impl->modelData;
 	}
 }
