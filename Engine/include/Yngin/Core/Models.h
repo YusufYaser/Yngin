@@ -32,6 +32,8 @@ namespace Yngin {
 	public:
 		Model* createModel(const ModelData& data);
 		Model* createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length);
+		Model* createModel(const ModelData& data, uint32_t id, bool override = false);
+		Model* createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length, uint32_t id, bool override = false);
 		void deleteModel(uint32_t modelId);
 		void deleteModel(Model* model);
 

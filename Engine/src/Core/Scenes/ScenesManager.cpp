@@ -32,19 +32,35 @@ namespace Yngin {
 	}
 
 	Scene* ScenesManager::createScene() {
+		return createScene(impl->nextId);
+	}
+
+	Scene* ScenesManager::createScene(const char* scenePakData, size_t size) {
+		return createScene(scenePakData, size, impl->nextId);
+	}
+
+	Scene* ScenesManager::createScene(uint32_t id, bool override) {
+		if (getScene(id) != nullptr) {
+			if (override) {
+				deleteScene(id);
+			} else {
+				return nullptr;
+			}
+		}
+
 		Scene* scene = new Scene(impl->ctx);
 
-		uint32_t sceneId = impl->nextId++;
-		scene->impl->id = sceneId;
-		impl->scenes[sceneId] = std::unique_ptr<Scene>(scene);
+		impl->nextId = std::max(impl->nextId, id + 1);
+		scene->impl->id = id;
+		impl->scenes[id] = std::unique_ptr<Scene>(scene);
 
 		scene->impl->init();
 
 		return scene;
 	}
 
-	Scene* ScenesManager::createScene(const char* scenePakData, size_t size) {
-		Scene* scene = createScene();
+	Scene* ScenesManager::createScene(const char* scenePakData, size_t size, uint32_t id, bool override) {
+		Scene* scene = createScene(id, override);
 
 		scene->impl->loadPak(scenePakData, size);
 

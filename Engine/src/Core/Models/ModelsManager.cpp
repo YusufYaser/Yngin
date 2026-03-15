@@ -13,18 +13,34 @@ namespace Yngin {
 	ModelsManager::~ModelsManager() = default;
 
 	Model* ModelsManager::createModel(const ModelData& data) {
+		return createModel(data, impl->nextId);
+	}
+
+	Model* ModelsManager::createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length) {
+		return createModel(type, data, length, impl->nextId);
+	}
+
+	Model* ModelsManager::createModel(const ModelData& data, uint32_t id, bool override) {
+		if (getModel(id) != nullptr) {
+			if (override) {
+				deleteModel(id);
+			} else {
+				return nullptr;
+			}
+		}
+
 		Model* model = new Model(impl->ctx);
 
-		uint32_t modelId = impl->nextId++;
-		model->impl->id = modelId;
-		impl->models[modelId] = std::unique_ptr<Model>(model);
+		impl->nextId = std::max(impl->nextId, id + 1);
+		model->impl->id = id;
+		impl->models[id] = std::unique_ptr<Model>(model);
 
 		model->impl->init(data.vertices, data.indices, data.frontFace);
 
 		return model;
 	}
 
-	Model* ModelsManager::createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length) {
+	Model* ModelsManager::createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length, uint32_t id, bool override) {
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
 
@@ -40,7 +56,7 @@ namespace Yngin {
 			.vertices = vertices,
 			.indices = indices,
 			.frontFace = MODEL_FRONT_FACE::CCW
-			});
+			}, id, override);
 	}
 
 	void ModelsManager::deleteModel(uint32_t modelId) {

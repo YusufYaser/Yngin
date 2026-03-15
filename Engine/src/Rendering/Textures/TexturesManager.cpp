@@ -19,23 +19,35 @@ namespace Yngin {
 	TexturesManager::~TexturesManager() = default;
 
 	Texture* TexturesManager::createTexture() {
-		auto texture = std::unique_ptr<Texture>(new Texture(impl->ctx));
-
-		uint32_t textureId = impl->nextId++;
-		texture->impl->id = textureId;
-		impl->textures[textureId] = std::move(texture);
-
-		return impl->textures[textureId].get();
+		return createTexture(impl->nextId);
 	}
 
-	Texture* TexturesManager::createTexture(const TextureData& data, const TextureSettings& settings) {
-		Texture* tex = createTexture();
+	Texture* TexturesManager::createTexture(uint32_t id, bool override) {
+		if (getTexture(id) != nullptr) {
+			if (override) {
+				deleteTexture(id);
+			} else {
+				return nullptr;
+			}
+		}
+
+		auto texture = std::unique_ptr<Texture>(new Texture(impl->ctx));
+
+		impl->nextId = std::max(impl->nextId, id + 1);
+		texture->impl->id = id;
+		impl->textures[id] = std::move(texture);
+
+		return impl->textures[id].get();
+	}
+
+	Texture* TexturesManager::createTexture(const TextureData& data, const TextureSettings& settings, uint32_t id, bool override) {
+		Texture* tex = createTexture(id != -1 ? id : impl->nextId, override);
 		tex->setData(data, settings);
 		return tex;
 	}
 
-	Texture* TexturesManager::createTexture(const char* path, const TextureSettings& settings) {
-		Texture* tex = createTexture();
+	Texture* TexturesManager::createTexture(const char* path, const TextureSettings& settings, uint32_t id, bool override) {
+		Texture* tex = createTexture(id != -1 ? id : impl->nextId, override);
 		tex->setData(path, settings);
 		return tex;
 	}

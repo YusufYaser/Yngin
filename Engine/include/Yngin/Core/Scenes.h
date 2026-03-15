@@ -34,6 +34,8 @@ namespace Yngin {
 
 		Scene* createScene();
 		Scene* createScene(const char* scenePakData, size_t size);
+		Scene* createScene(uint32_t id, bool override = false);
+		Scene* createScene(const char* scenePakData, size_t size, uint32_t id, bool override = false);
 		void deleteScene(uint32_t sceneId);
 		void deleteScene(Scene* scene);
 
