@@ -104,7 +104,7 @@ namespace Yngin {
 							glm::vec3 velocity = glm::make_vec3(rigidBodyData.velocity);
 							rigidBody->setVelocity(velocity);
 							for (int i = 0; i < rigidBodyData.forcesCount; i++) {
-								float force[4];
+								float force[4]{};
 								R(force[0], float);
 								R(force[1], float);
 								R(force[2], float);
@@ -250,7 +250,7 @@ namespace Yngin {
 
 				W(rigidBodyData, RigidBodyData);
 
-				for (auto force : forces) {
+				for (auto& force : forces) {
 					W(force.x, float);
 					W(force.y, float);
 					W(force.z, float);
@@ -293,8 +293,7 @@ namespace Yngin {
 			W(cameraData, CameraData);
 		}
 
-		std::string str = s.str();
-		std::vector<char> data(str.begin(), str.end());
-		return data;
+		std::string_view sv = s.view();
+		return std::vector<char>(sv.begin(), sv.end());
 	}
 }

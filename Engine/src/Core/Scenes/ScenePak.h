@@ -3,8 +3,6 @@
 
 namespace Yngin {
 	namespace GameData {
-		const int VERSION = 0;
-
 		namespace ScenePak {
 			enum OP : uint8_t {
 				SCENE,

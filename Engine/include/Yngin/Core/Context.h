@@ -45,6 +45,10 @@ namespace Yngin {
 		WindowSettings windowSettings{};
 	};
 
+	namespace GameData {
+		const int VERSION = 0;
+	}
+
 	class Context {
 	public:
 		Context(const ContextSettings& settings = {});
@@ -95,6 +99,9 @@ namespace Yngin {
 
 		template <typename T>
 		T* getService() const;
+
+		void loadResourcesPak(const char* resourcesPakData, size_t size);
+		std::vector<char> generateResourcesPak();
 
 	private:
 		void cleanup();

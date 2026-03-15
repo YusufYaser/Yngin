@@ -23,6 +23,7 @@
     <ClInclude Include="include\Yngin\Components\Light.h" />
     <ClInclude Include="include\Yngin\Components\RigidBody.h" />
     <ClInclude Include="include\Yngin\Core\InputSystem.h" />
+    <ClInclude Include="src\Core\Context\ResourcesPak.h" />
     <ClInclude Include="src\Core\Scenes\ScenePak.h" />
     <ClInclude Include="include\Yngin\Physics\Physics.h" />
     <ClInclude Include="include\Yngin\Physics\PhysicsEngine.h" />
@@ -79,6 +80,7 @@
     <ClCompile Include="src\Components\Light.cpp" />
     <ClCompile Include="src\Components\RigidBody.cpp" />
     <ClCompile Include="src\Core\Context\Init.cpp" />
+    <ClCompile Include="src\Core\Context\ResourcesPak.cpp" />
     <ClCompile Include="src\Core\InputSystem\InputSystem.cpp" />
     <ClCompile Include="src\Core\Scenes\ScenePak.cpp" />
     <ClCompile Include="src\Physics\PhysicsEngine.cpp" />
