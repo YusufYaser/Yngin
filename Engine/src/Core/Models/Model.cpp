@@ -49,6 +49,12 @@ namespace Yngin {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		this->frontFace = frontFace;
+
+		modelData = ModelData{
+			.vertices = vertices,
+			.indices = indices,
+			.frontFace = frontFace,
+		};
 	}
 
 	uint32_t Model::getId() const {
@@ -76,5 +82,9 @@ namespace Yngin {
 		glBindVertexArray(impl->VAO);
 		glDrawElements(GL_TRIANGLES, impl->indicesCount, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
+	}
+
+	ModelData Model::getModelData() const {
+		return impl->modelData;
 	}
 }

@@ -17,6 +17,8 @@ namespace Yngin {
 		GLsizei indicesCount;
 
 		MODEL_FRONT_FACE frontFace;
+
+		ModelData modelData;
 	};
 
 	struct ModelsManager::Impl {

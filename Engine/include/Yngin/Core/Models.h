@@ -60,6 +60,8 @@ namespace Yngin {
 
 		void render();
 
+		ModelData getModelData() const;
+
 	private:
 		Model(Context* ctx);
 		~Model();
