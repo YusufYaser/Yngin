@@ -23,10 +23,6 @@ namespace Yngin {
 		deleteGameObject(impl->rootGameObject.get());
 	}
 
-	uint32_t GameObjectsManager::acquireId() {
-		return impl->nextId++;
-	}
-
 	GameObject* GameObjectsManager::getRootGameObject() const {
 		return impl->rootGameObject.get();
 	}

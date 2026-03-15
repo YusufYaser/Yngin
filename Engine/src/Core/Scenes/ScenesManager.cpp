@@ -43,6 +43,14 @@ namespace Yngin {
 		return scene;
 	}
 
+	Scene* ScenesManager::createScene(const char* scenePakData, size_t size) {
+		Scene* scene = createScene();
+
+		scene->impl->loadPak(scenePakData, size);
+
+		return scene;
+	}
+
 	void ScenesManager::deleteScene(uint32_t sceneId) {
 		if (impl->activeScene->getId() == sceneId) {
 			impl->activeScene = nullptr;

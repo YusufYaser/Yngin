@@ -46,9 +46,11 @@ namespace Yngin {
 	class CamerasManager {
 	public:
 		Camera* createCamera();
+		Camera* createCamera(uint32_t id, bool override = false);
 		void deleteCamera(uint32_t cameraId);
 		void deleteCamera(Camera* camera);
 
+		std::vector<Camera*> getCameras() const;
 		Camera* getCamera(uint32_t cameraId) const;
 
 		float getTotalWeight() const;

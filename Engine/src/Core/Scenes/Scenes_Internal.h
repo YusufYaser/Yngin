@@ -23,6 +23,8 @@ namespace Yngin {
 		LightSettings lightSettings;
 
 		float gravity = 9.8f;
+
+		void loadPak(const char* scenePakData, size_t size);
 	};
 
 	struct ScenesManager::Impl {

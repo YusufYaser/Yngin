@@ -55,4 +55,8 @@ namespace Yngin::Components {
 	void RigidBody::applyForce(glm::vec3 force, float time) {
 		impl->forces.push_back(glm::vec4(force, time));
 	}
+
+	std::vector<glm::vec4> RigidBody::getForces() {
+		return impl->forces;
+	}
 }

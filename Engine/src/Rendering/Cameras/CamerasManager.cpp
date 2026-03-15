@@ -24,12 +24,25 @@ namespace Yngin {
 	}
 
 	Camera* CamerasManager::createCamera() {
+		return createCamera(impl->nextCameraId);
+	}
+
+	Camera* CamerasManager::createCamera(uint32_t id, bool override) {
+		if (getCamera(id) != nullptr) {
+			if (override) {
+				impl->cameras.erase(id);
+			} else {
+				return nullptr;
+			}
+		}
+
 		auto camera = std::unique_ptr<Camera>(new Camera(impl->ctx, impl->scene));
 
-		uint32_t cameraId = impl->nextCameraId++;
-		camera->impl->id = cameraId;
-		impl->cameras[cameraId] = std::move(camera);
-		return impl->cameras[cameraId].get();
+		int nextId = impl->nextCameraId;
+		impl->nextCameraId = std::max(impl->nextCameraId, id + 1);
+		camera->impl->id = id;
+		impl->cameras[id] = std::move(camera);
+		return impl->cameras[id].get();
 	}
 
 	void CamerasManager::deleteCamera(uint32_t cameraId) {
@@ -44,6 +57,14 @@ namespace Yngin {
 		if (camera->impl->scene == impl->scene) {
 			deleteCamera(camera->impl->id);
 		}
+	}
+
+	std::vector<Camera*> CamerasManager::getCameras() const {
+		std::vector<Camera*> cameras;
+		for (auto& kvp : impl->cameras) {
+			cameras.push_back(kvp.second.get());
+		}
+		return cameras;
 	}
 
 	Camera* CamerasManager::getCamera(uint32_t cameraId) const {

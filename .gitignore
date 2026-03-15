@@ -366,3 +366,4 @@ FodyWeavers.xsd
 bin
 intermediates
 imgui.ini
+*.pak

@@ -30,6 +30,7 @@ namespace Yngin {
 
 		GameObject* getChild(uint32_t childId) const;
 		GameObject* createChild();
+		GameObject* createChild(uint8_t customId, bool override = true);
 		void deleteChild(uint32_t childId);
 		void deleteChild(GameObject* child);
 
@@ -98,8 +99,6 @@ namespace Yngin {
 
 		GameObjectsManager(Context* ctx, Scene* scene);
 		~GameObjectsManager();
-
-		uint32_t acquireId();
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;

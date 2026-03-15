@@ -33,6 +33,7 @@ namespace Yngin {
 		std::vector<Scene*> getScenes() const;
 
 		Scene* createScene();
+		Scene* createScene(const char* scenePakData, size_t size);
 		void deleteScene(uint32_t sceneId);
 		void deleteScene(Scene* scene);
 
@@ -73,6 +74,8 @@ namespace Yngin {
 
 		float getGravity();
 		void setGravity(float gravity);
+
+		std::vector<char> generatePak();
 
 	private:
 		friend class ScenesManager;

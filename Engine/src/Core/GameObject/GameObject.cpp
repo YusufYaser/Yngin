@@ -38,6 +38,7 @@ namespace Yngin {
 	}
 
 	void GameObject::setParent(uint32_t newParentId) {
+		if (impl->parent->getId() == newParentId) return;
 		GameObject* newParent = impl->scene->getGameObjectsManager()->getGameObject(newParentId);
 		if (newParent) setParent(newParent);
 	}
@@ -63,14 +64,31 @@ namespace Yngin {
 	}
 
 	GameObject* GameObject::createChild() {
+		return createChild(impl->scene->getGameObjectsManager()->impl->nextId);
+	}
+
+	GameObject* GameObject::createChild(uint8_t id, bool override) {
+		if (id == 0) return nullptr;
+
+		GameObjectsManager* mgr = impl->scene->getGameObjectsManager();
+
+		if (mgr->getGameObject(id) != nullptr) {
+			if (override) {
+				mgr->deleteGameObject(id);
+			} else {
+				return nullptr;
+			}
+		}
+
 		auto gameObject = std::unique_ptr<GameObject>(new GameObject(impl->ctx, impl->scene, this));
 
-		uint32_t id = impl->scene->getGameObjectsManager()->acquireId();
+		int nextId = mgr->impl->nextId;
+		mgr->impl->nextId = std::max(nextId, id + 1);
 		gameObject->impl->id = id;
 
 		impl->childs[id] = std::move(gameObject);
 		GameObject* obj = impl->childs[id].get();
-		impl->scene->getGameObjectsManager()->impl->gameObjects[id] = obj;
+		mgr->impl->gameObjects[id] = obj;
 
 		return obj;
 	}
@@ -98,6 +116,8 @@ namespace Yngin {
 
 		auto it = impl->childs.find(childId);
 		if (it == impl->childs.end()) return;
+
+		it->second->impl->parent = newParent;
 
 		newParent->impl->childs[childId] = std::move(it->second);
 		impl->childs.erase(childId);

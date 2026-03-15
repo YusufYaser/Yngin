@@ -2,6 +2,7 @@
 #include <memory>
 #include "Component.h"
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 namespace Yngin {
 	namespace Components {
@@ -26,6 +27,8 @@ namespace Yngin {
 			void applyImpulseForce(glm::vec3 force);
 			void applyForce(glm::vec3 force, float time);
 
+			// Force xyz time
+			std::vector<glm::vec4> getForces();
 
 		private:
 			friend class GameObject;
