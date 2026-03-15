@@ -2,7 +2,7 @@
 #include "Textures_Internal.h"
 #include <glad/glad.h>
 #include <stdexcept>
-#include <stb_image/stb_image.h>
+#include <stb/stb_image.h>
 
 
 namespace Yngin {
