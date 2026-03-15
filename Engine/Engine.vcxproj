@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Downloads\forward.hpp" />
+    <ClInclude Include="..\..\..\Downloads\sol.hpp" />
     <ClInclude Include="include\Yngin\Components\Collider.h" />
     <ClInclude Include="include\Yngin\Components\Light.h" />
     <ClInclude Include="include\Yngin\Components\RigidBody.h" />
