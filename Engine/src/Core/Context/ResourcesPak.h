@@ -17,11 +17,11 @@ namespace Yngin {
 #pragma pack(push, 1)
 
 			struct Header {
-				char magic[14];
+				char magic[15];
 				uint8_t version;
 			};
 
-			static_assert(sizeof(Header) == 15, "Invalid resources.pak header size");
+			static_assert(sizeof(Header) == 16, "Invalid resources.pak header size");
 
 			struct Operation {
 				OP op;

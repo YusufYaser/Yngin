@@ -21,11 +21,11 @@ namespace Yngin {
 #pragma pack(push, 1)
 
 			struct Header {
-				char magic[10];
+				char magic[11];
 				uint8_t version;
 			};
 
-			static_assert(sizeof(Header) == 11, "Invalid scene.pak header size");
+			static_assert(sizeof(Header) == 12, "Invalid scene.pak header size");
 
 			struct Operation {
 				OP op;
