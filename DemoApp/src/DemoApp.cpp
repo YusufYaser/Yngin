@@ -312,6 +312,26 @@ int main() {
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();
 
+		if (input->isKeyJustPressed(KEY::F7)) {
+			{
+				std::ofstream scenePakFile("scene.pak", std::ios::binary);
+				if (scenePakFile) {
+					std::vector<char> bytes = scene->generatePak();
+					scenePakFile.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+					scenePakFile.close();
+				}
+			}
+
+			{
+				std::ofstream file("resources.pak", std::ios::binary);
+				if (file) {
+					std::vector<char> bytes = ctx->generateResourcesPak();
+					file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+					file.close();
+				}
+			}
+		}
+
 		if (testCollider->checkCollision(obj->getComponent<Components::BoxCollider>())) {
 			testMesh->setColor(glm::vec3(1, 0, 0));
 		} else {
