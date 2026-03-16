@@ -1,0 +1,49 @@
+#pragma once
+#include <memory>
+#include <vector>
+
+namespace Yngin {
+	class Context;
+
+	class Script {
+	public:
+		// execute code within the script environments
+		bool execute(const char* script);
+
+	private:
+		friend class ScriptsManager;
+		friend struct std::default_delete<Script>;
+
+		Script(Context* ctx);
+		~Script();
+
+		struct Impl;
+		std::unique_ptr<Impl> impl;
+	};
+
+	class ScriptsManager {
+	public:
+		Script* createScript(const char* script, uint32_t id = -1, bool override = false);
+		void deleteScript(uint32_t id);
+		void deleteScript(Script* script);
+
+		size_t getScriptsCount() const;
+		std::vector<Script*> getScripts() const;
+
+		Script* getScript(uint32_t id) const;
+
+		// execute code in the global context
+		bool execute(const char* script);
+
+	private:
+		friend class Context;
+		friend struct std::default_delete<ScriptsManager>;
+		friend class Script;
+
+		ScriptsManager(Context* ctx);
+		~ScriptsManager();
+
+		struct Impl;
+		std::unique_ptr<Impl> impl;
+	};
+}

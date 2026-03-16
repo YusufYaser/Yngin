@@ -174,10 +174,10 @@
     <ClInclude Include="src\Core\Context\ResourcesPak.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Downloads\sol.hpp">
+    <ClInclude Include="include\Yngin\Scripting\Scripting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Downloads\forward.hpp">
+    <ClInclude Include="src\Scripting\Scripting_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -285,6 +285,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Context\ResourcesPak.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Scripting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

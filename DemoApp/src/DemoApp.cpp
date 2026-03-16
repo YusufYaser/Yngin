@@ -37,6 +37,8 @@ int main() {
 	UI::UIManager* uiMgr = scene->getUIManager();
 	UI::UIManager* globalUiMgr = ctx->getGlobalUIManager();
 	Physics::PhysicsEngine* physicsEngine = ctx->getPhysicsEngine();
+	ScriptsManager* scriptsManager = ctx->getScriptsManager();
+	scriptsManager->createScript("print('Hello, Yngin!')");
 
 	Window* window = ctx->getWindow();
 	InputSystem* input = ctx->getInputSystem();

@@ -78,7 +78,7 @@ namespace Yngin {
 
 				char* pakBytes = new char[pakTexData.dataSize];
 				s.read(pakBytes, pakTexData.dataSize);
-				unsigned char* bytes = stbi_load_from_memory((const stbi_uc*)pakBytes, pakTexData.dataSize, &data.width, &data.height, &data.numCh, 0);
+				unsigned char* bytes = stbi_load_from_memory((const stbi_uc*)pakBytes, int(pakTexData.dataSize), &data.width, &data.height, &data.numCh, 0);
 				delete[] pakBytes;
 
 				if (!bytes) break;

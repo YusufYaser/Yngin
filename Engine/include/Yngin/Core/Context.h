@@ -17,6 +17,7 @@ namespace Yngin {
 	class ScenesManager;
 	class TexturesManager;
 	class ShadersManager;
+	class ScriptsManager;
 	struct Vertex;
 	class Model;
 	class InputSystem;
@@ -89,6 +90,7 @@ namespace Yngin {
 		TexturesManager* getTexturesManager() const;
 		ShadersManager* getShadersManager() const;
 		UI::UIManager* getGlobalUIManager() const;
+		ScriptsManager* getScriptsManager() const;
 
 		Rendering::Renderer* getRenderer() const;
 		Physics::PhysicsEngine* getPhysicsEngine() const;

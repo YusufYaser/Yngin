@@ -17,6 +17,7 @@ namespace Yngin {
 		std::unique_ptr<TexturesManager> texturesManager;
 		std::unique_ptr<ShadersManager> shadersManager;
 		std::unique_ptr<UI::UIManager> uiManager;
+		std::unique_ptr<ScriptsManager> scriptsManager;
 
 		std::unique_ptr<Rendering::Renderer> renderer;
 		std::unique_ptr<Physics::PhysicsEngine> physicsEngine;
