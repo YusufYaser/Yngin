@@ -38,7 +38,6 @@ int main() {
 	UI::UIManager* globalUiMgr = ctx->getGlobalUIManager();
 	Physics::PhysicsEngine* physicsEngine = ctx->getPhysicsEngine();
 	ScriptsManager* scriptsManager = ctx->getScriptsManager();
-	scriptsManager->createScript("print('Hello, Yngin!')");
 
 	Window* window = ctx->getWindow();
 	InputSystem* input = ctx->getInputSystem();
@@ -310,6 +309,18 @@ int main() {
 	Components::RigidBody* body3RigidBody = body3->createComponent<Components::RigidBody>();
 	Components::Collider* body3Collider = body3->createComponent<Components::BoxCollider>();
 	body3->setPosition({ 8.5f, 30, 50 });
+
+	scriptsManager->createScript(R"LUA(
+		print(Yngin.Context)
+		print(Yngin.InputSystem)
+		
+		Yngin.Context:setMaxFPS(60)
+		
+		function onUpdate(dt)
+			local mousePos = Yngin.InputSystem:getMousePosition()
+			print(mousePos.x, mousePos.y, "FPS:", math.floor(1 / dt + 0.5))
+		end
+		)LUA");
 
 	ctx->ready();
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {

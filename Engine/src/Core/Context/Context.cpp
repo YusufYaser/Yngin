@@ -106,6 +106,8 @@ namespace Yngin {
 			m.internalModelsManager->impl->models[newId] = std::move(modelPtr);
 		}
 
+		m.scriptsManager->impl->bindTypes();
+
 		impl->status = CONTEXT_STATUS::WAITING_FOR_READY;
 	}
 

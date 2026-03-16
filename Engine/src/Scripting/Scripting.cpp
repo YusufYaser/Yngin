@@ -80,7 +80,7 @@ namespace Yngin {
 
 	bool ScriptsManager::execute(const char* script) {
 		try {
-		impl->lua.script(script);
+			impl->lua.script(script);
 		} catch (sol::error) {
 			// TODO: add error logging
 			return false;
@@ -136,7 +136,7 @@ namespace Yngin {
 		ScriptsManager* scriptsManager = impl->ctx->getScriptsManager();
 		sol::state& lua = scriptsManager->impl->lua;
 		try {
-		lua.script(script, impl->env);
+			lua.script(script, impl->env);
 		} catch (sol::error) {
 			// TODO: add error logging
 			return false;

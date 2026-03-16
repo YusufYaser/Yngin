@@ -14,8 +14,10 @@ namespace Yngin {
 
 	struct ScriptsManager::Impl {
 		Context* ctx;
-
 		sol::state lua;
+
+		void bindTypes();
+
 		std::map<uint32_t, std::unique_ptr<Script>> scripts;
 
 		void onReady();
