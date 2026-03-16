@@ -82,6 +82,7 @@ Editor::Editor() {
 
 	viewerImage = viewerScene->getUIManager()->getRootElement()->createChild<UI::Image>();
 
+	ctx->ready();
 
 	// initialize ImGui
 	ImGui::CreateContext();

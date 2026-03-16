@@ -61,6 +61,7 @@ int main() {
 
 	Camera* camera = scene->getCamerasManager()->getCamera(0);
 
+	ctx->ready();
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		handleCameraMovement(camera);
 		ctx->update();

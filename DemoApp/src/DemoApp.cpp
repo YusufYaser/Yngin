@@ -311,6 +311,7 @@ int main() {
 	Components::Collider* body3Collider = body3->createComponent<Components::BoxCollider>();
 	body3->setPosition({ 8.5f, 30, 50 });
 
+	ctx->ready();
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();
 

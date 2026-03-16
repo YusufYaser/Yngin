@@ -37,6 +37,7 @@ namespace Yngin {
 	enum class CONTEXT_STATUS : uint8_t {
 		RUNNING,
 		INITIALIZING,
+		WAITING_FOR_READY,
 		FAILED_TO_INIT,
 		NEEDS_TO_STOP,
 		CLEANING_UP
@@ -62,6 +63,9 @@ namespace Yngin {
 		void makeCurrent();
 
 		CONTEXT_STATUS getStatus() const;
+
+		void ready();
+
 		// Set swapBuffers to false if you're using another library like ImGui
 		// but you need to call Context::swapBuffers() at the end of your frame
 		void update(bool swapBuffers = true);

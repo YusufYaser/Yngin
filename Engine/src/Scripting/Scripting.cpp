@@ -30,9 +30,21 @@ namespace Yngin {
 		impl->nextId = std::max(impl->nextId, id + 1);
 		script->impl->id = id;
 
+		impl->scripts[id] = std::unique_ptr<Script>(script);
+
 		script->execute(scriptData);
 
-		impl->scripts[id] = std::unique_ptr<Script>(script);
+		if (impl->ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
+			sol::protected_function scriptReady = script->impl->env["onReady"];
+
+			if (scriptReady.valid()) {
+				auto res = scriptReady();
+
+				if (!res.valid()) {
+					// TODO: add error logging
+				}
+			}
+		}
 
 		return script;
 	}
@@ -74,6 +86,36 @@ namespace Yngin {
 			return false;
 		}
 		return true;
+	}
+
+	void ScriptsManager::Impl::onReady() {
+		for (auto& [id, script] : scripts) {
+			sol::protected_function scriptReady = script->impl->env["onReady"];
+
+			if (!scriptReady.valid()) continue;
+
+			auto res = scriptReady();
+
+			if (!res.valid()) {
+				// TODO: add error logging
+			}
+		}
+	}
+
+	void ScriptsManager::Impl::onUpdate() {
+		double delta = ctx->getDeltaTime();
+
+		for (auto& [id, script] : scripts) {
+			sol::protected_function scriptUpdate = script->impl->env["onUpdate"];
+
+			if (!scriptUpdate.valid()) continue;
+
+			auto res = scriptUpdate(delta);
+
+			if (!res.valid()) {
+				// TODO: add error logging
+			}
+		}
 	}
 
 	Script::Script(Context* ctx) {

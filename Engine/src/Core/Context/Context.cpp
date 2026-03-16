@@ -14,6 +14,7 @@
 #include "../Models/Models_Internal.h"
 #include "../Models/DefaultModels/Skybox_Model.h"
 #include "../Models/DefaultModels/Square_Model.h"
+#include "../../Scripting/Scripting_Internal.h"
 #include <Yngin/Services/Services.h>
 
 namespace Yngin {
@@ -105,7 +106,7 @@ namespace Yngin {
 			m.internalModelsManager->impl->models[newId] = std::move(modelPtr);
 		}
 
-		impl->status = CONTEXT_STATUS::RUNNING;
+		impl->status = CONTEXT_STATUS::WAITING_FOR_READY;
 	}
 
 	Context::~Context() {
@@ -144,7 +145,16 @@ namespace Yngin {
 		return impl->status;
 	}
 
+	void Context::ready() {
+		if (getStatus() == CONTEXT_STATUS::WAITING_FOR_READY);
+		if (getStatus() != CONTEXT_STATUS::WAITING_FOR_READY) return;
+		impl->scriptsManager->impl->onReady();
+		impl->status = CONTEXT_STATUS::RUNNING;
+	}
+
 	void Context::update(bool swap) {
+		assert(getStatus() != CONTEXT_STATUS::WAITING_FOR_READY && "You must run Context::ready() to start your game loop");
+		if (getStatus() == CONTEXT_STATUS::WAITING_FOR_READY) return;
 		assert(getStatus() == CONTEXT_STATUS::RUNNING);
 		makeCurrent();
 
@@ -156,6 +166,8 @@ namespace Yngin {
 		glm::ivec2 viewportSize = getViewportSize();
 
 		glViewport(viewportPos.x, windowSize.y - viewportPos.y - viewportSize.y, viewportSize.x, viewportSize.y);
+
+		m.scriptsManager->impl->onUpdate();
 
 		for (auto& kvp : m.services) {
 			kvp.second.get()->onUpdate();

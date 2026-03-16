@@ -18,6 +18,9 @@ namespace Yngin {
 		sol::state lua;
 		std::map<uint32_t, std::unique_ptr<Script>> scripts;
 
+		void onReady();
+		void onUpdate();
+
 		uint32_t nextId = 0;
 	};
 }
