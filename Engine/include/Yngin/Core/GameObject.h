@@ -30,7 +30,7 @@ namespace Yngin {
 
 		GameObject* getChild(uint32_t childId) const;
 		GameObject* createChild();
-		GameObject* createChild(uint8_t customId, bool override = true);
+		GameObject* createChild(uint32_t customId, bool override = true);
 		void deleteChild(uint32_t childId);
 		void deleteChild(GameObject* child);
 

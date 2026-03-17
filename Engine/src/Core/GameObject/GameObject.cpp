@@ -67,7 +67,7 @@ namespace Yngin {
 		return createChild(impl->scene->getGameObjectsManager()->impl->nextId);
 	}
 
-	GameObject* GameObject::createChild(uint8_t id, bool override) {
+	GameObject* GameObject::createChild(uint32_t id, bool override) {
 		if (id == 0) return nullptr;
 
 		GameObjectsManager* mgr = impl->scene->getGameObjectsManager();
@@ -82,7 +82,7 @@ namespace Yngin {
 
 		auto gameObject = std::unique_ptr<GameObject>(new GameObject(impl->ctx, impl->scene, this));
 
-		int nextId = mgr->impl->nextId;
+		uint32_t nextId = mgr->impl->nextId;
 		mgr->impl->nextId = std::max(nextId, id + 1);
 		gameObject->impl->id = id;
 

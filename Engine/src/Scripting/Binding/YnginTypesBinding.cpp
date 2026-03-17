@@ -59,6 +59,7 @@ namespace Yngin {
 			});
 
 
+		// Context
 		lua.new_usertype<Context>("Context",
 			sol::no_constructor,
 
@@ -69,10 +70,82 @@ namespace Yngin {
 			BIND(Context, getFrameStartTime)
 		);
 
+
+		// Renderer
+		lua.new_usertype<Rendering::Renderer>("Renderer",
+			sol::no_constructor,
+
+			BIND(Rendering::Renderer, isLightingEnabled),
+			BIND(Rendering::Renderer, setLightingEnabled),
+
+			BIND(Rendering::Renderer, getRenderDistance),
+			BIND(Rendering::Renderer, setRenderDistance)
+		);
+
+
+		// Textures
+		lua.new_usertype<Texture>("Texture",
+			sol::no_constructor,
+
+			// TODO: needs to be completed
+			BIND(Texture, getId),
+
+			BIND(Texture, getSize)
+		);
+
+		lua.new_usertype<TexturesManager>("TexturesManager",
+			sol::no_constructor,
+
+			// TODO: needs to be completed
+			BIND(TexturesManager, deleteTexture),
+
+			BIND(TexturesManager, getTexturesCount),
+			BIND(TexturesManager, getTextures),
+			BIND(TexturesManager, getTexture)
+		);
+
+		// GameObjects
 		lua.new_usertype<GameObject>("GameObject",
 			sol::no_constructor,
 
+			// TODO: needs to be completed
 			BIND(GameObject, getId),
+
+			BIND(GameObject, getParent),
+			"setParent", sol::overload(
+				[](GameObject& self, uint32_t parentId) { self.setParent(parentId); },
+
+				[](GameObject& self, GameObject* newParent) { self.setParent(newParent); }
+			),
+
+			BIND(GameObject, getChildren),
+
+			"createChild", sol::overload(
+				static_cast<GameObject * (GameObject::*)()>(&GameObject::createChild),
+
+				[](GameObject& self, uint32_t id) {
+					return self.createChild(id);
+				},
+
+				static_cast<GameObject * (GameObject::*)(uint32_t, bool)>(&GameObject::createChild)
+			),
+
+			"deleteChild", sol::overload(
+				static_cast<void(GameObject::*)(uint32_t)>(&GameObject::deleteChild),
+
+				static_cast<void(GameObject::*)(GameObject*)>(&GameObject::deleteChild)
+			),
+
+			"moveChild", sol::overload(
+				static_cast<void(GameObject::*)(uint32_t, GameObject*)>(&GameObject::moveChild),
+
+				static_cast<void(GameObject::*)(GameObject*, GameObject*)>(&GameObject::moveChild),
+
+				static_cast<void(GameObject::*)(GameObject*, uint32_t)>(&GameObject::moveChild),
+
+				static_cast<void(GameObject::*)(uint32_t, uint32_t)>(&GameObject::moveChild)
+			),
+
 			BIND(GameObject, getPosition),
 			BIND(GameObject, setPosition),
 			BIND(GameObject, getRotation),
@@ -81,6 +154,68 @@ namespace Yngin {
 			BIND(GameObject, setScale)
 		);
 
+		lua.new_usertype<GameObjectsManager>("GameObjectsManager",
+			sol::no_constructor,
+
+			BIND(GameObjectsManager, getRootGameObject),
+			BIND(GameObjectsManager, getGameObject),
+
+			BIND(GameObjectsManager, getGameObjectsCount),
+			BIND(GameObjectsManager, getGameObjects),
+
+			"deleteGameObject", sol::overload(
+				static_cast<void(GameObjectsManager::*)(uint32_t)>(&GameObjectsManager::deleteGameObject),
+				static_cast<void(GameObjectsManager::*)(GameObject*)>(&GameObjectsManager::deleteGameObject)
+			)
+		);
+
+
+		// Scenes
+		lua.new_usertype<Scene>("Scene",
+			sol::no_constructor,
+
+			// TODO: needs to be completed
+			BIND(Scene, getId),
+
+			BIND(Scene, activate),
+
+			BIND(Scene, getGameObjectsManager),
+
+			BIND(Scene, getGravity),
+			BIND(Scene, setGravity)
+		);
+
+		lua.new_usertype<ScenesManager>("ScenesManager",
+			sol::no_constructor,
+
+			BIND(ScenesManager, getScene),
+			BIND(ScenesManager, getScenes),
+
+			"createScene", sol::overload(
+				static_cast<Scene * (ScenesManager::*)()>(&ScenesManager::createScene),
+
+				[](ScenesManager& self, uint32_t id) {
+					return self.createScene(id);
+				},
+
+				static_cast<Scene * (ScenesManager::*)(uint32_t, bool)>(&ScenesManager::createScene)
+			),
+
+			"deleteScene", sol::overload(
+				static_cast<void(ScenesManager::*)(uint32_t)>(&ScenesManager::deleteScene),
+				static_cast<void(ScenesManager::*)(Scene*)>(&ScenesManager::deleteScene)
+			),
+
+			BIND(ScenesManager, getActive),
+
+			"setActive", sol::overload(
+				static_cast<void(ScenesManager::*)(uint32_t)>(&ScenesManager::setActive),
+				static_cast<void(ScenesManager::*)(Scene*)>(&ScenesManager::setActive)
+			)
+		);
+
+
+		// Cameras
 		lua.new_usertype<Camera>("Camera",
 			sol::no_constructor,
 
@@ -98,6 +233,39 @@ namespace Yngin {
 
 			BIND(Camera, getWeight),
 			BIND(Camera, setWeight)
+		);
+
+		lua.new_usertype<CamerasManager>("CamerasManager",
+			sol::no_constructor,
+
+			"createCamera", sol::overload(
+				static_cast<Camera * (CamerasManager::*)()>(&CamerasManager::createCamera),
+
+				[](CamerasManager& self, uint32_t id) {
+					return self.createCamera(id);
+				},
+
+				static_cast<Camera * (CamerasManager::*)(uint32_t, bool)>(&CamerasManager::createCamera)
+			),
+
+			"deleteCamera", sol::overload(
+				static_cast<void(CamerasManager::*)(uint32_t)>(&CamerasManager::deleteCamera),
+				static_cast<void(CamerasManager::*)(Camera*)>(&CamerasManager::deleteCamera)
+			),
+
+			BIND(CamerasManager, getCameras),
+			BIND(CamerasManager, getCamera),
+
+			BIND(CamerasManager, getTotalWeight),
+
+			"setActive", sol::overload(
+				static_cast<void(CamerasManager::*)(uint32_t)>(&CamerasManager::setActive),
+				static_cast<void(CamerasManager::*)(Camera*)>(&CamerasManager::setActive)
+			),
+
+			BIND(CamerasManager, getFinalPos),
+			BIND(CamerasManager, getFinalOrientation),
+			BIND(CamerasManager, getFinalFov)
 		);
 
 		lua.new_usertype<Window>("Window",
@@ -146,5 +314,72 @@ namespace Yngin {
 			BIND(InputSystem, isKeyJustPressed),
 			BIND(InputSystem, isKeyJustReleased)
 		);
+
+
+		// Physics
+		lua.new_usertype<Physics::Ray>("Ray",
+			sol::constructors<
+			Physics::Ray()
+			>(),
+
+			BIND(Physics::Ray, origin),
+			BIND(Physics::Ray, direction)
+		);
+
+		lua.new_usertype<Physics::PhysicsEngine>("PhysicsEngine",
+			sol::no_constructor,
+
+			// TODO: needs to be completed after adding components
+			BIND(Physics::PhysicsEngine, isSimulationEnabled),
+			BIND(Physics::PhysicsEngine, setSimulationEnabled),
+
+			BIND(Physics::PhysicsEngine, getSimulationDistance),
+			BIND(Physics::PhysicsEngine, setSimulationDistance)
+		);
+
+
+		// Services
+		lua.new_usertype<Services::Service>("Service",
+			sol::no_constructor
+		);
+
+		lua.new_enum<Services::TWEEN_FUNCTION>("TWEEN_FUNCTION", {
+			{ "LINEAR", Services::TWEEN_FUNCTION::LINEAR },
+			{ "EASE_IN", Services::TWEEN_FUNCTION::EASE_IN },
+			{ "EASE_OUT", Services::TWEEN_FUNCTION::EASE_OUT },
+			{ "EASE_INOUT", Services::TWEEN_FUNCTION::EASE_INOUT }
+			});
+
+		lua.new_usertype<Services::TweenSettings>("TweenSettings",
+			sol::constructors<
+			Services::TweenSettings()
+			>(),
+
+			BIND(Services::TweenSettings, duration),
+			BIND(Services::TweenSettings, function)
+		);
+
+		lua.new_usertype<Services::Tween>("Tween",
+			sol::no_constructor,
+
+			BIND(Services::Tween, cancel),
+			BIND(Services::Tween, isActive),
+
+			// TODO: add tweenFloat
+			"tweenPos", sol::overload(
+				static_cast<int(Services::Tween::*)(GameObject*, glm::vec3, const Services::TweenSettings&)>(&Services::Tween::tweenPos),
+
+				static_cast<int(Services::Tween::*)(Camera*, glm::vec3, const Services::TweenSettings&)>(&Services::Tween::tweenPos)
+			),
+
+			BIND(Services::Tween, isPaused),
+			BIND(Services::Tween, setPaused)
+		);
+
+		// TODO: add models
+		// TODO: add shaders
+		// TODO: add scripts
+		// TODO: add components
+		// TODO: add UI
 	}
 }

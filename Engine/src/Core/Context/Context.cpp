@@ -148,7 +148,7 @@ namespace Yngin {
 	}
 
 	void Context::ready() {
-		if (getStatus() == CONTEXT_STATUS::WAITING_FOR_READY);
+		assert(getStatus() == CONTEXT_STATUS::WAITING_FOR_READY);
 		if (getStatus() != CONTEXT_STATUS::WAITING_FOR_READY) return;
 		impl->scriptsManager->impl->onReady();
 		impl->status = CONTEXT_STATUS::RUNNING;

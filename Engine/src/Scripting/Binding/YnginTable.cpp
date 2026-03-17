@@ -6,7 +6,14 @@ namespace Yngin {
 		sol::table Yngin = lua.create_table("Yngin");
 
 		Yngin["Context"] = ctx;
-		Yngin["InputSystem"] = ctx->getInputSystem();
+
 		Yngin["Window"] = ctx->getWindow();
+
+		Yngin["ScenesManager"] = ctx->getScenesManager();
+		Yngin["TexturesManager"] = ctx->getTexturesManager();
+
+		Yngin["Renderer"] = ctx->getRenderer();
+		Yngin["PhysicsEngine"] = ctx->getPhysicsEngine();
+		Yngin["InputSystem"] = ctx->getInputSystem();
 	}
 }
