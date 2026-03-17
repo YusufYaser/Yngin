@@ -6,6 +6,7 @@
 #include <ImGui/imgui_internal.h>
 #include <GLFW/glfw3.h>
 #include "Cube_Model.h"
+#include <fstream>
 
 #include "Editor.h"
 
@@ -35,9 +36,7 @@ Editor::Editor() {
 	activeScene = ctx->getScenesManager()->createScene();
 	activeScene->activate();
 
-	editorCamera = activeScene->getCamerasManager()->createCamera();
-	activeScene->getCamerasManager()->getCamera(0)->setWeight(0);
-	editorCamera->setWeight(1.0f);
+	editorCamera = activeScene->getCamerasManager()->getCamera(0);
 	editorCamera->setPosition(glm::vec3(2.0f));
 	editorCamera->lookAt(glm::vec3());
 
@@ -84,6 +83,7 @@ Editor::Editor() {
 
 	ctx->ready();
 
+
 	// initialize ImGui
 	ImGui::CreateContext();
 	ImGui_ImplGlfw_InitForOpenGL(ctx->getWindow()->getGLFWwindow(), true);
@@ -118,6 +118,26 @@ void Editor::update() {
 	}
 
 	InputSystem* input = ctx->getInputSystem();
+
+	if (input->isKeyJustPressed(KEY::F5)) {
+		{
+			std::ofstream scenePakFile("scene.pak", std::ios::binary);
+			if (scenePakFile) {
+				std::vector<char> bytes = activeScene->generatePak();
+				scenePakFile.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+				scenePakFile.close();
+			}
+		}
+
+		{
+			std::ofstream file("resources.pak", std::ios::binary);
+			if (file) {
+				std::vector<char> bytes = ctx->generateResourcesPak();
+				file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+				file.close();
+			}
+		}
+	}
 
 	if (input->isKeyJustPressed(Yngin::KEY::F11) || (input->isKeyPressed(Yngin::KEY::RALT) && input->isKeyJustPressed(Yngin::KEY::ENTER))) {
 		window->setFullscreen(!window->isFullscreen());
