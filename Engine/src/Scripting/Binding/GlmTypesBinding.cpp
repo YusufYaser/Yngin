@@ -258,12 +258,6 @@ namespace Yngin {
 				return glm::rotate(m, angle, axis);
 				});
 		}
-
-		// ================= MIXED TYPES =================
-		lua["Vec3"][sol::meta_function::addition] = sol::overload(
-			[](const vec3& a, const ivec3& b) { return a + vec3(b); },
-			[](const ivec3& a, const vec3& b) { return vec3(a) + b; }
-		);
 	}
 
 }

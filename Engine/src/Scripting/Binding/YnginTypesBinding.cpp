@@ -267,6 +267,7 @@ namespace Yngin {
 			BIND(CamerasManager, getFinalOrientation),
 			BIND(CamerasManager, getFinalFov)
 		);
+		lua["Scene"]["getCamerasManager"] = &Scene::getCamerasManager;
 
 		lua.new_usertype<Window>("Window",
 			sol::no_constructor,
