@@ -27,7 +27,7 @@ Editor::Editor() {
 
 	ctx->setMaxFPS(0);
 
-	if (ctx == nullptr || ctx->getStatus() != CONTEXT_STATUS::RUNNING) {
+	if (ctx == nullptr || ctx->getStatus() != CONTEXT_STATUS::WAITING_FOR_READY) {
 		printf("Failed to create context\n");
 		return;
 	}
