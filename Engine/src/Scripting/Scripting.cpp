@@ -2,6 +2,7 @@
 #include <sol/sol.hpp>
 #include "Scripting_Internal.h"
 #include <Yngin/Core/Context.h>
+#include <Yngin/Core/Scenes.h>
 
 namespace Yngin {
 	ScriptsManager::ScriptsManager(Context* ctx) {
@@ -20,6 +21,10 @@ namespace Yngin {
 	}
 
 	Script* ScriptsManager::createScript(const char* scriptData, uint32_t id, bool override) {
+		return createScript(nullptr, scriptData, id, override);
+	}
+
+	Script* ScriptsManager::createScript(Scene* scene, const char* scriptData, uint32_t id, bool override) {
 		if (id != -1) {
 			if (getScript(id) != nullptr) {
 				if (override) {
@@ -32,7 +37,7 @@ namespace Yngin {
 			id = impl->nextId;
 		}
 
-		Script* script = new Script(impl->ctx);
+		Script* script = new Script(impl->ctx, scene);
 		impl->nextId = std::max(impl->nextId, id + 1);
 		script->impl->id = id;
 
@@ -96,11 +101,53 @@ namespace Yngin {
 
 	void ScriptsManager::Impl::onReady() {
 		for (auto& [id, script] : scripts) {
-			sol::protected_function scriptReady = script->impl->env["onReady"];
+			sol::protected_function f = script->impl->env["onReady"];
 
-			if (!scriptReady.valid()) continue;
+			if (!f.valid()) continue;
 
-			auto res = scriptReady();
+			auto res = f();
+
+			if (!res.valid()) {
+				// TODO: add error logging
+			}
+		}
+	}
+
+	void ScriptsManager::Impl::onSceneActive() {
+		if (ctx->getStatus() != CONTEXT_STATUS::RUNNING) return;
+
+		double delta = ctx->getDeltaTime();
+		Scene* activeScene = ctx->getScenesManager()->getActive();
+
+		for (auto& [id, script] : scripts) {
+			if (script->impl->scene != activeScene || script->impl->scene == nullptr) continue;
+
+			sol::protected_function f = script->impl->env["onSceneActive"];
+
+			if (!f.valid()) continue;
+
+			auto res = f(delta);
+
+			if (!res.valid()) {
+				// TODO: add error logging
+			}
+		}
+	}
+
+	void ScriptsManager::Impl::onSceneInactive() {
+		if (ctx->getStatus() != CONTEXT_STATUS::RUNNING) return;
+
+		double delta = ctx->getDeltaTime();
+		Scene* activeScene = ctx->getScenesManager()->getActive();
+
+		for (auto& [id, script] : scripts) {
+			if (script->impl->scene != activeScene || script->impl->scene == nullptr) continue;
+
+			sol::protected_function f = script->impl->env["onSceneInactive"];
+
+			if (!f.valid()) continue;
+
+			auto res = f(delta);
 
 			if (!res.valid()) {
 				// TODO: add error logging
@@ -109,14 +156,19 @@ namespace Yngin {
 	}
 
 	void ScriptsManager::Impl::onUpdate() {
+		if (ctx->getStatus() != CONTEXT_STATUS::RUNNING) return;
+
 		double delta = ctx->getDeltaTime();
+		Scene* activeScene = ctx->getScenesManager()->getActive();
 
 		for (auto& [id, script] : scripts) {
-			sol::protected_function scriptUpdate = script->impl->env["onUpdate"];
+			if (script->impl->scene != activeScene && script->impl->scene != nullptr) continue;
 
-			if (!scriptUpdate.valid()) continue;
+			sol::protected_function f = script->impl->env["onUpdate"];
 
-			auto res = scriptUpdate(delta);
+			if (!f.valid()) continue;
+
+			auto res = f(delta);
 
 			if (!res.valid()) {
 				// TODO: add error logging
@@ -124,10 +176,11 @@ namespace Yngin {
 		}
 	}
 
-	Script::Script(Context* ctx) {
+	Script::Script(Context* ctx, Scene* scene) {
 		impl = std::make_unique<Impl>();
 
 		impl->ctx = ctx;
+		impl->scene = scene;
 
 		ScriptsManager* scriptsManager = ctx->getScriptsManager();
 		sol::state& lua = scriptsManager->impl->lua;

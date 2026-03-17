@@ -316,6 +316,18 @@ int main() {
 		
 		Yngin.Context:setMaxFPS(60)
 		
+		function onReady()
+			print("onReady()")
+		end
+
+		function onSceneActive()
+			print("onSceneActive()")
+		end
+
+		function onSceneInactive()
+			print("onSceneInactive()")
+		end
+		
 		function onUpdate(dt)
 			local mousePos = Yngin.InputSystem:getMousePosition()
 			print(mousePos.x, mousePos.y, "FPS:", math.floor(1 / dt + 0.5))

@@ -2,6 +2,8 @@
 #include <Yngin/Rendering/Cameras.h>
 #include <stdexcept>
 #include "Scenes_Internal.h"
+#include <Yngin/Scripting/Scripting.h>
+#include "../../Scripting/Scripting_Internal.h"
 
 namespace Yngin {
 	ScenesManager::ScenesManager(Context* ctx) {
@@ -86,7 +88,12 @@ namespace Yngin {
 	}
 
 	void ScenesManager::setActive(uint32_t sceneId) {
-		impl->activeScene = getScene(sceneId);
+		Scene* scene = getScene(sceneId);
+		if (scene == impl->activeScene) return;
+
+		impl->ctx->getScriptsManager()->impl->onSceneInactive();
+		impl->activeScene = scene;
+		impl->ctx->getScriptsManager()->impl->onSceneActive();
 	}
 
 	void ScenesManager::setActive(Scene* scene) {

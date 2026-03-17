@@ -152,6 +152,7 @@ namespace Yngin {
 		if (getStatus() != CONTEXT_STATUS::WAITING_FOR_READY) return;
 		impl->scriptsManager->impl->onReady();
 		impl->status = CONTEXT_STATUS::RUNNING;
+		impl->scriptsManager->impl->onSceneActive();
 	}
 
 	void Context::update(bool swap) {

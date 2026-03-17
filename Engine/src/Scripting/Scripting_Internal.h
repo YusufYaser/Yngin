@@ -10,6 +10,7 @@ namespace Yngin {
 	struct Script::Impl {
 		Context* ctx;
 		uint32_t id;
+		Scene* scene;
 
 		sol::environment env;
 	};
@@ -26,6 +27,8 @@ namespace Yngin {
 		std::map<uint32_t, std::unique_ptr<Script>> scripts;
 
 		void onReady();
+		void onSceneActive();
+		void onSceneInactive();
 		void onUpdate();
 
 		uint32_t nextId = 0;

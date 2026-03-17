@@ -4,6 +4,7 @@
 
 namespace Yngin {
 	class Context;
+	class Scene;
 
 	class Script {
 	public:
@@ -14,7 +15,7 @@ namespace Yngin {
 		friend class ScriptsManager;
 		friend struct std::default_delete<Script>;
 
-		Script(Context* ctx);
+		Script(Context* ctx, Scene* scene);
 		~Script();
 
 		struct Impl;
@@ -24,6 +25,7 @@ namespace Yngin {
 	class ScriptsManager {
 	public:
 		Script* createScript(const char* script, uint32_t id = -1, bool override = false);
+		Script* createScript(Scene* scene, const char* script, uint32_t id = -1, bool override = false);
 		void deleteScript(uint32_t id);
 		void deleteScript(Script* script);
 
@@ -39,6 +41,7 @@ namespace Yngin {
 		friend class Context;
 		friend struct std::default_delete<ScriptsManager>;
 		friend class Script;
+		friend class ScenesManager;
 
 		ScriptsManager(Context* ctx);
 		~ScriptsManager();
