@@ -4,6 +4,8 @@
 #include <vector>
 #include <map>
 
+#define BIND(CLASS, NAME) #NAME, &CLASS::NAME
+
 namespace Yngin {
 	struct Script::Impl {
 		Context* ctx;
@@ -16,7 +18,10 @@ namespace Yngin {
 		Context* ctx;
 		sol::state lua;
 
-		void bindTypes();
+		void bind();
+		void bindGlmTypes();
+		void bindYnginTypes();
+		void createYnginTable();
 
 		std::map<uint32_t, std::unique_ptr<Script>> scripts;
 

@@ -290,7 +290,13 @@
     <ClCompile Include="src\Scripting\Scripting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scripting\Script_Context_Setup.cpp">
+    <ClCompile Include="src\Scripting\Binding\GlmTypesBinding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Binding\YnginTypesBinding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Binding\YnginTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

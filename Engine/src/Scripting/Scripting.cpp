@@ -13,6 +13,12 @@ namespace Yngin {
 
 	ScriptsManager::~ScriptsManager() = default;
 
+	void ScriptsManager::Impl::bind() {
+		bindGlmTypes();
+		bindYnginTypes();
+		createYnginTable();
+	}
+
 	Script* ScriptsManager::createScript(const char* scriptData, uint32_t id, bool override) {
 		if (id != -1) {
 			if (getScript(id) != nullptr) {
