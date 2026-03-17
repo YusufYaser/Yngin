@@ -13,6 +13,8 @@ namespace Yngin {
 		Scene* scene;
 
 		sol::environment env;
+
+		void createScriptTable();
 	};
 
 	struct ScriptsManager::Impl {

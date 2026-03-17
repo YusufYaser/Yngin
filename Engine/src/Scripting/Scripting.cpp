@@ -40,8 +40,9 @@ namespace Yngin {
 		Script* script = new Script(impl->ctx, scene);
 		impl->nextId = std::max(impl->nextId, id + 1);
 		script->impl->id = id;
-
 		impl->scripts[id] = std::unique_ptr<Script>(script);
+
+		script->impl->createScriptTable();
 
 		script->execute(scriptData);
 
@@ -189,6 +190,14 @@ namespace Yngin {
 
 	Script::~Script() {
 		impl->env.clear();
+	}
+
+	void Script::Impl::createScriptTable() {
+		ScriptsManager* scriptsManager = ctx->getScriptsManager();
+		sol::state& lua = scriptsManager->impl->lua;
+		sol::table Script = lua.create_table("Script");
+		Script["ID"] = id;
+		Script["Scene"] = scene;
 	}
 
 	bool Script::execute(const char* script) {
