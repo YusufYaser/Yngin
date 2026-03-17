@@ -310,7 +310,7 @@ int main() {
 	Components::Collider* body3Collider = body3->createComponent<Components::BoxCollider>();
 	body3->setPosition({ 8.5f, 30, 50 });
 
-	scriptsManager->createScript(R"LUA(
+	scriptsManager->createScript(scene, R"LUA(
 		print(Yngin.Context)
 		print(Yngin.InputSystem)
 		
@@ -330,9 +330,26 @@ int main() {
 		
 		function onUpdate(dt)
 			local mousePos = Yngin.InputSystem:getMousePosition()
-			print(mousePos.x, mousePos.y, "FPS:", math.floor(1 / dt + 0.5))
+			--print(mousePos.x, mousePos.y, "FPS:", math.floor(1 / dt + 0.5))
 		end
 		)LUA");
+
+	{
+		std::ifstream scriptFile("assets/camera.lua");
+
+		if (!scriptFile.is_open()) {
+			printf("camera.lua not found\n");
+			Yngin::terminateYngin();
+			return 1;
+		}
+
+		std::stringstream scriptData;
+		scriptData << scriptFile.rdbuf();
+
+		scriptFile.close();
+
+		scriptsManager->createScript(scriptData.str().c_str());
+	}
 
 	ctx->ready();
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
@@ -408,8 +425,6 @@ int main() {
 			defaultCamera = scene2->getCamerasManager()->getCamera(0);
 		}
 
-		window->setCursorLocked(input->isMousePressed(MOUSE_BUTTON::RIGHT));
-
 		if (!tween->isActive(tweenId)) {
 			cycle = (cycle + 1) % 4;
 			tweenId = tween->tweenPos(obj, glm::vec3(glm::vec2(cycle <= 1 ? 0.5f : -0.5f, ((cycle + 3) % 4) <= 1 ? 0.5f : -0.5f) * 3.0f, -2.0f), tweenSettings);
@@ -429,61 +444,6 @@ int main() {
 			githubImg->setColor(glm::vec4(0.75f));
 		} else {
 			githubImg->setColor(glm::vec4(1.0f));
-		}
-
-		double delta = ctx->getDeltaTime();
-
-		if (input->isMouseJustPressed(MOUSE_BUTTON::RIGHT)) {
-			oldMousePos = input->getMousePosition(true);
-		}
-
-		if (input->isMousePressed(MOUSE_BUTTON::RIGHT)) {
-			glm::vec3 o = defaultCamera->getOrientation();
-			glm::ivec2 m = input->getMousePosition(true) - oldMousePos;
-			oldMousePos = input->getMousePosition(true);
-
-			float senstivity = 0.002f;
-
-			float yaw = atan2(o.x, o.y);
-			float pitch = asin(o.z);
-
-			o.x = cos(pitch) * sin(yaw + m.x * senstivity);
-			o.y = cos(pitch) * cos(yaw + m.x * senstivity);
-			o.z = sin(pitch - m.y * senstivity);
-
-			defaultCamera->setOrientation(o);
-
-			glm::vec3 forward = glm::normalize(o);
-			glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0, 0, 1)));
-			glm::vec3 realUp = glm::cross(forward, right);
-
-			glm::vec3 change = {};
-
-			if (input->isKeyPressed(Yngin::KEY::W)) {
-				change += forward;
-			}
-			if (input->isKeyPressed(Yngin::KEY::S)) {
-				change -= forward;
-			}
-			if (input->isKeyPressed(Yngin::KEY::D)) {
-				change += right;
-			}
-			if (input->isKeyPressed(Yngin::KEY::A)) {
-				change -= right;
-			}
-			if (input->isKeyPressed(Yngin::KEY::Q)) {
-				change += realUp;
-			}
-			if (input->isKeyPressed(Yngin::KEY::E)) {
-				change -= realUp;
-			}
-
-			float speed = 5.0f;
-			if (input->isKeyPressed(Yngin::KEY::LSHIFT)) {
-				speed *= 1.5f;
-			}
-
-			defaultCamera->setPosition(defaultCamera->getPosition() + change * (float)delta * speed);
 		}
 
 		ctx->update();
