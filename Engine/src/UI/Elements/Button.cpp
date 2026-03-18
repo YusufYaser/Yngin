@@ -34,19 +34,19 @@ namespace Yngin::UI {
 		return impl->image.get();
 	}
 
-	glm::ivec4 Button::getHoverColor() {
+	glm::vec4 Button::getHoverColor() {
 		return impl->hoverColor;
 	}
 
-	void Button::setHoverColor(glm::ivec4 color) {
+	void Button::setHoverColor(glm::vec4 color) {
 		impl->hoverColor = color;
 	}
 
-	glm::ivec4 Button::getClickColor() {
+	glm::vec4 Button::getClickColor() {
 		return impl->clickColor;
 	}
 
-	void Button::setClickColor(glm::ivec4 color) {
+	void Button::setClickColor(glm::vec4 color) {
 		impl->clickColor = color;
 	}
 

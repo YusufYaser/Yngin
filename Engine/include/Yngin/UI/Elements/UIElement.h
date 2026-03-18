@@ -46,6 +46,7 @@ namespace Yngin {
 			UIElement* getParent() const;
 			template<typename T>
 			T* getParent() const;
+			void setParent(uint32_t newParentId);
 			void setParent(UIElement* newParent);
 
 			std::vector<UIElement*> getChildren() const;
@@ -56,7 +57,7 @@ namespace Yngin {
 
 			UIElement* createChild();
 			template<typename T>
-			T* createChild();
+			T* createChild(uint32_t customId = -1, bool override = false);
 
 			void deleteChild(uint32_t childId);
 			void deleteChild(UIElement* child);

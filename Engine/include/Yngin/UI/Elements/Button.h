@@ -15,11 +15,11 @@ namespace Yngin {
 			Text* getTextElement();
 			Image* getImage();
 
-			glm::ivec4 getHoverColor();
-			void setHoverColor(glm::ivec4 color);
+			glm::vec4 getHoverColor();
+			void setHoverColor(glm::vec4 color);
 
-			glm::ivec4 getClickColor();
-			void setClickColor(glm::ivec4 color);
+			glm::vec4 getClickColor();
+			void setClickColor(glm::vec4 color);
 
 		private:
 			friend class UIElement;

@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <Yngin/UI/Elements/UIElement.h>
 
 namespace Yngin {
 	namespace GameData {
@@ -8,7 +9,8 @@ namespace Yngin {
 				SCENE,
 				GAMEOBJECT,
 				COMPONENT,
-				CAMERA
+				CAMERA,
+				UIELEMENT
 			};
 
 			enum COMPONENT_TYPE : uint8_t {
@@ -80,6 +82,53 @@ namespace Yngin {
 				float orientation[3];
 				float fov;
 				float weight;
+			};
+
+			struct UIElementData {
+				int id;
+				int parent;
+
+				float positionScale[2];
+				int positionOffset[2];
+
+				float sizeScale[2];
+				int sizeOffset[2];
+
+				float cropStart[2];
+				float cropEnd[2];
+
+				float color[4];
+
+				float pivot[2];
+
+				UI_TYPE type;
+
+				// UI Data
+			};
+
+			struct UIImageData {
+				uint32_t textureId;
+			};
+
+			struct UITextData {
+				int size;
+
+				uint32_t glyphId;
+
+				int spacing[2];
+				bool centered[2];
+
+				size_t textLength;
+
+				// char text[textLength]
+			};
+
+			struct UIButtonData {
+				float hoverColor[4];
+				float clickColor[4];
+
+				// UIImageData imageData;
+				// UITextData textData;
 			};
 
 #pragma pack(pop)

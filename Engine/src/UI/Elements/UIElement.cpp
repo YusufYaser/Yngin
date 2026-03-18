@@ -133,6 +133,10 @@ namespace Yngin::UI {
 	template Text* UIElement::getParent<Text>() const;
 	template Button* UIElement::getParent<Button>() const;
 
+	void UIElement::setParent(uint32_t newParentId) {
+		impl->parent->moveChild(impl->id, newParentId);
+	}
+
 	void UIElement::setParent(UIElement* newParent) {
 		impl->parent->moveChild(impl->id, newParent);
 	}
@@ -142,14 +146,26 @@ namespace Yngin::UI {
 	}
 
 	template<typename T>
-	T* UIElement::createChild() {
+	T* UIElement::createChild(uint32_t id, bool override) {
+		if (impl->mgr) {
+			if (id != -1) {
+				if (impl->mgr->getElement(id) != nullptr) {
+					if (override) {
+						impl->mgr->deleteElement(id);
+					} else {
+						return nullptr;
+					}
+				}
+			} else {
+				id = impl->mgr->impl->nextId;
+			}
+		}
+
 		auto element = std::unique_ptr<T>(new T(impl->ctx, impl->scene, impl->mgr, this));
 
-		uint32_t id = 0;
-		if (impl->mgr) {
-			id = impl->mgr->acquireId();
-		}
 		dynamic_cast<UIElement*>(element.get())->impl->id = id;
+
+		impl->mgr->impl->nextId = std::max(impl->mgr->impl->nextId, id + 1);
 
 		impl->childs[id] = std::move(element);
 		T* obj = dynamic_cast<T*>(impl->childs[id].get());
@@ -160,10 +176,10 @@ namespace Yngin::UI {
 		return obj;
 	}
 
-	template UIElement* UIElement::createChild<UIElement>();
-	template Image* UIElement::createChild<Image>();
-	template Text* UIElement::createChild<Text>();
-	template Button* UIElement::createChild<Button>();
+	template UIElement* UIElement::createChild<UIElement>(uint32_t, bool);
+	template Image* UIElement::createChild<Image>(uint32_t, bool);
+	template Text* UIElement::createChild<Text>(uint32_t, bool);
+	template Button* UIElement::createChild<Button>(uint32_t, bool);
 
 	UIElement* UIElement::getChild(uint32_t childId) const {
 		auto it = impl->childs.find(childId);
@@ -213,6 +229,10 @@ namespace Yngin::UI {
 
 		auto it = impl->childs.find(childId);
 		if (it == impl->childs.end()) return;
+
+		if (it->second->impl->parent == newParent) return;
+
+		it->second->impl->parent = newParent;
 
 		newParent->impl->childs[childId] = std::move(it->second);
 		impl->childs.erase(childId);

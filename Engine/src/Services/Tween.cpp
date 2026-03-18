@@ -118,6 +118,7 @@ namespace Yngin {
 		}
 
 		int Tween::tweenPos(GameObject* obj, glm::vec3 target, const TweenSettings& settings) {
+			if (obj == nullptr) return 0;
 			assert(obj->impl->ctx == Service::impl->ctx);
 
 			if (obj->impl->ctx != Service::impl->ctx) return 0;
@@ -148,6 +149,7 @@ namespace Yngin {
 		}
 
 		int Tween::tweenPos(Camera* obj, glm::vec3 target, const TweenSettings& settings) {
+			if (obj == nullptr) return 0;
 			assert(obj->impl->ctx == Service::impl->ctx);
 
 			if (obj->impl->ctx != Service::impl->ctx) return 0;
