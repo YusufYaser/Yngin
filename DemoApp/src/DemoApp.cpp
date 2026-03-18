@@ -152,7 +152,7 @@ int main() {
 	wall->setPosition({ 0, 0, -5.0f });
 
 	Components::BoxCollider* wallCollider = wall->createComponent<Components::BoxCollider>();
-	wallCollider->setSize(glm::vec3(75, 75, 0.1f));
+	wallCollider->setSize(glm::vec3(1.0f, 1.0f, 0.1f));
 	wallCollider->setOffset({ 0, 0, -0.05f });
 
 	{
@@ -201,12 +201,6 @@ int main() {
 
 	Services::Tween* tween = ctx->getService<Services::Tween>();
 
-	Services::TweenSettings tweenSettings = {
-		.duration = 2.0f,
-		.function = Services::TWEEN_FUNCTION::EASE_INOUT
-	};
-
-	int tweenId = 0;
 	int cycle = 0;
 	int currentScene = 0;
 
@@ -310,9 +304,16 @@ int main() {
 	Components::Collider* body3Collider = body3->createComponent<Components::BoxCollider>();
 	body3->setPosition({ 8.5f, 30, 50 });
 
+	scriptsManager->createScript();
+
 	scriptsManager->createScript(scene, R"LUA(
-		print(Yngin.Context)
-		print(Yngin.InputSystem)
+		for k, v in pairs(Yngin) do
+			print("Yngin." .. k, "\t", v)
+		end
+		
+		for k, v in pairs(Script) do
+			print("Script." .. k, "\t", v)
+		end
 		
 		Yngin.Context:setMaxFPS(60)
 		
@@ -339,6 +340,23 @@ int main() {
 
 		if (!scriptFile.is_open()) {
 			printf("camera.lua not found\n");
+			Yngin::terminateYngin();
+			return 1;
+		}
+
+		std::stringstream scriptData;
+		scriptData << scriptFile.rdbuf();
+
+		scriptFile.close();
+
+		scriptsManager->createScript(scriptData.str().c_str());
+	}
+
+	{
+		std::ifstream scriptFile("assets/cube_movement.lua");
+
+		if (!scriptFile.is_open()) {
+			printf("cube_movement.lua not found\n");
 			Yngin::terminateYngin();
 			return 1;
 		}
@@ -423,15 +441,6 @@ int main() {
 		} else if (currentScene == 1) {
 			scene2->activate();
 			defaultCamera = scene2->getCamerasManager()->getCamera(0);
-		}
-
-		if (!tween->isActive(tweenId)) {
-			cycle = (cycle + 1) % 4;
-			tweenId = tween->tweenPos(obj, glm::vec3(glm::vec2(cycle <= 1 ? 0.5f : -0.5f, ((cycle + 3) % 4) <= 1 ? 0.5f : -0.5f) * 3.0f, -2.0f), tweenSettings);
-		}
-
-		if (input->isKeyJustPressed(Yngin::KEY::SPACE)) {
-			tween->setPaused(tweenId, !tween->isPaused(tweenId));
 		}
 
 		if (githubImg->isClicked()) {
