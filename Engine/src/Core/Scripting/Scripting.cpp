@@ -3,6 +3,7 @@
 #include "Scripting_Internal.h"
 #include <Yngin/Core/Context.h>
 #include <Yngin/Core/Scenes.h>
+#include <stdio.h>
 
 namespace Yngin {
 	ScriptsManager::ScriptsManager(Context* ctx) {
@@ -77,9 +78,18 @@ namespace Yngin {
 				script->impl->byteCode = byteCode;
 
 				sol::set_environment(script->impl->env, func);
-				func();
+
+				sol::protected_function_result res = func();
+
+				if (!res.valid()) {
+					sol::error error = res;
+
+					printf("[Yngin] [Script #%i] Error while loading script: %s\n", id, error.what());
+				}
 			} else {
-				// TODO: add error logging
+				sol::error error = chunk;
+
+				printf("[Yngin] [Script #%i] Error while loading script: %s\n", id, error.what());
 			}
 		}
 
@@ -90,7 +100,9 @@ namespace Yngin {
 				auto res = scriptReady();
 
 				if (!res.valid()) {
-					// TODO: add error logging
+					sol::error error = res;
+
+					printf("[Yngin] [Script #%i] Error while invoking onReady(): %s\n", id, error.what());
 				}
 			}
 		}
@@ -130,8 +142,8 @@ namespace Yngin {
 	bool ScriptsManager::execute(const char* script) {
 		try {
 			impl->lua.script(script);
-		} catch (sol::error) {
-			// TODO: add error logging
+		} catch (sol::error error) {
+			printf("[Yngin] [ScriptsManager] Error while executing code globally: %s\n", error.what());
 			return false;
 		}
 		return true;
@@ -147,7 +159,9 @@ namespace Yngin {
 			auto res = f();
 
 			if (!res.valid()) {
-				// TODO: add error logging
+				sol::error error = res;
+
+				printf("[Yngin] [Script #%i] Error while invoking onReady(): %s\n", id, error.what());
 			}
 		}
 	}
@@ -169,7 +183,9 @@ namespace Yngin {
 			auto res = f(delta);
 
 			if (!res.valid()) {
-				// TODO: add error logging
+				sol::error error = res;
+
+				printf("[Yngin] [Script #%i] Error while invoking onSceneActive(): %s\n", id, error.what());
 			}
 		}
 	}
@@ -191,7 +207,9 @@ namespace Yngin {
 			auto res = f(delta);
 
 			if (!res.valid()) {
-				// TODO: add error logging
+				sol::error error = res;
+
+				printf("[Yngin] [Script #%i] Error while invoking onSceneInactive(): %s\n", id, error.what());
 			}
 		}
 	}
@@ -213,7 +231,9 @@ namespace Yngin {
 			auto res = f(delta);
 
 			if (!res.valid()) {
-				// TODO: add error logging
+				sol::error error = res;
+
+				printf("[Yngin] [Script #%i] Error while invoking onUpdate(): %s\n", id, error.what());
 			}
 		}
 	}
@@ -268,8 +288,8 @@ namespace Yngin {
 		sol::state& lua = scriptsManager->impl->lua;
 		try {
 			lua.script(script, impl->env);
-		} catch (sol::error) {
-			// TODO: add error logging
+		} catch (sol::error error) {
+			printf("[Yngin] [Script #%i] Error while executing code: %s\n", impl->id, error.what());
 			return false;
 		}
 		return true;

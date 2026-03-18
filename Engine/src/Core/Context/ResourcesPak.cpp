@@ -132,6 +132,9 @@ namespace Yngin {
 				sol::load_result chunk = impl->scriptsManager->impl->lua.load(std::string_view(bytes.data(), bytes.size()));
 
 				if (!chunk.valid()) {
+					sol::error error = chunk;
+
+					printf("[Yngin] [Script #%i] Error while loading script from resources: %s\n", scriptData.id, error.what());
 					break;
 				}
 
@@ -140,7 +143,13 @@ namespace Yngin {
 				sol::protected_function func = chunk;
 				sol::set_environment(script->impl->env, func);
 
-				func();
+				sol::protected_function_result res = func();
+
+				if (!res.valid()) {
+					sol::error error = res;
+
+					printf("[Yngin] [Script #%i] Error while loading script from resources:: %s\n", scriptData.id, error.what());
+				}
 			}
 			}
 		}
