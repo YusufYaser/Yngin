@@ -11,6 +11,9 @@ namespace Yngin {
 		Context* getContext();
 		Scene* getScene();
 
+		bool isEnabled() const;
+		void setEnabled(bool enabled);
+
 		// execute code within the script environments
 		bool execute(const char* script);
 
@@ -28,6 +31,9 @@ namespace Yngin {
 	class ScriptsManager {
 	public:
 		Context* getContext();
+
+		void setScriptsEnabled(bool enabled);
+		bool areScriptsEnabled() const;
 
 		Script* createScript(const char* script, uint32_t id = -1, bool override = false);
 		Script* createScript(Scene* scene, const char* script, uint32_t id = -1, bool override = false);

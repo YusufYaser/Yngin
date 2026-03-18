@@ -18,6 +18,14 @@ namespace Yngin {
 		return impl->ctx;
 	}
 
+	void ScriptsManager::setScriptsEnabled(bool enabled) {
+		impl->scriptsEnabled = enabled;
+	}
+
+	bool ScriptsManager::areScriptsEnabled() const {
+		return impl->scriptsEnabled;
+	}
+
 	void ScriptsManager::Impl::bind() {
 		bindGlmTypes();
 		bindYnginTypes();
@@ -106,6 +114,7 @@ namespace Yngin {
 
 	void ScriptsManager::Impl::onReady() {
 		for (auto& [id, script] : scripts) {
+			if (!script->impl->enabled) continue;
 			sol::protected_function f = script->impl->env["onReady"];
 
 			if (!f.valid()) continue;
@@ -125,6 +134,7 @@ namespace Yngin {
 		Scene* activeScene = ctx->getScenesManager()->getActive();
 
 		for (auto& [id, script] : scripts) {
+			if (!script->impl->enabled) continue;
 			if (script->impl->scene != activeScene || script->impl->scene == nullptr) continue;
 
 			sol::protected_function f = script->impl->env["onSceneActive"];
@@ -146,6 +156,7 @@ namespace Yngin {
 		Scene* activeScene = ctx->getScenesManager()->getActive();
 
 		for (auto& [id, script] : scripts) {
+			if (!script->impl->enabled) continue;
 			if (script->impl->scene != activeScene || script->impl->scene == nullptr) continue;
 
 			sol::protected_function f = script->impl->env["onSceneInactive"];
@@ -167,6 +178,7 @@ namespace Yngin {
 		Scene* activeScene = ctx->getScenesManager()->getActive();
 
 		for (auto& [id, script] : scripts) {
+			if (!script->impl->enabled) continue;
 			if (script->impl->scene != activeScene && script->impl->scene != nullptr) continue;
 
 			sol::protected_function f = script->impl->env["onUpdate"];
@@ -204,6 +216,14 @@ namespace Yngin {
 		return impl->scene;
 	}
 
+	bool Script::isEnabled() const {
+		return impl->enabled;
+	}
+
+	void Script::setEnabled(bool enabled) {
+		impl->enabled = enabled;
+	}
+
 	void Script::Impl::createScriptTable() {
 		ScriptsManager* scriptsManager = ctx->getScriptsManager();
 		sol::state& lua = scriptsManager->impl->lua;
@@ -213,6 +233,8 @@ namespace Yngin {
 	}
 
 	bool Script::execute(const char* script) {
+		if (!impl->enabled) return false;
+
 		ScriptsManager* scriptsManager = impl->ctx->getScriptsManager();
 		sol::state& lua = scriptsManager->impl->lua;
 		try {

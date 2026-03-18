@@ -12,6 +12,8 @@ namespace Yngin {
 		uint32_t id;
 		Scene* scene;
 
+		bool enabled = true;
+
 		sol::environment env;
 
 		void createScriptTable();
@@ -20,6 +22,8 @@ namespace Yngin {
 	struct ScriptsManager::Impl {
 		Context* ctx;
 		sol::state lua;
+
+		bool scriptsEnabled = true;
 
 		void bind();
 		void bindGlmTypes();
