@@ -14,7 +14,7 @@
 #include "../Models/Models_Internal.h"
 #include "../Models/DefaultModels/Skybox_Model.h"
 #include "../Models/DefaultModels/Square_Model.h"
-#include "../../Scripting/Scripting_Internal.h"
+#include "../Scripting/Scripting_Internal.h"
 #include <Yngin/Services/Services.h>
 
 namespace Yngin {

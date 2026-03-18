@@ -1,4 +1,4 @@
-#include <Yngin/Scripting/Scripting.h>
+#include <Yngin/Core/Scripting.h>
 #include <sol/sol.hpp>
 #include "Scripting_Internal.h"
 #include <Yngin/Core/Context.h>

@@ -1,10 +1,10 @@
 #include <Yngin/Core/Context.h>
 #include "ResourcesPak.h"
 #include "Context_Internal.h"
-#include "../../Scripting/Scripting_Internal.h"
+#include "../Scripting/Scripting_Internal.h"
 #include <Yngin/Core/Models.h>
 #include <Yngin/Rendering/Textures.h>
-#include <Yngin/Scripting/Scripting.h>
+#include <Yngin/Core/Scripting.h>
 #include <Yngin/Core/Scenes.h>
 #include <sstream>
 #include <glm/gtc/type_ptr.hpp>

@@ -174,10 +174,10 @@
     <ClInclude Include="src\Core\Context\ResourcesPak.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Yngin\Scripting\Scripting.h">
+    <ClInclude Include="include\Yngin\Core\Scripting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scripting\Scripting_Internal.h">
+    <ClInclude Include="src\Core\Scripting\Scripting_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -287,16 +287,16 @@
     <ClCompile Include="src\Core\Context\ResourcesPak.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scripting\Scripting.cpp">
+    <ClCompile Include="src\Core\Scripting\Scripting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scripting\Binding\GlmTypesBinding.cpp">
+    <ClCompile Include="src\Core\Scripting\Binding\GlmTypesBinding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scripting\Binding\YnginTypesBinding.cpp">
+    <ClCompile Include="src\Core\Scripting\Binding\YnginTypesBinding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scripting\Binding\YnginTable.cpp">
+    <ClCompile Include="src\Core\Scripting\Binding\YnginTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

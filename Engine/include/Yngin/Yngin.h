@@ -5,4 +5,3 @@
 #include "Services/Services.h"
 #include "UI/UI.h"
 #include "Physics/Physics.h"
-#include "Scripting/Scripting.h"

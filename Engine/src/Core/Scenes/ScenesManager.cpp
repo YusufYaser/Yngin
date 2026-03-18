@@ -2,8 +2,8 @@
 #include <Yngin/Rendering/Cameras.h>
 #include <stdexcept>
 #include "Scenes_Internal.h"
-#include <Yngin/Scripting/Scripting.h>
-#include "../../Scripting/Scripting_Internal.h"
+#include <Yngin/Core/Scripting.h>
+#include "../Scripting/Scripting_Internal.h"
 
 namespace Yngin {
 	ScenesManager::ScenesManager(Context* ctx) {

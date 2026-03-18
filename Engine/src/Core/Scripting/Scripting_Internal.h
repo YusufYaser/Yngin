@@ -1,5 +1,5 @@
 #pragma once
-#include <Yngin/Scripting/Scripting.h>
+#include <Yngin/Core/Scripting.h>
 #include <sol/sol.hpp>
 #include <vector>
 #include <map>

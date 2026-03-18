@@ -4,3 +4,4 @@
 #include "Scenes.h"
 #include "Models.h"
 #include "InputSystem.h"
+#include "Scripting.h"

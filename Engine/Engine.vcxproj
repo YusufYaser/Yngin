@@ -23,7 +23,7 @@
     <ClInclude Include="include\Yngin\Components\Light.h" />
     <ClInclude Include="include\Yngin\Components\RigidBody.h" />
     <ClInclude Include="include\Yngin\Core\InputSystem.h" />
-    <ClInclude Include="include\Yngin\Scripting\Scripting.h" />
+    <ClInclude Include="include\Yngin\Core\Scripting.h" />
     <ClInclude Include="src\Core\Context\ResourcesPak.h" />
     <ClInclude Include="src\Core\Scenes\ScenePak.h" />
     <ClInclude Include="include\Yngin\Physics\Physics.h" />
@@ -70,7 +70,7 @@
     <ClInclude Include="src\Rendering\Shaders\Sources\World_Shader_Source.h" />
     <ClInclude Include="src\Rendering\Textures\Textures_Internal.h" />
     <ClInclude Include="src\Core\Window\Window_Internal.h" />
-    <ClInclude Include="src\Scripting\Scripting_Internal.h" />
+    <ClInclude Include="src\Core\Scripting\Scripting_Internal.h" />
     <ClInclude Include="src\Services\Services_Internal.h" />
     <ClInclude Include="src\UI\Elements\UI_Elements_Internal.h" />
     <ClInclude Include="src\UI\UI_Internal.h" />
@@ -104,10 +104,10 @@
     <ClCompile Include="src\Rendering\Textures\Texture.cpp" />
     <ClCompile Include="src\Rendering\Textures\TexturesManager.cpp" />
     <ClCompile Include="src\Core\Window\Window.cpp" />
-    <ClCompile Include="src\Scripting\Binding\GlmTypesBinding.cpp" />
-    <ClCompile Include="src\Scripting\Binding\YnginTable.cpp" />
-    <ClCompile Include="src\Scripting\Binding\YnginTypesBinding.cpp" />
-    <ClCompile Include="src\Scripting\Scripting.cpp" />
+    <ClCompile Include="src\Core\Scripting\Binding\GlmTypesBinding.cpp" />
+    <ClCompile Include="src\Core\Scripting\Binding\YnginTable.cpp" />
+    <ClCompile Include="src\Core\Scripting\Binding\YnginTypesBinding.cpp" />
+    <ClCompile Include="src\Core\Scripting\Scripting.cpp" />
     <ClCompile Include="src\Services\Service.cpp" />
     <ClCompile Include="src\Services\Tween.cpp" />
     <ClCompile Include="src\UI\Elements\Button.cpp" />
