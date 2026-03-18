@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <Yngin/Core/Context.h>
 #include <Yngin/Core/Scenes.h>
+#include <Yngin/Core/InputSystem.h>
 #include <Yngin/Rendering/Cameras.h>
 #include <fstream>
 #include <sstream>
@@ -10,8 +11,6 @@
 #endif
 
 using namespace Yngin;
-
-void handleCameraMovement(Yngin::Camera* camera);
 
 void error(const char* text) {
 #ifdef _WIN32
@@ -61,9 +60,23 @@ int main() {
 
 	Camera* camera = scene->getCamerasManager()->getCamera(0);
 
+	InputSystem* input = ctx->getInputSystem();
+
+	bool consoleEnabled = false;
 	ctx->ready();
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
-		handleCameraMovement(camera);
+#ifdef _WIN32
+		if (!consoleEnabled && input->isKeyJustPressed(KEY::F4)) {
+			if (AllocConsole()) {
+				consoleEnabled = true;
+				FILE* fDummy;
+				freopen_s(&fDummy, "CONOUT$", "w", stdout);
+				freopen_s(&fDummy, "CONOUT$", "w", stderr);
+				freopen_s(&fDummy, "CONIN$", "r", stdin);
+			}
+		}
+#endif
+
 		ctx->update();
 	}
 
