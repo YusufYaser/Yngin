@@ -56,7 +56,32 @@ namespace Yngin {
 
 		script->impl->createScriptTable();
 
-		script->execute(scriptData);
+		if (scriptData != "") {
+			sol::load_result chunk = impl->lua.load(scriptData);
+
+			if (chunk.valid()) {
+				sol::protected_function func = chunk;
+
+				lua_State* state = impl->lua.lua_state();
+				func.push(state);
+
+				std::vector<char> byteCode;
+
+				lua_dump(state, [](lua_State*, const void* p, size_t size, void* out) -> int {
+					std::vector<char>* bc = static_cast<std::vector<char>*>(out);
+					const char* data = static_cast<const char*>(p);
+					bc->insert(bc->end(), data, data + size);
+					return 0;
+					}, &byteCode, 0);
+
+				script->impl->byteCode = byteCode;
+
+				sol::set_environment(script->impl->env, func);
+				func();
+			} else {
+				// TODO: add error logging
+			}
+		}
 
 		if (impl->ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 			sol::protected_function scriptReady = script->impl->env["onReady"];
@@ -214,6 +239,10 @@ namespace Yngin {
 
 	Scene* Script::getScene() {
 		return impl->scene;
+	}
+
+	uint32_t Script::getId() {
+		return impl->id;
 	}
 
 	bool Script::isEnabled() const {

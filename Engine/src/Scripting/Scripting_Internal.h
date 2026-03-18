@@ -17,6 +17,8 @@ namespace Yngin {
 		sol::environment env;
 
 		void createScriptTable();
+
+		std::vector<char> byteCode;
 	};
 
 	struct ScriptsManager::Impl {
