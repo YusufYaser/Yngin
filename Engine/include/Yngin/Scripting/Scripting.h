@@ -8,6 +8,9 @@ namespace Yngin {
 
 	class Script {
 	public:
+		Context* getContext();
+		Scene* getScene();
+
 		// execute code within the script environments
 		bool execute(const char* script);
 
@@ -24,6 +27,8 @@ namespace Yngin {
 
 	class ScriptsManager {
 	public:
+		Context* getContext();
+
 		Script* createScript(const char* script, uint32_t id = -1, bool override = false);
 		Script* createScript(Scene* scene, const char* script, uint32_t id = -1, bool override = false);
 		void deleteScript(uint32_t id);

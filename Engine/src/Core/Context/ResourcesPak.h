@@ -14,7 +14,8 @@ namespace Yngin {
 			};
 
 			enum TEXTURE_FORMAT : uint8_t {
-				PNG
+				PNG,
+				PATH
 			};
 
 #pragma pack(push, 1)

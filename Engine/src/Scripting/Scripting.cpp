@@ -14,6 +14,10 @@ namespace Yngin {
 
 	ScriptsManager::~ScriptsManager() = default;
 
+	Context* ScriptsManager::getContext() {
+		return impl->ctx;
+	}
+
 	void ScriptsManager::Impl::bind() {
 		bindGlmTypes();
 		bindYnginTypes();
@@ -190,6 +194,14 @@ namespace Yngin {
 
 	Script::~Script() {
 		impl->env.clear();
+	}
+
+	Context* Script::getContext() {
+		return impl->ctx;
+	}
+
+	Scene* Script::getScene() {
+		return impl->scene;
 	}
 
 	void Script::Impl::createScriptTable() {

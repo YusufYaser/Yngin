@@ -74,20 +74,35 @@ namespace Yngin {
 				settings.filterMin = pakTexData.filterMin;
 				settings.filterMag = pakTexData.filterMag;
 
-				TextureData data{};
-
 				char* pakBytes = new char[pakTexData.dataSize];
 				s.read(pakBytes, pakTexData.dataSize);
-				unsigned char* bytes = stbi_load_from_memory((const stbi_uc*)pakBytes, int(pakTexData.dataSize), &data.width, &data.height, &data.numCh, 0);
+
+				switch (pakTexData.dataFormat) {
+				case TEXTURE_FORMAT::PNG:
+				{
+					TextureData data{};
+
+					unsigned char* bytes = stbi_load_from_memory((const stbi_uc*)pakBytes, int(pakTexData.dataSize), &data.width, &data.height, &data.numCh, 0);
+
+					if (!bytes) break;
+
+					data.bytes = (const char*)bytes;
+
+					impl->texturesManager->createTexture(data, settings, pakTexData.id, true);
+
+					stbi_image_free(bytes);
+
+					break;
+				}
+
+				case TEXTURE_FORMAT::PATH:
+				{
+					impl->texturesManager->createTexture(pakBytes, settings, pakTexData.id, true);
+					break;
+				}
+				}
+
 				delete[] pakBytes;
-
-				if (!bytes) break;
-
-				data.bytes = (const char*)bytes;
-
-				impl->texturesManager->createTexture(data, settings, pakTexData.id, true);
-
-				stbi_image_free(bytes);
 
 				break;
 			}
