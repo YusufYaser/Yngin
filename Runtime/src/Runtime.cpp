@@ -13,18 +13,30 @@
 using namespace Yngin;
 
 void error(const char* text) {
+	printf("%s\n", text);
 #ifdef _WIN32
 	MessageBoxA(NULL, text, "Yngin Runtime", MB_ICONERROR | MB_OK);
-#else
-	printf(text);
 #endif
 }
 
 int main() {
+#ifdef _WIN32
+	bool consoleShown = false;
+
+	if (AllocConsole()) {
+		FILE* fDummy;
+		freopen_s(&fDummy, "CONOUT$", "w", stdout);
+		freopen_s(&fDummy, "CONOUT$", "w", stderr);
+		freopen_s(&fDummy, "CONIN$", "r", stdin);
+	}
+
+	ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif
+
 	Yngin::initializeYngin();
 
 	if (!Yngin::isYnginInitialized()) {
-		error("Failed to initialize Yngin\n");
+		error("Failed to initialize Yngin");
 	}
 
 	std::ifstream scenePak("scene.pak", std::ios::binary);
@@ -62,18 +74,12 @@ int main() {
 
 	InputSystem* input = ctx->getInputSystem();
 
-	bool consoleEnabled = false;
 	ctx->ready();
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 #ifdef _WIN32
-		if (!consoleEnabled && input->isKeyJustPressed(KEY::F4)) {
-			if (AllocConsole()) {
-				consoleEnabled = true;
-				FILE* fDummy;
-				freopen_s(&fDummy, "CONOUT$", "w", stdout);
-				freopen_s(&fDummy, "CONOUT$", "w", stderr);
-				freopen_s(&fDummy, "CONIN$", "r", stdin);
-			}
+		if (input->isKeyJustPressed(KEY::F4)) {
+			consoleShown = !consoleShown;
+			ShowWindow(GetConsoleWindow(), consoleShown ? SW_SHOW : SW_HIDE);
 		}
 #endif
 
