@@ -73,7 +73,7 @@ namespace Yngin {
 					const char* data = static_cast<const char*>(p);
 					bc->insert(bc->end(), data, data + size);
 					return 0;
-					}, &byteCode, 0);
+					}, &byteCode, 1);
 
 				script->impl->byteCode = byteCode;
 
