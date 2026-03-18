@@ -15,5 +15,9 @@ namespace Yngin {
 		Yngin["Renderer"] = ctx->getRenderer();
 		Yngin["PhysicsEngine"] = ctx->getPhysicsEngine();
 		Yngin["InputSystem"] = ctx->getInputSystem();
+
+		sol::table Services = lua.create_table();
+		Yngin["Services"] = Services;
+		Services["Tween"] = ctx->getService<Services::Tween>();
 	}
 }

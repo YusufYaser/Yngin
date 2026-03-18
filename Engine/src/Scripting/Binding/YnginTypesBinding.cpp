@@ -357,7 +357,7 @@ namespace Yngin {
 			>(),
 
 			BIND(Services::TweenSettings, duration),
-			BIND(Services::TweenSettings, function)
+			"tweenFunction", &Services::TweenSettings::function
 		);
 
 		lua.new_usertype<Services::Tween>("Tween",
