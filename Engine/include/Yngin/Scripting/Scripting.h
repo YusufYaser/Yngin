@@ -22,6 +22,7 @@ namespace Yngin {
 	private:
 		friend class ScriptsManager;
 		friend struct std::default_delete<Script>;
+		friend class Context;
 
 		Script(Context* ctx, Scene* scene);
 		~Script();

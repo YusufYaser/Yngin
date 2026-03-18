@@ -1,8 +1,11 @@
 #include <Yngin/Core/Context.h>
 #include "ResourcesPak.h"
 #include "Context_Internal.h"
+#include "../../Scripting/Scripting_Internal.h"
 #include <Yngin/Core/Models.h>
 #include <Yngin/Rendering/Textures.h>
+#include <Yngin/Scripting/Scripting.h>
+#include <Yngin/Core/Scenes.h>
 #include <sstream>
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
@@ -106,6 +109,39 @@ namespace Yngin {
 
 				break;
 			}
+
+			case OP::SCRIPT:
+			{
+				ScriptData scriptData;
+				R(scriptData, ScriptData);
+
+				// 20 MB
+				if (scriptData.dataSize > 2e+7) {
+					stop = true;
+					break;
+				}
+
+				std::vector<char> bytes(scriptData.dataSize);
+				s.read(bytes.data(), scriptData.dataSize);
+
+				Script* script = impl->scriptsManager->createScript("", scriptData.id, true);
+
+				script->impl->enabled = scriptData.enabled;
+				// TODO: add scene
+
+				sol::load_result chunk = impl->scriptsManager->impl->lua.load(std::string_view(bytes.data(), bytes.size()));
+
+				if (!chunk.valid()) {
+					break;
+				}
+
+				script->impl->byteCode = bytes;
+
+				sol::protected_function func = chunk;
+				sol::set_environment(script->impl->env, func);
+
+				func();
+			}
 			}
 		}
 	}
@@ -199,6 +235,25 @@ namespace Yngin {
 			impl->texturesManager->setActive(activatedTexture->getId());
 		} else {
 			impl->texturesManager->setActive(0);
+		}
+
+		for (auto script : impl->scriptsManager->getScripts()) {
+			op.op = OP::SCRIPT;
+			W(op, Operation);
+
+			ScriptData scriptData{};
+			scriptData.id = script->getId();
+			if (script->getScene() != nullptr) {
+				scriptData.scene = script->getScene()->getId();
+			} else {
+				scriptData.scene = -1;
+			}
+			scriptData.enabled = script->isEnabled();
+			scriptData.dataSize = script->impl->byteCode.size();
+
+			W(scriptData, ScriptData);
+
+			s.write(script->impl->byteCode.data(), scriptData.dataSize);
 		}
 
 		std::string_view sv = s.view();

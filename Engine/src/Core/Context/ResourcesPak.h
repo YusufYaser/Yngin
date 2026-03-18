@@ -10,7 +10,8 @@ namespace Yngin {
 		namespace ResourcesPak {
 			enum OP : uint8_t {
 				MODEL,
-				TEXTURE
+				TEXTURE,
+				SCRIPT
 			};
 
 			enum TEXTURE_FORMAT : uint8_t {
@@ -56,6 +57,15 @@ namespace Yngin {
 				TEXTURE_FORMAT dataFormat;
 
 				// unsigned char bytes[dataSize]
+			};
+
+			struct ScriptData {
+				uint32_t id;
+				bool enabled;
+				uint32_t scene;
+				size_t dataSize;
+
+				// unsigned char byteCode[dataSize]
 			};
 
 #pragma pack(pop)
