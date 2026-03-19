@@ -10,7 +10,7 @@ namespace Yngin {
 		impl = std::make_unique<Impl>();
 
 		impl->ctx = ctx;
-		impl->lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::table, sol::lib::string);
+		impl->lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::table, sol::lib::string, sol::lib::os);
 	}
 
 	ScriptsManager::~ScriptsManager() = default;

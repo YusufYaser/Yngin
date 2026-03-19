@@ -199,23 +199,6 @@ int main() {
 
 	ctx->setMaxFPS(120);
 
-	Services::Tween* tween = ctx->getService<Services::Tween>();
-
-	int cycle = 0;
-	int currentScene = 0;
-
-	int textShown = 0;
-	std::string testText;
-
-	for (int c = 0; c < 256; c++) {
-		if (c % 16 == 0) testText += '\n';
-		if (c == '\n' || c == '\r') {
-			testText += ' ';
-			continue;
-		}
-		testText += c;
-	}
-
 	UI::Text* text = globalUiMgr->getRootElement()->createChild<UI::Text>();
 	text->setText("");
 	text->setTextSize(24);
@@ -369,6 +352,23 @@ int main() {
 		scriptsManager->createScript(scriptData.str().c_str());
 	}
 
+	{
+		std::ifstream scriptFile("assets/UI.lua");
+
+		if (!scriptFile.is_open()) {
+			printf("UI.lua not found\n");
+			Yngin::terminateYngin();
+			return 1;
+		}
+
+		std::stringstream scriptData;
+		scriptData << scriptFile.rdbuf();
+
+		scriptFile.close();
+
+		scriptsManager->createScript(scriptData.str().c_str());
+	}
+
 	ctx->ready();
 	while (ctx->getStatus() == CONTEXT_STATUS::RUNNING) {
 		ctx->makeCurrent();
@@ -414,46 +414,7 @@ int main() {
 			window->setFullscreen(!window->isFullscreen());
 		}
 
-		if (input->isKeyJustPressed(Yngin::KEY::NUM_1)) {
-			textShown = (textShown + 1) % 2;
-		}
-
-		if (button->isClicked()) {
-			currentScene = (currentScene + 1) % 2;
-		}
-
-		if (textShown == 0) {
-			glm::vec3 pos = defaultCamera->getPosition();
-
-			text->setText(std::format("Yngin Demo\nFPS: {}\nPos: {}, {}, {}",
-				round(1 / ctx->getDeltaTime()),
-				round(pos.x),
-				round(pos.y),
-				round(pos.z)
-			));
-		} else if (textShown == 1) {
-			text->setText(testText);
-		}
-
-		if (currentScene == 0) {
-			scene->activate();
-			defaultCamera = scene->getCamerasManager()->getCamera(0);
-		} else if (currentScene == 1) {
-			scene2->activate();
-			defaultCamera = scene2->getCamerasManager()->getCamera(0);
-		}
-
-		if (githubImg->isClicked()) {
-			system("start https://github.com/YusufYaser/Yngin");
-		}
-
-		if (githubImg->isHeld()) {
-			githubImg->setColor(glm::vec4(0.5f));
-		} else if (githubImg->isHovered()) {
-			githubImg->setColor(glm::vec4(0.75f));
-		} else {
-			githubImg->setColor(glm::vec4(1.0f));
-		}
+		defaultCamera = ctx->getScenesManager()->getActive()->getCamerasManager()->getCamera(0);
 
 		ctx->update();
 	}
