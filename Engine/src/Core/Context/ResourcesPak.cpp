@@ -140,8 +140,14 @@ namespace Yngin {
 
 				script->impl->byteCode = bytes;
 
+				lua_State* L = impl->scriptsManager->impl->lua.lua_state();
+
 				sol::protected_function func = chunk;
-				sol::set_environment(script->impl->env, func);
+
+				func.push(L);
+				script->impl->env.push(L);
+				lua_setupvalue(L, -2, 1);
+				lua_pop(L, 1);
 
 				sol::protected_function_result res = func();
 

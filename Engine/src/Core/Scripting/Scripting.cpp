@@ -63,12 +63,12 @@ namespace Yngin {
 			if (chunk.valid()) {
 				sol::protected_function func = chunk;
 
-				lua_State* state = impl->lua.lua_state();
-				func.push(state);
+				lua_State* L = impl->lua.lua_state();
+				func.push(L);
 
 				std::vector<char> byteCode;
 
-				lua_dump(state, [](lua_State*, const void* p, size_t size, void* out) -> int {
+				lua_dump(L, [](lua_State*, const void* p, size_t size, void* out) -> int {
 					std::vector<char>* bc = static_cast<std::vector<char>*>(out);
 					const char* data = static_cast<const char*>(p);
 					bc->insert(bc->end(), data, data + size);
