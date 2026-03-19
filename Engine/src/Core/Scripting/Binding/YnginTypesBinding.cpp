@@ -362,6 +362,7 @@ namespace Yngin {
 
 		lua.new_usertype<Services::Tween>("Tween",
 			sol::no_constructor,
+			sol::base_classes, sol::bases<Services::Service>(),
 
 			BIND(Services::Tween, cancel),
 			BIND(Services::Tween, isActive),
@@ -377,10 +378,182 @@ namespace Yngin {
 			BIND(Services::Tween, setPaused)
 		);
 
+
+		// UI
+		lua.new_enum<UI_TYPE>("UI_TYPE", {
+			{ "NONE", UI_TYPE::NONE },
+			{ "IMAGE", UI_TYPE::IMAGE },
+			{ "TEXT", UI_TYPE::TEXT },
+			{ "BUTTON", UI_TYPE::BUTTON },
+			});
+
+		lua.new_usertype<UI::UITransform>("UITransform",
+			sol::no_constructor,
+
+			BIND(UI::UITransform, xScale),
+			BIND(UI::UITransform, xOffset),
+			BIND(UI::UITransform, yScale),
+			BIND(UI::UITransform, yOffset)
+		);
+
+		lua.new_usertype<UI::UICrop>("UICrop",
+			sol::no_constructor,
+
+			BIND(UI::UICrop, start),
+			BIND(UI::UICrop, end)
+		);
+
+		lua.new_usertype<UI::UIElement>("UIElement",
+			sol::no_constructor,
+
+			BIND(UI::UIElement, getId),
+			BIND(UI::UIElement, getScene),
+			BIND(UI::UIElement, getType),
+
+			"getParent", [](const UI::UIElement& self) { return self.getParent(); },
+			"getParentImage", &UI::UIElement::getParent<UI::Image>,
+			"getParentText", &UI::UIElement::getParent<UI::Text>,
+			"getParentButton", &UI::UIElement::getParent<UI::Button>,
+
+			"getChild", [](const UI::UIElement& self, uint32_t id) { return self.getChild(id); },
+			"getChildImage", &UI::UIElement::getChild<UI::Image>,
+			"getChildText", &UI::UIElement::getChild<UI::Text>,
+			"getChildButton", &UI::UIElement::getChild<UI::Button>,
+
+			// TODO: add custom IDs
+			"createChild", [](UI::UIElement& self) { return self.createChild(); },
+			"createChildImage", &UI::UIElement::createChild<UI::Image>,
+			"createChildText", &UI::UIElement::createChild<UI::Text>,
+			"createChildButton", &UI::UIElement::createChild<UI::Button>,
+
+			BIND(UI::UIElement, getChildren),
+
+			"deleteChild", sol::overload(
+				static_cast<void(UI::UIElement::*)(uint32_t)>(&UI::UIElement::deleteChild),
+				static_cast<void(UI::UIElement::*)(UI::UIElement*)>(&UI::UIElement::deleteChild)
+			),
+
+			"moveChild", sol::overload(
+				static_cast<void(UI::UIElement::*)(uint32_t, UI::UIElement*)>(&UI::UIElement::moveChild),
+
+				static_cast<void(UI::UIElement::*)(UI::UIElement*, UI::UIElement*)>(&UI::UIElement::moveChild),
+
+				static_cast<void(UI::UIElement::*)(UI::UIElement*, uint32_t)>(&UI::UIElement::moveChild),
+
+				static_cast<void(UI::UIElement::*)(uint32_t, uint32_t)>(&UI::UIElement::moveChild)
+			),
+
+			BIND(UI::UIElement, setPosition),
+			BIND(UI::UIElement, getPosition),
+
+			BIND(UI::UIElement, setSize),
+			BIND(UI::UIElement, getSize),
+
+			BIND(UI::UIElement, isHovered),
+
+			"isClicked", sol::overload(
+				[](const UI::UIElement& self) {
+					return self.isClicked();
+				},
+
+				static_cast<bool(UI::UIElement::*)(const MOUSE_BUTTON&) const>(&UI::UIElement::isClicked)
+			),
+			"isHeld", sol::overload(
+				[](const UI::UIElement& self) {
+					return self.isHeld();
+				},
+
+				static_cast<bool(UI::UIElement::*)(const MOUSE_BUTTON&) const>(&UI::UIElement::isHeld)
+			),
+
+			BIND(UI::UIElement, setCrop),
+			BIND(UI::UIElement, getCrop),
+
+			BIND(UI::UIElement, setColor),
+			BIND(UI::UIElement, getColor),
+
+			BIND(UI::UIElement, setPivot),
+			BIND(UI::UIElement, getPivot)
+		);
+
+		lua.new_usertype<UI::Image>("Image",
+			sol::no_constructor,
+			sol::base_classes, sol::bases<UI::UIElement>(),
+
+			"setTexture", sol::overload(
+				static_cast<void(UI::Image::*)(uint32_t)>(&UI::Image::setTexture),
+				static_cast<void(UI::Image::*)(Texture*)>(&UI::Image::setTexture)
+			),
+			BIND(UI::Image, getTexture)
+		);
+
+		lua.new_usertype<UI::Text>("Text",
+			sol::no_constructor,
+			sol::base_classes, sol::bases<UI::UIElement>(),
+
+			BIND(UI::Text, setText),
+			BIND(UI::Text, getText),
+
+			BIND(UI::Text, setTextSize),
+			BIND(UI::Text, getTextSize),
+
+			"setGlyph", sol::overload(
+				static_cast<void(UI::Text::*)(uint32_t)>(&UI::Text::setGlyph),
+				static_cast<void(UI::Text::*)(Texture*)>(&UI::Text::setGlyph)
+			),
+			BIND(UI::Text, getGlyph),
+
+			BIND(UI::Text, setSpacing),
+			BIND(UI::Text, getSpacing),
+
+			BIND(UI::Text, getTextDimensions),
+			BIND(UI::Text, getTextDimensionsPixels),
+
+			BIND(UI::Text, setTextCentered),
+			BIND(UI::Text, isTextCentered)
+		);
+
+		lua.new_usertype<UI::Button>("Button",
+			sol::no_constructor,
+			sol::base_classes, sol::bases<UI::UIElement>(),
+
+			BIND(UI::Button, getTextElement),
+			BIND(UI::Button, getImage),
+
+			BIND(UI::Button, getHoverColor),
+			BIND(UI::Button, setHoverColor),
+
+			BIND(UI::Button, getClickColor),
+			BIND(UI::Button, setClickColor)
+		);
+
+		lua.new_usertype<UI::UIManager>("UIManager",
+			sol::no_constructor,
+
+			BIND(UI::UIManager, getRootElement),
+			BIND(UI::UIManager, getElement),
+
+			BIND(UI::UIManager, getElementsCount),
+			BIND(UI::UIManager, getElements),
+
+			"deleteElement", sol::overload(
+				static_cast<void(UI::UIManager::*)(uint32_t)>(&UI::UIManager::deleteElement),
+				static_cast<void(UI::UIManager::*)(UI::UIElement*)>(&UI::UIManager::deleteElement)
+			),
+
+			"setDefaultTextGlyph", sol::overload(
+				static_cast<void(UI::UIManager::*)(uint32_t)>(&UI::UIManager::setDefaultTextGlyph),
+				static_cast<void(UI::UIManager::*)(Texture*)>(&UI::UIManager::setDefaultTextGlyph)
+			),
+
+			BIND(UI::UIManager, getDefaultTextGlyph)
+		);
+		lua["Scene"]["getUIManager"] = &Scene::getUIManager;
+		lua["Context"]["getGlobalUIManager"] = &Context::getGlobalUIManager;
+
 		// TODO: add models
 		// TODO: add shaders
 		// TODO: add scripts
 		// TODO: add components
-		// TODO: add UI
 	}
 }
