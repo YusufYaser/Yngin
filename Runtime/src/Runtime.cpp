@@ -39,6 +39,13 @@ int main() {
 		error("Failed to initialize Yngin");
 	}
 
+	std::ifstream corePak("core.pak", std::ios::binary);
+	if (!corePak.is_open()) {
+		error("Failed to open core.pak");
+		Yngin::terminateYngin();
+		return 1;
+	}
+
 	std::ifstream scenePak("scene.pak", std::ios::binary);
 	if (!scenePak.is_open()) {
 		error("Failed to open scene.pak");
@@ -55,6 +62,12 @@ int main() {
 	}
 
 	Context* ctx = new Context();
+
+	std::ostringstream coreBytes(std::ios::binary);
+	coreBytes << corePak.rdbuf();
+	corePak.close();
+	ctx->loadCorePak(coreBytes.str().c_str(), coreBytes.str().size());
+	coreBytes.clear();
 
 	std::ostringstream resourcesBytes(std::ios::binary);
 	resourcesBytes << resourcesPak.rdbuf();

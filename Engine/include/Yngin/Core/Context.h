@@ -48,7 +48,7 @@ namespace Yngin {
 	};
 
 	namespace GameFiles {
-		const int VERSION = 0;
+		const int VERSION = 1;
 	}
 
 	class Context {
@@ -105,6 +105,9 @@ namespace Yngin {
 
 		template <typename T>
 		T* getService() const;
+
+		void loadCorePak(const char* corePakData, size_t size);
+		std::vector<char> generateCorePak();
 
 		void loadResourcesPak(const char* resourcesPakData, size_t size);
 		std::vector<char> generateResourcesPak();

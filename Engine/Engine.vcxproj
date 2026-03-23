@@ -24,6 +24,7 @@
     <ClInclude Include="include\Yngin\Components\RigidBody.h" />
     <ClInclude Include="include\Yngin\Core\InputSystem.h" />
     <ClInclude Include="include\Yngin\Core\Scripting.h" />
+    <ClInclude Include="src\Core\Context\CorePak.h" />
     <ClInclude Include="src\GameFiles\GameFiles.h" />
     <ClInclude Include="src\Core\Context\ResourcesPak.h" />
     <ClInclude Include="src\Core\Scenes\ScenePak.h" />
@@ -79,6 +80,7 @@
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c" />
     <ClCompile Include="deps\implementations\stb.c" />
+    <ClCompile Include="src\Core\Context\CorePak.cpp" />
     <ClCompile Include="src\GameFiles\PakGenerators.cpp" />
     <ClCompile Include="src\Components\Collider.cpp" />
     <ClCompile Include="src\Components\Light.cpp" />

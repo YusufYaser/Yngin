@@ -349,7 +349,7 @@ int main() {
 
 		scriptFile.close();
 
-		scriptsManager->createScript(scriptData.str().c_str());
+		scriptsManager->createScript(scene, scriptData.str().c_str());
 	}
 
 	{
@@ -387,6 +387,24 @@ int main() {
 				std::ofstream file("resources.pak", std::ios::binary);
 				if (file) {
 					std::vector<char> bytes = ctx->generateResourcesPak();
+					file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+					file.close();
+				}
+			}
+
+			{
+				std::ofstream file("core.pak", std::ios::binary);
+				if (file) {
+					std::vector<char> bytes = ctx->generateCorePak();
+					file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+					file.close();
+				}
+			}
+
+			{
+				std::ofstream file("core.pak", std::ios::binary);
+				if (file) {
+					std::vector<char> bytes = ctx->generateCorePak();
 					file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
 					file.close();
 				}
