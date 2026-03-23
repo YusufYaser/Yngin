@@ -10,6 +10,9 @@ namespace Yngin {
 	struct Context::Impl {
 		CONTEXT_STATUS status = CONTEXT_STATUS::INITIALIZING;
 
+		ContextSettings initialSettings;
+		void applySettings(const ContextSettings& settings);
+
 		std::unique_ptr<Window> window;
 
 		std::unique_ptr<ModelsManager> modelsManager;

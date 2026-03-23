@@ -30,6 +30,14 @@ namespace Yngin {
 
 		while (!stop && R(op, Operation)) {
 			switch (op.op) {
+			case OP::GAMEDATA:
+			{
+				GameData gameData;
+				R(gameData, GameData);
+				impl->applySettings(gameData.contextSettings);
+				break;
+			}
+
 			case OP::SCRIPT:
 			{
 				stop = !Loaders::scriptsManager(s, impl->scriptsManager.get());
@@ -71,6 +79,14 @@ namespace Yngin {
 		header.version = VERSION;
 
 		W(header, Header);
+
+		op.op = OP::GAMEDATA;
+		W(op, Operation);
+
+		GameData gameData{};
+		gameData.contextSettings = impl->initialSettings;
+
+		W(gameData, GameData);
 
 		Generators::scriptsManager(s, impl->scriptsManager.get(), nullptr);
 		Generators::uiManager(s, impl->uiManager.get());

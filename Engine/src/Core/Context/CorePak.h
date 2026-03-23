@@ -13,6 +13,10 @@ namespace Yngin {
 
 			static_assert(sizeof(Header) == 11, "Invalid core.pak header size");
 
+			struct GameData {
+				ContextSettings contextSettings;
+			};
+
 #pragma pack(pop)
 		}
 	}

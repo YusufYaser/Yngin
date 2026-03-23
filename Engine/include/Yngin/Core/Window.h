@@ -12,7 +12,7 @@ namespace Yngin {
 		glm::ivec2 size = { 800, 600 };
 		bool fullScreen = false;
 		glm::ivec2 position = { 100, 100 };
-		const char* title = "Yngin Context";
+		char title[32] = "Yngin Context";
 		bool hasTitleBar = true;
 	};
 

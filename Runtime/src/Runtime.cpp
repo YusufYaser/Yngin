@@ -54,18 +54,6 @@ int main() {
 	ctx->loadGamePak(gameBytes.str().c_str(), gameBytes.str().size());
 	gameBytes.clear();
 
-	Scene* scene = ctx->getScenesManager()->getScenes()[0];
-
-	if (!scene) {
-		error("There are no scenes in this game");
-		Yngin::terminateYngin();
-		return 1;
-	}
-
-	scene->activate();
-
-	Camera* camera = scene->getCamerasManager()->getCamera(0);
-
 	InputSystem* input = ctx->getInputSystem();
 
 	ctx->ready();

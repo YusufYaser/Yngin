@@ -28,7 +28,8 @@ namespace Yngin {
 			GAMEOBJECT,
 			COMPONENT,
 			CAMERA,
-			UIELEMENT
+			UIELEMENT,
+			GAMEDATA
 		};
 
 		struct Operation {

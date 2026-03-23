@@ -37,7 +37,9 @@ namespace Yngin {
 
 		auto& m = *impl;
 
-		m.window = std::unique_ptr<Window>(new Window(this, settings.windowSettings));
+		m.initialSettings = settings;
+
+		m.window = std::unique_ptr<Window>(new Window(this));
 
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -108,11 +110,20 @@ namespace Yngin {
 
 		m.scriptsManager->impl->bind();
 
+		m.applySettings(settings);
+
 		impl->status = CONTEXT_STATUS::WAITING_FOR_READY;
 	}
 
 	Context::~Context() {
 		cleanup();
+	}
+
+	void Context::Impl::applySettings(const ContextSettings& settings) {
+		window->setSize(settings.windowSettings.size);
+		window->setPosition(settings.windowSettings.position);
+		window->setFullscreen(settings.windowSettings.fullScreen);
+		window->setTitle(settings.windowSettings.title);
 	}
 
 	void Context::close() {
