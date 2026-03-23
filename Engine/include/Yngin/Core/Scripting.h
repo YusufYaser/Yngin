@@ -6,6 +6,11 @@ namespace Yngin {
 	class Context;
 	class Scene;
 
+	namespace GameFiles {
+		class Generators;
+		class Loaders;
+	}
+
 	class Script {
 	public:
 		Context* getContext();
@@ -23,6 +28,8 @@ namespace Yngin {
 		friend class ScriptsManager;
 		friend struct std::default_delete<Script>;
 		friend class Context;
+		friend class GameFiles::Generators;
+		friend class GameFiles::Loaders;
 
 		Script(Context* ctx, Scene* scene);
 		~Script();
@@ -56,6 +63,7 @@ namespace Yngin {
 		friend struct std::default_delete<ScriptsManager>;
 		friend class Script;
 		friend class ScenesManager;
+		friend class GameFiles::Loaders;
 
 		ScriptsManager(Context* ctx);
 		~ScriptsManager();

@@ -6,14 +6,8 @@ namespace Yngin {
 	enum class TEXTURE_FILTER : uint8_t;
 	enum class MODEL_FRONT_FACE : uint8_t;
 
-	namespace GameData {
+	namespace GameFiles {
 		namespace ResourcesPak {
-			enum OP : uint8_t {
-				MODEL,
-				TEXTURE,
-				SCRIPT
-			};
-
 			enum TEXTURE_FORMAT : uint8_t {
 				PNG,
 				PATH
@@ -27,10 +21,6 @@ namespace Yngin {
 			};
 
 			static_assert(sizeof(Header) == 16, "Invalid resources.pak header size");
-
-			struct Operation {
-				OP op;
-			};
 
 			struct PakModelData {
 				uint32_t id;

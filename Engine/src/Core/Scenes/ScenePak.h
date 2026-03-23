@@ -3,16 +3,8 @@
 #include <Yngin/UI/Elements/UIElement.h>
 
 namespace Yngin {
-	namespace GameData {
+	namespace GameFiles {
 		namespace ScenePak {
-			enum OP : uint8_t {
-				SCENE,
-				GAMEOBJECT,
-				COMPONENT,
-				CAMERA,
-				UIELEMENT
-			};
-
 			enum COMPONENT_TYPE : uint8_t {
 				MESH,
 				LIGHT,
@@ -28,10 +20,6 @@ namespace Yngin {
 			};
 
 			static_assert(sizeof(Header) == 12, "Invalid scene.pak header size");
-
-			struct Operation {
-				OP op;
-			};
 
 			struct SceneData {
 				int skyboxTexture;

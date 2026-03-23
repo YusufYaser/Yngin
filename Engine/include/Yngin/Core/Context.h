@@ -47,7 +47,7 @@ namespace Yngin {
 		WindowSettings windowSettings{};
 	};
 
-	namespace GameData {
+	namespace GameFiles {
 		const int VERSION = 0;
 	}
 

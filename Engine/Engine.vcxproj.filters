@@ -180,6 +180,9 @@
     <ClInclude Include="src\Core\Scripting\Scripting_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\GameFiles\GameFiles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c">
@@ -297,6 +300,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Scripting\Binding\YnginTable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameFiles\PakGenerators.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameFiles\PakLoaders.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

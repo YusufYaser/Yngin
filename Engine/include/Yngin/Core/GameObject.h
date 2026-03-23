@@ -16,6 +16,10 @@ namespace Yngin {
 		class Renderer;
 	}
 
+	namespace GameFiles {
+		class Generators;
+	}
+
 	class GameObject {
 	public:
 		uint32_t getId() const;
@@ -71,6 +75,7 @@ namespace Yngin {
 		friend struct std::default_delete<GameObject>;
 		friend class Physics::PhysicsEngine;
 		friend class Rendering::Renderer;
+		friend class GameFiles::Generators;
 
 		GameObject(Context* ctx, Scene* scene, GameObject* parent);
 		~GameObject();

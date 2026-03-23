@@ -11,12 +11,13 @@
 #include <glad/glad.h>
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
+#include "../../GameFiles/GameFiles.h"
 
 #define R(name, type) s.read(reinterpret_cast<char*>(&name), sizeof(type))
 #define W(name, type) s.write(reinterpret_cast<const char*>(&name), sizeof(type))
 
-using namespace Yngin::GameData;
-using namespace Yngin::GameData::ResourcesPak;
+using namespace Yngin::GameFiles;
+using namespace Yngin::GameFiles::ResourcesPak;
 
 namespace Yngin {
 	void Context::loadResourcesPak(const char* bytes, size_t size) {
@@ -35,127 +36,20 @@ namespace Yngin {
 			switch (op.op) {
 			case OP::MODEL:
 			{
-				PakModelData pakModelData{};
-				R(pakModelData, PakModelData);
-
-				ModelData modelData{};
-				modelData.frontFace = pakModelData.frontFace;
-
-				for (int i = 0; i < pakModelData.verticesCount; i++) {
-					ModelVertexData v{};
-					R(v, ModelVertexData);
-					modelData.vertices.push_back(Vertex{
-						.pos = glm::make_vec3(v.position),
-						.texCoord = glm::make_vec2(v.texCoord),
-						.normal = glm::make_vec3(v.normal)
-						});
-				}
-
-				for (int i = 0; i < pakModelData.indicesCount; i++) {
-					uint32_t index = 0;
-					R(index, uint32_t);
-					modelData.indices.push_back(index);
-				}
-
-				impl->modelsManager->createModel(modelData, pakModelData.id, true);
+				stop = !Loaders::modelsManager(s, impl->modelsManager.get());
 				break;
 			}
 
 			case OP::TEXTURE:
 			{
-				PakTextureData pakTexData{};
-				R(pakTexData, PakTextureData);
-
-				// 100 MB
-				if (pakTexData.dataSize > 1e+8) {
-					stop = true;
-					break;
-				}
-
-				TextureSettings settings{};
-				settings.wrap = pakTexData.wrap;
-				settings.filterMin = pakTexData.filterMin;
-				settings.filterMag = pakTexData.filterMag;
-
-				char* pakBytes = new char[pakTexData.dataSize];
-				s.read(pakBytes, pakTexData.dataSize);
-
-				switch (pakTexData.dataFormat) {
-				case TEXTURE_FORMAT::PNG:
-				{
-					TextureData data{};
-
-					unsigned char* bytes = stbi_load_from_memory((const stbi_uc*)pakBytes, int(pakTexData.dataSize), &data.width, &data.height, &data.numCh, 0);
-
-					if (!bytes) break;
-
-					data.bytes = (const char*)bytes;
-
-					impl->texturesManager->createTexture(data, settings, pakTexData.id, true);
-
-					stbi_image_free(bytes);
-
-					break;
-				}
-
-				case TEXTURE_FORMAT::PATH:
-				{
-					impl->texturesManager->createTexture(pakBytes, settings, pakTexData.id, true);
-					break;
-				}
-				}
-
-				delete[] pakBytes;
-
+				stop = !Loaders::texturesManager(s, impl->texturesManager.get());
 				break;
 			}
 
 			case OP::SCRIPT:
 			{
-				ScriptData scriptData;
-				R(scriptData, ScriptData);
-
-				// 20 MB
-				if (scriptData.dataSize > 2e+7) {
-					stop = true;
-					break;
-				}
-
-				std::vector<char> bytes(scriptData.dataSize);
-				s.read(bytes.data(), scriptData.dataSize);
-
-				Script* script = impl->scriptsManager->createScript("", scriptData.id, true);
-
-				script->impl->enabled = scriptData.enabled;
-				// TODO: add scene
-
-				sol::load_result chunk = impl->scriptsManager->impl->lua.load(std::string_view(bytes.data(), bytes.size()));
-
-				if (!chunk.valid()) {
-					sol::error error = chunk;
-
-					printf("[Yngin] [Script #%i] Error while loading script from resources: %s\n", scriptData.id, error.what());
-					break;
-				}
-
-				script->impl->byteCode = bytes;
-
-				lua_State* L = impl->scriptsManager->impl->lua.lua_state();
-
-				sol::protected_function func = chunk;
-
-				func.push(L);
-				script->impl->env.push(L);
-				lua_setupvalue(L, -2, 1);
-				lua_pop(L, 1);
-
-				sol::protected_function_result res = func();
-
-				if (!res.valid()) {
-					sol::error error = res;
-
-					printf("[Yngin] [Script #%i] Error while loading script from resources:: %s\n", scriptData.id, error.what());
-				}
+				stop = !Loaders::scriptsManager(s, impl->scriptsManager.get());
+				break;
 			}
 			}
 		}
@@ -172,104 +66,9 @@ namespace Yngin {
 
 		W(header, Header);
 
-		for (auto& model : impl->modelsManager->getModels()) {
-			op.op = OP::MODEL;
-			W(op, Operation);
-
-			const ModelData& data = model->getModelData();
-
-			PakModelData pakModelData{};
-			pakModelData.id = model->getId();
-			pakModelData.frontFace = data.frontFace;
-			pakModelData.verticesCount = uint8_t(data.vertices.size());
-			pakModelData.indicesCount = uint8_t(data.indices.size());
-
-			W(pakModelData, PakModelData);
-
-			for (auto& vertex : data.vertices) {
-				ModelVertexData v{};
-				std::memcpy(v.position, glm::value_ptr(vertex.pos), sizeof(float) * 3);
-				std::memcpy(v.texCoord, glm::value_ptr(vertex.texCoord), sizeof(float) * 2);
-				std::memcpy(v.normal, glm::value_ptr(vertex.normal), sizeof(float) * 3);
-				W(v, ModelVertexData);
-			}
-
-			for (auto& index : data.indices) {
-				W(index, uint32_t);
-			}
-		}
-
-		Texture* activatedTexture = impl->texturesManager->getActive();
-		for (auto texture : impl->texturesManager->getTextures()) {
-			op.op = OP::TEXTURE;
-			W(op, Operation);
-
-			const TextureSettings& settings = texture->getTextureSettings();
-
-			PakTextureData pakTexData{};
-			pakTexData.id = texture->getId();
-			pakTexData.wrap = settings.wrap;
-			pakTexData.filterMin = settings.filterMin;
-			pakTexData.filterMag = settings.filterMag;
-
-			pakTexData.dataSize = 0;
-
-			int width, height;
-			texture->activate();
-
-			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
-			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
-
-			char* pixels = new char[width * height * 4];
-
-			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-
-			struct WriteContext {
-				size_t size;
-				std::vector<char> buf;
-			} context;
-
-			stbi_write_png_to_func([](void* context, void* data, int size) {
-				auto ctx = (WriteContext*)context;
-
-				ctx->size += size;
-
-				const char* bytes = static_cast<const char*>(data);
-
-				ctx->buf.insert(ctx->buf.end(), bytes, bytes + size);
-				}, &context, width, height, 4, pixels, 0);
-
-			pakTexData.dataSize = context.buf.size();
-			W(pakTexData, PakTextureData);
-
-			s.write(context.buf.data(), pakTexData.dataSize);
-
-			delete[] pixels;
-		}
-		if (activatedTexture != nullptr) {
-			impl->texturesManager->setActive(activatedTexture->getId());
-		} else {
-			impl->texturesManager->setActive(0);
-		}
-
-		for (auto script : impl->scriptsManager->getScripts()) {
-			op.op = OP::SCRIPT;
-			W(op, Operation);
-
-			ScriptData scriptData{};
-			scriptData.id = script->getId();
-			if (script->getScene() != nullptr) {
-				scriptData.scene = script->getScene()->getId();
-			} else {
-				scriptData.scene = -1;
-			}
-			scriptData.enabled = script->isEnabled();
-			scriptData.dataSize = script->impl->byteCode.size();
-
-			W(scriptData, ScriptData);
-
-			s.write(script->impl->byteCode.data(), scriptData.dataSize);
-		}
+		Generators::modelsManager(s, impl->modelsManager.get());
+		Generators::texturesManager(s, impl->texturesManager.get());
+		Generators::scriptsManager(s, impl->scriptsManager.get());
 
 		std::string_view sv = s.view();
 		return std::vector<char>(sv.begin(), sv.end());
