@@ -115,10 +115,12 @@ namespace Yngin::GameFiles {
 		return true;
 	}
 
-	bool Generators::scriptsManager(std::ostream& s, const ScriptsManager* mgr) {
+	bool Generators::scriptsManager(std::ostream& s, const ScriptsManager* mgr, Scene* scene) {
 		Operation op;
 
 		for (auto script : mgr->getScripts()) {
+			if (script->getScene() != scene) continue;
+
 			op.op = OP::SCRIPT;
 			W(op, Operation);
 

@@ -152,8 +152,22 @@ namespace Yngin {
 				stop = !Loaders::uiManager(s, uiManager.get(), uiElementsParentsQueue);
 				break;
 			}
+
+			case OP::SCRIPT:
+			{
+				stop = !Loaders::scriptsManager(s, ctx->getScriptsManager());
+				break;
+			}
+
+			default:
+			{
+				stop = true;
+				break;
+			}
 			}
 		}
+
+		if (stop) return;
 
 		for (auto& kvp : gameObjectsParentsQueue) {
 			int objId = kvp.first;
@@ -196,6 +210,7 @@ namespace Yngin {
 		Generators::gameObjectsManager(s, impl->gameObjectsManager.get());
 		Generators::camerasManager(s, impl->camerasManager.get());
 		Generators::uiManager(s, impl->uiManager.get());
+		Generators::scriptsManager(s, impl->ctx->getScriptsManager(), this);
 
 		std::string_view sv = s.view();
 		return std::vector<char>(sv.begin(), sv.end());

@@ -51,8 +51,16 @@ namespace Yngin {
 				stop = !Loaders::scriptsManager(s, impl->scriptsManager.get());
 				break;
 			}
+
+			default:
+			{
+				stop = true;
+				break;
+			}
 			}
 		}
+
+		if (stop) return;
 	}
 
 	std::vector<char> Context::generateResourcesPak() {
@@ -68,7 +76,7 @@ namespace Yngin {
 
 		Generators::modelsManager(s, impl->modelsManager.get());
 		Generators::texturesManager(s, impl->texturesManager.get());
-		Generators::scriptsManager(s, impl->scriptsManager.get());
+		Generators::scriptsManager(s, impl->scriptsManager.get(), nullptr);
 
 		std::string_view sv = s.view();
 		return std::vector<char>(sv.begin(), sv.end());
