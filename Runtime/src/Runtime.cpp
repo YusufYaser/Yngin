@@ -39,47 +39,28 @@ int main() {
 		error("Failed to initialize Yngin");
 	}
 
-	std::ifstream corePak("core.pak", std::ios::binary);
-	if (!corePak.is_open()) {
-		error("Failed to open core.pak");
-		Yngin::terminateYngin();
-		return 1;
-	}
-
-	std::ifstream scenePak("scene.pak", std::ios::binary);
-	if (!scenePak.is_open()) {
-		error("Failed to open scene.pak");
-		Yngin::terminateYngin();
-		return 1;
-	}
-
-	std::ifstream resourcesPak("resources.pak", std::ios::binary);
-	if (!scenePak.is_open()) {
-		error("Failed to open resources.pak");
-		scenePak.close();
+	std::ifstream gamePak("game.pak", std::ios::binary);
+	if (!gamePak.is_open()) {
+		error("Failed to open game.pak");
 		Yngin::terminateYngin();
 		return 1;
 	}
 
 	Context* ctx = new Context();
 
-	std::ostringstream coreBytes(std::ios::binary);
-	coreBytes << corePak.rdbuf();
-	corePak.close();
-	ctx->loadCorePak(coreBytes.str().c_str(), coreBytes.str().size());
-	coreBytes.clear();
+	std::ostringstream gameBytes(std::ios::binary);
+	gameBytes << gamePak.rdbuf();
+	gamePak.close();
+	ctx->loadGamePak(gameBytes.str().c_str(), gameBytes.str().size());
+	gameBytes.clear();
 
-	std::ostringstream resourcesBytes(std::ios::binary);
-	resourcesBytes << resourcesPak.rdbuf();
-	resourcesPak.close();
-	ctx->loadResourcesPak(resourcesBytes.str().c_str(), resourcesBytes.str().size());
-	resourcesBytes.clear();
+	Scene* scene = ctx->getScenesManager()->getScenes()[0];
 
-	std::ostringstream sceneBytes(std::ios::binary);
-	sceneBytes << scenePak.rdbuf();
-	scenePak.close();
-	Scene* scene = ctx->getScenesManager()->createScene(sceneBytes.str().c_str(), sceneBytes.str().size(), 0, true);
-	sceneBytes.clear();
+	if (!scene) {
+		error("There are no scenes in this game");
+		Yngin::terminateYngin();
+		return 1;
+	}
 
 	scene->activate();
 

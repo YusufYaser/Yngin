@@ -106,6 +106,9 @@ namespace Yngin {
 		template <typename T>
 		T* getService() const;
 
+		void loadGamePak(const char* gamePakData, size_t size);
+		std::vector<char> generateGamePak();
+
 		void loadCorePak(const char* corePakData, size_t size);
 		std::vector<char> generateCorePak();
 
