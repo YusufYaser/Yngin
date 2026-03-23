@@ -22,66 +22,65 @@ namespace Yngin {
 
 			Scene* activeScene = Service::impl->ctx->getScenesManager()->getActive();
 
-			if (activeScene == nullptr) {
+			if (activeScene != nullptr) {
+				GameObjectsManager* gameObjMgr = activeScene->getGameObjectsManager();
+				CamerasManager* camerasMgr = activeScene->getCamerasManager();
+
 				for (auto& kvp : impl->processes) {
-					impl->processes.erase(kvp.second->id);
-				}
-				return;
-			}
+					TweenProcess* p = kvp.second.get();
 
-			GameObjectsManager* gameObjMgr = activeScene->getGameObjectsManager();
-			CamerasManager* camerasMgr = activeScene->getCamerasManager();
-
-			for (auto& kvp : impl->processes) {
-				TweenProcess* p = kvp.second.get();
-
-				if (gameObjMgr->getGameObject(p->linkedGameObjectId) == nullptr) {
-					toDelete.push_back(p->id);
-					continue;
-				}
-
-				if (camerasMgr->getCamera(p->linkedCameraId) == nullptr) {
-					toDelete.push_back(p->id);
-					continue;
-				}
-
-				double time = Service::impl->ctx->getFrameStartTime();
-				if (p->lastPause != -1) time = p->lastPause;
-
-				float progress = static_cast<float>((time - p->startTime - p->totalPauseTime) / p->duration);
-				if (progress >= 1.0f) {
-					progress = 1.0f;
-					toDelete.push_back(p->id);
-				}
-
-				for (auto& v : p->values) {
-					if (progress >= 1.0f) {
-						if (v.value) *v.value = v.target;
-						if (v.onUpdate) v.onUpdate(v.target);
+					if (gameObjMgr->getGameObject(p->linkedGameObjectId) == nullptr) {
+						toDelete.push_back(p->id);
 						continue;
 					}
 
-					float eased = 0;
-
-					switch (p->function) {
-					case TWEEN_FUNCTION::LINEAR:
-						eased = progress;
-						break;
-					case TWEEN_FUNCTION::EASE_IN:
-						eased = 1 - cos(progress * HALF_PI);
-						break;
-					case TWEEN_FUNCTION::EASE_OUT:
-						eased = sin(progress * HALF_PI);
-						break;
-					case TWEEN_FUNCTION::EASE_INOUT:
-						eased = -(cos(progress * PI) - 1) / 2;
-						break;
+					if (camerasMgr->getCamera(p->linkedCameraId) == nullptr) {
+						toDelete.push_back(p->id);
+						continue;
 					}
 
-					float newValue = v.initial + (v.target - v.initial) * eased;
+					double time = Service::impl->ctx->getFrameStartTime();
+					if (p->lastPause != -1) time = p->lastPause;
 
-					if (v.value) *v.value = newValue;
-					if (v.onUpdate) v.onUpdate(newValue);
+					float progress = static_cast<float>((time - p->startTime - p->totalPauseTime) / p->duration);
+					if (progress >= 1.0f) {
+						progress = 1.0f;
+						toDelete.push_back(p->id);
+					}
+
+					for (auto& v : p->values) {
+						if (progress >= 1.0f) {
+							if (v.value) *v.value = v.target;
+							if (v.onUpdate) v.onUpdate(v.target);
+							continue;
+						}
+
+						float eased = 0;
+
+						switch (p->function) {
+						case TWEEN_FUNCTION::LINEAR:
+							eased = progress;
+							break;
+						case TWEEN_FUNCTION::EASE_IN:
+							eased = 1 - cos(progress * HALF_PI);
+							break;
+						case TWEEN_FUNCTION::EASE_OUT:
+							eased = sin(progress * HALF_PI);
+							break;
+						case TWEEN_FUNCTION::EASE_INOUT:
+							eased = -(cos(progress * PI) - 1) / 2;
+							break;
+						}
+
+						float newValue = v.initial + (v.target - v.initial) * eased;
+
+						if (v.value) *v.value = newValue;
+						if (v.onUpdate) v.onUpdate(newValue);
+					}
+				}
+			} else {
+				for (auto& kvp : impl->processes) {
+					toDelete.push_back(kvp.second->id);
 				}
 			}
 
