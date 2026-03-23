@@ -217,7 +217,7 @@ namespace Yngin::UI {
 		}
 		uint32_t childId = child->getId();
 		impl->childs.erase(childId);
-		impl->scene->getUIManager()->impl->elements.erase(childId);
+		impl->mgr->impl->elements.erase(childId);
 	}
 
 	void UIElement::moveChild(uint32_t childId, UIElement* newParent) {
@@ -243,12 +243,12 @@ namespace Yngin::UI {
 	}
 
 	void UIElement::moveChild(UIElement* child, uint32_t newParentId) {
-		UIElement* newParent = impl->scene->getUIManager()->getElement(newParentId);
+		UIElement* newParent = impl->mgr->getElement(newParentId);
 		if (newParent) moveChild(child->getId(), newParent);
 	}
 
 	void UIElement::moveChild(uint32_t childId, uint32_t newParentId) {
-		UIElement* newParent = impl->scene->getUIManager()->getElement(newParentId);
+		UIElement* newParent = impl->mgr->getElement(newParentId);
 		if (newParent) moveChild(childId, newParent);
 	}
 
