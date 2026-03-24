@@ -70,6 +70,10 @@ namespace Yngin {
 	}
 
 	std::vector<char> Context::generateCorePak() {
+		return generateCorePak(impl->initialSettings);
+	}
+
+	std::vector<char> Context::generateCorePak(const ContextSettings& settings) {
 		std::ostringstream s(std::ios::binary);
 
 		Header header = {};
@@ -84,7 +88,7 @@ namespace Yngin {
 		W(op, Operation);
 
 		GameData gameData{};
-		gameData.contextSettings = impl->initialSettings;
+		gameData.contextSettings = settings;
 
 		W(gameData, GameData);
 

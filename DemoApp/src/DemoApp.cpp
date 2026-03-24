@@ -227,7 +227,7 @@ int main() {
 
 	scene2->setSkyboxTexture(skyboxTex);
 
-	scene2->getGameObjectsManager()->getRootGameObject()->createComponent<Components::Mesh>()->setModel(cubeModel);
+	scene2->getGameObjectsManager()->getRootGameObject()->createChild()->createComponent<Components::Mesh>()->setModel(cubeModel);
 
 	glm::ivec2 oldMousePos = {};
 
@@ -302,6 +302,7 @@ int main() {
 		
 		function onReady()
 			print("onReady()")
+			Yngin.ScenesManager:setActive(0)
 		end
 
 		function onSceneActive()
@@ -402,9 +403,9 @@ int main() {
 			}
 
 			{
-				std::ofstream file("core.pak", std::ios::binary);
+				std::ofstream file("game.pak", std::ios::binary);
 				if (file) {
-					std::vector<char> bytes = ctx->generateCorePak();
+					std::vector<char> bytes = ctx->generateGamePak();
 					file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
 					file.close();
 				}

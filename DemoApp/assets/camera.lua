@@ -16,12 +16,12 @@ function onUpdate(dt)
 
 		local senstivity = 0.002
 
-		local yaw = math.atan2(o.x, o.y);
+		local yaw = math.atan2(o.x, o.y)
 		local pitch = math.asin(o.z)
 
-		o.x = math.cos(pitch) * math.sin(yaw + m.x * senstivity);
-		o.y = math.cos(pitch) * math.cos(yaw + m.x * senstivity);
-		o.z = math.sin(pitch - m.y * senstivity);
+		o.x = math.cos(pitch) * math.sin(yaw + m.x * senstivity)
+		o.y = math.cos(pitch) * math.cos(yaw + m.x * senstivity)
+		o.z = math.sin(math.max(math.min(pitch - m.y * senstivity, 1.57), -1.57))
 
 		camera:setOrientation(o)
 
