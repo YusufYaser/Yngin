@@ -1,4 +1,5 @@
 #pragma once
+#include "Forward.h"
 #include "Core/Core.h"
 #include "Rendering/Rendering.h"
 #include "Components/Components.h"

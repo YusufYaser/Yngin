@@ -1,15 +1,10 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 #include <vector>
 
 namespace Yngin {
-	class Context;
-	class Scene;
-	class Texture;
-
 	namespace UI {
-		class UIElement;
-
 		class UIManager {
 		public:
 			UIElement* getRootElement() const;

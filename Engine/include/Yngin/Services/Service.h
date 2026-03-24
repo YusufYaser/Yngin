@@ -1,4 +1,5 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <Yngin/Core/Context.h>
 #include <memory>
 

@@ -1,9 +1,8 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include "UIElement.h"
 
 namespace Yngin {
-	class Texture;
-
 	namespace UI {
 		class Image : public UIElement {
 		public:

@@ -7,6 +7,8 @@ namespace Yngin {
 	enum class MODEL_FRONT_FACE : uint8_t;
 
 	namespace GameFiles {
+		extern const int VERSION;
+
 		namespace ResourcesPak {
 			enum TEXTURE_FORMAT : uint8_t {
 				PNG,

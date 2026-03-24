@@ -1,30 +1,12 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 #include <glm/vec3.hpp>
 
 namespace Yngin {
-	class CamerasManager;
-	class GameObjectsManager;
-	class GameObject;
-	class Scene;
-	class Context;
-	class Texture;
-
 	struct LightSettings {
 		glm::vec3 ambientLight = glm::vec3(0.1f);
 	};
-
-	namespace UI {
-		class UIManager;
-	};
-
-	namespace Physics {
-		class PhysicsEngine;
-	}
-
-	namespace Rendering {
-		class Renderer;
-	}
 
 	class ScenesManager {
 	public:

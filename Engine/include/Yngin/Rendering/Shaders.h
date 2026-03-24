@@ -1,10 +1,9 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 #include <glm/mat4x4.hpp>
 
 namespace Yngin {
-	class Shader;
-
 	enum class SHADER_TYPE : uint8_t {
 		WORLD = 0,
 		SKYBOX,

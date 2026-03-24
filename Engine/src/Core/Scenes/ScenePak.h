@@ -4,6 +4,8 @@
 
 namespace Yngin {
 	namespace GameFiles {
+		extern const int VERSION;
+
 		namespace ScenePak {
 			enum COMPONENT_TYPE : uint8_t {
 				MESH,

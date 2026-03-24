@@ -1,9 +1,8 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 
 namespace Yngin {
-	class Context;
-
 	namespace Rendering {
 		class Renderer {
 		public:

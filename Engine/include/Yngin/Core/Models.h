@@ -1,4 +1,5 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <memory>
@@ -25,8 +26,6 @@ namespace Yngin {
 		std::vector<uint32_t> indices;
 		MODEL_FRONT_FACE frontFace = MODEL_FRONT_FACE::CCW;
 	};
-
-	class Model;
 
 	class ModelsManager {
 	public:

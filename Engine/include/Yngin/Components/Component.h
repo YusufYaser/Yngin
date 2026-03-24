@@ -1,18 +1,8 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 
 namespace Yngin {
-	class Context;
-	class GameObject;
-
-	namespace Physics {
-		class PhysicsEngine;
-	}
-
-	namespace Rendering {
-		class Renderer;
-	}
-
 	namespace Components {
 		class Component {
 		public:

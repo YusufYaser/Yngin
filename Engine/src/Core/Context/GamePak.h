@@ -3,6 +3,8 @@
 
 namespace Yngin {
 	namespace GameFiles {
+		extern const int VERSION;
+
 		namespace GamePak {
 #pragma pack(push, 1)
 

@@ -1,11 +1,10 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 #include <glm/vec2.hpp>
 #include <vector>
 
 namespace Yngin {
-	class Context;
-
 	enum class TEXTURE_WRAP : uint8_t {
 		REPEAT,
 		CLAMP

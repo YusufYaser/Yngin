@@ -24,6 +24,7 @@
     <ClInclude Include="include\Yngin\Components\RigidBody.h" />
     <ClInclude Include="include\Yngin\Core\InputSystem.h" />
     <ClInclude Include="include\Yngin\Core\Scripting.h" />
+    <ClInclude Include="include\Yngin\Forward.h" />
     <ClInclude Include="src\Core\Context\CorePak.h" />
     <ClInclude Include="src\Core\Context\GamePak.h" />
     <ClInclude Include="src\GameFiles\GameFiles.h" />

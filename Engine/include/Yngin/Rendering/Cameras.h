@@ -1,17 +1,11 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 #include <glm/vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "../Services/Tween.h"
 
 namespace Yngin {
-	class Context;
-	class Scene;
-
-	namespace Rendering {
-		class Renderer;
-	}
-
 	class Camera {
 	public:
 		uint32_t getId() const;

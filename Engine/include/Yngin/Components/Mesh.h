@@ -1,19 +1,11 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include "Component.h"
 
 namespace Yngin {
-	class Context;
-	class GameObject;
-	class Model;
-	class Texture;
-
-	namespace Rendering {
-		class Renderer;
-	}
-
 	namespace Components {
 		class Mesh : public Component {
 		public:

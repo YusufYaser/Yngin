@@ -1,21 +1,11 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <glm/vec3.hpp>
 #include <memory>
 #include "../Services/Tween.h"
 #include <string>
 
 namespace Yngin {
-	class Context;
-	class Scene;
-
-	namespace Physics {
-		class PhysicsEngine;
-	}
-
-	namespace Rendering {
-		class Renderer;
-	}
-
 	namespace GameFiles {
 		class Generators;
 	}

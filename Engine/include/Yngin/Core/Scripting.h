@@ -1,11 +1,9 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 #include <vector>
 
 namespace Yngin {
-	class Context;
-	class Scene;
-
 	namespace GameFiles {
 		class Generators;
 		class Loaders;

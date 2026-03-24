@@ -11,6 +11,8 @@
 
 namespace Yngin {
 	namespace Physics {
+		constexpr float SMALLEST_UNIT = 0.1f;
+
 		PhysicsEngine::PhysicsEngine(Context* ctx) {
 			impl = std::make_unique<Impl>();
 

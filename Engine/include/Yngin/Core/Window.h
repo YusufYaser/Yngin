@@ -1,13 +1,10 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 
-struct GLFWwindow;
-
 namespace Yngin {
-	class Context;
-
 	struct WindowSettings {
 		glm::ivec2 size = { 800, 600 };
 		bool fullScreen = false;

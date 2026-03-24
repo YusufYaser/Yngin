@@ -1,4 +1,5 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
@@ -6,19 +7,12 @@
 #include <string>
 
 namespace Yngin {
-	class Context;
-	class Scene;
-
 	enum class UI_TYPE : uint8_t {
 		NONE,
 		IMAGE,
 		TEXT,
 		BUTTON
 	};
-
-	namespace Rendering {
-		class Renderer;
-	}
 
 	namespace UI {
 		struct UITransform {

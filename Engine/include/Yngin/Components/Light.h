@@ -1,4 +1,5 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 #include <glm/vec3.hpp>
 #include "Component.h"

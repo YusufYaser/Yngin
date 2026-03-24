@@ -13,6 +13,10 @@ using namespace Yngin::GameFiles;
 using namespace Yngin::GameFiles::GamePak;
 
 namespace Yngin {
+	namespace GameFiles {
+		const int VERSION = 1;
+	}
+
 	void Context::loadGamePak(const char* bytes, size_t size) {
 		std::istringstream s(std::string(bytes, size), std::ios::binary);
 

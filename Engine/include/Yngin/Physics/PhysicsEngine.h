@@ -1,18 +1,10 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 #include <glm/vec3.hpp>
 
 namespace Yngin {
-	class Context;
-	class Scene;
-
-	namespace Components {
-		class Collider;
-	}
-
 	namespace Physics {
-		constexpr float SMALLEST_UNIT = 0.1f;
-
 		struct Ray {
 			glm::vec3 origin = {};
 			// The Ray direction must be normalized

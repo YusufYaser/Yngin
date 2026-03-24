@@ -1,13 +1,10 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include "Service.h"
 #include <memory>
 #include <glm/vec3.hpp>
 
 namespace Yngin {
-	class GameObject;
-	class Camera;
-	class Scene;
-
 	namespace Services {
 		enum class TWEEN_FUNCTION : uint8_t {
 			LINEAR = 0,

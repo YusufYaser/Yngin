@@ -1,4 +1,5 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <map>
 #include <memory>
 #include <vector>
@@ -12,28 +13,6 @@ namespace Yngin {
 	void terminateYngin();
 	bool isYnginInitialized();
 
-	class Window;
-	class ModelsManager;
-	class ScenesManager;
-	class TexturesManager;
-	class ShadersManager;
-	class ScriptsManager;
-	struct Vertex;
-	class Model;
-	class InputSystem;
-
-	namespace UI {
-		class UIManager;
-	}
-
-	namespace Physics {
-		class PhysicsEngine;
-	}
-
-	namespace Rendering {
-		class Renderer;
-	}
-
 	enum class CONTEXT_STATUS : uint8_t {
 		RUNNING,
 		INITIALIZING,
@@ -46,10 +25,6 @@ namespace Yngin {
 	struct ContextSettings {
 		WindowSettings windowSettings{};
 	};
-
-	namespace GameFiles {
-		const int VERSION = 1;
-	}
 
 	class Context {
 	public:

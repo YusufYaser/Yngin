@@ -1,16 +1,11 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 #include <glm/vec3.hpp>
 #include "Component.h"
 
 namespace Yngin {
-	class GameObject;
-
-	namespace Physics {
-		class PhysicsEngine;
-	}
-
-	enum class COLLIDER_TYPE {
+	enum class COLLIDER_TYPE : uint8_t {
 		NONE,
 		BOX
 	};

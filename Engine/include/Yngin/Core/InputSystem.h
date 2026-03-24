@@ -1,4 +1,5 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <memory>
 #include <glm/vec2.hpp>
 
@@ -9,7 +10,7 @@ namespace Yngin {
 		MIDDLE
 	};
 
-	enum class KEY {
+	enum class KEY : uint8_t {
 		UNKNOWN = 0,
 
 		A, B, C, D, E, F, G,
