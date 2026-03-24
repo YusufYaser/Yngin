@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 #include "Cube_Model.h"
 #include <fstream>
+#include <sstream>
 
 #include "Editor.h"
 
@@ -81,6 +82,14 @@ Editor::Editor() {
 
 	viewerImage = viewerScene->getUIManager()->getRootElement()->createChild<UI::Image>();
 
+	ctx->getScriptsManager()->createScript(R"LUA(
+	-- Scene Activator
+	
+	function onReady()
+		Yngin.ScenesManager:setActive(0)
+	end
+)LUA");
+
 	ctx->ready();
 
 
@@ -105,6 +114,30 @@ Editor::~Editor() {
 	ctx = nullptr;
 }
 
+void Editor::resetContext() {
+	for (auto& c : ctx->getModelsManager()->getModels()) {
+		ctx->getModelsManager()->deleteModel(c);
+	}
+
+	for (auto& c : ctx->getScenesManager()->getScenes()) {
+		ctx->getScenesManager()->deleteScene(c);
+	}
+
+	for (auto& c : ctx->getTexturesManager()->getTextures()) {
+		if (c->getId() == 0) continue;
+		ctx->getTexturesManager()->deleteTexture(c->getId());
+	}
+
+	for (auto& c : ctx->getGlobalUIManager()->getElements()) {
+		if (c->getId() == 0) continue;
+		ctx->getGlobalUIManager()->deleteElement(c);
+	}
+
+	for (auto& c : ctx->getScriptsManager()->getScripts()) {
+		ctx->getScriptsManager()->deleteScript(c);
+	}
+}
+
 void Editor::update() {
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -121,18 +154,9 @@ void Editor::update() {
 
 	if (input->isKeyJustPressed(KEY::F5)) {
 		{
-			std::ofstream scenePakFile("scene.pak", std::ios::binary);
-			if (scenePakFile) {
-				std::vector<char> bytes = activeScene->generatePak();
-				scenePakFile.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
-				scenePakFile.close();
-			}
-		}
-
-		{
-			std::ofstream file("resources.pak", std::ios::binary);
+			std::ofstream file("game.pak", std::ios::binary);
 			if (file) {
-				std::vector<char> bytes = ctx->generateResourcesPak();
+				std::vector<char> bytes = ctx->generateGamePak();
 				file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
 				file.close();
 			}
@@ -187,12 +211,12 @@ void Editor::update() {
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Play")) {
+		/*if (ImGui::BeginMenu("Play")) {
 			if (ImGui::MenuItem(running ? "Stop Play Mode" : "Start Play Mode")) {
 				running = !running;
 			}
 			ImGui::EndMenu();
-		}
+		}*/
 
 		if (ImGui::BeginMenu("Help")) {
 			if (ImGui::MenuItem("GitHub Wiki")) {
@@ -248,6 +272,47 @@ void Editor::update() {
 		ImGui::Text("Scene Viewer");
 		if (ImGui::Button(((running ? "Stop" : "Start") + std::string("##TogglePlayMode")).c_str())) {
 			running = !running;
+
+			if (running) {
+				std::ofstream file("initial_game.pak", std::ios::binary);
+				if (file) {
+					std::vector<char> bytes = ctx->generateGamePak();
+					file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+					file.close();
+				}
+			} else {
+				std::ifstream gamePak("initial_game.pak", std::ios::binary);
+				if (gamePak.is_open()) {
+					// TODO: use meta tags to mark viewer scene and other models
+					// to not be deleted
+
+					uint32_t activeSceneId = activeScene->getId();
+					uint32_t viewerSceneId = viewerScene->getId();
+					uint32_t editorCameraId = editorCamera->getId();
+					uint32_t viewerObjectId = viewerObject->getId();
+					uint32_t viewerImageId = viewerImage->getId();
+					uint32_t gridTextureId = gridTexture->getId();
+					uint32_t cubeModelId = cubeModel->getId();
+
+					resetContext();
+
+					std::ostringstream gameBytes(std::ios::binary);
+					gameBytes << gamePak.rdbuf();
+					gamePak.close();
+					ctx->loadGamePak(gameBytes.str().c_str(), gameBytes.str().size());
+					gameBytes.clear();
+
+					activeScene = ctx->getScenesManager()->getScene(activeSceneId);
+					viewerScene = ctx->getScenesManager()->getScene(viewerSceneId);
+					editorCamera = activeScene->getCamerasManager()->getCamera(editorCameraId);
+					viewerObject = viewerScene->getGameObjectsManager()->getGameObject(viewerObjectId);
+					viewerImage = dynamic_cast<UI::Image*>(viewerScene->getUIManager()->getElement(viewerImageId));
+					gridTexture = ctx->getTexturesManager()->getTexture(gridTextureId);
+					cubeModel = ctx->getModelsManager()->getModel(cubeModelId);
+
+					activeScene->activate();
+				}
+			}
 		}
 	} else {
 		ImGui::Text("Resource Viewer");

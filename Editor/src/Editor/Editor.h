@@ -37,6 +37,8 @@ public:
 	bool viewingObject = false;
 
 private:
+	void resetContext();
+
 	void handleCameraMovement(Yngin::Camera* camera);
 
 	void showGameObjectProps(uint32_t id);

@@ -70,7 +70,7 @@ namespace Yngin {
 	}
 
 	void ScenesManager::deleteScene(uint32_t sceneId) {
-		if (impl->activeScene->getId() == sceneId) {
+		if (impl->activeScene && impl->activeScene->getId() == sceneId) {
 			impl->activeScene = nullptr;
 		}
 
