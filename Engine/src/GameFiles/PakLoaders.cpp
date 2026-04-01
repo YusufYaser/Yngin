@@ -45,7 +45,9 @@ namespace Yngin::GameFiles {
 			modelData.indices.push_back(index);
 		}
 
-		mgr->createModel(modelData, pakModelData.id, true);
+		Model* model = mgr->createModel(modelData, pakModelData.id, true);
+
+		meta(s, model->meta);
 
 		return true;
 	}
@@ -67,6 +69,8 @@ namespace Yngin::GameFiles {
 		char* pakBytes = new char[pakTexData.dataSize];
 		s.read(pakBytes, pakTexData.dataSize);
 
+		Texture* tex = nullptr;
+
 		switch (pakTexData.dataFormat) {
 		case TEXTURE_FORMAT::PNG:
 		{
@@ -78,7 +82,7 @@ namespace Yngin::GameFiles {
 
 			data.bytes = (const char*)bytes;
 
-			mgr->createTexture(data, settings, pakTexData.id, true);
+			tex = mgr->createTexture(data, settings, pakTexData.id, true);
 
 			stbi_image_free(bytes);
 
@@ -87,12 +91,16 @@ namespace Yngin::GameFiles {
 
 		case TEXTURE_FORMAT::PATH:
 		{
-			mgr->createTexture(pakBytes, settings, pakTexData.id, true);
+			tex = mgr->createTexture(pakBytes, settings, pakTexData.id, true);
 			break;
 		}
 		}
 
 		delete[] pakBytes;
+
+		if (tex == nullptr) return false;
+
+		meta(s, tex->meta);
 
 		return true;
 	}
@@ -142,6 +150,8 @@ namespace Yngin::GameFiles {
 			printf("[Yngin] [Script #%i] Error while loading script from resources:: %s\n", scriptData.id, error.what());
 		}
 
+		meta(s, script->meta);
+
 		return true;
 	}
 
@@ -157,6 +167,8 @@ namespace Yngin::GameFiles {
 
 		camera->setFov(cameraData.fov);
 		camera->setWeight(cameraData.weight);
+
+		meta(s, camera->meta);
 
 		return true;
 	}
@@ -276,6 +288,62 @@ namespace Yngin::GameFiles {
 
 		glm::vec2 pivot = glm::make_vec2(elementData.pivot);
 		element->setPivot(pivot);
+
+		meta(s, element->meta);
+
+		return true;
+	}
+
+	bool Loaders::meta(std::istream& s, Meta& meta) {
+		MetaHeader metaHeader{};
+		R(metaHeader, MetaHeader);
+
+		for (int i = 0; i < metaHeader.metasCount; i++) {
+			MetaGeneric generic{};
+			R(generic, MetaGeneric);
+
+			char* keyBytes = new char[generic.keyLength];
+			s.read(keyBytes, generic.keyLength);
+			std::string key(keyBytes, generic.keyLength);
+			delete[] keyBytes;
+
+			switch (generic.type) {
+			case META_TYPE::STRING:
+			{
+				MetaStringData stringData{};
+				R(stringData, MetaStringData);
+
+				char* strBytes = new char[stringData.length];
+				s.read(strBytes, stringData.length);
+				std::string str(strBytes, stringData.length);
+				delete[] strBytes;
+
+				meta.setMeta(key, str);
+
+				break;
+			}
+
+			case META_TYPE::INT:
+			{
+				int intVal;
+				s >> intVal;
+
+				meta.setMeta(key, intVal);
+
+				break;
+			}
+
+			case META_TYPE::FLOAT:
+			{
+				int floatVal;
+				s >> floatVal;
+
+				meta.setMeta(key, floatVal);
+
+				break;
+			}
+			}
+		}
 
 		return true;
 	}

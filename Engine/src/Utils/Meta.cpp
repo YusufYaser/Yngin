@@ -32,6 +32,23 @@ namespace Yngin {
 		impl->metas[key] = value;
 	}
 
+	size_t Meta::getMetasCount() const {
+		return impl->metas.size();
+	}
+
+	std::map<std::string, MetaValue> Meta::getMetas() const {
+		return impl->metas;
+	}
+
+	MetaValue Meta::getMeta(const std::string& key, const MetaValue& defaultValue) const {
+		auto it = impl->metas.find(key);
+		if (it != impl->metas.end()) {
+			return it->second;
+		}
+
+		return defaultValue;
+	}
+
 	std::string Meta::getMetaString(const std::string& key, const std::string& defaultValue) const {
 		auto it = impl->metas.find(key);
 		if (it != impl->metas.end()) {

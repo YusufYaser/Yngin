@@ -56,6 +56,7 @@ namespace Yngin {
 					obj->impl->scale = glm::make_vec3(objData.scale);
 				}
 
+				Loaders::meta(s, obj->meta);
 				break;
 			}
 
@@ -138,6 +139,7 @@ namespace Yngin {
 					break;
 				}
 				}
+
 				break;
 			}
 
@@ -184,6 +186,8 @@ namespace Yngin {
 			if (obj == nullptr) continue;
 			obj->setParent(parentId);
 		}
+
+		Loaders::meta(s, owner->meta);
 	}
 
 	std::vector<char> Scene::generatePak() {
@@ -211,6 +215,8 @@ namespace Yngin {
 		Generators::camerasManager(s, impl->camerasManager.get());
 		Generators::uiManager(s, impl->uiManager.get());
 		Generators::scriptsManager(s, impl->ctx->getScriptsManager(), this);
+
+		Generators::meta(s, meta);
 
 		std::string_view sv = s.view();
 		return std::vector<char>(sv.begin(), sv.end());

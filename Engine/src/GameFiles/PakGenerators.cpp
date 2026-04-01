@@ -53,6 +53,8 @@ namespace Yngin::GameFiles {
 			for (auto& index : data.indices) {
 				W(index, uint32_t);
 			}
+
+			meta(s, model->meta);
 		}
 
 		return true;
@@ -109,6 +111,8 @@ namespace Yngin::GameFiles {
 			s.write(context.buf.data(), pakTexData.dataSize);
 
 			delete[] pixels;
+
+			meta(s, texture->meta);
 		}
 		if (activatedTexture != nullptr) {
 			mgr->setActive(activatedTexture->getId());
@@ -143,6 +147,8 @@ namespace Yngin::GameFiles {
 			W(scriptData, ScriptData);
 
 			s.write(script->impl->byteCode.data(), scriptData.dataSize);
+
+			meta(s, script->meta);
 		}
 
 		return true;
@@ -167,6 +173,8 @@ namespace Yngin::GameFiles {
 			std::memcpy(objData.scale, glm::value_ptr(obj->impl->scale), sizeof(float) * 3);
 
 			W(objData, GameObjectData);
+
+			meta(s, obj->meta);
 
 			ComponentData compData{};
 			Components::Mesh* mesh = obj->getComponent<Components::Mesh>();
@@ -272,6 +280,8 @@ namespace Yngin::GameFiles {
 			cameraData.weight = camera->getWeight();
 
 			W(cameraData, CameraData);
+
+			meta(s, camera->meta);
 		}
 
 		return true;
@@ -370,6 +380,84 @@ namespace Yngin::GameFiles {
 				W(textData, UITextData);
 
 				s.write(textString.data(), textData.textLength);
+
+				break;
+			}
+			}
+
+			meta(s, element->meta);
+		}
+
+		return true;
+	}
+
+	namespace {
+		META_TYPE getMetaType(const MetaValue& val) {
+			if (std::holds_alternative<std::string>(val)) {
+				return META_TYPE::STRING;
+			} else if (std::holds_alternative<int>(val)) {
+				return META_TYPE::INT;
+			} else if (std::holds_alternative<float>(val)) {
+				return META_TYPE::FLOAT;
+			} else if (std::holds_alternative<void*>(val)) {
+				return META_TYPE::POINTER;
+			}
+
+			return META_TYPE::POINTER;
+		}
+	}
+
+	bool Generators::meta(std::ostream& s, const Meta& meta) {
+		auto metas = meta.getMetas();
+
+		MetaHeader metaHeader{};
+		for (auto& [key, val] : metas) {
+			if (key[0] != '#') metaHeader.metasCount++;
+		}
+		W(metaHeader, MetaHeader);
+
+		for (auto& [key, val] : metas) {
+			if (key[0] == '#') continue;
+
+			MetaGeneric generic{};
+			generic.type = getMetaType(val);
+			// pointers cannot be exported
+			if (generic.type == META_TYPE::POINTER) continue;
+
+			generic.keyLength = key.length();
+
+			W(generic, MetaGeneric);
+
+			s.write(key.c_str(), generic.keyLength);
+
+			switch (generic.type) {
+			case META_TYPE::STRING:
+			{
+				auto str = std::get_if<std::string>(&val);
+
+				MetaStringData strData{};
+				strData.length = str->length();
+				W(strData, MetaStringData);
+
+				s.write(str->c_str(), str->length());
+
+				break;
+			}
+
+			case META_TYPE::INT:
+			{
+				auto intVal = std::get_if<int>(&val);
+
+				s << *intVal;
+
+				break;
+			}
+
+			case META_TYPE::FLOAT:
+			{
+				auto floatVal = std::get_if<float>(&val);
+
+				s << *floatVal;
 
 				break;
 			}

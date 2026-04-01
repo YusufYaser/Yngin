@@ -35,6 +35,8 @@ namespace Yngin {
 				GameData gameData;
 				R(gameData, GameData);
 				impl->applySettings(gameData.contextSettings);
+
+				Loaders::meta(s, meta);
 				break;
 			}
 
@@ -91,6 +93,8 @@ namespace Yngin {
 		gameData.contextSettings = settings;
 
 		W(gameData, GameData);
+
+		Generators::meta(s, meta);
 
 		Generators::scriptsManager(s, impl->scriptsManager.get(), nullptr);
 		Generators::uiManager(s, impl->uiManager.get());

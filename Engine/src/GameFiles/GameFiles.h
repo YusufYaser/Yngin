@@ -1,4 +1,5 @@
 #pragma once
+#include <Yngin/Forward.h>
 #include <iostream>
 #include <map>
 
@@ -13,7 +14,6 @@ namespace Yngin {
 	namespace UI {
 		class UIManager;
 	}
-
 
 	namespace GameFiles {
 		namespace {
@@ -32,8 +32,33 @@ namespace Yngin {
 			GAMEDATA
 		};
 
+		enum META_TYPE : uint8_t {
+			STRING,
+			INT,
+			FLOAT,
+			POINTER // void pointers cannot be exported but they are still included here
+		};
+
 		struct Operation {
 			OP op;
+		};
+
+		struct MetaHeader {
+			size_t metasCount;
+		};
+
+		// meta tags must be generated and loaded in the exact order in the header
+
+		struct MetaGeneric {
+			META_TYPE type;
+			size_t keyLength;
+			// char key[keyLength];
+			// .. data
+		};
+
+		struct MetaStringData {
+			size_t length;
+			// char str[length];
 		};
 
 		class Generators {
@@ -44,6 +69,7 @@ namespace Yngin {
 			static bool gameObjectsManager(std::ostream& s, const GameObjectsManager* mgr);
 			static bool camerasManager(std::ostream& s, const CamerasManager* mgr);
 			static bool uiManager(std::ostream& s, const UI::UIManager* mgr);
+			static bool meta(std::ostream& s, const Meta& meta);
 		};
 
 		class Loaders {
@@ -54,6 +80,7 @@ namespace Yngin {
 
 			static bool camerasManager(std::istream& s, CamerasManager* mgr);
 			static bool uiManager(std::istream& s, UI::UIManager* mgr, std::map<int, int>& parentsQueue = dummyMap);
+			static bool meta(std::istream& s, Meta& meta);
 		};
 	}
 }
