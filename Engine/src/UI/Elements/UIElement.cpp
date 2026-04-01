@@ -7,6 +7,11 @@
 #include <Yngin/Core/InputSystem.h>
 #include <Yngin/Rendering/Shaders.h>
 
+#define DEFINE_FOR_ELEMENT(T) \
+template T* UIElement::getParent<T>() const; \
+template T* UIElement::createChild<T>(uint32_t, bool); \
+template T* UIElement::getChild<T>(uint32_t) const;
+
 namespace Yngin::UI {
 	UIElement::UIElement(Context* ctx, Scene* scene, UIManager* mgr, UIElement* parent) {
 		impl = std::make_unique<Impl>();
@@ -128,11 +133,6 @@ namespace Yngin::UI {
 		return dynamic_cast<T*>(impl->parent);
 	}
 
-	template UIElement* UIElement::getParent<UIElement>() const;
-	template Image* UIElement::getParent<Image>() const;
-	template Text* UIElement::getParent<Text>() const;
-	template Button* UIElement::getParent<Button>() const;
-
 	void UIElement::setParent(uint32_t newParentId) {
 		impl->parent->moveChild(impl->id, newParentId);
 	}
@@ -176,11 +176,6 @@ namespace Yngin::UI {
 		return obj;
 	}
 
-	template UIElement* UIElement::createChild<UIElement>(uint32_t, bool);
-	template Image* UIElement::createChild<Image>(uint32_t, bool);
-	template Text* UIElement::createChild<Text>(uint32_t, bool);
-	template Button* UIElement::createChild<Button>(uint32_t, bool);
-
 	UIElement* UIElement::getChild(uint32_t childId) const {
 		auto it = impl->childs.find(childId);
 		if (it == impl->childs.end()) return nullptr;
@@ -200,11 +195,6 @@ namespace Yngin::UI {
 
 		return dynamic_cast<T*>(child);
 	}
-
-	template UIElement* UIElement::getChild<UIElement>(uint32_t) const;
-	template Image* UIElement::getChild<Image>(uint32_t) const;
-	template Text* UIElement::getChild<Text>(uint32_t) const;
-	template Button* UIElement::getChild<Button>(uint32_t) const;
 
 	void UIElement::deleteChild(uint32_t childId) {
 		UIElement* child = getChild(childId);
@@ -295,4 +285,10 @@ namespace Yngin::UI {
 	}
 
 	void UIElement::render() {}
+
+
+	DEFINE_FOR_ELEMENT(UIElement);
+	DEFINE_FOR_ELEMENT(Image);
+	DEFINE_FOR_ELEMENT(Text);
+	DEFINE_FOR_ELEMENT(Button);
 }

@@ -8,6 +8,11 @@
 #include <Yngin/Core/Scenes.h>
 #include <Yngin/Services/Tween.h>
 
+#define DEFINE_FOR_COMPONENT(T) \
+template void GameObject::deleteComponent<T>(); \
+template T* GameObject::createComponent<T>(); \
+template T* GameObject::getComponent<T>() const;
+
 namespace Yngin {
 	using namespace Components;
 
@@ -189,19 +194,8 @@ namespace Yngin {
 		impl->components.erase(std::type_index(typeid(T)));
 	}
 
-	template void GameObject::deleteComponent<Components::Mesh>();
-	template Components::Mesh* GameObject::createComponent<Components::Mesh>();
-	template Components::Mesh* GameObject::getComponent<Components::Mesh>() const;
-
-	template void GameObject::deleteComponent<Components::Light>();
-	template Components::Light* GameObject::createComponent<Components::Light>();
-	template Components::Light* GameObject::getComponent<Components::Light>() const;
-
-	template void GameObject::deleteComponent<Components::BoxCollider>();
-	template Components::BoxCollider* GameObject::createComponent<Components::BoxCollider>();
-	template Components::BoxCollider* GameObject::getComponent<Components::BoxCollider>() const;
-
-	template void GameObject::deleteComponent<Components::RigidBody>();
-	template Components::RigidBody* GameObject::createComponent<Components::RigidBody>();
-	template Components::RigidBody* GameObject::getComponent<Components::RigidBody>() const;
+	DEFINE_FOR_COMPONENT(Components::Mesh);
+	DEFINE_FOR_COMPONENT(Components::Light);
+	DEFINE_FOR_COMPONENT(Components::BoxCollider);
+	DEFINE_FOR_COMPONENT(Components::RigidBody);
 }

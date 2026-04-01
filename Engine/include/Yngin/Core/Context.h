@@ -37,7 +37,7 @@ namespace Yngin {
 
 		Meta meta;
 
-		// it is strongly recommended to call this at the start of every frame
+		// It is strongly recommended to call this at the start of every frame
 		// if you're using multiple contexts
 		void makeCurrent();
 
@@ -46,8 +46,9 @@ namespace Yngin {
 		void ready();
 
 		// Set swapBuffers to false if you're using another library like ImGui
-		// but you need to call Context::swapBuffers() at the end of your frame
+		// but you must to call Context::swapBuffers() at the end of your frame
 		void update(bool swapBuffers = true);
+		// Do not call this if you didn't set swapBuffers to false in update()
 		void swapBuffers();
 
 		uint64_t getFrame() const;
@@ -63,6 +64,7 @@ namespace Yngin {
 		Window* getWindow() const;
 
 		void forceViewport(glm::ivec2 pos, glm::ivec2 size);
+		// pos.xy size.xy
 		glm::ivec4 getForcedViewport() const;
 		glm::ivec2 getViewportPos() const;
 		glm::ivec2 getViewportSize() const;
