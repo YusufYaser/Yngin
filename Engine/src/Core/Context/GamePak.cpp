@@ -14,7 +14,7 @@ using namespace Yngin::GameFiles::GamePak;
 
 namespace Yngin {
 	namespace GameFiles {
-		const int VERSION = 1;
+		const int VERSION = 2;
 	}
 
 	void Context::loadGamePak(const char* bytes, size_t size) {
