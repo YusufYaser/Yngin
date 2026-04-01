@@ -14,6 +14,7 @@ namespace Yngin {
 		Scene* getScene(uint32_t sceneId) const;
 
 		std::vector<Scene*> getScenes() const;
+		size_t getScenesCount() const;
 
 		Scene* createScene();
 		Scene* createScene(const char* scenePakData, size_t size);

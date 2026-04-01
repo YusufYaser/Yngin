@@ -27,6 +27,8 @@ namespace Yngin::GameFiles {
 		Operation op;
 
 		for (auto& model : mgr->getModels()) {
+			if (model->meta.getMetaInt("#NoExport", 0)) break;
+
 			op.op = OP::MODEL;
 			W(op, Operation);
 
@@ -61,6 +63,8 @@ namespace Yngin::GameFiles {
 
 		Texture* activatedTexture = mgr->getActive();
 		for (auto texture : mgr->getTextures()) {
+			if (texture->meta.getMetaInt("#NoExport", 0)) break;
+
 			op.op = OP::TEXTURE;
 			W(op, Operation);
 
@@ -121,6 +125,8 @@ namespace Yngin::GameFiles {
 		for (auto script : mgr->getScripts()) {
 			if (script->getScene() != scene) continue;
 
+			if (script->meta.getMetaInt("#NoExport", 0)) break;
+
 			op.op = OP::SCRIPT;
 			W(op, Operation);
 
@@ -147,6 +153,8 @@ namespace Yngin::GameFiles {
 
 		for (auto& obj : mgr->getGameObjects()) {
 			if (obj->impl->id == 0) continue;
+
+			if (obj->meta.getMetaInt("#NoExport", 0)) break;
 
 			op.op = OP::GAMEOBJECT;
 			W(op, Operation);
@@ -248,6 +256,8 @@ namespace Yngin::GameFiles {
 		Operation op;
 
 		for (auto& camera : mgr->getCameras()) {
+			if (camera->meta.getMetaInt("#NoExport", 0)) break;
+
 			op.op = OP::CAMERA;
 			W(op, Operation);
 
@@ -272,6 +282,8 @@ namespace Yngin::GameFiles {
 
 		for (auto& element : mgr->getElements()) {
 			if (element->getId() == 0) continue;
+
+			if (element->meta.getMetaInt("#NoExport", 0)) break;
 
 			op.op = OP::UIELEMENT;
 			W(op, Operation);

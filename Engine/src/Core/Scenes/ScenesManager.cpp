@@ -33,6 +33,10 @@ namespace Yngin {
 		return scenes;
 	}
 
+	size_t ScenesManager::getScenesCount() const {
+		return impl->scenes.size();
+	}
+
 	Scene* ScenesManager::createScene() {
 		return createScene(impl->nextId);
 	}

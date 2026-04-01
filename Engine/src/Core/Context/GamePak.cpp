@@ -91,6 +91,8 @@ namespace Yngin {
 
 
 		for (Scene* scene : impl->scenesManager->getScenes()) {
+			if (scene->meta.getMetaInt("#NoExport", 0)) break;
+
 			pakInfo.pakType = PAK_TYPE::SCENE;
 			pakInfo.linkedId = scene->getId();
 			auto scenePakBytes = scene->generatePak();
