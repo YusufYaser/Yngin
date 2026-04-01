@@ -551,9 +551,80 @@ namespace Yngin {
 		lua["Scene"]["getUIManager"] = &Scene::getUIManager;
 		lua["Context"]["getGlobalUIManager"] = &Context::getGlobalUIManager;
 
+
+		// Scripts
+		lua.new_usertype<Script>("Script",
+			sol::no_constructor,
+
+			BIND(Script, getId),
+			BIND(Script, getScene),
+
+			BIND(Script, isEnabled),
+			BIND(Script, setEnabled),
+
+			BIND(Script, execute)
+		);
+
+		lua.new_usertype<ScriptsManager>("ScriptsManager",
+			sol::no_constructor,
+
+			BIND(ScriptsManager, areScriptsEnabled),
+			BIND(ScriptsManager, setScriptsEnabled),
+
+			"createScript", sol::overload(
+				[](ScriptsManager& self) {
+					return self.createScript();
+				},
+
+				[](ScriptsManager& self, const char* script) {
+					return self.createScript(script);
+				},
+
+				[](ScriptsManager& self, const char* script, uint32_t id) {
+					return self.createScript(script, id);
+				},
+
+				[](ScriptsManager& self, const char* script, uint32_t id, bool override) {
+					return self.createScript(script, id, override);
+				},
+
+				static_cast<Script * (ScriptsManager::*)(const char*, uint32_t, bool)>(&ScriptsManager::createScript),
+
+
+				[](ScriptsManager& self, Scene* scene) {
+					return self.createScript(scene);
+				},
+
+				[](ScriptsManager& self, Scene* scene, const char* script) {
+					return self.createScript(scene, script);
+				},
+
+				[](ScriptsManager& self, Scene* scene, const char* script, uint32_t id) {
+					return self.createScript(scene, script, id);
+				},
+
+				[](ScriptsManager& self, Scene* scene, const char* script, uint32_t id, bool override) {
+					return self.createScript(scene, script, id, override);
+				},
+
+				static_cast<Script * (ScriptsManager::*)(Scene*, const char*, uint32_t, bool)>(&ScriptsManager::createScript)
+			),
+
+			"deleteScript", sol::overload(
+				static_cast<void(ScriptsManager::*)(uint32_t)>(&ScriptsManager::deleteScript),
+				static_cast<void(ScriptsManager::*)(Script*)>(&ScriptsManager::deleteScript)
+			),
+
+			BIND(ScriptsManager, getScriptsCount),
+			BIND(ScriptsManager, getScripts),
+
+			BIND(ScriptsManager, getScript),
+
+			BIND(ScriptsManager, execute)
+		);
+
 		// TODO: add models
 		// TODO: add shaders
-		// TODO: add scripts
 		// TODO: add components
 	}
 }

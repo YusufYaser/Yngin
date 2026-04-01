@@ -9,6 +9,7 @@ namespace Yngin {
 
 		Yngin["Window"] = ctx->getWindow();
 
+		Yngin["ScriptsManager"] = ctx->getScriptsManager();
 		Yngin["ScenesManager"] = ctx->getScenesManager();
 		Yngin["TexturesManager"] = ctx->getTexturesManager();
 		Yngin["GlobalUIManager"] = ctx->getGlobalUIManager();
