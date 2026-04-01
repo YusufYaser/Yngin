@@ -111,6 +111,10 @@ namespace Yngin {
 	}
 
 	void ScriptsManager::deleteScript(uint32_t id) {
+		if (impl->deleteQueueEnabled) {
+			impl->deleteQueue.push_back(id);
+			return;
+		}
 		impl->scripts.erase(id);
 	}
 
@@ -220,6 +224,7 @@ namespace Yngin {
 		double delta = ctx->getDeltaTime();
 		Scene* activeScene = ctx->getScenesManager()->getActive();
 
+		deleteQueueEnabled = true;
 		for (auto& [id, script] : scripts) {
 			if (!script->impl->enabled) continue;
 			if (script->impl->scene != activeScene && script->impl->scene != nullptr) continue;
@@ -236,6 +241,13 @@ namespace Yngin {
 				printf("[Yngin] [Script #%i] Error while invoking onUpdate(): %s\n", id, error.what());
 			}
 		}
+		deleteQueueEnabled = false;
+
+		for (auto& id : deleteQueue) {
+			ctx->getScriptsManager()->deleteScript(id);
+		}
+
+		deleteQueue.clear();
 	}
 
 	Script::Script(Context* ctx, Scene* scene) {

@@ -40,5 +40,8 @@ namespace Yngin {
 		void onUpdate();
 
 		uint32_t nextId = 0;
+
+		bool deleteQueueEnabled = false;
+		std::vector<uint32_t> deleteQueue;
 	};
 }
