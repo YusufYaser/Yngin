@@ -38,6 +38,7 @@ public:
 
 private:
 	void resetContext();
+	void setupViewerScene();
 
 	void handleCameraMovement(Yngin::Camera* camera);
 

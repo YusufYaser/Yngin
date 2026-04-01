@@ -73,14 +73,7 @@ Editor::Editor() {
 	ctx->getPhysicsEngine()->setSimulationEnabled(false);
 	ctx->getRenderer()->setLightingEnabled(false);
 
-	viewerScene = ctx->getScenesManager()->createScene();
-	viewerObject = viewerScene->getGameObjectsManager()->getRootGameObject()->createChild();
-	viewerObject->createComponent<Components::Mesh>();
-	viewerObject->createComponent<Components::Light>();
-	viewerScene->getCamerasManager()->getCamera(0)->setPosition(glm::vec3(1.0f));
-	viewerScene->getCamerasManager()->getCamera(0)->lookAt(glm::vec3());
-
-	viewerImage = viewerScene->getUIManager()->getRootElement()->createChild<UI::Image>();
+	setupViewerScene();
 
 	ctx->getScriptsManager()->createScript(R"LUA(
 	-- Scene Activator
@@ -136,6 +129,18 @@ void Editor::resetContext() {
 	for (auto& c : ctx->getScriptsManager()->getScripts()) {
 		ctx->getScriptsManager()->deleteScript(c);
 	}
+}
+
+void Editor::setupViewerScene() {
+	viewerScene = ctx->getScenesManager()->createScene();
+	viewerScene->meta.setMeta("#NoExport", 1);
+	viewerObject = viewerScene->getGameObjectsManager()->getRootGameObject()->createChild();
+	viewerObject->createComponent<Components::Mesh>();
+	viewerObject->createComponent<Components::Light>();
+	viewerScene->getCamerasManager()->getCamera(0)->setPosition(glm::vec3(1.0f));
+	viewerScene->getCamerasManager()->getCamera(0)->lookAt(glm::vec3());
+
+	viewerImage = viewerScene->getUIManager()->getRootElement()->createChild<UI::Image>();
 }
 
 void Editor::update() {
@@ -283,14 +288,8 @@ void Editor::update() {
 			} else {
 				std::ifstream gamePak("initial_game.pak", std::ios::binary);
 				if (gamePak.is_open()) {
-					// TODO: use meta tags to mark viewer scene and other models
-					// to not be deleted
-
 					uint32_t activeSceneId = activeScene->getId();
-					uint32_t viewerSceneId = viewerScene->getId();
 					uint32_t editorCameraId = editorCamera->getId();
-					uint32_t viewerObjectId = viewerObject->getId();
-					uint32_t viewerImageId = viewerImage->getId();
 					uint32_t gridTextureId = gridTexture->getId();
 					uint32_t cubeModelId = cubeModel->getId();
 
@@ -303,14 +302,13 @@ void Editor::update() {
 					gameBytes.clear();
 
 					activeScene = ctx->getScenesManager()->getScene(activeSceneId);
-					viewerScene = ctx->getScenesManager()->getScene(viewerSceneId);
 					editorCamera = activeScene->getCamerasManager()->getCamera(editorCameraId);
-					viewerObject = viewerScene->getGameObjectsManager()->getGameObject(viewerObjectId);
-					viewerImage = dynamic_cast<UI::Image*>(viewerScene->getUIManager()->getElement(viewerImageId));
 					gridTexture = ctx->getTexturesManager()->getTexture(gridTextureId);
 					cubeModel = ctx->getModelsManager()->getModel(cubeModelId);
 
 					activeScene->activate();
+
+					setupViewerScene();
 				}
 			}
 		}
