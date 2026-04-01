@@ -49,6 +49,8 @@ namespace Yngin {
 	class Texture;
 	class TexturesManager;
 
+	class Meta;
+
 	namespace Rendering {
 		class Renderer;
 	}

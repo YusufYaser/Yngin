@@ -2,6 +2,7 @@
 #include <Yngin/Forward.h>
 #include <memory>
 #include <glm/mat4x4.hpp>
+#include <Yngin/Utils/Meta.h>
 
 namespace Yngin {
 	enum class SHADER_TYPE : uint8_t {
@@ -39,6 +40,8 @@ namespace Yngin {
 	public:
 		SHADER_TYPE getType() const;
 		Context* getContext() const;
+
+		Meta meta;
 
 		bool setSource(const ShaderSource& src);
 		void activate();

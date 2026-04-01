@@ -24,9 +24,6 @@ namespace Yngin {
 			glm::vec2 pivot = glm::vec2(0.5f);
 
 			void prepareUniforms();
-
-			std::map<std::string, std::string> metaString;
-			std::map<std::string, float> metaFloat;
 		};
 
 		struct Image::Impl {

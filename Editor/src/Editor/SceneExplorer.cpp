@@ -14,7 +14,7 @@ namespace {
 		std::string name = "Game Object";
 
 		if (obj->getId() != 0) {
-			name = obj->getMetaString("Editor.Name", std::string("GameObject #" + std::to_string(obj->getId())));
+			name = obj->meta.getMetaString("Editor.Name", std::string("GameObject #" + std::to_string(obj->getId())));
 		} else {
 			name = "Game Objects";
 		}
@@ -44,7 +44,7 @@ namespace {
 		std::string name = "UI Element";
 
 		if (obj->getId() != 0) {
-			name = obj->getMetaString("Editor.Name", std::string("UI Element #" + std::to_string(obj->getId())));
+			name = obj->meta.getMetaString("Editor.Name", std::string("UI Element #" + std::to_string(obj->getId())));
 		} else {
 			name = "UI Elements";
 		}

@@ -3,6 +3,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <memory>
+#include <Yngin/Utils/Meta.h>
 
 namespace Yngin {
 	struct Vertex {
@@ -56,6 +57,8 @@ namespace Yngin {
 	public:
 		uint32_t getId() const;
 		Context* getContext() const;
+
+		Meta meta;
 
 		void render();
 

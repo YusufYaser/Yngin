@@ -2,6 +2,7 @@
 #include <Yngin/Forward.h>
 #include <memory>
 #include <vector>
+#include <Yngin/Utils/Meta.h>
 
 namespace Yngin {
 	namespace GameFiles {
@@ -13,8 +14,9 @@ namespace Yngin {
 	public:
 		Context* getContext();
 		Scene* getScene();
-
 		uint32_t getId();
+
+		Meta meta;
 
 		bool isEnabled() const;
 		void setEnabled(bool enabled);

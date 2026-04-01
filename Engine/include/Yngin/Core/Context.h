@@ -7,6 +7,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 #include <Yngin/Core/Window.h>
+#include <Yngin/Utils/Meta.h>
 
 namespace Yngin {
 	bool initializeYngin();
@@ -28,10 +29,13 @@ namespace Yngin {
 
 	class Context {
 	public:
+		static void deleteAllContexts();
+
 		Context(const ContextSettings& settings = {});
 		~Context();
 		void close();
-		static void deleteAllContexts();
+
+		Meta meta;
 
 		// it is strongly recommended to call this at the start of every frame
 		// if you're using multiple contexts

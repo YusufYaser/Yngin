@@ -5,6 +5,7 @@
 #include <glm/vec4.hpp>
 #include <Yngin/Core/InputSystem.h>
 #include <string>
+#include <Yngin/Utils/Meta.h>
 
 namespace Yngin {
 	enum class UI_TYPE : uint8_t {
@@ -34,6 +35,8 @@ namespace Yngin {
 			uint32_t getId() const;
 			Context* getContext() const;
 			Scene* getScene() const;
+
+			Meta meta;
 
 			virtual UI_TYPE getType() const;
 
@@ -79,13 +82,6 @@ namespace Yngin {
 
 			virtual void setPivot(glm::vec2 newPivot);
 			virtual glm::vec2 getPivot() const;
-
-			std::string getMetaString(std::string name, std::string defaultValue = "");
-			float getMetaFloat(std::string name, float defaultValue = 0.0f);
-			void removeMetaString(std::string name);
-			void removeMetaFloat(std::string name);
-			void setMeta(std::string name, std::string val);
-			void setMeta(std::string name, float val);
 
 		private:
 			friend class UIManager;

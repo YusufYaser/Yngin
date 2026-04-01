@@ -4,6 +4,7 @@
 #include <memory>
 #include "../Services/Tween.h"
 #include <string>
+#include <Yngin/Utils/Meta.h>
 
 namespace Yngin {
 	namespace GameFiles {
@@ -15,6 +16,8 @@ namespace Yngin {
 		uint32_t getId() const;
 		Context* getContext() const;
 		Scene* getScene() const;
+
+		Meta meta;
 
 		GameObject* getParent() const;
 		void setParent(uint32_t newParentId);
@@ -50,13 +53,6 @@ namespace Yngin {
 
 		template <typename T>
 		void deleteComponent();
-
-		std::string getMetaString(std::string name, std::string defaultValue = "");
-		float getMetaFloat(std::string name, float defaultValue = 0.0f);
-		void removeMetaString(std::string name);
-		void removeMetaFloat(std::string name);
-		void setMeta(std::string name, std::string val);
-		void setMeta(std::string name, float val);
 
 	private:
 		friend class Scene;

@@ -68,7 +68,7 @@ Editor::Editor() {
 	Components::Mesh* defaultCubeMesh = defaultCube->createComponent<Components::Mesh>();
 	defaultCubeMesh->setModel(cubeModel);
 	defaultCubeMesh->setTexture(gridTexture);
-	defaultCube->setMeta("Editor.Name", "Cube");
+	defaultCube->meta.setMeta("Editor.Name", "Cube");
 
 	ctx->getPhysicsEngine()->setSimulationEnabled(false);
 	ctx->getRenderer()->setLightingEnabled(false);

@@ -30,7 +30,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 	std::string name = "Game Object";
 
 	if (obj->getId() != 0) {
-		name = obj->getMetaString("Editor.Name", std::string("GameObject #" + std::to_string(obj->getId())));
+		name = obj->meta.getMetaString("Editor.Name", std::string("GameObject #" + std::to_string(obj->getId())));
 	} else {
 		name = "Game Objects";
 	}
@@ -43,7 +43,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 		ImGui::SameLine(100);
 		if (ImGui::InputText("##GameObjectName", v, 32)) {
 			name = v;
-			obj->setMeta("Editor.Name", name);
+			obj->meta.setMeta("Editor.Name", name);
 		} else {
 			strcpy_s(v, 32, name.c_str());
 		}

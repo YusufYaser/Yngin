@@ -295,40 +295,4 @@ namespace Yngin::UI {
 	}
 
 	void UIElement::render() {}
-
-	std::string UIElement::getMetaString(std::string name, std::string defaultValue) {
-		auto it = impl->metaString.find(name);
-
-		if (it == impl->metaString.end()) {
-			return defaultValue;
-		}
-
-		return it->second;
-	}
-
-	float UIElement::getMetaFloat(std::string name, float defaultValue) {
-		auto it = impl->metaFloat.find(name);
-
-		if (it == impl->metaFloat.end()) {
-			return defaultValue;
-		}
-
-		return it->second;
-	}
-
-	void UIElement::removeMetaString(std::string name) {
-		impl->metaString.erase(name);
-	}
-
-	void UIElement::removeMetaFloat(std::string name) {
-		impl->metaFloat.erase(name);
-	}
-
-	void UIElement::setMeta(std::string name, std::string val) {
-		impl->metaString[name] = val;
-	}
-
-	void UIElement::setMeta(std::string name, float val) {
-		impl->metaFloat[name] = val;
-	}
 }

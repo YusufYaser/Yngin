@@ -3,6 +3,7 @@
 #include <memory>
 #include <glm/vec2.hpp>
 #include <vector>
+#include <Yngin/Utils/Meta.h>
 
 namespace Yngin {
 	enum class TEXTURE_WRAP : uint8_t {
@@ -38,6 +39,8 @@ namespace Yngin {
 	public:
 		uint32_t getId() const;
 		Context* getContext() const;
+
+		Meta meta;
 
 		void activate();
 

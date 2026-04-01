@@ -4,6 +4,7 @@
 #include <glm/vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "../Services/Tween.h"
+#include <Yngin/Utils/Meta.h>
 
 namespace Yngin {
 	class Camera {
@@ -11,6 +12,8 @@ namespace Yngin {
 		uint32_t getId() const;
 		Context* getContext() const;
 		Scene* getScene() const;
+
+		Meta meta;
 
 		glm::vec3 getPosition() const;
 		glm::vec3 getOrientation() const;

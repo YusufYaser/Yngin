@@ -19,9 +19,6 @@ namespace Yngin {
 		glm::vec3 scale = glm::vec3(1.0f);
 
 		std::map<std::type_index, std::unique_ptr<Components::Component>> components;
-
-		std::map<std::string, std::string> metaString;
-		std::map<std::string, float> metaFloat;
 	};
 
 	struct GameObjectsManager::Impl {

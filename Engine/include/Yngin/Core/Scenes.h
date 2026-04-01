@@ -2,6 +2,7 @@
 #include <Yngin/Forward.h>
 #include <memory>
 #include <glm/vec3.hpp>
+#include <Yngin/Utils/Meta.h>
 
 namespace Yngin {
 	struct LightSettings {
@@ -40,8 +41,9 @@ namespace Yngin {
 	class Scene {
 	public:
 		uint32_t getId() const;
-
 		Context* getContext() const;
+
+		Meta meta;
 
 		void activate();
 
