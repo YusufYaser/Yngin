@@ -39,7 +39,7 @@
     <ClCompile Include="src\Editor\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Editor\SceneExplorer.cpp">
+    <ClCompile Include="src\Editor\Explorer\SceneExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Editor\Properties\GameObjectProps.cpp">
@@ -48,7 +48,7 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Editor\ResourceExplorer.cpp">
+    <ClCompile Include="src\Editor\Explorer\ResourceExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Editor\Properties\ModelTextureProps.cpp">
@@ -57,7 +57,7 @@
     <ClCompile Include="src\Editor\Properties\SceneProps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Editor\GameExplorer.cpp">
+    <ClCompile Include="src\Editor\Explorer\GameExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Editor\Properties\GameProps.cpp">

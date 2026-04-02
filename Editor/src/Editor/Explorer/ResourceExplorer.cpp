@@ -2,7 +2,7 @@
 #include <ImGui/imgui_internal.h>
 #include <Yngin/Core/Models.h>
 #include <Yngin/Rendering/Textures.h>
-#include "Editor.h"
+#include "../Editor.h"
 
 using namespace Yngin;
 

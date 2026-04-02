@@ -1,6 +1,6 @@
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_internal.h>
-#include "Editor.h"
+#include "../Editor.h"
 
 using namespace Yngin;
 

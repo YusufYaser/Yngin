@@ -3,7 +3,7 @@
 #include <Yngin/Core/GameObject.h>
 #include <Yngin/UI/UI.h>
 #include <Yngin/Core/Scenes.h>
-#include "Editor.h"
+#include "../Editor.h"
 
 using namespace Yngin;
 
