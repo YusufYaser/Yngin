@@ -117,10 +117,14 @@ namespace Yngin::GameFiles {
 		std::vector<char> bytes(scriptData.dataSize);
 		s.read(bytes.data(), scriptData.dataSize);
 
-		Script* script = mgr->createScript("", scriptData.id, true);
+		Scene* scene = nullptr;
+		if (scriptData.scene != -1) {
+			scene = mgr->getContext()->getScenesManager()->getScene(scriptData.scene);
+		}
+
+		Script* script = mgr->createScript(scene, "", scriptData.id, true);
 
 		script->impl->enabled = scriptData.enabled;
-		// TODO: add scene
 
 		sol::load_result chunk = mgr->impl->lua.load(std::string_view(bytes.data(), bytes.size()));
 
