@@ -194,6 +194,7 @@ namespace Yngin {
 		impl->components.erase(std::type_index(typeid(T)));
 	}
 
+	DEFINE_FOR_COMPONENT(Components::Component);
 	DEFINE_FOR_COMPONENT(Components::Mesh);
 	DEFINE_FOR_COMPONENT(Components::Light);
 	DEFINE_FOR_COMPONENT(Components::BoxCollider);

@@ -6,7 +6,8 @@
 
 namespace Yngin {
 	enum class SHADER_TYPE : uint8_t {
-		WORLD = 0,
+		NONE = 0,
+		WORLD,
 		SKYBOX,
 		UI
 	};

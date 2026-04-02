@@ -58,16 +58,44 @@ namespace Yngin {
 			{"RALT",      KEY::RALT}, {"RSUPER",    KEY::RSUPER}
 			});
 
+		lua.new_usertype<Meta>("Meta",
+			sol::constructors<
+			Meta()
+			>(),
+
+			BIND(Meta, reset),
+			BIND(Meta, clearMeta),
+
+			"setMeta", sol::overload(
+				static_cast<void(Meta::*)(const std::string&, const std::string&)>(&Meta::setMeta),
+				static_cast<void(Meta::*)(const std::string&, const int&)>(&Meta::setMeta),
+				static_cast<void(Meta::*)(const std::string&, const float&)>(&Meta::setMeta)
+			),
+
+			BIND(Meta, getMetasCount),
+
+			BIND(Meta, getMetas),
+			BIND(Meta, getMeta),
+
+			BIND(Meta, getMetaString),
+			BIND(Meta, getMetaInt),
+			BIND(Meta, getMetaFloat)
+		);
+
 
 		// Context
 		lua.new_usertype<Context>("Context",
 			sol::no_constructor,
 
+			BIND(Context, meta),
+
 			BIND(Context, getFrame),
 			BIND(Context, getMaxFPS),
 			BIND(Context, setMaxFPS),
 
-			BIND(Context, getFrameStartTime)
+			BIND(Context, getFrameStartTime),
+
+			BIND(Context, getGlobalUIManager)
 		);
 
 
@@ -87,6 +115,8 @@ namespace Yngin {
 		lua.new_usertype<Texture>("Texture",
 			sol::no_constructor,
 
+			BIND(Texture, meta),
+
 			// TODO: needs to be completed
 			BIND(Texture, getId),
 
@@ -104,12 +134,79 @@ namespace Yngin {
 			BIND(TexturesManager, getTexture)
 		);
 
+
+		// Models
+		lua.new_enum<MODEL_FRONT_FACE>("MODEL_FRONT_FACE", {
+			{ "NONE", MODEL_FRONT_FACE::NONE },
+			{ "CCW", MODEL_FRONT_FACE::CCW },
+			{ "CW", MODEL_FRONT_FACE::CW },
+			});
+
+		lua.new_usertype<ModelData>("ModelData",
+			sol::constructors<
+			ModelData()
+			>(),
+
+			BIND(ModelData, vertices),
+			BIND(ModelData, indices),
+			BIND(ModelData, frontFace)
+		);
+
+		lua.new_usertype<Model>("Model",
+			sol::no_constructor,
+
+			BIND(Model, meta),
+
+			BIND(Model, getId),
+			BIND(Model, getModelData)
+		);
+
+		lua.new_usertype<ModelsManager>("ModelsManager",
+			sol::no_constructor,
+
+			"createModel", sol::overload(
+				static_cast<Model * (ModelsManager::*)(const ModelData&)>(&ModelsManager::createModel),
+
+				static_cast<Model * (ModelsManager::*)(const MODEL_FILE_TYPE&, const char*, size_t)>(&ModelsManager::createModel),
+
+
+				[](ModelsManager& self, const ModelData& data, uint32_t id) {
+					return self.createModel(data, id);
+				},
+
+				[](ModelsManager& self, const ModelData& data, uint32_t id, bool override) {
+					return self.createModel(data, id, override);
+				},
+
+				[](ModelsManager& self, const MODEL_FILE_TYPE& type, const char* data, size_t length, uint32_t id) {
+					return self.createModel(type, data, length, id);
+				},
+
+				[](ModelsManager& self, const MODEL_FILE_TYPE& type, const char* data, size_t length, uint32_t id, bool override) {
+					return self.createModel(type, data, length, id, override);
+				}
+			),
+
+			"deleteModel", sol::overload(
+				static_cast<void(ModelsManager::*)(uint32_t)>(&ModelsManager::deleteModel),
+				static_cast<void(ModelsManager::*)(Model*)>(&ModelsManager::deleteModel)
+			),
+
+			BIND(ModelsManager, getModelsCount),
+			BIND(ModelsManager, getModels),
+
+			BIND(ModelsManager, getModel)
+		);
+
+
 		// GameObjects
 		lua.new_usertype<GameObject>("GameObject",
 			sol::no_constructor,
 
-			// TODO: needs to be completed
+			BIND(GameObject, meta),
+
 			BIND(GameObject, getId),
+			BIND(GameObject, getScene),
 
 			BIND(GameObject, getParent),
 			"setParent", sol::overload(
@@ -119,6 +216,8 @@ namespace Yngin {
 			),
 
 			BIND(GameObject, getChildren),
+
+			BIND(GameObject, getChild),
 
 			"createChild", sol::overload(
 				static_cast<GameObject * (GameObject::*)()>(&GameObject::createChild),
@@ -151,7 +250,25 @@ namespace Yngin {
 			BIND(GameObject, getRotation),
 			BIND(GameObject, setRotation),
 			BIND(GameObject, getScale),
-			BIND(GameObject, setScale)
+			BIND(GameObject, setScale),
+
+			"getComponent", &GameObject::getComponent<Components::Component>,
+			"getComponentMesh", &GameObject::getComponent<Components::Mesh>,
+			"getComponentLight", &GameObject::getComponent<Components::Light>,
+			"getComponentBoxCollider", &GameObject::getComponent<Components::BoxCollider>,
+			"getComponentRigidBody", &GameObject::getComponent<Components::RigidBody>,
+
+			"createComponent", &GameObject::createComponent<Components::Component>,
+			"createComponentMesh", &GameObject::createComponent<Components::Mesh>,
+			"createComponentLight", &GameObject::createComponent<Components::Light>,
+			"createComponentBoxCollider", &GameObject::createComponent<Components::BoxCollider>,
+			"createComponentRigidBody", &GameObject::createComponent<Components::RigidBody>,
+
+			"deleteComponent", &GameObject::deleteComponent<Components::Component>,
+			"deleteComponentMesh", &GameObject::deleteComponent<Components::Mesh>,
+			"deleteComponentLight", &GameObject::deleteComponent<Components::Light>,
+			"deleteComponentBoxCollider", &GameObject::deleteComponent<Components::BoxCollider>,
+			"deleteComponentRigidBody", &GameObject::deleteComponent<Components::RigidBody>
 		);
 
 		lua.new_usertype<GameObjectsManager>("GameObjectsManager",
@@ -174,6 +291,8 @@ namespace Yngin {
 		lua.new_usertype<Scene>("Scene",
 			sol::no_constructor,
 
+			BIND(Scene, meta),
+
 			// TODO: needs to be completed
 			BIND(Scene, getId),
 
@@ -182,7 +301,17 @@ namespace Yngin {
 			BIND(Scene, getGameObjectsManager),
 
 			BIND(Scene, getGravity),
-			BIND(Scene, setGravity)
+			BIND(Scene, setGravity),
+
+			BIND(Scene, getUIManager),
+			BIND(Scene, getCamerasManager),
+
+			BIND(Scene, getSkyboxTextureId),
+
+			"setSkyboxTexture", sol::overload(
+				static_cast<void(Scene::*)(uint32_t)>(&Scene::setSkyboxTexture),
+				static_cast<void(Scene::*)(Texture*)>(&Scene::setSkyboxTexture)
+			)
 		);
 
 		lua.new_usertype<ScenesManager>("ScenesManager",
@@ -218,6 +347,8 @@ namespace Yngin {
 		// Cameras
 		lua.new_usertype<Camera>("Camera",
 			sol::no_constructor,
+
+			BIND(Camera, meta),
 
 			BIND(Camera, getId),
 
@@ -267,7 +398,6 @@ namespace Yngin {
 			BIND(CamerasManager, getFinalOrientation),
 			BIND(CamerasManager, getFinalFov)
 		);
-		lua["Scene"]["getCamerasManager"] = &Scene::getCamerasManager;
 
 		lua.new_usertype<Window>("Window",
 			sol::no_constructor,
@@ -330,12 +460,30 @@ namespace Yngin {
 		lua.new_usertype<Physics::PhysicsEngine>("PhysicsEngine",
 			sol::no_constructor,
 
-			// TODO: needs to be completed after adding components
 			BIND(Physics::PhysicsEngine, isSimulationEnabled),
 			BIND(Physics::PhysicsEngine, setSimulationEnabled),
 
 			BIND(Physics::PhysicsEngine, getSimulationDistance),
-			BIND(Physics::PhysicsEngine, setSimulationDistance)
+			BIND(Physics::PhysicsEngine, setSimulationDistance),
+
+			BIND(Physics::PhysicsEngine, isPointInCollider),
+			BIND(Physics::PhysicsEngine, getRayIntersection),
+
+			"checkCollision", sol::overload(
+				[](const Physics::PhysicsEngine& self, Components::Collider* a, Components::Collider* b) {
+					return self.checkCollision(a, b);
+				},
+
+				static_cast<bool(Physics::PhysicsEngine::*)(const Components::Collider*, const Components::Collider*, bool) const>(&Physics::PhysicsEngine::checkCollision)
+			),
+
+			"raycast", sol::overload(
+				[](const Physics::PhysicsEngine& self, Scene* scene, const Physics::Ray& ray) {
+					return self.raycast(scene, ray);
+				},
+
+				static_cast<Components::Collider * (Physics::PhysicsEngine::*)(Scene*, const Physics::Ray&, float) const>(&Physics::PhysicsEngine::raycast)
+			)
 		);
 
 
@@ -405,6 +553,8 @@ namespace Yngin {
 
 		lua.new_usertype<UI::UIElement>("UIElement",
 			sol::no_constructor,
+
+			BIND(UI::UIElement, meta),
 
 			BIND(UI::UIElement, getId),
 			BIND(UI::UIElement, getScene),
@@ -548,13 +698,13 @@ namespace Yngin {
 
 			BIND(UI::UIManager, getDefaultTextGlyph)
 		);
-		lua["Scene"]["getUIManager"] = &Scene::getUIManager;
-		lua["Context"]["getGlobalUIManager"] = &Context::getGlobalUIManager;
 
 
 		// Scripts
 		lua.new_usertype<Script>("Script",
 			sol::no_constructor,
+
+			BIND(Script, meta),
 
 			BIND(Script, getId),
 			BIND(Script, getScene),
@@ -623,8 +773,151 @@ namespace Yngin {
 			BIND(ScriptsManager, execute)
 		);
 
-		// TODO: add models
-		// TODO: add shaders
-		// TODO: add components
+
+		// Shaders
+		lua.new_enum<SHADER_TYPE>("SHADER_TYPE", {
+			{ "NONE", SHADER_TYPE::NONE },
+			{ "WORLD", SHADER_TYPE::WORLD },
+			{ "SKYBOX", SHADER_TYPE::SKYBOX },
+			{ "UI", SHADER_TYPE::UI },
+			});
+
+		lua.new_usertype<ShaderSource>("ShaderSource",
+			sol::constructors<
+			ShaderSource()
+			>(),
+
+			BIND(ShaderSource, vertex),
+			BIND(ShaderSource, fragment)
+		);
+
+		lua.new_usertype<Shader>("Shader",
+			sol::no_constructor,
+
+			BIND(Shader, getType),
+
+			BIND(Shader, setSource),
+			BIND(Shader, activate),
+
+			BIND(Shader, setMat3),
+			BIND(Shader, setMat4),
+
+			BIND(Shader, setFloat),
+			BIND(Shader, setInt),
+
+			BIND(Shader, setIVec2),
+
+			BIND(Shader, setVec2),
+			BIND(Shader, setVec3),
+			BIND(Shader, setVec4)
+		);
+
+		lua.new_usertype<ShadersManager>("ShadersManager",
+			sol::no_constructor,
+
+			BIND(ShadersManager, getShader),
+
+			BIND(ShadersManager, getActive),
+
+			"setActive", sol::overload(
+				static_cast<void(ShadersManager::*)(Shader*)>(&ShadersManager::setActive),
+				static_cast<void(ShadersManager::*)(const SHADER_TYPE&)>(&ShadersManager::setActive)
+			)
+		);
+
+
+		// Components
+		lua.new_usertype<Components::Component>("Component",
+			sol::no_constructor,
+
+			BIND(Components::Component, getGameObject)
+		);
+
+		lua.new_usertype<Components::Mesh>("Mesh",
+			sol::no_constructor,
+			sol::base_classes, sol::bases<Components::Component>(),
+
+			"setModel", sol::overload(
+				static_cast<void(Components::Mesh::*)(Model*)>(&Components::Mesh::setModel),
+				static_cast<void(Components::Mesh::*)(uint32_t)>(&Components::Mesh::setModel)
+			),
+
+			"setTexture", sol::overload(
+				static_cast<void(Components::Mesh::*)(Texture*)>(&Components::Mesh::setTexture),
+				static_cast<void(Components::Mesh::*)(uint32_t)>(&Components::Mesh::setTexture)
+			),
+
+			BIND(Components::Mesh, getModel),
+			BIND(Components::Mesh, getTexture),
+
+			BIND(Components::Mesh, setColor),
+			BIND(Components::Mesh, getColor)
+		);
+
+		lua.new_usertype<Components::Light>("Light",
+			sol::no_constructor,
+			sol::base_classes, sol::bases<Components::Component>(),
+
+			BIND(Components::Light, setColor),
+			BIND(Components::Light, getColor),
+
+			BIND(Components::Light, setDistance),
+			BIND(Components::Light, getDistance),
+
+			BIND(Components::Light, setIntensity),
+			BIND(Components::Light, getIntensity)
+		);
+
+		lua.new_usertype<Components::RigidBody>("RigidBody",
+			sol::no_constructor,
+			sol::base_classes, sol::bases<Components::Component>(),
+
+			BIND(Components::RigidBody, setMass),
+			BIND(Components::RigidBody, getMass),
+
+			BIND(Components::RigidBody, setVelocity),
+			BIND(Components::RigidBody, getVelocity),
+
+			BIND(Components::RigidBody, setMomentum),
+			BIND(Components::RigidBody, getMomentum),
+
+			BIND(Components::RigidBody, setElasticity),
+			BIND(Components::RigidBody, getElasticity),
+
+			BIND(Components::RigidBody, setCanBounce),
+			BIND(Components::RigidBody, canBounce),
+
+			BIND(Components::RigidBody, applyImpulseForce),
+			BIND(Components::RigidBody, applyForce),
+
+			BIND(Components::RigidBody, getForces)
+		);
+
+		lua.new_usertype<Components::Collider>("Collider",
+			sol::no_constructor,
+			sol::base_classes, sol::bases<Components::Component>(),
+
+			BIND(Components::Collider, getType),
+			BIND(Components::Collider, isPointInCollider),
+
+			"checkCollision", sol::overload(
+				[](const Components::Collider& self, Components::Collider* collider) {
+					return self.checkCollision(collider);
+				},
+
+				static_cast<bool(Components::Collider::*)(Components::Collider*, bool) const>(&Components::Collider::checkCollision)
+			)
+		);
+
+		lua.new_usertype<Components::BoxCollider>("BoxCollider",
+			sol::no_constructor,
+			sol::base_classes, sol::bases<Components::Collider>(),
+
+			BIND(Components::BoxCollider, setSize),
+			BIND(Components::BoxCollider, getSize),
+
+			BIND(Components::BoxCollider, setOffset),
+			BIND(Components::BoxCollider, getOffset)
+		);
 	}
 }
