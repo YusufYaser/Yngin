@@ -8,6 +8,7 @@
 #include "Cube_Model.h"
 #include <fstream>
 #include <sstream>
+#include <format>
 
 #include "Editor.h"
 
@@ -143,6 +144,68 @@ void Editor::setupViewerScene() {
 	viewerImage = viewerScene->getUIManager()->getRootElement()->createChild<UI::Image>();
 }
 
+void Editor::exportGame() {
+	setupPreviousGameState();
+
+	Script* script = ctx->getScriptsManager()->createScript(std::format(R"LUA(
+	Yngin.Window:setTitle("{}")
+	Yngin.Window:setSize(IVec2.new({}, {}))
+	Yngin.Window:setFullscreen({})
+	
+	Yngin.ScriptsManager:deleteScript(Script.ID)
+)LUA", gameSettings.name, gameSettings.windowWidth, gameSettings.windowHeight, gameSettings.fullscreen).c_str());
+
+	{
+		std::ofstream file("game.pak", std::ios::binary);
+		if (file) {
+			std::vector<char> bytes = ctx->generateGamePak();
+			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+			file.close();
+		}
+	}
+
+	loadPreviousGameState();
+}
+
+void Editor::setupPreviousGameState() {
+	std::ofstream file("previous_game_state.pak", std::ios::binary);
+	if (file) {
+		std::vector<char> bytes = ctx->generateGamePak();
+		file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+		file.close();
+	}
+}
+
+void Editor::loadPreviousGameState() {
+	std::ifstream gamePak("previous_game_state.pak", std::ios::binary);
+	if (gamePak.is_open()) {
+		uint32_t activeSceneId = activeScene->getId();
+		uint32_t editorCameraId = editorCamera->getId();
+		uint32_t gridTextureId = gridTexture->getId();
+		uint32_t cubeModelId = cubeModel->getId();
+
+		resetContext();
+
+		std::ostringstream gameBytes(std::ios::binary);
+		gameBytes << gamePak.rdbuf();
+		gamePak.close();
+
+		std::remove("previous_game_state.pak");
+
+		ctx->loadGamePak(gameBytes.str().c_str(), gameBytes.str().size());
+		gameBytes.clear();
+
+		activeScene = ctx->getScenesManager()->getScene(activeSceneId);
+		editorCamera = activeScene->getCamerasManager()->getCamera(editorCameraId);
+		gridTexture = ctx->getTexturesManager()->getTexture(gridTextureId);
+		cubeModel = ctx->getModelsManager()->getModel(cubeModelId);
+
+		activeScene->activate();
+
+		setupViewerScene();
+	}
+}
+
 void Editor::update() {
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -158,14 +221,7 @@ void Editor::update() {
 	InputSystem* input = ctx->getInputSystem();
 
 	if (input->isKeyJustPressed(KEY::F5)) {
-		{
-			std::ofstream file("game.pak", std::ios::binary);
-			if (file) {
-				std::vector<char> bytes = ctx->generateGamePak();
-				file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
-				file.close();
-			}
-		}
+		exportGame();
 	}
 
 	if (input->isKeyJustPressed(Yngin::KEY::F11) || (input->isKeyPressed(Yngin::KEY::RALT) && input->isKeyJustPressed(Yngin::KEY::ENTER))) {
@@ -216,12 +272,18 @@ void Editor::update() {
 			ImGui::EndMenu();
 		}
 
-		/*if (ImGui::BeginMenu("Play")) {
+		if (ImGui::BeginMenu("Play")) {
 			if (ImGui::MenuItem(running ? "Stop Play Mode" : "Start Play Mode")) {
 				running = !running;
+
+				if (running) {
+					setupPreviousGameState();
+				} else {
+					loadPreviousGameState();
+				}
 			}
 			ImGui::EndMenu();
-		}*/
+		}
 
 		if (ImGui::BeginMenu("Help")) {
 			if (ImGui::MenuItem("GitHub Wiki")) {
@@ -279,37 +341,9 @@ void Editor::update() {
 			running = !running;
 
 			if (running) {
-				std::ofstream file("initial_game.pak", std::ios::binary);
-				if (file) {
-					std::vector<char> bytes = ctx->generateGamePak();
-					file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
-					file.close();
-				}
+				setupPreviousGameState();
 			} else {
-				std::ifstream gamePak("initial_game.pak", std::ios::binary);
-				if (gamePak.is_open()) {
-					uint32_t activeSceneId = activeScene->getId();
-					uint32_t editorCameraId = editorCamera->getId();
-					uint32_t gridTextureId = gridTexture->getId();
-					uint32_t cubeModelId = cubeModel->getId();
-
-					resetContext();
-
-					std::ostringstream gameBytes(std::ios::binary);
-					gameBytes << gamePak.rdbuf();
-					gamePak.close();
-					ctx->loadGamePak(gameBytes.str().c_str(), gameBytes.str().size());
-					gameBytes.clear();
-
-					activeScene = ctx->getScenesManager()->getScene(activeSceneId);
-					editorCamera = activeScene->getCamerasManager()->getCamera(editorCameraId);
-					gridTexture = ctx->getTexturesManager()->getTexture(gridTextureId);
-					cubeModel = ctx->getModelsManager()->getModel(cubeModelId);
-
-					activeScene->activate();
-
-					setupViewerScene();
-				}
+				loadPreviousGameState();
 			}
 		}
 	} else {
@@ -330,6 +364,10 @@ void Editor::update() {
 			showSceneExplorer();
 			ImGui::EndTabItem();
 		}
+		if (ImGui::BeginTabItem("Game")) {
+			showGameExplorer();
+			ImGui::EndTabItem();
+		}
 		if (ImGui::BeginTabItem("Resources")) {
 			showResourceExplorer();
 			ImGui::EndTabItem();
@@ -341,6 +379,10 @@ void Editor::update() {
 	viewingObject = false;
 	if (ImGui::BeginViewportSideBar("##Properties", viewport, ImGuiDir_Right, 300.0f, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNavFocus)) {
 		switch (explorerSelection.first) {
+		case EXPLORER_SELECTION_TYPE::GAME:
+			showGameProps();
+			break;
+
 		case EXPLORER_SELECTION_TYPE::GAMEOBJECT:
 			showGameObjectProps(explorerSelection.second);
 			break;

@@ -36,17 +36,28 @@ public:
 
 	bool viewingObject = false;
 
+	struct {
+		std::string name = "Game";
+		int windowWidth = 800;
+		int windowHeight = 600;
+		bool fullscreen = false;
+	} gameSettings;
+
 private:
 	void resetContext();
 	void setupViewerScene();
 
+	void exportGame();
+
 	void handleCameraMovement(Yngin::Camera* camera);
 
+	void showGameProps();
 	void showGameObjectProps(uint32_t id);
 	void showModelProps(uint32_t id);
 	void showTextureProps(uint32_t id);
 	void showSceneProps(uint32_t id);
 
+	void showGameExplorer();
 	void showSceneExplorer();
 	void showResourceExplorer();
 
@@ -55,4 +66,7 @@ private:
 
 	Yngin::Texture* gridTexture;
 	Yngin::Model* cubeModel;
+
+	void setupPreviousGameState();
+	void loadPreviousGameState();
 };

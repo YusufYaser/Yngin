@@ -271,6 +271,8 @@
     <ClCompile Include="deps\vendor\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="src\Editor\Camera.cpp" />
     <ClCompile Include="src\Editor\Editor.cpp" />
+    <ClCompile Include="src\Editor\GameExplorer.cpp" />
+    <ClCompile Include="src\Editor\Properties\GameProps.cpp" />
     <ClCompile Include="src\Editor\Properties\ModelTextureProps.cpp" />
     <ClCompile Include="src\Editor\Properties\SceneProps.cpp" />
     <ClCompile Include="src\Editor\ResourceExplorer.cpp" />
