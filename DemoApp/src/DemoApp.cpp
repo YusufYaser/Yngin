@@ -418,21 +418,6 @@ int main() {
 			testMesh->setColor(glm::vec3(1, 1, 1));
 		}
 
-		Components::Collider* raycastedColl = physicsEngine->raycast(scene, {
-			.origin = glm::vec3(-2, 0, -4),
-			.direction = glm::vec3(0, 0, 1)
-			});
-
-		if (raycastedColl != nullptr) {
-			mesh->setColor(glm::vec3(0, 1, 0));
-		} else {
-			mesh->setColor(glm::vec3(1, 1, 1));
-		}
-
-		if (input->isKeyJustPressed(Yngin::KEY::F11) || (input->isKeyPressed(Yngin::KEY::RALT) && input->isKeyJustPressed(Yngin::KEY::ENTER))) {
-			window->setFullscreen(!window->isFullscreen());
-		}
-
 		defaultCamera = ctx->getScenesManager()->getActive()->getCamerasManager()->getCamera(0);
 
 		ctx->update();

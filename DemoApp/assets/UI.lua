@@ -65,4 +65,8 @@ function onUpdate(dt)
 	if (githubImg:isClicked()) then
 		os.execute("start https://github.com/YusufYaser/Yngin")
 	end
+
+	if input:isKeyJustPressed(KEY.F11) or (input:isKeyPressed(KEY.RALT) and input:isKeyJustPressed(KEY.ENTER)) then
+		Yngin.Window:setFullscreen(not Yngin.Window:isFullscreen())
+	end
 end
