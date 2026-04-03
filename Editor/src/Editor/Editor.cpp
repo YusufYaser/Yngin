@@ -97,6 +97,9 @@ Editor::Editor() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr;
+
+	scriptEditor.SetLanguageDefinition(TextEditor::LanguageDefinition::Lua());
+	scriptEditor.SetShowWhitespaces(false);
 }
 
 Editor::~Editor() {
@@ -290,6 +293,34 @@ void Editor::update() {
 			ImGui::EndMenu();
 		}
 
+		if (ImGui::BeginMenu("Edit")) {
+			bool enabled = explorerSelection.first == EXPLORER_SELECTION_TYPE::SCRIPT;
+			if (ImGui::MenuItem("Undo", "Ctrl+Z", false, enabled && scriptEditor.CanUndo())) {
+				scriptEditor.Undo();
+			}
+			if (ImGui::MenuItem("Redo", "Ctrl+Y", false, enabled && scriptEditor.CanRedo())) {
+				scriptEditor.Redo();
+			}
+			ImGui::Separator();
+			if (ImGui::MenuItem("Cut", "Ctrl+X", false, enabled)) {
+				scriptEditor.Cut();
+			}
+			if (ImGui::MenuItem("Copy", "Ctrl+C", false, enabled)) {
+				scriptEditor.Copy();
+			}
+			if (ImGui::MenuItem("Paste", "Ctrl+V", false, enabled)) {
+				scriptEditor.Paste();
+			}
+			if (ImGui::MenuItem("Delete", "Del", false, enabled)) {
+				scriptEditor.Delete();
+			}
+			ImGui::Separator();
+			if (ImGui::MenuItem("Select All", "Ctrl+A", false, enabled)) {
+				scriptEditor.SelectAll();
+			}
+			ImGui::EndMenu();
+		}
+
 		if (ImGui::BeginMenu("Play")) {
 			if (ImGui::MenuItem(running ? "Stop Play Mode" : "Start Play Mode")) {
 				running = !running;
@@ -479,20 +510,28 @@ void Editor::update() {
 		ImGui::SetNextWindowSize({ viewSize.x, viewSize.y });
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
-		ImGui::Begin("Script Editor", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+		uint32_t scriptId = explorerSelection.second;
+		std::string title = std::string("Script #" + std::to_string(scriptId));
+
+		ImGui::Begin(title.append("##Script Editor").c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 		{
-			auto it = scripts.find(explorerSelection.second);
+			static int prevScriptId = -1;
+
+			auto it = scripts.find(scriptId);
 			if (it != scripts.end()) {
 				EditorScript& script = it->second;
 
-				static char v[1048576] = {};
-				ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
-				if (ImGui::InputTextMultiline("##Script Content", v, 1048576, { viewSize.x, viewSize.y })) {
-					script.code = v;
-				} else {
-					strcpy_s(v, 4096, script.code.c_str());
+				if (scriptId != prevScriptId) {
+					prevScriptId = scriptId;
+					scriptEditor.SetText(script.code.c_str());
 				}
-				ImGui::PopStyleColor();
+
+				scriptEditor.Render("Script Editor Code");
+				if (scriptEditor.IsTextChanged()) {
+					std::string codeStr = scriptEditor.GetText();
+					codeStr.erase(codeStr.size() - 1); // remove \n at the end
+					script.code = codeStr;
+				}
 			}
 		}
 		ImGui::End();

@@ -8,6 +8,7 @@
 #include <Yngin/UI/Elements/Image.h>
 #include <ImGui/imgui.h>
 #include <sstream>
+#include <ImGuiColorTextEdit/TextEditor.h>
 
 enum class EXPLORER_SELECTION_TYPE {
 	NONE,
@@ -51,6 +52,8 @@ public:
 	} gameSettings;
 
 private:
+	TextEditor scriptEditor;
+
 	void resetContext();
 	void setupViewerScene();
 
