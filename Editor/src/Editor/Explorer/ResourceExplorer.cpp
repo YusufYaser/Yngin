@@ -63,7 +63,7 @@ namespace {
 
 		if (open) {
 			for (auto& [id, script] : scripts) {
-				ImGui::TreeNodeEx(std::string("Script #" + std::to_string(id)).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+				ImGui::TreeNodeEx(script.name.c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
 					clicked = id;

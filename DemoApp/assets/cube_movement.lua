@@ -21,8 +21,6 @@ function onUpdate(dt)
 		raycastedMesh:setColor(Vec39.new(1))
 		raycastedMesh = nil
 	end
-
-	print(testCollider)
 	
 	if not tween:isActive(tweenId) then
 		cycle = (cycle + 1) % 4

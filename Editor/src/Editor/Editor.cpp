@@ -78,12 +78,6 @@ Editor::Editor() {
 
 	setupViewerScene();
 
-	scripts[nextScriptId++] = {};
-	scripts[nextScriptId++] = {};
-	scripts[nextScriptId++] = {};
-	scripts[nextScriptId++] = {};
-	scripts[nextScriptId++] = {};
-
 	ctx->ready();
 
 
@@ -148,6 +142,10 @@ void Editor::setupViewerScene() {
 }
 
 void Editor::exportGame() {
+	if (running) {
+		printf("[Yngin Editor] Cannot export while the game is running!\n");
+		return;
+	}
 	setupPreviousGameState();
 
 	loadScripts();
@@ -178,6 +176,18 @@ end
 	}
 
 	loadPreviousGameState();
+}
+
+void Editor::togglePlayMode() {
+	running = !running;
+
+	if (running) {
+		setupPreviousGameState();
+		ctx->meta.setMeta("#IsPlaying", 1);
+		loadScripts();
+	} else {
+		loadPreviousGameState();
+	}
 }
 
 void Editor::setupPreviousGameState() {
@@ -242,7 +252,7 @@ void Editor::update() {
 	InputSystem* input = ctx->getInputSystem();
 
 	if (input->isKeyJustPressed(KEY::F5)) {
-		exportGame();
+		togglePlayMode();
 	}
 
 	if (input->isKeyJustPressed(Yngin::KEY::F11) || (input->isKeyPressed(Yngin::KEY::RALT) && input->isKeyJustPressed(Yngin::KEY::ENTER))) {
@@ -321,17 +331,13 @@ void Editor::update() {
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Play")) {
-			if (ImGui::MenuItem(running ? "Stop Play Mode" : "Start Play Mode")) {
-				running = !running;
-
-				if (running) {
-					setupPreviousGameState();
-					ctx->meta.setMeta("#IsPlaying", 1);
-					loadScripts();
-				} else {
-					loadPreviousGameState();
-				}
+		if (ImGui::BeginMenu("Game")) {
+			if (ImGui::MenuItem("Export game.pak", 0, false, !running)) {
+				exportGame();
+			}
+			ImGui::Separator();
+			if (ImGui::MenuItem(running ? "Stop Play Mode" : "Start Play Mode", "F5")) {
+				togglePlayMode();
 			}
 			ImGui::EndMenu();
 		}
@@ -377,6 +383,14 @@ void Editor::update() {
 			}
 		}
 
+		if (running) {
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+			float textWidth = ImGui::CalcTextSize("Running").x;
+			ImGui::SetCursorPosX((windowSize.x - textWidth) * 0.5f);
+			ImGui::Text("Running");
+			ImGui::PopStyleColor();
+		}
+
 		menubarHeight = ImGui::GetFrameHeight();
 
 		ImGui::EndMainMenuBar();
@@ -390,15 +404,7 @@ void Editor::update() {
 		if (!viewingObject) {
 			ImGui::Text("Scene Viewer");
 			if (ImGui::Button(((running ? "Stop" : "Start") + std::string("##TogglePlayMode")).c_str())) {
-				running = !running;
-
-				if (running) {
-					setupPreviousGameState();
-					ctx->meta.setMeta("#IsPlaying", 1);
-					loadScripts();
-				} else {
-					loadPreviousGameState();
-				}
+				togglePlayMode();
 			}
 		} else {
 			ImGui::Text("Resource Viewer");
@@ -436,6 +442,10 @@ void Editor::update() {
 		switch (explorerSelection.first) {
 		case EXPLORER_SELECTION_TYPE::GAME:
 			showGameProps();
+			break;
+
+		case EXPLORER_SELECTION_TYPE::SCRIPT:
+			showScriptProps(explorerSelection.second);
 			break;
 
 		case EXPLORER_SELECTION_TYPE::GAMEOBJECT:
@@ -510,31 +520,33 @@ void Editor::update() {
 		ImGui::SetNextWindowSize({ viewSize.x, viewSize.y });
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
+		static int prevScriptId = -1;
 		uint32_t scriptId = explorerSelection.second;
-		std::string title = std::string("Script #" + std::to_string(scriptId));
 
-		ImGui::Begin(title.append("##Script Editor").c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
-		{
-			static int prevScriptId = -1;
+		auto it = scripts.find(scriptId);
+		if (it != scripts.end()) {
+			EditorScript& script = it->second;
 
-			auto it = scripts.find(scriptId);
-			if (it != scripts.end()) {
-				EditorScript& script = it->second;
+			std::string title = script.name;
+
+			ImGui::Begin(title.append("###Script Editor").c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+			{
 
 				if (scriptId != prevScriptId) {
 					prevScriptId = scriptId;
 					scriptEditor.SetText(script.code.c_str());
 				}
 
+				scriptEditor.SetReadOnly(running);
 				scriptEditor.Render("Script Editor Code");
 				if (scriptEditor.IsTextChanged()) {
 					std::string codeStr = scriptEditor.GetText();
 					codeStr.erase(codeStr.size() - 1); // remove \n at the end
 					script.code = codeStr;
 				}
+				ImGui::End();
 			}
 		}
-		ImGui::End();
 
 		ImGui::PopStyleVar();
 	}

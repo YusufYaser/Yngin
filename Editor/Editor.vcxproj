@@ -279,6 +279,7 @@
     <ClCompile Include="src\Editor\Explorer\ResourceExplorer.cpp" />
     <ClCompile Include="src\Editor\Explorer\SceneExplorer.cpp" />
     <ClCompile Include="src\Editor\Properties\GameObjectProps.cpp" />
+    <ClCompile Include="src\Editor\Properties\ScriptProps.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -58,10 +58,12 @@ private:
 	void setupViewerScene();
 
 	void exportGame();
+	void togglePlayMode();
 
 	void handleCameraMovement(Yngin::Camera* camera);
 
 	void showGameProps();
+	void showScriptProps(uint32_t id);
 	void showGameObjectProps(uint32_t id);
 	void showModelProps(uint32_t id);
 	void showTextureProps(uint32_t id);

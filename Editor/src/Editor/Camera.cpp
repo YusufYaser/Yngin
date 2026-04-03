@@ -5,6 +5,8 @@
 using namespace Yngin;
 
 void Editor::handleCameraMovement(Yngin::Camera* camera) {
+	if (running) return;
+
 	Context* ctx = camera->getContext();
 	InputSystem* input = ctx->getInputSystem();
 
