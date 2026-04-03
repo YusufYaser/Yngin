@@ -12,9 +12,9 @@ void Editor::showGameObjectProps(uint32_t id) {
 		ImGui::Text("Root Game Object");
 		if (ImGui::Button("Create GameObject", ImVec2(-1, 40))) {
 			GameObject* child = activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
-			Components::Mesh* mesh = child->createComponent<Components::Mesh>();
+			/*Components::Mesh* mesh = child->createComponent<Components::Mesh>();
 			mesh->setModel(cubeModel);
-			mesh->setTexture(gridTexture);
+			mesh->setTexture(gridTexture);*/
 			explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, child->getId() };
 		}
 		return;
@@ -345,9 +345,9 @@ void Editor::showGameObjectProps(uint32_t id) {
 
 	if (ImGui::Button("Create Child")) {
 		GameObject* child = obj->createChild();
-		Components::Mesh* mesh = child->createComponent<Components::Mesh>();
+		/*Components::Mesh* mesh = child->createComponent<Components::Mesh>();
 		mesh->setModel(cubeModel);
-		mesh->setTexture(gridTexture);
+		mesh->setTexture(gridTexture);*/
 		explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, child->getId() };
 	}
 	ImGui::SameLine();

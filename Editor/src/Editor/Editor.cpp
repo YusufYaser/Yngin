@@ -9,23 +9,65 @@
 #include <fstream>
 #include <sstream>
 #include <format>
+#include <filesystem>
 
 #include "Editor.h"
 
 using namespace Yngin;
 
+namespace fs = std::filesystem;
+
 Editor::Editor() {
+	fs::create_directory("temp");
+	fs::create_directory("scenes");
+	fs::create_directory("bin");
+
+	fs::path cwd = fs::current_path();
+	projectName = cwd.filename().string();
+
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-	ctx = createContext({
-		.windowSettings = {
-			.size = glm::ivec2(1280, 720),
-			.position = glm::ivec2((mode->width - 1280) / 2, (mode->height - 720) / 2),
-			.title = "Yngin Editor",
-			.hasTitleBar = true
-			}
-		});
+	ctx = createContext();
+
+	{
+		std::ifstream file("core.pak", std::ios::binary);
+		if (file.is_open()) {
+			std::ostringstream bytes(std::ios::binary);
+			bytes << file.rdbuf();
+			file.close();
+			ctx->loadCorePak(bytes.str().c_str(), bytes.str().size());
+			bytes.clear();
+		}
+	}
+
+	{
+		std::ifstream file("resources.pak", std::ios::binary);
+		if (file.is_open()) {
+			std::ostringstream bytes(std::ios::binary);
+			bytes << file.rdbuf();
+			file.close();
+			ctx->loadResourcesPak(bytes.str().c_str(), bytes.str().size());
+			bytes.clear();
+		} else {
+			ctx->getTexturesManager()->createTexture({
+			.width = 2,
+			.height = 2,
+			.numCh = 1,
+			.bytes = "\xff\x80\x80\xff"
+				}, {
+				.wrap = TEXTURE_WRAP::REPEAT,
+				.filterMin = TEXTURE_FILTER::NEAREST,
+				.filterMag = TEXTURE_FILTER::NEAREST
+				}
+			);
+		}
+	}
+
+	Window* window = ctx->getWindow();
+	window->setSize(glm::ivec2(1280, 720));
+	window->setPosition(glm::ivec2((mode->width - 1280) / 2, (mode->height - 720) / 2));
+	window->setTitle("Yngin Editor");
 
 	ctx->meta.setMeta("#IsEditor", 1);
 
@@ -38,40 +80,48 @@ Editor::Editor() {
 	}
 
 	activeScene = ctx->getScenesManager()->createScene();
+
+	{
+		std::ifstream file("scenes/scene0.pak", std::ios::binary);
+		if (file.is_open()) {
+			std::ostringstream bytes(std::ios::binary);
+			bytes << file.rdbuf();
+			file.close();
+			activeScene = ctx->getScenesManager()->createScene(bytes.str().c_str(), bytes.str().size(), 0, true);
+			bytes.clear();
+		} else {
+			activeScene = ctx->getScenesManager()->createScene(0, true);
+
+			Model* cubeModel = ctx->getModelsManager()->createModel(cubeModelData);
+
+			GameObject* defaultCube = activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
+			Components::Mesh* defaultCubeMesh = defaultCube->createComponent<Components::Mesh>();
+			defaultCubeMesh->setModel(cubeModel);
+			defaultCubeMesh->setTexture(1);
+			defaultCube->meta.setMeta("Editor.Name", "Cube");
+
+			Texture* skyboxTex = ctx->getTexturesManager()->createTexture({
+				.width = 1,
+				.height = 1,
+				.numCh = 3,
+				.bytes = "\x4E\x4E\xFB",
+				}, {
+				.wrap = TEXTURE_WRAP::CLAMP,
+				.filterMin = TEXTURE_FILTER::NEAREST,
+				.filterMag = TEXTURE_FILTER::NEAREST,
+				}
+				);
+
+			activeScene->setSkyboxTexture(skyboxTex);
+
+			editorCamera = activeScene->getCamerasManager()->getCamera(0);
+			editorCamera->setPosition(glm::vec3(2.0f));
+			editorCamera->lookAt(glm::vec3());
+		}
+	}
 	activeScene->activate();
 
 	editorCamera = activeScene->getCamerasManager()->getCamera(0);
-	editorCamera->setPosition(glm::vec3(2.0f));
-	editorCamera->lookAt(glm::vec3());
-
-	TexturesManager* texturesManager = ctx->getTexturesManager();
-
-	Texture* skyboxTex = ctx->getTexturesManager()->createTexture("assets/default_skybox.png", {
-		.wrap = TEXTURE_WRAP::CLAMP,
-		.filterMin = TEXTURE_FILTER::NEAREST,
-		.filterMag = TEXTURE_FILTER::NEAREST,
-		});
-	activeScene->setSkyboxTexture(skyboxTex);
-
-	gridTexture = ctx->getTexturesManager()->createTexture({
-		.width = 2,
-		.height = 2,
-		.numCh = 1,
-		.bytes = "\xff\x80\x80\xff"
-		}, {
-		.wrap = TEXTURE_WRAP::REPEAT,
-		.filterMin = TEXTURE_FILTER::NEAREST,
-		.filterMag = TEXTURE_FILTER::NEAREST
-		}
-	);
-
-	cubeModel = ctx->getModelsManager()->createModel(cubeModelData);
-
-	GameObject* defaultCube = activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
-	Components::Mesh* defaultCubeMesh = defaultCube->createComponent<Components::Mesh>();
-	defaultCubeMesh->setModel(cubeModel);
-	defaultCubeMesh->setTexture(gridTexture);
-	defaultCube->meta.setMeta("Editor.Name", "Cube");
 
 	ctx->getPhysicsEngine()->setSimulationEnabled(false);
 	ctx->getRenderer()->setLightingEnabled(false);
@@ -141,6 +191,42 @@ void Editor::setupViewerScene() {
 	viewerImage = viewerScene->getUIManager()->getRootElement()->createChild<UI::Image>();
 }
 
+void Editor::saveProject() {
+	if (running) {
+		printf("[Yngin Editor] Cannot save while the game is running!\n");
+		return;
+	}
+
+	{
+		std::ofstream file("core.pak", std::ios::binary);
+		if (file.is_open()) {
+			std::vector<char> bytes = ctx->generateCorePak();
+			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+			file.close();
+		}
+	}
+
+	{
+		std::ofstream file("resources.pak", std::ios::binary);
+		if (file.is_open()) {
+			std::vector<char> bytes = ctx->generateResourcesPak();
+			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+			file.close();
+		}
+	}
+
+	{
+		std::ofstream file("scenes/scene0.pak", std::ios::binary);
+		if (file.is_open()) {
+			std::vector<char> bytes = activeScene->generatePak();
+			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+			file.close();
+		}
+	}
+
+	printf("[Yngin Editor] Saved Project\n");
+}
+
 void Editor::exportGame() {
 	if (running) {
 		printf("[Yngin Editor] Cannot export while the game is running!\n");
@@ -167,7 +253,7 @@ end
 )LUA", gameSettings.name, gameSettings.windowWidth, gameSettings.windowHeight, gameSettings.fullscreen, 0).c_str());
 
 	{
-		std::ofstream file("game.pak", std::ios::binary);
+		std::ofstream file("bin/game.pak", std::ios::binary);
 		if (file) {
 			std::vector<char> bytes = ctx->generateGamePak();
 			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
@@ -191,7 +277,7 @@ void Editor::togglePlayMode() {
 }
 
 void Editor::setupPreviousGameState() {
-	std::ofstream file("previous_game_state.pak", std::ios::binary);
+	std::ofstream file("temp/previous_game_state.pak", std::ios::binary);
 	if (file) {
 		std::vector<char> bytes = ctx->generateGamePak();
 		file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
@@ -200,12 +286,10 @@ void Editor::setupPreviousGameState() {
 }
 
 void Editor::loadPreviousGameState() {
-	std::ifstream gamePak("previous_game_state.pak", std::ios::binary);
+	std::ifstream gamePak("temp/previous_game_state.pak", std::ios::binary);
 	if (gamePak.is_open()) {
 		uint32_t activeSceneId = activeScene->getId();
 		uint32_t editorCameraId = editorCamera->getId();
-		uint32_t gridTextureId = gridTexture->getId();
-		uint32_t cubeModelId = cubeModel->getId();
 
 		resetContext();
 
@@ -213,15 +297,13 @@ void Editor::loadPreviousGameState() {
 		gameBytes << gamePak.rdbuf();
 		gamePak.close();
 
-		std::remove("previous_game_state.pak");
+		std::remove("temp/previous_game_state.pak");
 
 		ctx->loadGamePak(gameBytes.str().c_str(), gameBytes.str().size());
 		gameBytes.clear();
 
 		activeScene = ctx->getScenesManager()->getScene(activeSceneId);
 		editorCamera = activeScene->getCamerasManager()->getCamera(editorCameraId);
-		gridTexture = ctx->getTexturesManager()->getTexture(gridTextureId);
-		cubeModel = ctx->getModelsManager()->getModel(cubeModelId);
 
 		activeScene->activate();
 
@@ -262,6 +344,10 @@ void Editor::update() {
 	ctx->update(false);
 	io.DisplaySize = ImVec2((float)windowSize.x, (float)windowSize.y);
 
+	if (input->isKeyPressed(Yngin::KEY::LCTRL) && input->isKeyJustPressed(Yngin::KEY::S)) {
+		saveProject();
+	}
+
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui::NewFrame();
 
@@ -295,7 +381,11 @@ void Editor::update() {
 		}
 
 		if (ImGui::BeginMenu("File")) {
-			ImGui::MenuItem("Example Project", 0, false, false);
+			ImGui::MenuItem(projectName.c_str(), 0, false, false);
+			ImGui::Separator();
+			if (ImGui::MenuItem("Save", "Ctrl+S")) {
+				saveProject();
+			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "Alt+F4")) {
 				ctx->close();

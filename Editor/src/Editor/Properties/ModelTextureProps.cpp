@@ -52,7 +52,7 @@ void Editor::showModelProps(uint32_t id) {
 
 		Components::Mesh* mesh = viewerObject->getComponent<Components::Mesh>();
 		mesh->setModel(model);
-		mesh->setTexture(gridTexture);
+		mesh->setTexture(1);
 		viewerObject->setScale(glm::vec3(1.0f));
 		viewerImage->setSize({ 0, 0, 0, 0 });
 

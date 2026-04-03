@@ -51,11 +51,15 @@ public:
 		bool fullscreen = false;
 	} gameSettings;
 
+	std::string projectName = "Game";
+
 private:
 	TextEditor scriptEditor;
 
 	void resetContext();
 	void setupViewerScene();
+
+	void saveProject();
 
 	void exportGame();
 	void togglePlayMode();
@@ -75,9 +79,6 @@ private:
 
 	Yngin::GameObject* viewerObject;
 	Yngin::UI::Image* viewerImage;
-
-	Yngin::Texture* gridTexture;
-	Yngin::Model* cubeModel;
 
 	void setupPreviousGameState();
 	void loadPreviousGameState();
