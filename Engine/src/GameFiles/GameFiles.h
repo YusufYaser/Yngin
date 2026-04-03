@@ -64,7 +64,7 @@ namespace Yngin {
 		class Generators {
 		public:
 			static bool modelsManager(std::ostream& s, const ModelsManager* mgr);
-			static bool texturesManager(std::ostream& s, TexturesManager* mgr);
+			static bool texturesManager(std::ostream& s, TexturesManager* mgr, bool compressed = false);
 			static bool scriptsManager(std::ostream& s, const ScriptsManager* mgr, Scene* scene = nullptr);
 			static bool gameObjectsManager(std::ostream& s, const GameObjectsManager* mgr);
 			static bool camerasManager(std::ostream& s, const CamerasManager* mgr);

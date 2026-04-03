@@ -12,7 +12,8 @@ namespace Yngin {
 		namespace ResourcesPak {
 			enum TEXTURE_FORMAT : uint8_t {
 				PNG,
-				PATH
+				PATH,
+				RAW
 			};
 
 #pragma pack(push, 1)
@@ -49,6 +50,12 @@ namespace Yngin {
 				TEXTURE_FORMAT dataFormat;
 
 				// unsigned char bytes[dataSize]
+			};
+
+			struct TextureRawDataHeader {
+				uint32_t width;
+				uint32_t height;
+				uint8_t numCh;
 			};
 
 			struct ScriptData {

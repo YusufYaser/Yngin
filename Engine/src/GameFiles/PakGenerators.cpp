@@ -60,7 +60,7 @@ namespace Yngin::GameFiles {
 		return true;
 	}
 
-	bool Generators::texturesManager(std::ostream& s, TexturesManager* mgr) {
+	bool Generators::texturesManager(std::ostream& s, TexturesManager* mgr, bool compressed) {
 		Operation op;
 
 		Texture* activatedTexture = mgr->getActive();
@@ -90,25 +90,47 @@ namespace Yngin::GameFiles {
 
 			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-			struct WriteContext {
-				size_t size;
-				std::vector<char> buf;
-			} context;
+			if (compressed) {
+				struct WriteContext {
+					size_t offset = 0;
+					size_t sizeCache = 0;
+					std::vector<char> buf;
+				} context;
 
-			stbi_write_png_to_func([](void* context, void* data, int size) {
-				auto ctx = (WriteContext*)context;
+				context.sizeCache = width * height * 4 + 18;
+				context.buf.resize(context.sizeCache);
 
-				ctx->size += size;
+				stbi_write_png_to_func([](void* context, void* data, int size) {
+					auto ctx = (WriteContext*)context;
 
-				const char* bytes = static_cast<const char*>(data);
+					if (ctx->offset + size > ctx->sizeCache) {
+						ctx->sizeCache = ctx->offset + size;
+						ctx->buf.resize(ctx->sizeCache);
+					}
 
-				ctx->buf.insert(ctx->buf.end(), bytes, bytes + size);
-				}, &context, width, height, 4, pixels, 0);
+					memcpy_s(ctx->buf.data() + ctx->offset, size, data, size);
 
-			pakTexData.dataSize = context.buf.size();
-			W(pakTexData, PakTextureData);
+					ctx->offset += size;
+					}, &context, width, height, 4, pixels, 0);
 
-			s.write(context.buf.data(), pakTexData.dataSize);
+
+				pakTexData.dataSize = context.offset;
+				W(pakTexData, PakTextureData);
+
+				s.write(context.buf.data(), pakTexData.dataSize);
+			} else {
+				pakTexData.dataFormat = TEXTURE_FORMAT::RAW;
+				pakTexData.dataSize = sizeof(TextureRawDataHeader) + (width * height * 4);
+				W(pakTexData, PakTextureData);
+
+				TextureRawDataHeader rawDataHeader{};
+				rawDataHeader.width = width;
+				rawDataHeader.height = height;
+				rawDataHeader.numCh = 4;
+				W(rawDataHeader, TextureRawDataHeader);
+
+				s.write(pixels, width * height * 4);
+			}
 
 			delete[] pixels;
 

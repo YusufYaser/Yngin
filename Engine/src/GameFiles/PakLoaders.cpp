@@ -66,17 +66,41 @@ namespace Yngin::GameFiles {
 		settings.filterMin = pakTexData.filterMin;
 		settings.filterMag = pakTexData.filterMag;
 
-		char* pakBytes = new char[pakTexData.dataSize];
-		s.read(pakBytes, pakTexData.dataSize);
-
 		Texture* tex = nullptr;
 
 		switch (pakTexData.dataFormat) {
-		case TEXTURE_FORMAT::PNG:
+		case TEXTURE_FORMAT::RAW:
 		{
 			TextureData data{};
 
+			TextureRawDataHeader rawDataHeader{};
+			R(rawDataHeader, TextureRawDataHeader);
+
+			data.width = rawDataHeader.width;
+			data.height = rawDataHeader.height;
+			data.numCh = rawDataHeader.numCh;
+
+			char* pixels = new char[data.width * data.height * data.numCh];
+			s.read(pixels, data.width * data.height * data.numCh);
+
+			data.bytes = pixels;
+
+			tex = mgr->createTexture(data, settings, pakTexData.id, true);
+
+			delete[] pixels;
+
+			break;
+		}
+
+		case TEXTURE_FORMAT::PNG:
+		{
+			char* pakBytes = new char[pakTexData.dataSize];
+			s.read(pakBytes, pakTexData.dataSize);
+
+			TextureData data{};
+
 			unsigned char* bytes = stbi_load_from_memory((const stbi_uc*)pakBytes, int(pakTexData.dataSize), &data.width, &data.height, &data.numCh, 0);
+			delete[] pakBytes;
 
 			if (!bytes) break;
 
@@ -91,12 +115,16 @@ namespace Yngin::GameFiles {
 
 		case TEXTURE_FORMAT::PATH:
 		{
+			char* pakBytes = new char[pakTexData.dataSize];
+			s.read(pakBytes, pakTexData.dataSize);
+
 			tex = mgr->createTexture(pakBytes, settings, pakTexData.id, true);
+
+			delete[] pakBytes;
 			break;
 		}
 		}
 
-		delete[] pakBytes;
 
 		if (tex == nullptr) return false;
 
