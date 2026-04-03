@@ -27,6 +27,7 @@ namespace Yngin {
 		Operation op{};
 
 		bool stop = false;
+		bool reachedScript = false;
 
 		std::map<int, int> gameObjectsParentsQueue;
 		std::map<int, int> uiElementsParentsQueue;
@@ -40,6 +41,8 @@ namespace Yngin {
 				skyboxTexId = sceneData.skyboxTexture;
 				lightSettings = { .ambientLight = glm::make_vec3(sceneData.ambientLight) };
 				gravity = sceneData.gravity;
+
+				Loaders::meta(s, owner->meta);
 				break;
 			}
 
@@ -158,6 +161,7 @@ namespace Yngin {
 			case OP::SCRIPT:
 			{
 				stop = !Loaders::scriptsManager(s, ctx->getScriptsManager());
+				reachedScript = true;
 				break;
 			}
 
@@ -186,8 +190,6 @@ namespace Yngin {
 			if (obj == nullptr) continue;
 			obj->setParent(parentId);
 		}
-
-		Loaders::meta(s, owner->meta);
 	}
 
 	std::vector<char> Scene::generatePak() {
@@ -211,12 +213,12 @@ namespace Yngin {
 
 		W(scene, SceneData);
 
+		Generators::meta(s, meta);
+
 		Generators::gameObjectsManager(s, impl->gameObjectsManager.get());
 		Generators::camerasManager(s, impl->camerasManager.get());
 		Generators::uiManager(s, impl->uiManager.get());
 		Generators::scriptsManager(s, impl->ctx->getScriptsManager(), this);
-
-		Generators::meta(s, meta);
 
 		std::string_view sv = s.view();
 		return std::vector<char>(sv.begin(), sv.end());
