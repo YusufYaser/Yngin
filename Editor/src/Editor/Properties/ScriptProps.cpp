@@ -40,4 +40,14 @@ void Editor::showScriptProps(uint32_t id) {
 			strcpy_s(v, 32, script.name.c_str());
 		}
 	}
+
+	ImGui::Separator();
+
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
+	if (ImGui::Button("Delete", ImVec2(-1, 40))) {
+		scripts.erase(id);
+		explorerSelection = {};
+	}
+	ImGui::PopStyleColor(2);
 }

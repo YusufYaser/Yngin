@@ -624,20 +624,7 @@ void Editor::update() {
 
 		case EXPLORER_SELECTION_TYPE::UIELEMENT:
 		{
-			UI::UIElement* element = activeScene->getUIManager()->getElement(explorerSelection.second);
-			if (element) {
-				if (element->getId() != -1) {
-					ImGui::Text("Properties (UI Element #%i)", element->getId());
-					ImGui::Separator();
-
-					if (ImGui::Button("Delete")) {
-						activeScene->getUIManager()->deleteElement(element);
-						explorerSelection = {};
-					}
-				} else {
-					ImGui::Text("Root UI Element");
-				}
-			}
+			showUIElementProps(explorerSelection.second, false);
 			break;
 		}
 

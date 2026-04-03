@@ -9,7 +9,7 @@ using namespace Yngin;
 
 void Editor::showGameObjectProps(uint32_t id) {
 	if (id == -1) {
-		ImGui::Text("Root Game Object");
+		ImGui::Text("Game Objects");
 		if (ImGui::Button("Create GameObject", ImVec2(-1, 40))) {
 			GameObject* child = activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
 			/*Components::Mesh* mesh = child->createComponent<Components::Mesh>();

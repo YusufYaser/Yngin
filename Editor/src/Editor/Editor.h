@@ -86,6 +86,7 @@ private:
 	void showGameProps();
 	void showScriptProps(uint32_t id);
 	void showGameObjectProps(uint32_t id);
+	void showUIElementProps(uint32_t id, bool global = false);
 	void showModelProps(uint32_t id);
 	void showTextureProps(uint32_t id);
 	void showSceneProps(uint32_t id);
