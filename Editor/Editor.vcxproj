@@ -263,6 +263,7 @@
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="deps\vendor\ImGuiColorTextEdit\TextEditor.cpp" />
     <ClCompile Include="deps\vendor\ImGui\imgui.cpp" />
     <ClCompile Include="deps\vendor\ImGui\imgui_draw.cpp" />
     <ClCompile Include="deps\vendor\ImGui\imgui_impl_glfw.cpp" />
@@ -289,6 +290,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="deps\vendor\ImGuiColorTextEdit\TextEditor.h" />
     <ClInclude Include="deps\vendor\ImGui\imconfig.h" />
     <ClInclude Include="deps\vendor\ImGui\imgui.h" />
     <ClInclude Include="deps\vendor\ImGui\imgui_impl_glfw.h" />
