@@ -55,6 +55,14 @@ namespace Yngin {
 		glBindTexture(GL_TEXTURE_2D, impl->texId);
 	}
 
+	void Texture::setData(const TextureData& data) {
+		setData(data, impl->settings);
+	}
+
+	void Texture::setData(const char* path) {
+		setData(path, impl->settings);
+	}
+
 	void Texture::setData(const TextureData& data, const TextureSettings& settings) {
 		int w = data.width;
 		int h = data.height;
@@ -62,27 +70,11 @@ namespace Yngin {
 
 		const char* bytes = data.bytes;
 
-		bool active = impl->ctx->getTexturesManager()->getActive() == this;
+		Texture* active = impl->ctx->getTexturesManager()->getActive();
 		if (active)	glBindTexture(GL_TEXTURE_2D, 0);
 
 		glGenTextures(1, &impl->texId);
 		glBindTexture(GL_TEXTURE_2D, impl->texId);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texFilterToGlFilter(settings.filterMin));
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texFilterToGlFilter(settings.filterMag));
-
-		GLint glWrap = GL_REPEAT;
-		switch (settings.wrap) {
-		case TEXTURE_WRAP::REPEAT:
-			glWrap = GL_REPEAT;
-			break;
-		case TEXTURE_WRAP::CLAMP:
-			glWrap = GL_CLAMP_TO_EDGE;
-			break;
-		}
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrap);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrap);
 
 		char* finalBytes = new char[w * h * 4 + 1];
 		int cIdx = 0;
@@ -128,10 +120,14 @@ namespace Yngin {
 			finalBytes = nullptr;
 		}
 
-		if (active)	glBindTexture(GL_TEXTURE_2D, impl->texId);
+		if (active) {
+			impl->ctx->getTexturesManager()->setActive(active->getId());
+		} else {
+			impl->ctx->getTexturesManager()->setActive(0);
+		}
 
 		impl->size = glm::ivec2(w, h);
-		impl->settings = settings;
+		setSettings(settings);
 	}
 
 	void Texture::setData(const char* path, const TextureSettings& settings) {
@@ -144,6 +140,36 @@ namespace Yngin {
 		setData(data, settings);
 
 		stbi_image_free(bytes);
+	}
+
+	void Texture::setSettings(const TextureSettings& settings) {
+		Texture* active = impl->ctx->getTexturesManager()->getActive();
+
+		activate();
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texFilterToGlFilter(settings.filterMin));
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texFilterToGlFilter(settings.filterMag));
+
+		GLint glWrap = GL_REPEAT;
+		switch (settings.wrap) {
+		case TEXTURE_WRAP::REPEAT:
+			glWrap = GL_REPEAT;
+			break;
+		case TEXTURE_WRAP::CLAMP:
+			glWrap = GL_CLAMP_TO_EDGE;
+			break;
+		}
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrap);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrap);
+
+		impl->settings = settings;
+
+		if (active) {
+			impl->ctx->getTexturesManager()->setActive(active->getId());
+		} else {
+			impl->ctx->getTexturesManager()->setActive(0);
+		}
 	}
 
 	glm::ivec2 Texture::getSize() const {

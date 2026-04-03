@@ -44,8 +44,13 @@ namespace Yngin {
 
 		void activate();
 
-		void setData(const TextureData& data, const TextureSettings& settings = {});
-		void setData(const char* path, const TextureSettings& settings = {});
+		void setData(const TextureData& data);
+		void setData(const char* path);
+
+		void setData(const TextureData& data, const TextureSettings& settings);
+		void setData(const char* path, const TextureSettings& settings);
+
+		void setSettings(const TextureSettings& settings);
 
 		glm::ivec2 getSize() const;
 
