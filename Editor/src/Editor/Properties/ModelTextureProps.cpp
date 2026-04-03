@@ -125,6 +125,57 @@ void Editor::showTextureProps(uint32_t id) {
 			}
 		}
 
+		ImGui::SeparatorText("Texture Settings");
+
+		bool settingsChanged = false;
+
+		TextureSettings settings = texture->getTextureSettings();
+
+		{
+			static bool v = false;
+			ImGui::Text("Repeat");
+			ImGui::SameLine(100);
+			if (ImGui::Checkbox("##TextureRepeat", &v)) {
+				settings.wrap = v ? TEXTURE_WRAP::REPEAT : TEXTURE_WRAP::CLAMP;
+				settingsChanged = true;
+			} else {
+				v = settings.wrap == TEXTURE_WRAP::REPEAT;
+			}
+		}
+
+		{
+			static const char* componentsToCreate[] = {
+				"Nearest",
+				"Linear"
+			};
+
+			static int v = 0;
+
+			ImGui::Text("Filter");
+			ImGui::SameLine(100);
+			if (ImGui::Combo("##TextureFilter", &v, componentsToCreate, IM_ARRAYSIZE(componentsToCreate))) {
+				if (v == 0) {
+					settings.filterMin = TEXTURE_FILTER::NEAREST;
+					settings.filterMag = TEXTURE_FILTER::NEAREST;
+				} else {
+					settings.filterMin = TEXTURE_FILTER::LINEAR_MIPMAP_LINEAR;
+					settings.filterMag = TEXTURE_FILTER::LINEAR;
+				}
+				settingsChanged = true;
+			} else {
+				TEXTURE_FILTER filter = settings.filterMin;
+				if (filter == TEXTURE_FILTER::NEAREST) {
+					v = 0;
+				} else {
+					v = 1;
+				}
+			}
+		}
+
+		if (settingsChanged) {
+			texture->setSettings(settings);
+		}
+
 		ImGui::Separator();
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));

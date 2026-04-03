@@ -166,6 +166,8 @@ Editor::Editor() {
 		}
 	}
 
+	lastSaved = ctx->getTime();
+
 	ctx->ready();
 
 
@@ -234,6 +236,8 @@ void Editor::saveProject() {
 		printf("[Yngin Editor] Cannot save while the game is running!\n");
 		return;
 	}
+
+	lastSaved = ctx->getTime();
 
 	{
 		std::ofstream file("core.pak", std::ios::binary);
@@ -409,14 +413,18 @@ void Editor::update() {
 		togglePlayMode();
 	}
 
-	if (input->isKeyJustPressed(Yngin::KEY::F11) || (input->isKeyPressed(Yngin::KEY::RALT) && input->isKeyJustPressed(Yngin::KEY::ENTER))) {
+	//if (input->isKeyJustPressed(Yngin::KEY::F11) || (input->isKeyPressed(Yngin::KEY::RALT) && input->isKeyJustPressed(Yngin::KEY::ENTER))) {
 		//window->setFullscreen(!window->isFullscreen());
-	}
+	//}
 
 	ctx->update(false);
 	io.DisplaySize = ImVec2((float)windowSize.x, (float)windowSize.y);
 
-	if (input->isKeyPressed(Yngin::KEY::LCTRL) && input->isKeyJustPressed(Yngin::KEY::S)) {
+	if (!input->isMousePressed(Yngin::MOUSE_BUTTON::RIGHT) && input->isKeyPressed(Yngin::KEY::LCTRL) && input->isKeyJustPressed(Yngin::KEY::S)) {
+		saveProject();
+	}
+
+	if (!running && ctx->getTime() - lastSaved > 60) {
 		saveProject();
 	}
 

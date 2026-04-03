@@ -68,6 +68,8 @@ public:
 
 	std::string projectName = "Game";
 
+	double lastSaved = 0;
+
 private:
 	TextEditor scriptEditor;
 

@@ -5,35 +5,35 @@
 
 const Yngin::ModelData cubeModelData = {
 	{
-		Yngin::Vertex{glm::vec3(0.5f, 0.5f,  -0.5f),  glm::vec2(0, 1)},
-		Yngin::Vertex{glm::vec3(-0.5f, 0.5f,  -0.5f),  glm::vec2(1, 1)},
-		Yngin::Vertex{glm::vec3(-0.5f,  0.5f,  0.5f),  glm::vec2(1, 0)},
-		Yngin::Vertex{glm::vec3(0.5f,  0.5f,  0.5f),  glm::vec2(0, 0)},
+		Yngin::Vertex{glm::vec3(0.5f, 0.5f,  -0.5f),  glm::vec2(0, 1), glm::vec3(0, 1, 0)},
+		Yngin::Vertex{glm::vec3(-0.5f, 0.5f,  -0.5f),  glm::vec2(1, 1), glm::vec3(0, 1, 0)},
+		Yngin::Vertex{glm::vec3(-0.5f,  0.5f,  0.5f),  glm::vec2(1, 0), glm::vec3(0, 1, 0)},
+		Yngin::Vertex{glm::vec3(0.5f,  0.5f,  0.5f),  glm::vec2(0, 0), glm::vec3(0, 1, 0)},
 
-		Yngin::Vertex{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0, 1)},
-		Yngin::Vertex{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec2(1, 1)},
-		Yngin::Vertex{glm::vec3(0.5f,  -0.5f, 0.5f), glm::vec2(1, 0)},
-		Yngin::Vertex{glm::vec3(-0.5f,  -0.5f, 0.5f), glm::vec2(0, 0)},
+		Yngin::Vertex{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0, 1), glm::vec3(0, -1, 0)},
+		Yngin::Vertex{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec2(1, 1), glm::vec3(0, -1, 0)},
+		Yngin::Vertex{glm::vec3(0.5f,  -0.5f, 0.5f), glm::vec2(1, 0), glm::vec3(0, -1, 0)},
+		Yngin::Vertex{glm::vec3(-0.5f,  -0.5f, 0.5f), glm::vec2(0, 0), glm::vec3(0, -1, 0)},
 
-		Yngin::Vertex{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec2(0, 1)},
-		Yngin::Vertex{glm::vec3(0.5f, 0.5f,  -0.5f), glm::vec2(1, 1)},
-		Yngin::Vertex{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec2(1, 0)},
-		Yngin::Vertex{glm::vec3(0.5f,  -0.5f, 0.5f), glm::vec2(0, 0)},
+		Yngin::Vertex{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec2(0, 1), glm::vec3(1, 0, 0)},
+		Yngin::Vertex{glm::vec3(0.5f, 0.5f,  -0.5f), glm::vec2(1, 1), glm::vec3(1, 0, 0)},
+		Yngin::Vertex{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec2(1, 0), glm::vec3(1, 0, 0)},
+		Yngin::Vertex{glm::vec3(0.5f,  -0.5f, 0.5f), glm::vec2(0, 0), glm::vec3(1, 0, 0)},
 
-		Yngin::Vertex{glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec2(0, 1)},
-		Yngin::Vertex{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(1, 1)},
-		Yngin::Vertex{glm::vec3(-0.5f,  -0.5f, 0.5f), glm::vec2(1, 0)},
-		Yngin::Vertex{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(0, 0)},
+		Yngin::Vertex{glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec2(0, 1), glm::vec3(-1, 0, 0)},
+		Yngin::Vertex{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(1, 1), glm::vec3(-1, 0, 0)},
+		Yngin::Vertex{glm::vec3(-0.5f,  -0.5f, 0.5f), glm::vec2(1, 0), glm::vec3(-1, 0, 0)},
+		Yngin::Vertex{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(0, 0), glm::vec3(-1, 0, 0)},
 
-		Yngin::Vertex{glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec2(1, 1)},
-		Yngin::Vertex{glm::vec3(0.5f, 0.5f, -0.5f), glm::vec2(1, 0)},
-		Yngin::Vertex{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec2(0, 0)},
-		Yngin::Vertex{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0, 1)},
+		Yngin::Vertex{glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec2(1, 1), glm::vec3(0, 0, -1)},
+		Yngin::Vertex{glm::vec3(0.5f, 0.5f, -0.5f), glm::vec2(1, 0), glm::vec3(0, 0, -1)},
+		Yngin::Vertex{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec2(0, 0), glm::vec3(0, 0, -1)},
+		Yngin::Vertex{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0, 1), glm::vec3(0, 0, -1)},
 
-		Yngin::Vertex{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec2(1, 1)},
-		Yngin::Vertex{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(1, 0)},
-		Yngin::Vertex{glm::vec3(-0.5f,  -0.5f, 0.5f), glm::vec2(0, 0)},
-		Yngin::Vertex{glm::vec3(0.5f,  -0.5f, 0.5f), glm::vec2(0, 1)}
+		Yngin::Vertex{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec2(1, 1), glm::vec3(0, 0, 1)},
+		Yngin::Vertex{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(1, 0), glm::vec3(0, 0, 1)},
+		Yngin::Vertex{glm::vec3(-0.5f,  -0.5f, 0.5f), glm::vec2(0, 0), glm::vec3(0, 0, 1)},
+		Yngin::Vertex{glm::vec3(0.5f,  -0.5f, 0.5f), glm::vec2(0, 1), glm::vec3(0, 0, 1)}
 	},
 
 	{
