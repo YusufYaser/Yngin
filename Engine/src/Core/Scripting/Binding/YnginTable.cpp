@@ -13,6 +13,8 @@ namespace Yngin {
 		Yngin["ScenesManager"] = ctx->getScenesManager();
 		Yngin["TexturesManager"] = ctx->getTexturesManager();
 		Yngin["GlobalUIManager"] = ctx->getGlobalUIManager();
+		Yngin["ModelsManager"] = ctx->getModelsManager();
+		Yngin["ShadersManager"] = ctx->getShadersManager();
 
 		Yngin["Renderer"] = ctx->getRenderer();
 		Yngin["PhysicsEngine"] = ctx->getPhysicsEngine();

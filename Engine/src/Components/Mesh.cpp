@@ -36,6 +36,10 @@ namespace Yngin {
 		}
 
 		void Mesh::setTexture(Texture* newTexture) {
+			if (newTexture == nullptr) {
+				setTexture(uint32_t(0));
+				return;
+			}
 			if (newTexture->getContext() == Component::impl->ctx) {
 				impl->texId = newTexture->getId();
 			}
