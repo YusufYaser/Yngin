@@ -27,6 +27,8 @@ Editor::Editor() {
 			}
 		});
 
+	ctx->meta.setMeta("#IsEditor", 1);
+
 
 	ctx->setMaxFPS(0);
 
@@ -76,13 +78,11 @@ Editor::Editor() {
 
 	setupViewerScene();
 
-	ctx->getScriptsManager()->createScript(R"LUA(
-	-- Scene Activator
-	
-	function onReady()
-		Yngin.ScenesManager:setActive(0)
-	end
-)LUA");
+	scripts[nextScriptId++] = {};
+	scripts[nextScriptId++] = {};
+	scripts[nextScriptId++] = {};
+	scripts[nextScriptId++] = {};
+	scripts[nextScriptId++] = {};
 
 	ctx->ready();
 
@@ -147,13 +147,23 @@ void Editor::setupViewerScene() {
 void Editor::exportGame() {
 	setupPreviousGameState();
 
+	loadScripts();
+
 	Script* script = ctx->getScriptsManager()->createScript(std::format(R"LUA(
-	Yngin.Window:setTitle("{}")
-	Yngin.Window:setSize(IVec2.new({}, {}))
-	Yngin.Window:setFullscreen({})
+if Yngin.Context.meta:getMetaInt("#IsEditor", 0) == 1 then
+	return
+end
+
+Yngin.Window:setTitle("{}")
+Yngin.Window:setSize(IVec2.new({}, {}))
+Yngin.Window:setFullscreen({})
+
+function onReady()
+	Yngin.ScenesManager:setActive({})
 	
 	Yngin.ScriptsManager:deleteScript(Script.ID)
-)LUA", gameSettings.name, gameSettings.windowWidth, gameSettings.windowHeight, gameSettings.fullscreen).c_str());
+end
+)LUA", gameSettings.name, gameSettings.windowWidth, gameSettings.windowHeight, gameSettings.fullscreen, 0).c_str());
 
 	{
 		std::ofstream file("game.pak", std::ios::binary);
@@ -203,6 +213,14 @@ void Editor::loadPreviousGameState() {
 		activeScene->activate();
 
 		setupViewerScene();
+	}
+}
+
+void Editor::loadScripts() {
+	ScriptsManager* mgr = ctx->getScriptsManager();
+
+	for (auto& [id, script] : scripts) {
+		mgr->createScript(script.code.c_str(), id, true);
 	}
 }
 
@@ -278,6 +296,8 @@ void Editor::update() {
 
 				if (running) {
 					setupPreviousGameState();
+					ctx->meta.setMeta("#IsPlaying", 1);
+					loadScripts();
 				} else {
 					loadPreviousGameState();
 				}
@@ -335,19 +355,23 @@ void Editor::update() {
 	ImGui::SetNextWindowSize(ImVec2(125.0f, 50.0f));
 	ImGui::Begin("Play Mode", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
 	ImGui::PushStyleColor(ImGuiCol_Button, running ? ImVec4(.5f, 0, 0, 1) : ImVec4(0, .5f, 0, 1));
-	if (!viewingObject) {
-		ImGui::Text("Scene Viewer");
-		if (ImGui::Button(((running ? "Stop" : "Start") + std::string("##TogglePlayMode")).c_str())) {
-			running = !running;
+	if (explorerSelection.first != EXPLORER_SELECTION_TYPE::SCRIPT) {
+		if (!viewingObject) {
+			ImGui::Text("Scene Viewer");
+			if (ImGui::Button(((running ? "Stop" : "Start") + std::string("##TogglePlayMode")).c_str())) {
+				running = !running;
 
-			if (running) {
-				setupPreviousGameState();
-			} else {
-				loadPreviousGameState();
+				if (running) {
+					setupPreviousGameState();
+					ctx->meta.setMeta("#IsPlaying", 1);
+					loadScripts();
+				} else {
+					loadPreviousGameState();
+				}
 			}
+		} else {
+			ImGui::Text("Resource Viewer");
 		}
-	} else {
-		ImGui::Text("Resource Viewer");
 	}
 	ImGui::PopStyleColor();
 	ImGui::End();
@@ -435,7 +459,7 @@ void Editor::update() {
 
 	ImGui::SetNextWindowPos(ImVec2(250, windowSize.y - 300.0f));
 	ImGui::SetNextWindowSize(ImVec2(windowSize.x - 250 - 300.0f, 300.0f));
-	ImGui::Begin("Information", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+	ImGui::Begin("Information", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 	ImGui::Text("FPS: %.1f", 1 / ctx->getDeltaTime());
 	ImGui::Text("Viewport Size: %ix%i", viewportSize.x, viewportSize.y);
 	ImGui::Text("%i GameObjects", activeScene->getGameObjectsManager()->getGameObjectsCount());
@@ -445,7 +469,36 @@ void Editor::update() {
 	ImGui::Text("Position: %f %f %f", editorCamera->getPosition().x, editorCamera->getPosition().y, editorCamera->getPosition().z);
 	ImGui::End();
 
-	ctx->forceViewport({ 250.0f, menubarHeight }, { windowSize.x - 250.0f - 300.0f, windowSize.y - menubarHeight - 300.0f });
+	glm::vec2 viewPos = { 250.0f, menubarHeight };
+	glm::vec2 viewSize = { windowSize.x - 250.0f - 300.0f, windowSize.y - menubarHeight - 300.0f };
+	ctx->forceViewport(viewPos, viewSize);
+	if (explorerSelection.first == EXPLORER_SELECTION_TYPE::SCRIPT) {
+		ctx->forceViewport({ -1, -1 }, { 1, 1 });
+
+		ImGui::SetNextWindowPos({ viewPos.x, viewPos.y });
+		ImGui::SetNextWindowSize({ viewSize.x, viewSize.y });
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
+		ImGui::Begin("Script Editor", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+		{
+			auto it = scripts.find(explorerSelection.second);
+			if (it != scripts.end()) {
+				EditorScript& script = it->second;
+
+				static char v[1048576] = {};
+				ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
+				if (ImGui::InputTextMultiline("##Script Content", v, 1048576, { viewSize.x, viewSize.y })) {
+					script.code = v;
+				} else {
+					strcpy_s(v, 4096, script.code.c_str());
+				}
+				ImGui::PopStyleColor();
+			}
+		}
+		ImGui::End();
+
+		ImGui::PopStyleVar();
+	}
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

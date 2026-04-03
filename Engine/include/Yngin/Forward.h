@@ -38,7 +38,7 @@ namespace Yngin {
 	class ModelsManager;
 	class Scene;
 	class ScenesManager;
-	class Scripts;
+	class Script;
 	class ScriptsManager;
 	class Window;
 

@@ -42,9 +42,6 @@ namespace Yngin {
 	public:
 		Context* getContext();
 
-		void setScriptsEnabled(bool enabled);
-		bool areScriptsEnabled() const;
-
 		Script* createScript(const char* script = "", uint32_t id = -1, bool override = false);
 		Script* createScript(Scene* scene, const char* script = "", uint32_t id = -1, bool override = false);
 		void deleteScript(uint32_t id);

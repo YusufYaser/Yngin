@@ -1,6 +1,7 @@
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_internal.h>
 #include <Yngin/Core/Models.h>
+#include <Yngin/Core/Scripting.h>
 #include <Yngin/Rendering/Textures.h>
 #include "../Editor.h"
 
@@ -51,6 +52,28 @@ namespace {
 
 		return clicked;
 	}
+
+	uint32_t drawScriptsTree(std::map<uint32_t, EditorScript> scripts) {
+		uint32_t clicked = -2;
+		bool open = ImGui::TreeNodeEx("Scripts", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen);
+
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
+			clicked = -1;
+		}
+
+		if (open) {
+			for (auto& [id, script] : scripts) {
+				ImGui::TreeNodeEx(std::string("Script #" + std::to_string(id)).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
+					clicked = id;
+				}
+			}
+			ImGui::TreePop();
+		}
+
+		return clicked;
+	}
 }
 
 void Editor::showResourceExplorer() {
@@ -61,5 +84,9 @@ void Editor::showResourceExplorer() {
 	uint32_t texture = drawTexturesTree(ctx->getTexturesManager()->getTextures());
 	if (texture != -2) {
 		explorerSelection = { EXPLORER_SELECTION_TYPE::TEXTURE, texture };
+	}
+	uint32_t script = drawScriptsTree(scripts);
+	if (script != -2) {
+		explorerSelection = { EXPLORER_SELECTION_TYPE::SCRIPT, script };
 	}
 }

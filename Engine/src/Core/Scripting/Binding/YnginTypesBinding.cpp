@@ -718,9 +718,6 @@ namespace Yngin {
 		lua.new_usertype<ScriptsManager>("ScriptsManager",
 			sol::no_constructor,
 
-			BIND(ScriptsManager, areScriptsEnabled),
-			BIND(ScriptsManager, setScriptsEnabled),
-
 			"createScript", sol::overload(
 				[](ScriptsManager& self) {
 					return self.createScript();

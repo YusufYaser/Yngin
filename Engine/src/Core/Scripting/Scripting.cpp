@@ -19,14 +19,6 @@ namespace Yngin {
 		return impl->ctx;
 	}
 
-	void ScriptsManager::setScriptsEnabled(bool enabled) {
-		impl->scriptsEnabled = enabled;
-	}
-
-	bool ScriptsManager::areScriptsEnabled() const {
-		return impl->scriptsEnabled;
-	}
-
 	void ScriptsManager::Impl::bind() {
 		bindGlmTypes();
 		bindYnginTypes();
@@ -79,12 +71,14 @@ namespace Yngin {
 
 				sol::set_environment(script->impl->env, func);
 
-				sol::protected_function_result res = func();
+				if (impl->ctx->meta.getMetaInt("#IsEditor", 0) != 1 || impl->ctx->meta.getMetaInt("#IsPlaying", 0) == 1) {
+					sol::protected_function_result res = func();
 
-				if (!res.valid()) {
-					sol::error error = res;
+					if (!res.valid()) {
+						sol::error error = res;
 
-					printf("[Yngin] [Script #%i] Error while loading script: %s\n", id, error.what());
+						printf("[Yngin] [Script #%i] Error while loading script: %s\n", id, error.what());
+					}
 				}
 			} else {
 				sol::error error = chunk;
@@ -144,16 +138,27 @@ namespace Yngin {
 	}
 
 	bool ScriptsManager::execute(const char* script) {
+		bool success = true;
+
+		impl->deleteQueueEnabled = true;
 		try {
 			impl->lua.script(script);
 		} catch (sol::error error) {
 			printf("[Yngin] [ScriptsManager] Error while executing code globally: %s\n", error.what());
-			return false;
+			success = false;
 		}
-		return true;
+		impl->deleteQueueEnabled = false;
+
+		for (auto& id : impl->deleteQueue) {
+			impl->ctx->getScriptsManager()->deleteScript(id);
+		}
+
+		impl->deleteQueue.clear();
+		return success;
 	}
 
 	void ScriptsManager::Impl::onReady() {
+		deleteQueueEnabled = true;
 		for (auto& [id, script] : scripts) {
 			if (!script->impl->enabled) continue;
 			sol::protected_function f = script->impl->env["onReady"];
@@ -168,6 +173,13 @@ namespace Yngin {
 				printf("[Yngin] [Script #%i] Error while invoking onReady(): %s\n", id, error.what());
 			}
 		}
+		deleteQueueEnabled = false;
+
+		for (auto& id : deleteQueue) {
+			ctx->getScriptsManager()->deleteScript(id);
+		}
+
+		deleteQueue.clear();
 	}
 
 	void ScriptsManager::Impl::onSceneActive() {
@@ -176,6 +188,7 @@ namespace Yngin {
 		double delta = ctx->getDeltaTime();
 		Scene* activeScene = ctx->getScenesManager()->getActive();
 
+		deleteQueueEnabled = true;
 		for (auto& [id, script] : scripts) {
 			if (!script->impl->enabled) continue;
 			if (script->impl->scene != activeScene || script->impl->scene == nullptr) continue;
@@ -192,6 +205,13 @@ namespace Yngin {
 				printf("[Yngin] [Script #%i] Error while invoking onSceneActive(): %s\n", id, error.what());
 			}
 		}
+		deleteQueueEnabled = false;
+
+		for (auto& id : deleteQueue) {
+			ctx->getScriptsManager()->deleteScript(id);
+		}
+
+		deleteQueue.clear();
 	}
 
 	void ScriptsManager::Impl::onSceneInactive() {
@@ -200,6 +220,7 @@ namespace Yngin {
 		double delta = ctx->getDeltaTime();
 		Scene* activeScene = ctx->getScenesManager()->getActive();
 
+		deleteQueueEnabled = true;
 		for (auto& [id, script] : scripts) {
 			if (!script->impl->enabled) continue;
 			if (script->impl->scene != activeScene || script->impl->scene == nullptr) continue;
@@ -216,6 +237,13 @@ namespace Yngin {
 				printf("[Yngin] [Script #%i] Error while invoking onSceneInactive(): %s\n", id, error.what());
 			}
 		}
+		deleteQueueEnabled = false;
+
+		for (auto& id : deleteQueue) {
+			ctx->getScriptsManager()->deleteScript(id);
+		}
+
+		deleteQueue.clear();
 	}
 
 	void ScriptsManager::Impl::onUpdate() {

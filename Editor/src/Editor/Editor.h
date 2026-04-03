@@ -7,6 +7,7 @@
 #include <Yngin/Core/Models.h>
 #include <Yngin/UI/Elements/Image.h>
 #include <ImGui/imgui.h>
+#include <sstream>
 
 enum class EXPLORER_SELECTION_TYPE {
 	NONE,
@@ -15,7 +16,13 @@ enum class EXPLORER_SELECTION_TYPE {
 	MODEL,
 	TEXTURE,
 	SCENE,
-	GAME
+	GAME,
+	SCRIPT
+};
+
+struct EditorScript {
+	std::string name;
+	std::string code;
 };
 
 class Editor {
@@ -69,4 +76,9 @@ private:
 
 	void setupPreviousGameState();
 	void loadPreviousGameState();
+
+	uint32_t nextScriptId = 0;
+	std::map<uint32_t, EditorScript> scripts;
+
+	void loadScripts();
 };

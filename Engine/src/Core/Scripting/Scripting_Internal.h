@@ -25,8 +25,6 @@ namespace Yngin {
 		Context* ctx;
 		sol::state lua;
 
-		bool scriptsEnabled = true;
-
 		void bind();
 		void bindGlmTypes();
 		void bindYnginTypes();
@@ -43,5 +41,7 @@ namespace Yngin {
 
 		bool deleteQueueEnabled = false;
 		std::vector<uint32_t> deleteQueue;
+
+		std::vector<uint32_t> onReadyQueue;
 	};
 }
