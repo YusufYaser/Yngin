@@ -128,6 +128,44 @@ Editor::Editor() {
 
 	setupViewerScene();
 
+	{
+		std::ifstream file("scripts_editor.pak", std::ios::binary);
+		if (file.is_open()) {
+			ScriptFileHeader header{};
+			file.read(reinterpret_cast<char*>(&header), sizeof(ScriptFileHeader));
+
+			if (std::memcmp(header.magic, "YNGINEDITORSCRIPTS", 10) == 0 && header.version == 0) {
+				for (uint32_t i = 0; i < header.scriptsCount; i++) {
+					if (!file.good()) break;
+					ScriptInfo info{};
+					file.read(reinterpret_cast<char*>(&info), sizeof(ScriptInfo));
+
+					char* bytes = new char[info.nameSize];
+					file.read(bytes, info.nameSize);
+
+					std::string name(bytes, info.nameSize);
+
+					delete[] bytes;
+
+					bytes = new char[info.scriptSize];
+					file.read(bytes, info.scriptSize);
+
+					std::string code(bytes, info.scriptSize);
+
+					delete[] bytes;
+
+					scripts[info.id] = EditorScript{
+						.name = name,
+						.scene = info.scene,
+						.code = code
+					};
+				}
+			}
+
+			file.close();
+		}
+	}
+
 	ctx->ready();
 
 
@@ -211,6 +249,30 @@ void Editor::saveProject() {
 		if (file.is_open()) {
 			std::vector<char> bytes = ctx->generateResourcesPak();
 			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+			file.close();
+		}
+	}
+
+	{
+		std::ofstream file("scripts_editor.pak", std::ios::binary);
+		if (file.is_open()) {
+			ScriptFileHeader header{};
+			strcpy_s(header.magic, 19, "YNGINEDITORSCRIPTS");
+			header.version = 0;
+			header.scriptsCount = (uint32_t)scripts.size();
+			file.write(reinterpret_cast<const char*>(&header), sizeof(ScriptFileHeader));
+
+			for (auto& [id, script] : scripts) {
+				ScriptInfo info{};
+				info.id = id;
+				info.nameSize = script.name.length();
+				strcpy_s(info.name, sizeof(info.name), script.name.c_str());
+				info.scene = script.scene;
+				info.scriptSize = script.code.length();
+				file.write(reinterpret_cast<const char*>(&info), sizeof(ScriptInfo));
+				file << script.name;
+				file << script.code;
+			}
 			file.close();
 		}
 	}
@@ -323,10 +385,9 @@ void Editor::loadPreviousGameState() {
 }
 
 void Editor::loadScripts() {
-	ScriptsManager* mgr = ctx->getScriptsManager();
-
 	for (auto& [id, script] : scripts) {
-		mgr->createScript(script.code.c_str(), id, true);
+		Scene* scene = ctx->getScenesManager()->getScene(script.scene);
+		ctx->getScriptsManager()->createScript(scene, script.code.c_str(), id, true);
 	}
 }
 

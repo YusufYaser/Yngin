@@ -23,7 +23,22 @@ enum class EXPLORER_SELECTION_TYPE {
 
 struct EditorScript {
 	std::string name;
+	uint32_t scene = uint32_t(-1);
 	std::string code;
+};
+
+struct ScriptFileHeader {
+	char magic[19];
+	uint8_t version;
+	uint32_t scriptsCount;
+};
+
+struct ScriptInfo {
+	uint32_t id;
+	uint32_t scene;
+	size_t nameSize;
+	char name[32];
+	size_t scriptSize;
 };
 
 class Editor {
