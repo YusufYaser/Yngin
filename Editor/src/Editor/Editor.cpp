@@ -299,8 +299,19 @@ void Editor::loadPreviousGameState() {
 
 		std::remove("temp/previous_game_state.pak");
 
+		Window* window = ctx->getWindow();
+		std::string title = window->getTitle();
+		glm::ivec2 pos = window->getPosition();
+		glm::ivec2 size = window->getSize();
+		bool fullscreen = window->isFullscreen();
+
 		ctx->loadGamePak(gameBytes.str().c_str(), gameBytes.str().size());
 		gameBytes.clear();
+
+		window->setTitle(title.c_str());
+		window->setPosition(pos);
+		window->setSize(size);
+		window->setFullscreen(fullscreen);
 
 		activeScene = ctx->getScenesManager()->getScene(activeSceneId);
 		editorCamera = activeScene->getCamerasManager()->getCamera(editorCameraId);
@@ -338,7 +349,7 @@ void Editor::update() {
 	}
 
 	if (input->isKeyJustPressed(Yngin::KEY::F11) || (input->isKeyPressed(Yngin::KEY::RALT) && input->isKeyJustPressed(Yngin::KEY::ENTER))) {
-		window->setFullscreen(!window->isFullscreen());
+		//window->setFullscreen(!window->isFullscreen());
 	}
 
 	ctx->update(false);
