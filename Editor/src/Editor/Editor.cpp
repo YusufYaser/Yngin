@@ -178,6 +178,7 @@ Editor::Editor() {
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.FrameRounding = 5.0f;
+	style.FramePadding = { 3.0f, 3.0f };
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr;
@@ -187,6 +188,8 @@ Editor::Editor() {
 }
 
 Editor::~Editor() {
+	saveProject();
+
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -409,6 +412,10 @@ void Editor::update() {
 
 	InputSystem* input = ctx->getInputSystem();
 
+	if (input->isKeyJustPressed(KEY::F1)) {
+		system("start https://github.com/YusufYaser/Yngin/wiki");
+	}
+
 	if (input->isKeyJustPressed(KEY::F5)) {
 		togglePlayMode();
 	}
@@ -512,11 +519,30 @@ void Editor::update() {
 			ImGui::EndMenu();
 		}
 
+		{
+			static bool showAbout = false;
 		if (ImGui::BeginMenu("Help")) {
-			if (ImGui::MenuItem("GitHub Wiki")) {
+				if (ImGui::MenuItem("GitHub Wiki", "F1")) {
 				system("start https://github.com/YusufYaser/Yngin/wiki");
 			}
+				ImGui::Separator();
+				if (ImGui::MenuItem("About Yngin Editor")) {
+					showAbout = true;
+				}
 			ImGui::EndMenu();
+		}
+
+			if (showAbout) {
+				ImGui::SetNextWindowSize(ImVec2(360, 75));
+				ImGui::SetNextWindowPos(ImVec2(windowSize.x / 2, windowSize.y / 2 - 100), 0, ImVec2(0.5f, 0.5f));
+				if (ImGui::Begin("About Yngin", &showAbout, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse)) {
+					ImGui::Text("Yngin Editor - Copyright (c) 2026 Yusuf Kelany");
+					if (ImGui::Button("GitHub")) {
+						system("start https://github.com/YusufYaser/Yngin");
+					}
+				}
+				ImGui::End();
+			}
 		}
 
 		if (window->isFullscreen() || !window->hasTitleBar()) {

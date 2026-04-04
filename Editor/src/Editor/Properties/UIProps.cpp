@@ -41,6 +41,7 @@ void Editor::showUIElementProps(uint32_t id, bool global) {
 				child->setPivot({ 1, 1 });
 				break;
 			}
+			child->meta.setMeta("Editor.Name", std::string(elementTypes[selectedElementType]).append(" #" + std::to_string(child->getId())));
 
 			if (child) explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, child->getId() };
 		}
@@ -435,6 +436,7 @@ void Editor::showUIElementProps(uint32_t id, bool global) {
 				child->setPivot({ 1, 1 });
 				break;
 			}
+			child->meta.setMeta("Editor.Name", std::string(elementTypes[selectedElementType]).append(" #" + std::to_string(child->getId())));
 
 			if (child) explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, child->getId() };
 		}

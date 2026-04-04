@@ -321,7 +321,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 	{
 		static int selected = 0;
 		if (componentsToCreate.size() != 1) {
-			ImGui::Text("Create Component");
+			ImGui::SeparatorText("Create Component");
 			ImGui::Combo("##CreateComponentDropdown", &selected, componentsToCreate.data(), (int)componentsToCreate.size());
 
 			ImGui::BeginDisabled(selected == 0);
