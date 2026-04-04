@@ -43,6 +43,7 @@ namespace Yngin {
 
 		CONTEXT_STATUS getStatus() const;
 
+		void notReady();
 		void ready();
 
 		// Set swapBuffers to false if you're using another library like ImGui

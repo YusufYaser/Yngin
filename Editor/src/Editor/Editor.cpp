@@ -159,6 +159,8 @@ Editor::Editor() {
 						.scene = info.scene,
 						.code = code
 					};
+
+					nextScriptId = std::max(nextScriptId, info.id + 1);
 				}
 			}
 
@@ -303,9 +305,7 @@ void Editor::exportGame() {
 	}
 	setupPreviousGameState();
 
-	loadScripts();
-
-	Script* script = ctx->getScriptsManager()->createScript(std::format(R"LUA(
+	ctx->getScriptsManager()->createScript(std::format(R"LUA(
 if Yngin.Context.meta:getMetaInt("#IsEditor", 0) == 1 then
 	return
 end
@@ -320,6 +320,8 @@ function onReady()
 	Yngin.ScriptsManager:deleteScript(Script.ID)
 end
 )LUA", gameSettings.name, gameSettings.windowWidth, gameSettings.windowHeight, gameSettings.fullscreen, 0).c_str());
+
+	loadScripts();
 
 	{
 		std::ofstream file("bin/game.pak", std::ios::binary);
@@ -339,7 +341,9 @@ void Editor::togglePlayMode() {
 	if (running) {
 		setupPreviousGameState();
 		ctx->meta.setMeta("#IsPlaying", 1);
+		ctx->notReady();
 		loadScripts();
+		ctx->ready();
 	} else {
 		loadPreviousGameState();
 	}

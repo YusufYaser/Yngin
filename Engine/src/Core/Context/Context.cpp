@@ -158,6 +158,12 @@ namespace Yngin {
 		return impl->status;
 	}
 
+	void Context::notReady() {
+		assert(getStatus() == CONTEXT_STATUS::RUNNING);
+		if (getStatus() != CONTEXT_STATUS::RUNNING) return;
+		impl->status = CONTEXT_STATUS::WAITING_FOR_READY;
+	}
+
 	void Context::ready() {
 		assert(getStatus() == CONTEXT_STATUS::WAITING_FOR_READY);
 		if (getStatus() != CONTEXT_STATUS::WAITING_FOR_READY) return;
