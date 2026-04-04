@@ -54,6 +54,7 @@ namespace Yngin::UI {
 		impl->image->setSize(UIElement::impl->size);
 		impl->image->setPivot(UIElement::impl->pivot);
 		impl->image->setPosition(UIElement::impl->pos);
+		impl->image->setColor(UIElement::impl->color);
 
 		impl->text->setSize(UIElement::impl->size);
 		impl->text->setPosition({

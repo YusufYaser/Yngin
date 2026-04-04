@@ -424,7 +424,45 @@ void Editor::update() {
 		//window->setFullscreen(!window->isFullscreen());
 	//}
 
+	std::pair<UI::UIElement*, glm::vec4> oldUIColor = {};
+	std::pair<Components::Mesh*, glm::vec3> oldObjectColor = {};
+	if (!running) {
+		for (auto& element : activeScene->getUIManager()->getElements()) {
+			if (element->getType() == UI_TYPE::NONE) continue;
+
+			if (element->isClicked()) {
+				explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, element->getId() };
+			}
+		}
+
+		if (explorerSelection.first == EXPLORER_SELECTION_TYPE::GAMEOBJECT) {
+			uint32_t id = explorerSelection.second;
+			if (id != -1) {
+				GameObject* obj = activeScene->getGameObjectsManager()->getGameObject(id);
+				if (obj) {
+					Components::Mesh* mesh = obj->getComponent<Components::Mesh>();
+					if (mesh) {
+						oldObjectColor = { mesh, mesh->getColor() };
+						mesh->setColor(mesh->getColor() * glm::vec3(0.5f, 1, 1));
+					}
+				}
+			}
+		} else if (explorerSelection.first == EXPLORER_SELECTION_TYPE::UIELEMENT) {
+			uint32_t id = explorerSelection.second;
+			if (id != -1) {
+				UI::UIElement* element = activeScene->getUIManager()->getElement(id);
+				if (element) {
+					oldUIColor = { element, element->getColor() };
+					element->setColor(element->getColor() * glm::vec4(0.5f, 1, 1, 1));
+				}
+			}
+		}
+	}
 	ctx->update(false);
+	if (!running) {
+		if (oldUIColor.first != nullptr) oldUIColor.first->setColor(oldUIColor.second);
+		if (oldObjectColor.first != nullptr) oldObjectColor.first->setColor(oldObjectColor.second);
+	}
 	io.DisplaySize = ImVec2((float)windowSize.x, (float)windowSize.y);
 
 	if (!input->isMousePressed(Yngin::MOUSE_BUTTON::RIGHT) && input->isKeyPressed(Yngin::KEY::LCTRL) && input->isKeyJustPressed(Yngin::KEY::S)) {
@@ -521,16 +559,16 @@ void Editor::update() {
 
 		{
 			static bool showAbout = false;
-		if (ImGui::BeginMenu("Help")) {
+			if (ImGui::BeginMenu("Help")) {
 				if (ImGui::MenuItem("GitHub Wiki", "F1")) {
-				system("start https://github.com/YusufYaser/Yngin/wiki");
-			}
+					system("start https://github.com/YusufYaser/Yngin/wiki");
+				}
 				ImGui::Separator();
 				if (ImGui::MenuItem("About Yngin Editor")) {
 					showAbout = true;
 				}
-			ImGui::EndMenu();
-		}
+				ImGui::EndMenu();
+			}
 
 			if (showAbout) {
 				ImGui::SetNextWindowSize(ImVec2(360, 75));
