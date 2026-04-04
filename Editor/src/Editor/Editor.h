@@ -101,7 +101,7 @@ private:
 	void setupPreviousGameState();
 	void loadPreviousGameState();
 
-	uint32_t nextScriptId = 1;
+	uint32_t nextScriptId = 0;
 	std::map<uint32_t, EditorScript> scripts;
 
 	void loadScripts();

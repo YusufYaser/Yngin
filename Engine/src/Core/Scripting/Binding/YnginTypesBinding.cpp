@@ -317,6 +317,8 @@ namespace Yngin {
 		lua.new_usertype<ScenesManager>("ScenesManager",
 			sol::no_constructor,
 
+			BIND(ScenesManager, getScenesCount),
+
 			BIND(ScenesManager, getScene),
 			BIND(ScenesManager, getScenes),
 

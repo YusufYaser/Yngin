@@ -30,7 +30,7 @@ void Editor::handleCameraMovement(Yngin::Camera* camera) {
 
 		o.x = cos(pitch) * sin(yaw + m.x * senstivity);
 		o.y = cos(pitch) * cos(yaw + m.x * senstivity);
-		o.z = sin(pitch - m.y * senstivity);
+		o.z = sin(std::max(std::min(pitch - m.y * senstivity, 1.57f), -1.57f));
 
 		camera->setOrientation(o);
 

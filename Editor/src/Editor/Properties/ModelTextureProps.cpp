@@ -48,13 +48,15 @@ void Editor::showModelProps(uint32_t id) {
 		Model* model = ctx->getModelsManager()->getModel(explorerSelection.second);
 		if (model == nullptr) return;
 
-		viewingObject = true;
+		if (!running) {
+			viewingObject = true;
 
-		Components::Mesh* mesh = viewerObject->getComponent<Components::Mesh>();
-		mesh->setModel(model);
-		mesh->setTexture(1);
-		viewerObject->setScale(glm::vec3(1.0f));
-		viewerImage->setSize({ 0, 0, 0, 0 });
+			Components::Mesh* mesh = viewerObject->getComponent<Components::Mesh>();
+			mesh->setModel(model);
+			mesh->setTexture(1);
+			viewerObject->setScale(glm::vec3(1.0f));
+			viewerImage->setSize({ 0, 0, 0, 0 });
+		}
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
@@ -94,19 +96,21 @@ void Editor::showTextureProps(uint32_t id) {
 		Texture* texture = ctx->getTexturesManager()->getTexture(explorerSelection.second);
 		if (texture == nullptr) return;
 
-		viewingObject = true;
+		if (!running) {
+			viewingObject = true;
 
-		viewerObject->setScale(glm::vec3(0.0f));
-		viewerImage->setSize({ 1, 0, 1, 0 });
-		viewerImage->setTexture(texture);
+			viewerObject->setScale(glm::vec3(0.0f));
+			viewerImage->setSize({ 1, 0, 1, 0 });
+			viewerImage->setTexture(texture);
 
-		glm::vec2 viewportSize = ctx->getViewportSize();
-		glm::ivec2 texSize = texture->getSize();
-		float ratio = texSize.x * 1.0f / texSize.y;
-		if (int(viewportSize.y * ratio) > viewportSize.x) {
-			viewerImage->setSize({ 0, int(viewportSize.x), 0, int(viewportSize.x / ratio) });
-		} else {
-			viewerImage->setSize({ 0, int(viewportSize.y * ratio), 0, int(viewportSize.y) });
+			glm::vec2 viewportSize = ctx->getViewportSize();
+			glm::ivec2 texSize = texture->getSize();
+			float ratio = texSize.x * 1.0f / texSize.y;
+			if (int(viewportSize.y * ratio) > viewportSize.x) {
+				viewerImage->setSize({ 0, int(viewportSize.x), 0, int(viewportSize.x / ratio) });
+			} else {
+				viewerImage->setSize({ 0, int(viewportSize.y * ratio), 0, int(viewportSize.y) });
+			}
 		}
 
 		// TODO: add file selector
