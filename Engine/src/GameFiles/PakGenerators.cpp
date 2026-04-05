@@ -37,8 +37,8 @@ namespace Yngin::GameFiles {
 			PakModelData pakModelData{};
 			pakModelData.id = model->getId();
 			pakModelData.frontFace = data.frontFace;
-			pakModelData.verticesCount = uint8_t(data.vertices.size());
-			pakModelData.indicesCount = uint8_t(data.indices.size());
+			pakModelData.verticesCount = uint16_t(data.vertices.size());
+			pakModelData.indicesCount = uint16_t(data.indices.size());
 
 			W(pakModelData, PakModelData);
 
