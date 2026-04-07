@@ -227,9 +227,18 @@ void Editor::resetContext() {
 void Editor::setupViewerScene() {
 	viewerScene = ctx->getScenesManager()->createScene();
 	viewerScene->meta.setMeta("#NoExport", 1);
-	viewerObject = viewerScene->getGameObjectsManager()->getRootGameObject()->createChild();
+
+	GameObject* root = viewerScene->getGameObjectsManager()->getRootGameObject();
+
+	viewerObject = root->createChild();
 	viewerObject->createComponent<Components::Mesh>();
-	viewerObject->createComponent<Components::Light>();
+
+	viewerLightObject = root->createChild();
+	viewerLightObject->setPosition(glm::vec3(0, 0, 5.0f));
+	Components::Light* light = viewerLightObject->createComponent<Components::Light>();
+	light->setIntensity(5.0f);
+	light->setDistance(24.0f);
+
 	viewerScene->getCamerasManager()->getCamera(0)->setPosition(glm::vec3(1.0f));
 	viewerScene->getCamerasManager()->getCamera(0)->lookAt(glm::vec3());
 
@@ -653,7 +662,7 @@ void Editor::update() {
 	ImGui::PopStyleColor();
 	ImGui::End();
 	ctx->getPhysicsEngine()->setSimulationEnabled(running);
-	ctx->getRenderer()->setLightingEnabled(running);
+	ctx->getRenderer()->setLightingEnabled(running || (explorerSelection.first == EXPLORER_SELECTION_TYPE::MATERIAL));
 
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 
@@ -701,6 +710,12 @@ void Editor::update() {
 		case EXPLORER_SELECTION_TYPE::MODEL:
 		{
 			showModelProps(explorerSelection.second);
+			break;
+		}
+
+		case EXPLORER_SELECTION_TYPE::MATERIAL:
+		{
+			showMaterialProps(explorerSelection.second);
 			break;
 		}
 

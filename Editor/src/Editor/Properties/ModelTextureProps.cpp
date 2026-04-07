@@ -53,7 +53,7 @@ void Editor::showModelProps(uint32_t id) {
 
 			Components::Mesh* mesh = viewerObject->getComponent<Components::Mesh>();
 			mesh->setModel(model);
-			mesh->setTexture(1);
+			mesh->setTexture(2);
 			viewerObject->setScale(glm::vec3(1.0f));
 			viewerImage->setSize({ 0, 0, 0, 0 });
 		}
@@ -65,6 +65,31 @@ void Editor::showModelProps(uint32_t id) {
 			explorerSelection = {};
 		}
 		ImGui::PopStyleColor(2);
+	}
+}
+
+void Editor::showMaterialProps(uint32_t id) {
+	if (id != -1) {
+		ImGui::Text("Properties (Material #%i)", id);
+	} else {
+		ImGui::Text("Materials");
+	}
+	ImGui::Separator();
+	if (explorerSelection.second == -1) {
+		// TODO: add new material functionality
+	} else {
+		if (!running) {
+			viewingObject = true;
+
+			Components::Mesh* mesh = viewerObject->getComponent<Components::Mesh>();
+			// TOOD: replace this after implementing an internal cube model
+			mesh->setModel(uint32_t(0));
+			mesh->setTexture(1);
+			viewerObject->setScale(glm::vec3(1024.0f, 1024.0f, 1.0f));
+			viewerImage->setSize({ 0, 0, 0, 0 });
+
+			mesh->setMaterial(0, id);
+		}
 	}
 }
 

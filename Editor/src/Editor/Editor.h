@@ -15,6 +15,7 @@ enum class EXPLORER_SELECTION_TYPE {
 	GAMEOBJECT,
 	UIELEMENT,
 	MODEL,
+	MATERIAL,
 	TEXTURE,
 	SCENE,
 	GAME,
@@ -88,6 +89,7 @@ private:
 	void showGameObjectProps(uint32_t id);
 	void showUIElementProps(uint32_t id, bool global = false);
 	void showModelProps(uint32_t id);
+	void showMaterialProps(uint32_t id);
 	void showTextureProps(uint32_t id);
 	void showSceneProps(uint32_t id);
 
@@ -97,6 +99,7 @@ private:
 
 	Yngin::GameObject* viewerObject;
 	Yngin::UI::Image* viewerImage;
+	Yngin::GameObject* viewerLightObject;
 
 	void setupPreviousGameState();
 	void loadPreviousGameState();

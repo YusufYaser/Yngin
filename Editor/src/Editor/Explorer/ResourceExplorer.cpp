@@ -31,6 +31,29 @@ namespace {
 		return clicked;
 	}
 
+	uint32_t drawMaterialsTree(std::map<uint32_t, Material> materials) {
+		uint32_t clicked = -2;
+		bool open = ImGui::TreeNodeEx("Materials", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen);
+
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
+			clicked = -1;
+		}
+
+		if (open) {
+			for (auto& [id, _] : materials) {
+				ImGui::TreeNodeEx(std::string("Material #" + std::to_string(id)).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
+					clicked = id;
+				}
+			}
+			ImGui::TreePop();
+
+		}
+
+		return clicked;
+	}
+
 	uint32_t drawTexturesTree(std::vector<Texture*> textures) {
 		uint32_t clicked = -2;
 		bool open = ImGui::TreeNodeEx("Textures", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen);
@@ -80,6 +103,10 @@ void Editor::showResourceExplorer() {
 	uint32_t model = drawModelsTree(ctx->getModelsManager()->getModels());
 	if (model != -2) {
 		explorerSelection = { EXPLORER_SELECTION_TYPE::MODEL, model };
+	}
+	uint32_t material = drawMaterialsTree(ctx->getModelsManager()->getMaterials());
+	if (material != -2) {
+		explorerSelection = { EXPLORER_SELECTION_TYPE::MATERIAL, material };
 	}
 	uint32_t texture = drawTexturesTree(ctx->getTexturesManager()->getTextures());
 	if (texture != -2) {
