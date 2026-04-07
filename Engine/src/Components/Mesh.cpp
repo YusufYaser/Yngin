@@ -18,13 +18,33 @@ namespace Yngin {
 		Mesh::~Mesh() = default;
 
 		void Mesh::setModel(uint32_t newModelId) {
-			impl->modelId = newModelId;
+			Model* model = Component::impl->ctx->getModelsManager()->getModel(newModelId);
+			if (model) setModel(model);
 		}
 
 		void Mesh::setModel(Model* newModel) {
-			if (newModel->getContext() == Component::impl->ctx) {
-				impl->modelId = newModel->getId();
+			if (newModel->getContext() != Component::impl->ctx) return;
+
+			const ModelData& d = newModel->getModelData();
+
+			for (int i = 0; i < 256; i++) {
+				impl->materials[i] = d.defaultMaterials[i];
 			}
+			impl->meshMaterialsCount = d.materialsCount;
+
+			impl->modelId = newModel->getId();
+		}
+
+		uint8_t Components::Mesh::getMaterialsCount() const {
+			return impl->meshMaterialsCount;
+		}
+
+		uint32_t Components::Mesh::getMaterial(uint8_t modelMatIdx) const {
+			return impl->materials[modelMatIdx];
+		}
+
+		void Components::Mesh::setMaterial(uint8_t modelMatIdx, uint32_t materialId) {
+			impl->materials[modelMatIdx] = materialId;
 		}
 
 		uint32_t Mesh::getModel() const {

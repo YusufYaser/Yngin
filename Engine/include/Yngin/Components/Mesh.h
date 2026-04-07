@@ -20,6 +20,10 @@ namespace Yngin {
 			void setColor(glm::vec3 newColor);
 			glm::vec3 getColor() const;
 
+			uint8_t getMaterialsCount() const;
+			uint32_t getMaterial(uint8_t modelMatIdx) const;
+			void setMaterial(uint8_t modelMatIdx, uint32_t materialId);
+
 		private:
 			Mesh(GameObject* gameObject);
 			~Mesh();

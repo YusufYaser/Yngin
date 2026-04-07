@@ -188,12 +188,10 @@ namespace Yngin::Rendering {
 		worldShader->setVec3(std::string("materials[0].specularColor").c_str(), glm::vec3(1.0f));
 		worldShader->setFloat(std::string("materials[0].specularComponent").c_str(), 64);
 
-		const ModelData& d = model->getModelData();
-
 		auto materials = cimpl->ctx->getModelsManager()->getMaterials();
 
-		for (int i = 0; i < d.materialsCount; i++) {
-			uint32_t matId = d.defaultMaterials[i];
+		for (int i = 0; i < mimpl->meshMaterialsCount; i++) {
+			uint32_t matId = mimpl->materials[i];
 			const Material& mat = materials[matId];
 
 			std::string idStr = std::to_string(i);

@@ -2,6 +2,7 @@
 #include <Yngin/Components/Components.h>
 #include <Yngin/Components/Mesh.h>
 #include <glm/vec3.hpp>
+#include <map>
 
 namespace Yngin {
 	struct AABBBounds {
@@ -20,6 +21,9 @@ namespace Yngin {
 			uint32_t texId;
 
 			glm::vec3 color = glm::vec3(1.0f);
+
+			uint8_t meshMaterialsCount;
+			std::map<uint8_t, uint32_t> materials;
 		};
 
 		struct Light::Impl {

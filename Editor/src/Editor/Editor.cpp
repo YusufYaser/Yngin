@@ -97,7 +97,7 @@ Editor::Editor() {
 			GameObject* defaultCube = activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
 			Components::Mesh* defaultCubeMesh = defaultCube->createComponent<Components::Mesh>();
 			defaultCubeMesh->setModel(cubeModel);
-			defaultCubeMesh->setTexture(1);
+			defaultCubeMesh->setTexture(2);
 			defaultCube->meta.setMeta("Editor.Name", "Cube");
 
 			Texture* skyboxTex = ctx->getTexturesManager()->createTexture({
@@ -430,7 +430,7 @@ void Editor::update() {
 		//window->setFullscreen(!window->isFullscreen());
 	//}
 
-	std::pair<UI::UIElement*, glm::vec4> oldUIColor = {};
+	/*std::pair<UI::UIElement*, glm::vec4> oldUIColor = {};
 	std::pair<Components::Mesh*, glm::vec3> oldObjectColor = {};
 	if (!running) {
 		for (auto& element : activeScene->getUIManager()->getElements()) {
@@ -463,12 +463,12 @@ void Editor::update() {
 				}
 			}
 		}
-	}
+	}*/
 	ctx->update(false);
-	if (!running) {
+	/*if (!running) {
 		if (oldUIColor.first != nullptr) oldUIColor.first->setColor(oldUIColor.second);
 		if (oldObjectColor.first != nullptr) oldObjectColor.first->setColor(oldObjectColor.second);
-	}
+	}*/
 	io.DisplaySize = ImVec2((float)windowSize.x, (float)windowSize.y);
 
 	if (!input->isMousePressed(Yngin::MOUSE_BUTTON::RIGHT) && input->isKeyPressed(Yngin::KEY::LCTRL) && input->isKeyJustPressed(Yngin::KEY::S)) {

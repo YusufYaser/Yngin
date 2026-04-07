@@ -8,6 +8,13 @@ namespace Yngin {
 		impl = std::make_unique<Impl>();
 
 		impl->ctx = ctx;
+
+		impl->materials[0] = Material{
+			.ambientColor = glm::vec3(1.0f),
+			.diffuseColor = glm::vec3(1.0f),
+			.specularColor = glm::vec3(1.0f),
+			.specularComponent = 64
+		};
 	}
 
 	ModelsManager::~ModelsManager() = default;

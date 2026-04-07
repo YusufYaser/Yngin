@@ -55,6 +55,8 @@ namespace Yngin {
 		this->frontFace = frontFace;
 
 		this->modelData = d;
+
+		if (this->modelData.materialsCount == 0) this->modelData.materialsCount = 1;
 	}
 
 	uint32_t Model::getId() const {

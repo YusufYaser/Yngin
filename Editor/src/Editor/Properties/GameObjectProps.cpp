@@ -189,6 +189,19 @@ void Editor::showGameObjectProps(uint32_t id) {
 			}
 		}
 
+		for (int i = 0; i < mesh->getMaterialsCount(); i++) {
+			ImGui::Text("Material %i", i);
+			ImGui::SameLine(100);
+			{
+				static int v[256] = {};
+				if (ImGui::InputInt(("##MeshMaterial" + std::to_string(i)).c_str(), &v[i])) {
+					mesh->setMaterial(i, v[i]);
+				} else {
+					v[i] = mesh->getMaterial(i);
+				}
+			}
+		}
+
 		if (deleted) {
 			obj->deleteComponent<Components::Mesh>();
 		}
