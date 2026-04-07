@@ -6,7 +6,7 @@
 namespace Yngin {
 	struct Model::Impl {
 		Context* ctx;
-		void init(std::vector<Vertex> vertices, std::vector<uint32_t> indices, MODEL_FRONT_FACE frontFace);
+		void init(const ModelData& d);
 
 		uint32_t id;
 
@@ -19,6 +19,8 @@ namespace Yngin {
 		MODEL_FRONT_FACE frontFace;
 
 		ModelData modelData;
+
+		uint32_t materials[256];
 	};
 
 	struct ModelsManager::Impl {
@@ -27,6 +29,10 @@ namespace Yngin {
 		std::map<uint32_t, std::unique_ptr<Model>> models;
 		uint32_t nextId = 0;
 
-		void loadObj(const char* data, size_t length, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
+		std::map<uint32_t, Material> materials;
+		uint32_t nextMaterialId = 1;
+
+		void loadObj(const char* data, size_t length, ModelData& modelData);
+		int loadMtl(const char* data, size_t length, ModelData& modelData, std::map<std::string, uint8_t>& matIds);
 	};
 }

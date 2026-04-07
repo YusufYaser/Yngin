@@ -153,6 +153,8 @@ namespace Yngin::Rendering {
 		auto cimpl = dynamic_cast<Components::Component*>(mesh)->impl.get();
 		auto mimpl = mesh->impl.get();
 
+		Scene* scene = cimpl->gameObject->impl->scene;
+
 		Model* model = cimpl->ctx->getModelsManager()->getModel(mimpl->modelId);
 		if (model == nullptr) return;
 
@@ -180,6 +182,27 @@ namespace Yngin::Rendering {
 		worldShader->setInt("isLight", obj->getComponent<Components::Light>() != nullptr || !lightingEnabled);
 
 		worldShader->setVec4("color", glm::vec4(mimpl->color, 1));
+
+		worldShader->setVec3(std::string("materials[0].ambientColor").c_str(), scene->getLightSettings().ambientLight);
+		worldShader->setVec3(std::string("materials[0].diffuseColor").c_str(), glm::vec3(1.0f));
+		worldShader->setVec3(std::string("materials[0].specularColor").c_str(), glm::vec3(1.0f));
+		worldShader->setFloat(std::string("materials[0].specularComponent").c_str(), 64);
+
+		const ModelData& d = model->getModelData();
+
+		auto materials = cimpl->ctx->getModelsManager()->getMaterials();
+
+		for (int i = 0; i < d.materialsCount; i++) {
+			uint32_t matId = d.defaultMaterials[i];
+			const Material& mat = materials[matId];
+
+			std::string idStr = std::to_string(i);
+
+			worldShader->setVec3(std::string("materials[" + idStr + "].ambientColor").c_str(), mat.ambientColor);
+			worldShader->setVec3(std::string("materials[" + idStr + "].diffuseColor").c_str(), mat.diffuseColor);
+			worldShader->setVec3(std::string("materials[" + idStr + "].specularColor").c_str(), mat.specularColor);
+			worldShader->setFloat(std::string("materials[" + idStr + "].specularComponent").c_str(), mat.specularComponent);
+		}
 
 		if (tex) tex->activate();
 		model->render();

@@ -23,6 +23,7 @@ namespace Yngin {
 
 	struct ContextSettings;
 	struct Vertex;
+	struct Material;
 	struct ModelData;
 	struct LightSettings;
 	struct WindowSettings;

@@ -1,4 +1,6 @@
 #include <Yngin/Core/Models.h>
+#include <Yngin/Core/Scenes.h>
+#include <Yngin/Rendering/Shaders.h>
 #include <glad/glad.h>
 #include <stdexcept>
 #include "Models_Internal.h"
@@ -17,32 +19,34 @@ namespace Yngin {
 		glDeleteBuffers(1, &impl->VAO);
 	}
 
-	void Model::Impl::init(std::vector<Vertex> vertices, std::vector<uint32_t> indices, MODEL_FRONT_FACE frontFace) {
-		if (vertices.size() == 0 || indices.size() == 0) {
+	void Model::Impl::init(const ModelData& d) {
+		if (d.vertices.size() == 0 || d.indices.size() == 0) {
 			throw std::invalid_argument("Vertices and indices size cannot be zero");
 		}
 
 		ctx->makeCurrent();
 
-		indicesCount = static_cast<GLsizei>(indices.size());
+		indicesCount = static_cast<GLsizei>(d.indices.size());
 
 		glGenVertexArrays(1, &VAO);
 		glBindVertexArray(VAO);
 
 		glGenBuffers(1, &VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, d.vertices.size() * sizeof(d.vertices[0]), d.vertices.data(), GL_STATIC_DRAW);
 
 		glGenBuffers(1, &EBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, d.indices.size() * sizeof(d.indices[0]), d.indices.data(), GL_STATIC_DRAW);
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+		glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(Vertex), (void*)offsetof(Vertex, matId));
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 		glEnableVertexAttribArray(2);
+		glEnableVertexAttribArray(3);
 
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -50,11 +54,7 @@ namespace Yngin {
 
 		this->frontFace = frontFace;
 
-		modelData = ModelData{
-			.vertices = vertices,
-			.indices = indices,
-			.frontFace = frontFace,
-		};
+		this->modelData = d;
 	}
 
 	uint32_t Model::getId() const {
@@ -68,6 +68,8 @@ namespace Yngin {
 	void Model::render() {
 		impl->ctx->makeCurrent();
 
+		ModelsManager* mgr = impl->ctx->getModelsManager();
+
 		if (impl->frontFace == MODEL_FRONT_FACE::NONE) {
 			glDisable(GL_CULL_FACE);
 		} else {
@@ -80,6 +82,11 @@ namespace Yngin {
 		}
 
 		glBindVertexArray(impl->VAO);
+
+		Shader* shader = impl->ctx->getShadersManager()->getActive();
+
+		Scene* scene = impl->ctx->getScenesManager()->getActive();
+
 		glDrawElements(GL_TRIANGLES, impl->indicesCount, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 	}

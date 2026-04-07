@@ -11,6 +11,7 @@ namespace Yngin {
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec2 inTexCoord;
 layout(location = 2) in vec3 inNormal;
+layout(location = 3) in uint inMatId;
 
 uniform mat4 projection;
 uniform mat4 view;
@@ -20,6 +21,7 @@ uniform mat3 normalMatrix;
 out vec3 fPosition;
 out vec2 fTexCoord;
 out vec3 fNormal;
+flat out uint fMatId;
 
 void main() {
 	vec4 worldPosition = model * vec4(inPosition, 1.0);
@@ -29,6 +31,7 @@ void main() {
 	fPosition = worldPosition.xyz;
 	fTexCoord = inTexCoord;
 	fNormal = normalize(normalMatrix * inNormal);
+	fMatId = inMatId;
 }
 			)",
 
@@ -45,6 +48,13 @@ struct Light {
 	float intensity;
 };
 
+struct Material {
+	vec3 ambientColor;
+	vec3 diffuseColor;
+	vec3 specularColor;
+	float specularComponent;
+};
+
 struct SceneSettings {
 	vec3 ambientLight;
 };
@@ -52,12 +62,15 @@ struct SceneSettings {
 in vec3 fPosition;
 in vec2 fTexCoord;
 in vec3 fNormal;
+flat in uint fMatId;
 
 out vec4 FragColor;
 
 uniform bool isLight;
 uniform int lightsCount;
 uniform Light lights[MAX_LIGHTS];
+uniform Material materials[256];
+
 uniform vec3 cameraPos;
 
 uniform SceneSettings scene;
@@ -68,9 +81,10 @@ uniform vec4 color;
 void main() {
 	vec3 totalLight;
 
-	vec3 ambient = scene.ambientLight;
 	vec3 diffusion;
 	vec3 specular;
+
+	Material mat = materials[fMatId];
 	
 	if (!isLight) {
 		for (int i = 0; i < lightsCount; i++) {
@@ -90,15 +104,15 @@ void main() {
 			vec3 viewDir = normalize(cameraPos - fPosition);
 			vec3 reflectDir = reflect(-lightDir, fNormal);
 			
-			specular += pow(max(dot(viewDir, reflectDir), 0.0), 64) * l.color * l.intensity * 0.5;
+			specular += pow(max(dot(viewDir, reflectDir), 0.0), mat.specularComponent) * l.color * l.intensity * 0.5;
 		}
 
-		totalLight = ambient + diffusion + specular;
+		totalLight = mat.diffuseColor * mat.ambientColor + diffusion * mat.diffuseColor + specular * mat.specularColor;
 		totalLight = clamp(totalLight / (totalLight + vec3(1.0f)), vec3(0.0), vec3(1.0));
 	} else {
-		totalLight = vec3(1.0);
+		totalLight = mat.diffuseColor;
 	}
-
+	
 	FragColor = texture(tex0, fTexCoord) * color * vec4(totalLight, 1.0);
 }
 			)",

@@ -10,6 +10,14 @@ namespace Yngin {
 		glm::vec3 pos;
 		glm::vec2 texCoord;
 		glm::vec3 normal;
+		uint32_t matId;
+	};
+
+	struct Material {
+		glm::vec3 ambientColor;
+		glm::vec3 diffuseColor;
+		glm::vec3 specularColor;
+		float specularComponent;
 	};
 
 	enum class MODEL_FRONT_FACE : uint8_t {
@@ -26,6 +34,8 @@ namespace Yngin {
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
 		MODEL_FRONT_FACE frontFace = MODEL_FRONT_FACE::CCW;
+		uint8_t materialsCount = 0;
+		uint32_t defaultMaterials[256];
 	};
 
 	class ModelsManager {
@@ -40,11 +50,15 @@ namespace Yngin {
 		size_t getModelsCount() const;
 		std::vector<Model*> getModels() const;
 
+		size_t getMaterialsCount() const;
+		std::map<uint32_t, Material> getMaterials() const;
+
 		Model* getModel(uint32_t modelId) const;
 
 	private:
 		friend class Context;
 		friend struct std::default_delete<ModelsManager>;
+		friend class Model;
 
 		ModelsManager(Context* ctx);
 		~ModelsManager();

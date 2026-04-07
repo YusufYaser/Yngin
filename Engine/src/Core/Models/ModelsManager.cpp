@@ -35,28 +35,23 @@ namespace Yngin {
 		model->impl->id = id;
 		impl->models[id] = std::unique_ptr<Model>(model);
 
-		model->impl->init(data.vertices, data.indices, data.frontFace);
+		model->impl->init(data);
 
 		return model;
 	}
 
 	Model* ModelsManager::createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length, uint32_t id, bool override) {
-		std::vector<Vertex> vertices;
-		std::vector<uint32_t> indices;
+		ModelData modelData{};
 
 		switch (type) {
 		case MODEL_FILE_TYPE::OBJ:
-			impl->loadObj(data, length, vertices, indices);
+			impl->loadObj(data, length, modelData);
 			break;
 		default:
 			throw std::invalid_argument("Invalid model type");
 		}
 
-		return createModel(ModelData{
-			.vertices = vertices,
-			.indices = indices,
-			.frontFace = MODEL_FRONT_FACE::CCW
-			}, id, override);
+		return createModel(modelData, id, override);
 	}
 
 	void ModelsManager::deleteModel(uint32_t modelId) {
@@ -79,6 +74,14 @@ namespace Yngin {
 			models.push_back(kvp.second.get());
 		}
 		return models;
+	}
+
+	size_t ModelsManager::getMaterialsCount() const {
+		return impl->materials.size();
+	}
+
+	std::map<uint32_t, Material> ModelsManager::getMaterials() const {
+		return impl->materials;
 	}
 
 	Model* ModelsManager::getModel(uint32_t modelId) const {

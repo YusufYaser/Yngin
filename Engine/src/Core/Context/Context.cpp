@@ -71,6 +71,8 @@ namespace Yngin {
 		texData.numCh = 1;
 		texData.bytes = "\x00";
 		m.texturesManager->createTexture(texData);
+		texData.bytes = "\xff";
+		m.texturesManager->createTexture(texData);
 
 		Shader* worldShader = m.shadersManager->getShader(SHADER_TYPE::WORLD);
 		Shader* skyboxShader = m.shadersManager->getShader(SHADER_TYPE::SKYBOX);
