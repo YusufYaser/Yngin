@@ -1,6 +1,6 @@
 #include "GameFiles.h"
-#include "../Core/Context/ResourcesPak.h"
-#include "../Core/Scenes/ScenePak.h"
+#include "ResourcesPak.h"
+#include "ScenePak.h"
 #include <Yngin/Core/Models.h>
 #include <Yngin/Core/Materials.h>
 #include <Yngin/Rendering/Textures.h>
@@ -39,9 +39,9 @@ namespace Yngin::GameFiles {
 			ModelVertexData v{};
 			R(v, ModelVertexData);
 			modelData.vertices.push_back(Vertex{
-				.pos = glm::make_vec3(v.position),
-				.texCoord = glm::make_vec2(v.texCoord),
-				.normal = glm::make_vec3(v.normal),
+				.pos = v.position,
+				.texCoord = v.texCoord,
+				.normal = v.normal,
 				.matId = v.material
 				});
 		}
@@ -297,30 +297,11 @@ namespace Yngin::GameFiles {
 
 		parentsQueue[elementData.id] = elementData.parent;
 
-		UI::UITransform position{
-			.xScale = elementData.positionScale[0],
-			.xOffset = elementData.positionOffset[0],
-			.yScale = elementData.positionScale[1],
-			.yOffset = elementData.positionOffset[1],
-		};
+		element->setPosition(elementData.position);
 
-		element->setPosition(position);
+		element->setSize(elementData.size);
 
-		UI::UITransform size{
-			.xScale = elementData.sizeScale[0],
-			.xOffset = elementData.sizeOffset[0],
-			.yScale = elementData.sizeScale[1],
-			.yOffset = elementData.sizeOffset[1],
-		};
-
-		element->setSize(size);
-
-		UI::UICrop crop{
-			.start = glm::make_vec2(elementData.cropStart),
-			.end = glm::make_vec2(elementData.cropEnd)
-		};
-
-		element->setCrop(crop);
+		element->setCrop(elementData.crop);
 
 		glm::vec4 color = glm::make_vec4(elementData.color);
 		element->setColor(color);

@@ -2,12 +2,12 @@
 #include <Yngin/Rendering/Cameras.h>
 #include <Yngin/UI/UIManager.h>
 #include <Yngin/UI/Elements/Elements.h>
-#include "../GameObject/GameObject_Internal.h"
-#include "Scenes_Internal.h"
+#include "../Core/GameObject/GameObject_Internal.h"
+#include "../Core/Scenes/Scenes_Internal.h"
 #include <sstream>
 #include "ScenePak.h"
 #include <glm/gtc/type_ptr.hpp>
-#include "../../GameFiles/GameFiles.h"
+#include "GameFiles.h"
 
 #define R(name, type) s.read(reinterpret_cast<char*>(&name), sizeof(type))
 #define W(name, type) s.write(reinterpret_cast<const char*>(&name), sizeof(type))
@@ -39,7 +39,7 @@ namespace Yngin {
 				SceneData sceneData{};
 				R(sceneData, SceneData);
 				skyboxTexId = sceneData.skyboxTexture;
-				lightSettings = { .ambientLight = glm::make_vec3(sceneData.ambientLight) };
+				lightSettings = { .ambientLight = sceneData.ambientLight };
 				gravity = sceneData.gravity;
 
 				Loaders::meta(s, owner->meta);
@@ -212,7 +212,7 @@ namespace Yngin {
 
 		SceneData scene{};
 		scene.skyboxTexture = impl->skyboxTexId;
-		std::memcpy(scene.ambientLight, glm::value_ptr(impl->lightSettings.ambientLight), sizeof(float) * 3);
+		impl->lightSettings.ambientLight = scene.ambientLight;
 		scene.gravity = impl->gravity;
 
 		W(scene, SceneData);

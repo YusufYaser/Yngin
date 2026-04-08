@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 
 namespace Yngin {
 	enum class TEXTURE_WRAP : uint8_t;
@@ -39,9 +40,9 @@ namespace Yngin {
 			};
 
 			struct ModelVertexData {
-				float position[3];
-				float texCoord[2];
-				float normal[3];
+				glm::vec3 position;
+				glm::vec2 texCoord;
+				glm::vec3 normal;
 				uint8_t material;
 			};
 

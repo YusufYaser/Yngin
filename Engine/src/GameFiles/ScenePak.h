@@ -1,6 +1,9 @@
 #pragma once
 #include <stdint.h>
 #include <Yngin/UI/Elements/UIElement.h>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 namespace Yngin {
 	namespace GameFiles {
@@ -25,16 +28,16 @@ namespace Yngin {
 
 			struct SceneData {
 				int skyboxTexture;
-				float ambientLight[3];
+				glm::vec3 ambientLight;
 				float gravity;
 			};
 
 			struct GameObjectData {
 				int id;
 				int parent;
-				float position[3];
-				float rotation[3];
-				float scale[3];
+				glm::vec3 position;
+				glm::vec3 rotation;
+				glm::vec3 scale;
 			};
 
 			struct ComponentData {
@@ -44,33 +47,33 @@ namespace Yngin {
 			struct MeshData {
 				int modelId;
 				int textureId;
-				float color[3];
+				glm::vec3 color;
 				uint32_t materials[256];
 			};
 
 			struct LightData {
 				float intensity;
 				float distance;
-				float color[3];
+				glm::vec3 color;
 			};
 
 			struct RigidBodyData {
 				float mass;
 				float elasticity;
 				bool canBounce;
-				float velocity[3];
+				glm::vec3 velocity;
 				uint8_t forcesCount;
 			};
 
 			struct BoxColliderData {
-				float offset[3];
-				float size[3];
+				glm::vec3 offset;
+				glm::vec3 size;
 			};
 
 			struct CameraData {
 				int id;
-				float position[3];
-				float orientation[3];
+				glm::vec3 position;
+				glm::vec3 orientation;
 				float fov;
 				float weight;
 			};
@@ -79,18 +82,14 @@ namespace Yngin {
 				int id;
 				int parent;
 
-				float positionScale[2];
-				int positionOffset[2];
+				UI::UITransform position;
+				UI::UITransform size;
 
-				float sizeScale[2];
-				int sizeOffset[2];
+				UI::UICrop crop;
 
-				float cropStart[2];
-				float cropEnd[2];
+				glm::vec4 color;
 
-				float color[4];
-
-				float pivot[2];
+				glm::vec2 pivot;
 
 				UI_TYPE type;
 
@@ -106,7 +105,7 @@ namespace Yngin {
 
 				uint32_t glyphId;
 
-				int spacing[2];
+				glm::ivec2 spacing;
 				bool centered[2];
 
 				size_t textLength;
@@ -115,8 +114,8 @@ namespace Yngin {
 			};
 
 			struct UIButtonData {
-				float hoverColor[4];
-				float clickColor[4];
+				glm::vec4 hoverColor;
+				glm::vec4 clickColor;
 
 				// UIImageData imageData;
 				// UITextData textData;

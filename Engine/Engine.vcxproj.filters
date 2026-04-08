@@ -168,10 +168,10 @@
     <ClInclude Include="src\Rendering\Renderer\Renderer_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Scenes\ScenePak.h">
+    <ClInclude Include="src\GameFiles\ScenePak.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Context\ResourcesPak.h">
+    <ClInclude Include="src\GameFiles\ResourcesPak.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Yngin\Core\Scripting.h">
@@ -183,10 +183,10 @@
     <ClInclude Include="src\GameFiles\GameFiles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Context\CorePak.h">
+    <ClInclude Include="src\GameFiles\CorePak.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Context\GamePak.h">
+    <ClInclude Include="src\GameFiles\GamePak.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Yngin\Forward.h">
@@ -308,10 +308,10 @@
     <ClCompile Include="src\Rendering\Renderer\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Scenes\ScenePak.cpp">
+    <ClCompile Include="src\GameFiles\ScenePak.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Context\ResourcesPak.cpp">
+    <ClCompile Include="src\GameFiles\ResourcesPak.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Scripting\Scripting.cpp">
@@ -332,10 +332,10 @@
     <ClCompile Include="src\GameFiles\PakLoaders.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Context\CorePak.cpp">
+    <ClCompile Include="src\GameFiles\CorePak.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Context\GamePak.cpp">
+    <ClCompile Include="src\GameFiles\GamePak.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Utils\Meta.cpp">

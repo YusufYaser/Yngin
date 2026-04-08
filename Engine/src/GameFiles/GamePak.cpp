@@ -2,8 +2,8 @@
 #include <string>
 #include "GamePak.h"
 #include <sstream>
-#include "../../GameFiles/GameFiles.h"
-#include "Context_Internal.h"
+#include "GameFiles.h"
+#include "../Core/Context/Context_Internal.h"
 #include <Yngin/Core/Scenes.h>
 
 #define R(name, type) s.read(reinterpret_cast<char*>(&name), sizeof(type))
@@ -14,7 +14,7 @@ using namespace Yngin::GameFiles::GamePak;
 
 namespace Yngin {
 	namespace GameFiles {
-		const int VERSION = 3;
+		const int VERSION = 4;
 	}
 
 	void Context::loadGamePak(const char* bytes, size_t size) {

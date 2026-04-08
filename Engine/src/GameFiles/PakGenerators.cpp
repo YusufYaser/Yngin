@@ -1,6 +1,6 @@
 #include "GameFiles.h"
-#include "../Core/Context/ResourcesPak.h"
-#include "../Core/Scenes/ScenePak.h"
+#include "ResourcesPak.h"
+#include "ScenePak.h"
 #include <Yngin/Core/Models.h>
 #include <Yngin/Core/Materials.h>
 #include <Yngin/Rendering/Textures.h>
@@ -51,9 +51,9 @@ namespace Yngin::GameFiles {
 
 			for (auto& vertex : data.vertices) {
 				ModelVertexData v{};
-				std::memcpy(v.position, glm::value_ptr(vertex.pos), sizeof(float) * 3);
-				std::memcpy(v.texCoord, glm::value_ptr(vertex.texCoord), sizeof(float) * 2);
-				std::memcpy(v.normal, glm::value_ptr(vertex.normal), sizeof(float) * 3);
+				v.position = vertex.pos;
+				v.texCoord = vertex.texCoord;
+				v.normal = vertex.normal;
 				v.material = vertex.matId;
 				W(v, ModelVertexData);
 			}
@@ -198,9 +198,9 @@ namespace Yngin::GameFiles {
 			GameObjectData objData{};
 			objData.id = obj->impl->id;
 			objData.parent = obj->impl->parent->impl->id;
-			std::memcpy(objData.position, glm::value_ptr(obj->impl->pos), sizeof(float) * 3);
-			std::memcpy(objData.rotation, glm::value_ptr(obj->impl->rotation), sizeof(float) * 3);
-			std::memcpy(objData.scale, glm::value_ptr(obj->impl->scale), sizeof(float) * 3);
+			objData.position = obj->impl->pos;
+			objData.rotation = obj->impl->rotation;
+			objData.scale = obj->impl->scale;
 
 			W(objData, GameObjectData);
 
@@ -219,7 +219,7 @@ namespace Yngin::GameFiles {
 				meshData.modelId = mesh->getModel();
 				meshData.textureId = mesh->getTexture();
 				glm::vec3 color = mesh->getColor();
-				std::memcpy(meshData.color, glm::value_ptr(color), sizeof(float) * 3);
+				meshData.color = color;
 
 				for (int i = 0; i < 256; i++) {
 					meshData.materials[i] = mesh->getMaterial(i);
@@ -240,7 +240,7 @@ namespace Yngin::GameFiles {
 				lightData.intensity = light->getIntensity();
 				lightData.distance = light->getDistance();
 				glm::vec3 color = light->getColor();
-				std::memcpy(lightData.color, glm::value_ptr(color), sizeof(float) * 3);
+				lightData.color = color;
 
 				W(lightData, LightData);
 			}
@@ -258,7 +258,7 @@ namespace Yngin::GameFiles {
 				rigidBodyData.elasticity = rigidBody->getElasticity();
 				rigidBodyData.canBounce = rigidBody->canBounce();
 
-				std::memcpy(rigidBodyData.velocity, glm::value_ptr(rigidBody->getVelocity()), sizeof(float) * 3);
+				rigidBodyData.velocity = rigidBody->getVelocity();
 
 				auto forces = rigidBody->getForces();
 				rigidBodyData.forcesCount = uint8_t(forces.size());
@@ -283,9 +283,9 @@ namespace Yngin::GameFiles {
 
 				BoxColliderData boxColliderData{};
 				glm::vec3 offset = boxCollider->getOffset();
-				std::memcpy(boxColliderData.offset, glm::value_ptr(offset), sizeof(float) * 3);
+				boxColliderData.offset = offset;
 				glm::vec3 size = boxCollider->getSize();
-				std::memcpy(boxColliderData.size, glm::value_ptr(size), sizeof(float) * 3);
+				boxColliderData.size = size;
 
 				W(boxColliderData, BoxColliderData);
 			}
@@ -306,9 +306,9 @@ namespace Yngin::GameFiles {
 			CameraData cameraData{};
 			cameraData.id = camera->getId();
 			glm::vec3 position = camera->getPosition();
-			std::memcpy(cameraData.position, glm::value_ptr(position), sizeof(float) * 3);
+			cameraData.position = position;
 			glm::vec3 orientation = camera->getOrientation();
-			std::memcpy(cameraData.orientation, glm::value_ptr(orientation), sizeof(float) * 3);
+			cameraData.orientation = orientation;
 
 			cameraData.fov = camera->getFov();
 			cameraData.weight = camera->getWeight();
@@ -339,21 +339,14 @@ namespace Yngin::GameFiles {
 			elementData.id = element->getId();
 			elementData.parent = element->getParent()->getId();
 
-			elementData.positionScale[0] = pos.xScale;
-			elementData.positionScale[1] = pos.yScale;
-			elementData.positionOffset[0] = pos.xOffset;
-			elementData.positionOffset[1] = pos.yOffset;
-			elementData.sizeScale[0] = size.xScale;
-			elementData.sizeScale[1] = size.yScale;
-			elementData.sizeOffset[0] = size.xOffset;
-			elementData.sizeOffset[1] = size.yOffset;
+			elementData.position = pos;
+			elementData.size = size;
 
-			std::memcpy(elementData.cropStart, glm::value_ptr(element->getCrop().start), sizeof(float) * 2);
-			std::memcpy(elementData.cropEnd, glm::value_ptr(element->getCrop().end), sizeof(float) * 2);
+			elementData.crop = element->getCrop();
 
-			std::memcpy(elementData.color, glm::value_ptr(element->getColor()), sizeof(float) * 4);
+			elementData.color = element->getColor();
 
-			std::memcpy(elementData.pivot, glm::value_ptr(element->getPivot()), sizeof(float) * 2);
+			elementData.pivot = element->getPivot();
 
 			elementData.type = element->getType();
 
@@ -366,8 +359,8 @@ namespace Yngin::GameFiles {
 
 				UIButtonData buttonData{};
 
-				std::memcpy(buttonData.hoverColor, glm::value_ptr(button->getHoverColor()), sizeof(float) * 4);
-				std::memcpy(buttonData.clickColor, glm::value_ptr(button->getClickColor()), sizeof(float) * 4);
+				buttonData.hoverColor = button->getHoverColor();
+				buttonData.clickColor = button->getClickColor();
 
 				W(buttonData, UIButtonData);
 
@@ -403,7 +396,7 @@ namespace Yngin::GameFiles {
 				textData.size = text->getTextSize();
 				textData.glyphId = text->getGlyph();
 
-				std::memcpy(textData.spacing, glm::value_ptr(text->getSpacing()), sizeof(int) * 2);
+				textData.spacing = text->getSpacing();
 
 				textData.centered[0] = text->isTextCentered().x == 1;
 				textData.centered[1] = text->isTextCentered().y == 1;

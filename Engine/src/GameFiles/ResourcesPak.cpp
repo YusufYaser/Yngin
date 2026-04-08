@@ -1,7 +1,7 @@
 #include <Yngin/Core/Context.h>
 #include "ResourcesPak.h"
-#include "Context_Internal.h"
-#include "../Scripting/Scripting_Internal.h"
+#include "../Core/Context/Context_Internal.h"
+#include "../Core/Scripting/Scripting_Internal.h"
 #include <Yngin/Core/Models.h>
 #include <Yngin/Rendering/Textures.h>
 #include <Yngin/Core/Scripting.h>
@@ -11,7 +11,7 @@
 #include <glad/glad.h>
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
-#include "../../GameFiles/GameFiles.h"
+#include "GameFiles.h"
 
 #define R(name, type) s.read(reinterpret_cast<char*>(&name), sizeof(type))
 #define W(name, type) s.write(reinterpret_cast<const char*>(&name), sizeof(type))

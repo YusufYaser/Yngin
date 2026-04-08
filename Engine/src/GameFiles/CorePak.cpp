@@ -2,8 +2,8 @@
 #include <string>
 #include "CorePak.h"
 #include <sstream>
-#include "../../GameFiles/GameFiles.h"
-#include "Context_Internal.h"
+#include "GameFiles.h"
+#include "../Core/Context/Context_Internal.h"
 #include <Yngin/UI/UIManager.h>
 #include <Yngin/UI/Elements/UIElement.h>
 

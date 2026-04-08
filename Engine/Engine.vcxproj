@@ -28,12 +28,12 @@
     <ClInclude Include="include\Yngin\Forward.h" />
     <ClInclude Include="include\Yngin\Utils\Meta.h" />
     <ClInclude Include="include\Yngin\Utils\Utils.h" />
-    <ClInclude Include="src\Core\Context\CorePak.h" />
-    <ClInclude Include="src\Core\Context\GamePak.h" />
+    <ClInclude Include="src\GameFiles\CorePak.h" />
+    <ClInclude Include="src\GameFiles\GamePak.h" />
     <ClInclude Include="src\Core\Materials\Materials_Internal.h" />
     <ClInclude Include="src\GameFiles\GameFiles.h" />
-    <ClInclude Include="src\Core\Context\ResourcesPak.h" />
-    <ClInclude Include="src\Core\Scenes\ScenePak.h" />
+    <ClInclude Include="src\GameFiles\ResourcesPak.h" />
+    <ClInclude Include="src\GameFiles\ScenePak.h" />
     <ClInclude Include="include\Yngin\Physics\Physics.h" />
     <ClInclude Include="include\Yngin\Physics\PhysicsEngine.h" />
     <ClInclude Include="include\Yngin\Rendering\Renderer.h" />
@@ -87,8 +87,8 @@
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c" />
     <ClCompile Include="deps\implementations\stb.c" />
-    <ClCompile Include="src\Core\Context\CorePak.cpp" />
-    <ClCompile Include="src\Core\Context\GamePak.cpp" />
+    <ClCompile Include="src\GameFiles\CorePak.cpp" />
+    <ClCompile Include="src\GameFiles\GamePak.cpp" />
     <ClCompile Include="src\Core\Materials\Material.cpp" />
     <ClCompile Include="src\Core\Materials\MaterialsManager.cpp" />
     <ClCompile Include="src\GameFiles\PakGenerators.cpp" />
@@ -96,9 +96,9 @@
     <ClCompile Include="src\Components\Light.cpp" />
     <ClCompile Include="src\Components\RigidBody.cpp" />
     <ClCompile Include="src\Core\Context\Init.cpp" />
-    <ClCompile Include="src\Core\Context\ResourcesPak.cpp" />
+    <ClCompile Include="src\GameFiles\ResourcesPak.cpp" />
     <ClCompile Include="src\Core\InputSystem\InputSystem.cpp" />
-    <ClCompile Include="src\Core\Scenes\ScenePak.cpp" />
+    <ClCompile Include="src\GameFiles\ScenePak.cpp" />
     <ClCompile Include="src\GameFiles\PakLoaders.cpp" />
     <ClCompile Include="src\Physics\PhysicsEngine.cpp" />
     <ClCompile Include="src\Rendering\Renderer\Renderer.cpp" />
