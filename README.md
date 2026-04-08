@@ -17,7 +17,10 @@ At the moment, Windows is the only supported platform.
 - Visual Studio 2022
 - Desktop development with C++
 
-Simply clone this GitHub repository and build with Visual Studio 2022
+### Steps
+1. Clone this repository
+2. Select the "Editor" project as the startup project
+3. Build
 
 ## License
 This project is licensed under the [MIT License](LICENSE.md).

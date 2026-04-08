@@ -3,14 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36811.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{2958721F-CDFB-48F2-979B-799385CDB3EF}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoApp", "DemoApp\DemoApp.vcxproj", "{0A469DF3-F7D0-410B-930C-58FA289F5992}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Editor", "Editor\Editor.vcxproj", "{73B9B1DF-D19F-413B-B05F-F1A2412043A5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{51351439-2809-47A9-8D44-10BC9165CA9C} = {51351439-2809-47A9-8D44-10BC9165CA9C}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{2958721F-CDFB-48F2-979B-799385CDB3EF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoApp", "DemoApp\DemoApp.vcxproj", "{0A469DF3-F7D0-410B-930C-58FA289F5992}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Runtime", "Runtime\Runtime.vcxproj", "{51351439-2809-47A9-8D44-10BC9165CA9C}"
 	ProjectSection(ProjectDependencies) = postProject
