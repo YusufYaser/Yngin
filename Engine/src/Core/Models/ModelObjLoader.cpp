@@ -74,8 +74,6 @@ namespace Yngin {
 
 				normals[nNormalId++] = v;
 			} else if (cmd == "f") {
-				// TODO: calculate normal if there are no normals in model file
-
 				std::vector<std::string> verticesStr;
 				while (s.rdbuf()->in_avail() > 0) {
 					std::string vertex;
@@ -97,9 +95,33 @@ namespace Yngin {
 						std::get<2>(triangle)
 					};
 
+					glm::vec3 verticesPos[3] = {};
+
 					for (int i = 0; i < 3; i++) {
-						std::string v = p[i % 3];
-						if (i > 3) v = p[i % 3 + 1];
+						std::string v = p[i];
+
+						int posId = 0;
+
+						for (char c : v) {
+							if (c == '/') {
+								break;
+							}
+
+							if (c >= '0' && c <= '9') {
+								posId *= 10;
+								posId += c - '0';
+							}
+						}
+
+						if (posId >= nPosId) {
+							break;
+						}
+
+						verticesPos[i] = positions[posId];
+					}
+
+					for (int i = 0; i < 3; i++) {
+						std::string v = p[i];
 
 						int s[3] = {};
 						int sn = 0;
@@ -125,6 +147,14 @@ namespace Yngin {
 							s[1] = 0;
 						if (s[2] >= nNormalId)
 							s[2] = 0;
+
+						if (s[2] == 0) {
+							int id = nNormalId++;
+							glm::vec3 edge1 = verticesPos[(i + 1) % 3] - verticesPos[(i + 0) % 3];
+							glm::vec3 edge2 = verticesPos[(i + 2) % 3] - verticesPos[(i + 0) % 3];
+							normals[id] = glm::normalize(glm::cross(edge1, edge2));
+							s[2] = id;
+						}
 
 						int vid = 0;
 						auto it = verticesCache.find(std::tuple<int, int, int, int>(s[0], s[1], s[2], currentMtl));
