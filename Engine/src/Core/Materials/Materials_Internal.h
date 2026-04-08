@@ -7,10 +7,10 @@ namespace Yngin {
 		Context* ctx;
 
 		uint32_t id;
-		glm::vec3 ambientColor;
-		glm::vec3 diffuseColor;
-		glm::vec3 specularColor;
-		float specularComponent;
+		glm::vec3 ambientColor = glm::vec3(1.0f);
+		glm::vec3 diffuseColor = glm::vec3(1.0f);
+		glm::vec3 specularColor = glm::vec3(1.0f);
+		float specularComponent = 32.0f;
 	};
 
 	struct MaterialsManager::Impl {

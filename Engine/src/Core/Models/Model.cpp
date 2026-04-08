@@ -52,8 +52,6 @@ namespace Yngin {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		this->frontFace = frontFace;
-
 		this->modelData = d;
 
 		if (this->modelData.materialsCount == 0) this->modelData.materialsCount = 1;
@@ -72,11 +70,11 @@ namespace Yngin {
 
 		ModelsManager* mgr = impl->ctx->getModelsManager();
 
-		if (impl->frontFace == MODEL_FRONT_FACE::NONE) {
+		if (impl->modelData.frontFace == MODEL_FRONT_FACE::NONE) {
 			glDisable(GL_CULL_FACE);
 		} else {
 			glEnable(GL_CULL_FACE);
-			if (impl->frontFace == MODEL_FRONT_FACE::CW) {
+			if (impl->modelData.frontFace == MODEL_FRONT_FACE::CW) {
 				glFrontFace(GL_CW);
 			} else {
 				glFrontFace(GL_CCW);

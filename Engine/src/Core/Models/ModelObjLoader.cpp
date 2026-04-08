@@ -16,8 +16,10 @@
 namespace fs = std::filesystem;
 
 namespace Yngin {
-	void ModelsManager::Impl::loadObj(const char* data, size_t length, ModelData& d) {
+	bool ModelsManager::Impl::loadObj(const char* data, size_t length, ModelData& givenModelData) {
 		// not all obj features are implemented yet
+
+		ModelData d{};
 
 		MaterialsManager* matMgr = ctx->getMaterialsManager();
 
@@ -72,64 +74,79 @@ namespace Yngin {
 
 				normals[nNormalId++] = v;
 			} else if (cmd == "f") {
-				// TODO: add support for more than 4 vertices
 				// TODO: calculate normal if there are no normals in model file
-				std::string p[4];
-				s >> p[0] >> p[1] >> p[2] >> p[3];
 
-				int verticesCount = 3;
-				if (p[3] != "")
-					verticesCount = 4;
+				std::vector<std::string> verticesStr;
+				while (s.rdbuf()->in_avail() > 0) {
+					std::string vertex;
+					s >> vertex;
+					verticesStr.push_back(vertex);
+				}
 
-				for (int i = 0; i < 3 * (verticesCount - 2); i++) {
-					std::string v = p[i % 3];
-					if (i > 3) v = p[i % 3 + 1];
+				int verticesCount = (int)verticesStr.size();
 
-					int s[3] = {};
-					int sn = 0;
-					for (char c : v) {
-						if (c == '/') {
-							sn++;
-							if (sn > 2) {
-								sn = 2; // temporary fix
+				std::vector<std::tuple<std::string, std::string, std::string>> triangles;
+				for (int i = 0; i < verticesCount - 2; i++) {
+					triangles.push_back({ verticesStr[0], verticesStr[i + 1], verticesStr[i + 2] });
+				}
+
+				for (auto& triangle : triangles) {
+					std::string p[3] = {
+						std::get<0>(triangle),
+						std::get<1>(triangle),
+						std::get<2>(triangle)
+					};
+
+					for (int i = 0; i < 3; i++) {
+						std::string v = p[i % 3];
+						if (i > 3) v = p[i % 3 + 1];
+
+						int s[3] = {};
+						int sn = 0;
+						for (char c : v) {
+							if (c == '/') {
+								sn++;
+								if (sn > 2) {
+									return false;
+								}
+								continue;
 							}
-							continue;
+
+							if (c >= '0' && c <= '9') {
+								s[sn] *= 10;
+								s[sn] += c - '0';
+							}
 						}
 
-						if (c >= '0' && c <= '9') {
-							s[sn] *= 10;
-							s[sn] += c - '0';
+						if (s[0] >= nPosId) {
+							break;
 						}
+						if (s[1] >= nTexCoordId)
+							s[1] = 0;
+						if (s[2] >= nNormalId)
+							s[2] = 0;
+
+						int vid = 0;
+						auto it = verticesCache.find(std::tuple<int, int, int, int>(s[0], s[1], s[2], currentMtl));
+						if (it == verticesCache.end()) {
+							Vertex vertex{};
+							vertex.pos = positions[s[0]];
+							if (s[1] != 0)
+								vertex.texCoord = texCoords[s[1]];
+							if (s[2] != 0)
+								vertex.normal = normals[s[2]];
+
+							vertex.matId = currentMtl;
+
+							vid = nVertexId++;
+							d.vertices.push_back(vertex);
+							verticesCache[std::tuple<int, int, int, int>(s[0], s[1], s[2], currentMtl)] = vid;
+						} else {
+							vid = it->second;
+						}
+
+						d.indices.push_back(vid);
 					}
-
-					if (s[0] >= nPosId) {
-						break;
-					}
-					if (s[1] >= nTexCoordId)
-						s[1] = 0;
-					if (s[2] >= nNormalId)
-						s[2] = 0;
-
-					int vid = 0;
-					auto it = verticesCache.find(std::tuple<int, int, int, int>(s[0], s[1], s[2], currentMtl));
-					if (it == verticesCache.end()) {
-						Vertex vertex{};
-						vertex.pos = positions[s[0]];
-						if (s[1] != 0)
-							vertex.texCoord = texCoords[s[1]];
-						if (s[2] != 0)
-							vertex.normal = normals[s[2]];
-
-						vertex.matId = currentMtl;
-
-						vid = nVertexId++;
-						d.vertices.push_back(vertex);
-						verticesCache[std::tuple<int, int, int, int>(s[0], s[1], s[2], currentMtl)] = vid;
-					} else {
-						vid = it->second;
-					}
-
-					d.indices.push_back(vid);
 				}
 			} else if (cmd == "mtllib") {
 				std::string filename;
@@ -178,5 +195,8 @@ namespace Yngin {
 				}
 			}
 		}
+
+		givenModelData = d;
+		return true;
 	}
 }

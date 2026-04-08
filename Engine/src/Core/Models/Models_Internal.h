@@ -16,8 +16,6 @@ namespace Yngin {
 
 		GLsizei indicesCount;
 
-		MODEL_FRONT_FACE frontFace;
-
 		ModelData modelData;
 
 		uint32_t materials[256];
@@ -29,6 +27,6 @@ namespace Yngin {
 		std::map<uint32_t, std::unique_ptr<Model>> models;
 		uint32_t nextId = 0;
 
-		void loadObj(const char* data, size_t length, ModelData& modelData);
+		bool loadObj(const char* data, size_t length, ModelData& modelData);
 	};
 }
