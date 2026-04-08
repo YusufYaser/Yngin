@@ -45,7 +45,9 @@ namespace Yngin {
 
 		switch (type) {
 		case MODEL_FILE_TYPE::OBJ:
-			impl->loadObj(data, length, modelData);
+			if (!parseObjFile(data, length, modelData)) {
+				return nullptr;
+			}
 			break;
 		default:
 			throw std::invalid_argument("Invalid model type");

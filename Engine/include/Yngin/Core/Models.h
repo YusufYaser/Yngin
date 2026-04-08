@@ -40,6 +40,8 @@ namespace Yngin {
 		void deleteModel(uint32_t modelId);
 		void deleteModel(Model* model);
 
+		bool parseObjFile(const char* data, size_t length, ModelData& modelData);
+
 		size_t getModelsCount() const;
 		std::vector<Model*> getModels() const;
 

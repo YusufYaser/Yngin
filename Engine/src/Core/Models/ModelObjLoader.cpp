@@ -16,12 +16,12 @@
 namespace fs = std::filesystem;
 
 namespace Yngin {
-	bool ModelsManager::Impl::loadObj(const char* data, size_t length, ModelData& givenModelData) {
+	bool ModelsManager::parseObjFile(const char* data, size_t length, ModelData& givenModelData) {
 		// not all obj features are implemented yet
 
 		ModelData d{};
 
-		MaterialsManager* matMgr = ctx->getMaterialsManager();
+		MaterialsManager* matMgr = impl->ctx->getMaterialsManager();
 
 		d.frontFace = MODEL_FRONT_FACE::CCW;
 

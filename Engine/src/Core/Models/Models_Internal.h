@@ -26,7 +26,5 @@ namespace Yngin {
 
 		std::map<uint32_t, std::unique_ptr<Model>> models;
 		uint32_t nextId = 0;
-
-		bool loadObj(const char* data, size_t length, ModelData& modelData);
 	};
 }

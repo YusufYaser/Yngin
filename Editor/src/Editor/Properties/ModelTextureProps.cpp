@@ -21,17 +21,52 @@ void Editor::showModelProps(uint32_t id) {
 	if (explorerSelection.second == -1) {
 		// TODO: add file selector
 		{
-			static char v[256] = {};
+			const float degToRad = (3.14159265359f / 180);
+
+			static glm::vec3 offset = {};
+			ImGui::SeparatorText("Offset");
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##Offset X", &offset.x, 1.0f, 1.0f, "%.1f");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##Offset Y", &offset.y, 1.0f, 1.0f, "%.1f");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##Offset Z", &offset.z, 1.0f, 1.0f, "%.1f");
+
+			static glm::vec3 rot = {};
+			ImGui::SeparatorText("Rotation");
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##Rotation X", &rot.x, 1.0f, 22.5f, "%.1f");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##Rotation Y", &rot.y, 1.0f, 22.5f, "%.1f");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##Rotation Z", &rot.z, 1.0f, 22.5f, "%.1f");
+
+			static glm::vec3 scale = {};
+			ImGui::SeparatorText("Scale");
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##Scale X", &scale.x, 1.0f, 1.0f, "%.1f");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##Scale Y", &scale.y, 1.0f, 1.0f, "%.1f");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##Scale Z", &scale.z, 1.0f, 1.0f, "%.1f");
+
+			ImGui::Separator();
+
+			static char path[256] = {};
 			ImGui::Text("Path");
 			ImGui::SameLine(50);
 			ImGui::PushItemWidth(-1);
-			ImGui::InputText("##New Model Path", v, 256);
+			ImGui::InputText("##New Model Path", path, 256);
 			ImGui::PopItemWidth();
 
-			if (ImGui::Button("Create Model", ImVec2(-1, 40))) {
-				std::string path = v;
-
-				std::ifstream modelFile(path);
+			if (ImGui::Button("Load Model File", ImVec2(-1, 40))) {
+				std::ifstream modelFile(std::string(path, 256));
 
 				if (modelFile.is_open()) {
 					std::stringstream modelFileData;
@@ -39,11 +74,30 @@ void Editor::showModelProps(uint32_t id) {
 
 					modelFile.close();
 
-					Model* model = ctx->getModelsManager()->createModel(MODEL_FILE_TYPE::OBJ, modelFileData.str().c_str(), modelFileData.str().length());
-					explorerSelection = { EXPLORER_SELECTION_TYPE::MODEL, model->getId() };
-				}
+					ModelData data{};
+					bool loaded = ctx->getModelsManager()->parseObjFile(modelFileData.str().c_str(), modelFileData.str().length(), data);
 
-				v[0] = '\0';
+					if (loaded) {
+						glm::mat4 modelMat = glm::mat4(1.0f);
+						modelMat = glm::translate(modelMat, offset);
+						modelMat = glm::rotate(modelMat, rot.x * degToRad, glm::vec3(1, 0, 0));
+						modelMat = glm::rotate(modelMat, rot.y * degToRad, glm::vec3(0, 1, 0));
+						modelMat = glm::rotate(modelMat, rot.z * degToRad, glm::vec3(0, 0, 1));
+						modelMat = glm::scale(modelMat, scale);
+
+						for (auto& vertex : data.vertices) {
+							vertex.pos = modelMat * glm::vec4(vertex.pos, 1.0f);
+						}
+
+						Model* model = ctx->getModelsManager()->createModel(data);
+						explorerSelection = { EXPLORER_SELECTION_TYPE::MODEL, model->getId() };
+					}
+
+					path[0] = '\0';
+					offset = {};
+					rot = {};
+					scale = {};
+				}
 			}
 		}
 	}
