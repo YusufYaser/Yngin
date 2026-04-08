@@ -8,13 +8,6 @@ namespace Yngin {
 		impl = std::make_unique<Impl>();
 
 		impl->ctx = ctx;
-
-		impl->materials[0] = Material{
-			.ambientColor = glm::vec3(1.0f),
-			.diffuseColor = glm::vec3(1.0f),
-			.specularColor = glm::vec3(1.0f),
-			.specularComponent = 64
-		};
 	}
 
 	ModelsManager::~ModelsManager() = default;
@@ -81,14 +74,6 @@ namespace Yngin {
 			models.push_back(kvp.second.get());
 		}
 		return models;
-	}
-
-	size_t ModelsManager::getMaterialsCount() const {
-		return impl->materials.size();
-	}
-
-	std::map<uint32_t, Material> ModelsManager::getMaterials() const {
-		return impl->materials;
 	}
 
 	Model* ModelsManager::getModel(uint32_t modelId) const {

@@ -13,13 +13,6 @@ namespace Yngin {
 		uint32_t matId;
 	};
 
-	struct Material {
-		glm::vec3 ambientColor;
-		glm::vec3 diffuseColor;
-		glm::vec3 specularColor;
-		float specularComponent;
-	};
-
 	enum class MODEL_FRONT_FACE : uint8_t {
 		NONE,
 		CCW,
@@ -49,9 +42,6 @@ namespace Yngin {
 
 		size_t getModelsCount() const;
 		std::vector<Model*> getModels() const;
-
-		size_t getMaterialsCount() const;
-		std::map<uint32_t, Material> getMaterials() const;
 
 		Model* getModel(uint32_t modelId) const;
 

@@ -168,6 +168,13 @@ Editor::Editor() {
 		}
 	}
 
+	Material* defaultMat = ctx->getMaterialsManager()->createMaterial(0, true);
+
+	defaultMat->setAmbientColor(glm::vec3(1.0f));
+	defaultMat->setDiffuseColor(glm::vec3(1.0f));
+	defaultMat->setSpecularColor(glm::vec3(1.0f));
+	defaultMat->setSpecularComponent(64.0f);
+
 	lastSaved = ctx->getTime();
 
 	ctx->ready();

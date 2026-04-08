@@ -201,6 +201,12 @@
     <ClInclude Include="src\Utils\Meta_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Yngin\Core\Materials.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Materials\Materials_Internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c">
@@ -333,6 +339,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Utils\Meta.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Materials\MaterialsManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Materials\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -56,6 +56,7 @@ namespace Yngin {
 		m.shadersManager = std::unique_ptr<ShadersManager>(new ShadersManager(this));
 		m.uiManager = std::unique_ptr<UI::UIManager>(new UI::UIManager(this, nullptr));
 		m.scriptsManager = std::unique_ptr<ScriptsManager>(new ScriptsManager(this));
+		m.materialsManager = std::unique_ptr<MaterialsManager>(new MaterialsManager(this));
 
 		m.renderer = std::unique_ptr<Rendering::Renderer>(new Rendering::Renderer(this));
 		m.physicsEngine = std::unique_ptr<Physics::PhysicsEngine>(new Physics::PhysicsEngine(this));
@@ -326,6 +327,10 @@ namespace Yngin {
 
 	ScriptsManager* Context::getScriptsManager() const {
 		return impl->scriptsManager.get();
+	}
+
+	MaterialsManager* Context::getMaterialsManager() const {
+		return impl->materialsManager.get();
 	}
 
 	Rendering::Renderer* Context::getRenderer() const {

@@ -23,7 +23,6 @@ namespace Yngin {
 
 	struct ContextSettings;
 	struct Vertex;
-	struct Material;
 	struct ModelData;
 	struct LightSettings;
 	struct WindowSettings;
@@ -35,6 +34,8 @@ namespace Yngin {
 	class GameObject;
 	class GameObjectsManager;
 	class InputSystem;
+	class Material;
+	class MaterialsManager;
 	class Model;
 	class ModelsManager;
 	class Scene;

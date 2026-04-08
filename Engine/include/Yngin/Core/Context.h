@@ -77,6 +77,7 @@ namespace Yngin {
 		ShadersManager* getShadersManager() const;
 		UI::UIManager* getGlobalUIManager() const;
 		ScriptsManager* getScriptsManager() const;
+		MaterialsManager* getMaterialsManager() const;
 
 		Rendering::Renderer* getRenderer() const;
 		Physics::PhysicsEngine* getPhysicsEngine() const;

@@ -5,3 +5,4 @@
 #include "Models.h"
 #include "InputSystem.h"
 #include "Scripting.h"
+#include "Materials.h"

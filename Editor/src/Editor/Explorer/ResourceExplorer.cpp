@@ -1,6 +1,7 @@
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_internal.h>
 #include <Yngin/Core/Models.h>
+#include <Yngin/Core/Materials.h>
 #include <Yngin/Core/Scripting.h>
 #include <Yngin/Rendering/Textures.h>
 #include "../Editor.h"
@@ -31,7 +32,7 @@ namespace {
 		return clicked;
 	}
 
-	uint32_t drawMaterialsTree(std::map<uint32_t, Material> materials) {
+	uint32_t drawMaterialsTree(std::vector<Material*> materials) {
 		uint32_t clicked = -2;
 		bool open = ImGui::TreeNodeEx("Materials", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen);
 
@@ -40,11 +41,11 @@ namespace {
 		}
 
 		if (open) {
-			for (auto& [id, _] : materials) {
-				ImGui::TreeNodeEx(std::string("Material #" + std::to_string(id)).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+			for (auto& mat : materials) {
+				ImGui::TreeNodeEx(std::string("Material #" + std::to_string(mat->getId())).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
-					clicked = id;
+					clicked = mat->getId();
 				}
 			}
 			ImGui::TreePop();
@@ -104,7 +105,7 @@ void Editor::showResourceExplorer() {
 	if (model != -2) {
 		explorerSelection = { EXPLORER_SELECTION_TYPE::MODEL, model };
 	}
-	uint32_t material = drawMaterialsTree(ctx->getModelsManager()->getMaterials());
+	uint32_t material = drawMaterialsTree(ctx->getMaterialsManager()->getMaterials());
 	if (material != -2) {
 		explorerSelection = { EXPLORER_SELECTION_TYPE::MATERIAL, material };
 	}

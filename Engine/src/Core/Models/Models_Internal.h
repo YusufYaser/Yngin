@@ -29,10 +29,6 @@ namespace Yngin {
 		std::map<uint32_t, std::unique_ptr<Model>> models;
 		uint32_t nextId = 0;
 
-		std::map<uint32_t, Material> materials;
-		uint32_t nextMaterialId = 1;
-
 		void loadObj(const char* data, size_t length, ModelData& modelData);
-		int loadMtl(const char* data, size_t length, ModelData& modelData, std::map<std::string, uint8_t>& matIds);
 	};
 }

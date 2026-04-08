@@ -2,6 +2,7 @@
 #include "Renderer_Internal.h"
 #include <Yngin/Core/Scenes.h>
 #include <Yngin/Core/Models.h>
+#include <Yngin/Core/Materials.h>
 #include <Yngin/UI/Elements/UIElement.h>
 #include <Yngin/UI/UIManager.h>
 #include <Yngin/Rendering/Shaders.h>
@@ -188,18 +189,19 @@ namespace Yngin::Rendering {
 		worldShader->setVec3(std::string("materials[0].specularColor").c_str(), glm::vec3(1.0f));
 		worldShader->setFloat(std::string("materials[0].specularComponent").c_str(), 64);
 
-		auto materials = cimpl->ctx->getModelsManager()->getMaterials();
+		auto materials = cimpl->ctx->getMaterialsManager()->getMaterials();
 
 		for (int i = 0; i < mimpl->meshMaterialsCount; i++) {
 			uint32_t matId = mimpl->materials[i];
-			const Material& mat = materials[matId];
+			Material* mat = cimpl->ctx->getMaterialsManager()->getMaterial(matId);
+			if (mat == nullptr) continue;
 
 			std::string idStr = std::to_string(i);
 
-			worldShader->setVec3(std::string("materials[" + idStr + "].ambientColor").c_str(), mat.ambientColor);
-			worldShader->setVec3(std::string("materials[" + idStr + "].diffuseColor").c_str(), mat.diffuseColor);
-			worldShader->setVec3(std::string("materials[" + idStr + "].specularColor").c_str(), mat.specularColor);
-			worldShader->setFloat(std::string("materials[" + idStr + "].specularComponent").c_str(), mat.specularComponent);
+			worldShader->setVec3(std::string("materials[" + idStr + "].ambientColor").c_str(), mat->getAmbientColor());
+			worldShader->setVec3(std::string("materials[" + idStr + "].diffuseColor").c_str(), mat->getDiffuseColor());
+			worldShader->setVec3(std::string("materials[" + idStr + "].specularColor").c_str(), mat->getSpecularColor());
+			worldShader->setFloat(std::string("materials[" + idStr + "].specularComponent").c_str(), mat->getSpecularComponent());
 		}
 
 		if (tex) tex->activate();

@@ -23,12 +23,14 @@
     <ClInclude Include="include\Yngin\Components\Light.h" />
     <ClInclude Include="include\Yngin\Components\RigidBody.h" />
     <ClInclude Include="include\Yngin\Core\InputSystem.h" />
+    <ClInclude Include="include\Yngin\Core\Materials.h" />
     <ClInclude Include="include\Yngin\Core\Scripting.h" />
     <ClInclude Include="include\Yngin\Forward.h" />
     <ClInclude Include="include\Yngin\Utils\Meta.h" />
     <ClInclude Include="include\Yngin\Utils\Utils.h" />
     <ClInclude Include="src\Core\Context\CorePak.h" />
     <ClInclude Include="src\Core\Context\GamePak.h" />
+    <ClInclude Include="src\Core\Materials\Materials_Internal.h" />
     <ClInclude Include="src\GameFiles\GameFiles.h" />
     <ClInclude Include="src\Core\Context\ResourcesPak.h" />
     <ClInclude Include="src\Core\Scenes\ScenePak.h" />
@@ -87,6 +89,8 @@
     <ClCompile Include="deps\implementations\stb.c" />
     <ClCompile Include="src\Core\Context\CorePak.cpp" />
     <ClCompile Include="src\Core\Context\GamePak.cpp" />
+    <ClCompile Include="src\Core\Materials\Material.cpp" />
+    <ClCompile Include="src\Core\Materials\MaterialsManager.cpp" />
     <ClCompile Include="src\GameFiles\PakGenerators.cpp" />
     <ClCompile Include="src\Components\Collider.cpp" />
     <ClCompile Include="src\Components\Light.cpp" />
