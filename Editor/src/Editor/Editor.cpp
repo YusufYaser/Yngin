@@ -756,6 +756,7 @@ void Editor::update() {
 	ImGui::Text("%i UI Elements", activeScene->getUIManager()->getElementsCount());
 	ImGui::Text("%i Textures", ctx->getTexturesManager()->getTexturesCount());
 	ImGui::Text("%i Models", ctx->getModelsManager()->getModelsCount());
+	ImGui::Text("%i Materials", ctx->getMaterialsManager()->getMaterialsCount());
 	ImGui::Text("Position: %f %f %f", editorCamera->getPosition().x, editorCamera->getPosition().y, editorCamera->getPosition().z);
 	ImGui::End();
 

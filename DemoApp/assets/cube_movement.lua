@@ -18,7 +18,7 @@ end
 
 function onUpdate(dt)
 	if raycastedMesh ~= nil then
-		raycastedMesh:setColor(Vec39.new(1))
+		raycastedMesh:setColor(Vec3.new(1))
 		raycastedMesh = nil
 	end
 	
