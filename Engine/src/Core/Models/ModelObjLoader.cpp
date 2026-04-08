@@ -102,15 +102,27 @@ namespace Yngin {
 
 						int posId = 0;
 
+						bool negative = false;
 						for (char c : v) {
 							if (c == '/') {
 								break;
 							}
 
+							if (c == '-') {
+								negative = true;
+								continue;
+							}
+
 							if (c >= '0' && c <= '9') {
 								posId *= 10;
 								posId += c - '0';
+							} else {
+								return false;
 							}
+						}
+
+						if (negative) {
+							posId = nPosId - posId;
 						}
 
 						if (posId >= nPosId) {
@@ -125,8 +137,14 @@ namespace Yngin {
 
 						int s[3] = {};
 						int sn = 0;
+
+						bool negative = false;
 						for (char c : v) {
 							if (c == '/') {
+								if (negative) {
+									s[sn] *= -1;
+								}
+
 								sn++;
 								if (sn > 2) {
 									return false;
@@ -134,10 +152,29 @@ namespace Yngin {
 								continue;
 							}
 
+							if (c == '-') {
+								negative = true;
+								continue;
+							}
+
 							if (c >= '0' && c <= '9') {
 								s[sn] *= 10;
 								s[sn] += c - '0';
+							} else {
+								return false;
 							}
+						}
+
+						if (s[0] < 0) {
+							s[0] = nPosId + s[0];
+						}
+
+						if (s[1] < 0) {
+							s[1] = nTexCoordId + s[1];
+						}
+
+						if (s[2] < 0) {
+							s[2] = nNormalId + s[2];
 						}
 
 						if (s[0] >= nPosId) {
@@ -182,6 +219,8 @@ namespace Yngin {
 				std::string filename;
 				s >> filename;
 
+				// Get only the file name and ignore the path
+				// The material file is expected to be in the same directory as the model
 				fs::path path(filename);
 				filename = path.filename().string();
 
