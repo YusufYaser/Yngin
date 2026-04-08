@@ -303,6 +303,7 @@
     <ClInclude Include="deps\vendor\ImGui\imstb_textedit.h" />
     <ClInclude Include="deps\vendor\ImGui\imstb_truetype.h" />
     <ClInclude Include="src\Editor\Cube_Model.h" />
+    <ClInclude Include="src\Editor\DefaultScripts.h" />
     <ClInclude Include="src\Editor\Editor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

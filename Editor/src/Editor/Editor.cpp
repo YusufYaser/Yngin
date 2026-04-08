@@ -10,6 +10,7 @@
 #include <sstream>
 #include <format>
 #include <filesystem>
+#include "DefaultScripts.h"
 
 #include "Editor.h"
 
@@ -165,6 +166,14 @@ Editor::Editor() {
 			}
 
 			file.close();
+		} else {
+			for (auto& script : defaultScripts) {
+				scripts[nextScriptId++] = EditorScript{
+					.name = script.name,
+					.scene = script.scene,
+					.code = script.code
+				};
+			}
 		}
 	}
 
@@ -259,6 +268,10 @@ void Editor::saveProject() {
 	}
 
 	lastSaved = ctx->getTime();
+
+	fs::create_directory("temp");
+	fs::create_directory("scenes");
+	fs::create_directory("bin");
 
 	{
 		std::ofstream file("core.pak", std::ios::binary);
@@ -594,7 +607,7 @@ void Editor::update() {
 
 			if (showAbout) {
 				ImGui::SetNextWindowSize(ImVec2(360, 75));
-				ImGui::SetNextWindowPos(ImVec2(windowSize.x / 2, windowSize.y / 2 - 100), 0, ImVec2(0.5f, 0.5f));
+				ImGui::SetNextWindowPos(ImVec2(windowSize.x / 2.0f, windowSize.y / 2.0f - 100), 0, ImVec2(0.5f, 0.5f));
 				if (ImGui::Begin("About Yngin", &showAbout, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse)) {
 					ImGui::Text("Yngin Editor - Copyright (c) 2026 Yusuf Kelany");
 					if (ImGui::Button("GitHub")) {

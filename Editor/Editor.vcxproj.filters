@@ -110,5 +110,8 @@
     <ClInclude Include="deps\vendor\ImGuiColorTextEdit\TextEditor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Editor\DefaultScripts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
