@@ -45,6 +45,7 @@ namespace Yngin {
 				int modelId;
 				int textureId;
 				float color[3];
+				uint32_t materials[256];
 			};
 
 			struct LightData {

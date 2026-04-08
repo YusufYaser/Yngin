@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <glm/vec3.hpp>
 
 namespace Yngin {
 	enum class TEXTURE_WRAP : uint8_t;
@@ -28,6 +29,8 @@ namespace Yngin {
 			struct PakModelData {
 				uint32_t id;
 				MODEL_FRONT_FACE frontFace;
+				uint8_t materialsCount;
+				uint32_t defaultMaterials[256];
 				uint16_t verticesCount;
 				uint16_t indicesCount;
 
@@ -39,6 +42,15 @@ namespace Yngin {
 				float position[3];
 				float texCoord[2];
 				float normal[3];
+				uint8_t material;
+			};
+
+			struct PakMaterialData {
+				uint32_t id;
+				glm::vec3 ambientColor;
+				glm::vec3 diffuseColor;
+				glm::vec3 specularColor;
+				float specularComponent;
 			};
 
 			struct PakTextureData {

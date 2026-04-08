@@ -82,6 +82,10 @@ namespace Yngin {
 							mesh->setTexture(meshData.textureId);
 							glm::vec3 color = glm::make_vec3(meshData.color);
 							mesh->setColor(color);
+
+							for (int i = 0; i < 256; i++) {
+								mesh->setMaterial(i, meshData.materials[i]);
+							}
 						}
 					}
 					break;

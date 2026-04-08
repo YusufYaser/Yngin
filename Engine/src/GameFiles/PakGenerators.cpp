@@ -2,6 +2,7 @@
 #include "../Core/Context/ResourcesPak.h"
 #include "../Core/Scenes/ScenePak.h"
 #include <Yngin/Core/Models.h>
+#include <Yngin/Core/Materials.h>
 #include <Yngin/Rendering/Textures.h>
 #include <Yngin/Core/Scripting.h>
 #include <Yngin/Core/Scenes.h>
@@ -37,6 +38,12 @@ namespace Yngin::GameFiles {
 			PakModelData pakModelData{};
 			pakModelData.id = model->getId();
 			pakModelData.frontFace = data.frontFace;
+
+			pakModelData.materialsCount = data.materialsCount;
+			for (int i = 0; i < data.materialsCount; i++) {
+				pakModelData.defaultMaterials[i] = data.defaultMaterials[i];
+			}
+
 			pakModelData.verticesCount = uint16_t(data.vertices.size());
 			pakModelData.indicesCount = uint16_t(data.indices.size());
 
@@ -47,6 +54,7 @@ namespace Yngin::GameFiles {
 				std::memcpy(v.position, glm::value_ptr(vertex.pos), sizeof(float) * 3);
 				std::memcpy(v.texCoord, glm::value_ptr(vertex.texCoord), sizeof(float) * 2);
 				std::memcpy(v.normal, glm::value_ptr(vertex.normal), sizeof(float) * 3);
+				v.material = vertex.matId;
 				W(v, ModelVertexData);
 			}
 
@@ -212,6 +220,10 @@ namespace Yngin::GameFiles {
 				meshData.textureId = mesh->getTexture();
 				glm::vec3 color = mesh->getColor();
 				std::memcpy(meshData.color, glm::value_ptr(color), sizeof(float) * 3);
+
+				for (int i = 0; i < 256; i++) {
+					meshData.materials[i] = mesh->getMaterial(i);
+				}
 
 				W(meshData, MeshData);
 			}
@@ -484,6 +496,26 @@ namespace Yngin::GameFiles {
 				break;
 			}
 			}
+		}
+
+		return true;
+	}
+
+	bool Generators::materialsManager(std::ostream& s, const MaterialsManager* mgr) {
+		Operation op;
+
+		for (auto& mat : mgr->getMaterials()) {
+			op.op = OP::MATERIAL;
+			W(op, Operation);
+
+			PakMaterialData data{};
+			data.id = mat->getId();
+
+			data.ambientColor = mat->getAmbientColor();
+			data.diffuseColor = mat->getDiffuseColor();
+			data.specularColor = mat->getSpecularColor();
+			data.specularComponent = mat->getSpecularComponent();
+			W(data, PakMaterialData);
 		}
 
 		return true;

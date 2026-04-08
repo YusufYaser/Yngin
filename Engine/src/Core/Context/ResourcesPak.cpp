@@ -46,6 +46,12 @@ namespace Yngin {
 				break;
 			}
 
+			case OP::MATERIAL:
+			{
+				stop = !Loaders::materialsManager(s, impl->materialsManager.get());
+				break;
+			}
+
 			default:
 			{
 				stop = true;
@@ -70,6 +76,7 @@ namespace Yngin {
 
 		Generators::modelsManager(s, impl->modelsManager.get());
 		Generators::texturesManager(s, impl->texturesManager.get());
+		Generators::materialsManager(s, impl->materialsManager.get());
 
 		std::string_view sv = s.view();
 		return std::vector<char>(sv.begin(), sv.end());

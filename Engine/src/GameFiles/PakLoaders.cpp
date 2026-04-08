@@ -2,6 +2,7 @@
 #include "../Core/Context/ResourcesPak.h"
 #include "../Core/Scenes/ScenePak.h"
 #include <Yngin/Core/Models.h>
+#include <Yngin/Core/Materials.h>
 #include <Yngin/Rendering/Textures.h>
 #include <Yngin/Core/Scripting.h>
 #include <Yngin/Core/Scenes.h>
@@ -29,13 +30,19 @@ namespace Yngin::GameFiles {
 		ModelData modelData{};
 		modelData.frontFace = pakModelData.frontFace;
 
+		modelData.materialsCount = pakModelData.materialsCount;
+		for (int i = 0; i < pakModelData.materialsCount; i++) {
+			modelData.defaultMaterials[i] = pakModelData.defaultMaterials[i];
+		}
+
 		for (int i = 0; i < pakModelData.verticesCount; i++) {
 			ModelVertexData v{};
 			R(v, ModelVertexData);
 			modelData.vertices.push_back(Vertex{
 				.pos = glm::make_vec3(v.position),
 				.texCoord = glm::make_vec2(v.texCoord),
-				.normal = glm::make_vec3(v.normal)
+				.normal = glm::make_vec3(v.normal),
+				.matId = v.material
 				});
 		}
 
@@ -376,6 +383,20 @@ namespace Yngin::GameFiles {
 			}
 			}
 		}
+
+		return true;
+	}
+
+	bool Loaders::materialsManager(std::istream& s, MaterialsManager* mgr) {
+		PakMaterialData data{};
+		R(data, PakMaterialData);
+
+		Material* mat = mgr->createMaterial(data.id, true);
+
+		mat->setAmbientColor(data.ambientColor);
+		mat->setDiffuseColor(data.diffuseColor);
+		mat->setSpecularColor(data.specularColor);
+		mat->setSpecularComponent(data.specularComponent);
 
 		return true;
 	}

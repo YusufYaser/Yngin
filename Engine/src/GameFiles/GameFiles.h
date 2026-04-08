@@ -29,7 +29,8 @@ namespace Yngin {
 			COMPONENT,
 			CAMERA,
 			UIELEMENT,
-			GAMEDATA
+			GAMEDATA,
+			MATERIAL
 		};
 
 		enum META_TYPE : uint8_t {
@@ -70,6 +71,7 @@ namespace Yngin {
 			static bool camerasManager(std::ostream& s, const CamerasManager* mgr);
 			static bool uiManager(std::ostream& s, const UI::UIManager* mgr);
 			static bool meta(std::ostream& s, const Meta& meta);
+			static bool materialsManager(std::ostream& s, const MaterialsManager* mgr);
 		};
 
 		class Loaders {
@@ -81,6 +83,7 @@ namespace Yngin {
 			static bool camerasManager(std::istream& s, CamerasManager* mgr);
 			static bool uiManager(std::istream& s, UI::UIManager* mgr, std::map<int, int>& parentsQueue = dummyMap);
 			static bool meta(std::istream& s, Meta& meta);
+			static bool materialsManager(std::istream& s, MaterialsManager* mgr);
 		};
 	}
 }
