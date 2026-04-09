@@ -10,7 +10,11 @@ namespace Yngin {
 		impl = std::make_unique<Impl>();
 
 		impl->ctx = ctx;
-		impl->lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::table, sol::lib::string, sol::lib::os);
+		impl->lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::bit32, sol::lib::utf8);
+
+		impl->lua["load"] = sol::nil;
+		impl->lua["loadfile"] = sol::nil;
+		impl->lua["dofile"] = sol::nil;
 
 		auto globalOutput = &impl->globalOutput;
 
@@ -33,6 +37,11 @@ namespace Yngin {
 
 	Context* ScriptsManager::getContext() const {
 		return impl->ctx;
+	}
+
+	void ScriptsManager::openUnsafeLibraries() {
+		printf("[Yngin] Opened unsafe libraries for scripts\n");
+		impl->lua.open_libraries(sol::lib::os, sol::lib::io);
 	}
 
 	void ScriptsManager::Impl::bind() {
@@ -76,7 +85,7 @@ namespace Yngin {
 				output += lua["tostring"](obj).get<std::string>() + " ";
 			}
 			if (!output.empty()) output.pop_back();
-			printf("[Script %i] %s\n", id, output.c_str());
+			printf("[Script #%i] %s\n", id, output.c_str());
 			globalOutput->push_back({ id, output });
 			scriptOutput->push_back(output);
 			};
