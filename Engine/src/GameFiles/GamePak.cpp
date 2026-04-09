@@ -17,6 +17,42 @@ namespace Yngin {
 		const int VERSION = 4;
 	}
 
+	void Context::pushLoadPakSettings(const PakLoadSettings& settings) {
+		impl->pakLoadSettings.push_back(settings);
+	}
+
+	void Context::popLoadPakSettings() {
+		impl->pakLoadSettings.pop_back();
+	}
+
+	PakLoadSettings Context::getCurrentLoadPakSettings() const {
+		PakLoadSettings settings{};
+
+		if (!impl->pakLoadSettings.empty()) {
+			settings = impl->pakLoadSettings.back();
+		}
+
+		return settings;
+	}
+
+	void Context::pushGenPakSettings(const PakGenSettings& settings) {
+		impl->pakGenSettings.push_back(settings);
+	}
+
+	void Context::popGenPakSettings() {
+		impl->pakGenSettings.pop_back();
+	}
+
+	PakGenSettings Context::getCurrentGenPakSettings() const {
+		PakGenSettings settings{};
+
+		if (!impl->pakGenSettings.empty()) {
+			settings = impl->pakGenSettings.back();
+		}
+
+		return settings;
+	}
+
 	void Context::loadGamePak(const char* bytes, size_t size) {
 		std::istringstream s(std::string(bytes, size), std::ios::binary);
 

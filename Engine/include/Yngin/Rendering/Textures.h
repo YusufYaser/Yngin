@@ -69,6 +69,8 @@ namespace Yngin {
 
 	class TexturesManager {
 	public:
+		Context* getContext() const;
+
 		Texture* createTexture();
 		Texture* createTexture(uint32_t id, bool override = false);
 		Texture* createTexture(const TextureData& data, const TextureSettings& settings = {}, uint32_t id = -1, bool override = false);

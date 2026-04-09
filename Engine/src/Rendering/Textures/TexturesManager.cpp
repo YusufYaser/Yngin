@@ -18,6 +18,10 @@ namespace Yngin {
 
 	TexturesManager::~TexturesManager() = default;
 
+	Context* TexturesManager::getContext() const {
+		return impl->ctx;
+	}
+
 	Texture* TexturesManager::createTexture() {
 		return createTexture(impl->nextId);
 	}

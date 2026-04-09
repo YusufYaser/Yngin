@@ -72,6 +72,8 @@ namespace Yngin {
 
 	class GameObjectsManager {
 	public:
+		Context* getContext() const;
+
 		GameObject* getRootGameObject() const;
 		GameObject* getGameObject(uint32_t gameObjectId) const;
 

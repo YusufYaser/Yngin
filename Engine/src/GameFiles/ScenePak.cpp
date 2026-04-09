@@ -42,7 +42,7 @@ namespace Yngin {
 				lightSettings = { .ambientLight = sceneData.ambientLight };
 				gravity = sceneData.gravity;
 
-				Loaders::meta(s, owner->meta);
+				Loaders::meta(s, owner->meta, ctx);
 				break;
 			}
 
@@ -59,7 +59,7 @@ namespace Yngin {
 					obj->impl->scale = glm::make_vec3(objData.scale);
 				}
 
-				Loaders::meta(s, obj->meta);
+				Loaders::meta(s, obj->meta, ctx);
 				break;
 			}
 
@@ -217,7 +217,7 @@ namespace Yngin {
 
 		W(scene, SceneData);
 
-		Generators::meta(s, meta);
+		Generators::meta(s, meta, impl->ctx);
 
 		Generators::gameObjectsManager(s, impl->gameObjectsManager.get());
 		Generators::camerasManager(s, impl->camerasManager.get());

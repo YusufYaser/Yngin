@@ -37,5 +37,8 @@ namespace Yngin {
 		int maxFPS = -1;
 
 		std::map<std::type_index, std::unique_ptr<Services::Service>> services;
+
+		std::vector<PakLoadSettings> pakLoadSettings;
+		std::vector<PakGenSettings> pakGenSettings;
 	};
 }

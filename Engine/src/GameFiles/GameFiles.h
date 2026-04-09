@@ -70,7 +70,7 @@ namespace Yngin {
 			static bool gameObjectsManager(std::ostream& s, const GameObjectsManager* mgr);
 			static bool camerasManager(std::ostream& s, const CamerasManager* mgr);
 			static bool uiManager(std::ostream& s, const UI::UIManager* mgr);
-			static bool meta(std::ostream& s, const Meta& meta);
+			static bool meta(std::ostream& s, const Meta& meta, Context* ctx);
 			static bool materialsManager(std::ostream& s, const MaterialsManager* mgr);
 		};
 
@@ -82,7 +82,7 @@ namespace Yngin {
 
 			static bool camerasManager(std::istream& s, CamerasManager* mgr);
 			static bool uiManager(std::istream& s, UI::UIManager* mgr, std::map<int, int>& parentsQueue = dummyMap);
-			static bool meta(std::istream& s, Meta& meta);
+			static bool meta(std::istream& s, Meta& meta, Context* ctx);
 			static bool materialsManager(std::istream& s, MaterialsManager* mgr);
 		};
 	}

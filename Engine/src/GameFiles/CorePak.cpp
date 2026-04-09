@@ -15,6 +15,8 @@ using namespace Yngin::GameFiles::CorePak;
 
 namespace Yngin {
 	void Context::loadCorePak(const char* bytes, size_t size) {
+		PakLoadSettings settings = getCurrentLoadPakSettings();
+
 		bool stop = false;
 
 		std::istringstream s(std::string(bytes, size), std::ios::binary);
@@ -34,9 +36,12 @@ namespace Yngin {
 			{
 				GameData gameData;
 				R(gameData, GameData);
-				impl->applySettings(gameData.contextSettings);
 
-				Loaders::meta(s, meta);
+				if (settings.applyContextSettings) {
+					impl->applySettings(gameData.contextSettings);
+				}
+
+				Loaders::meta(s, meta, this);
 				break;
 			}
 
@@ -72,10 +77,14 @@ namespace Yngin {
 	}
 
 	std::vector<char> Context::generateCorePak() {
-		return generateCorePak(impl->initialSettings);
-	}
+		ContextSettings& settings = impl->initialSettings;
 
-	std::vector<char> Context::generateCorePak(const ContextSettings& settings) {
+		PakGenSettings genSettings = getCurrentGenPakSettings();
+
+		if (genSettings.forceContextSettings) {
+			settings = genSettings.forcedContextSettings;
+		}
+
 		std::ostringstream s(std::ios::binary);
 
 		Header header = {};
@@ -94,7 +103,7 @@ namespace Yngin {
 
 		W(gameData, GameData);
 
-		Generators::meta(s, meta);
+		Generators::meta(s, meta, this);
 
 		Generators::scriptsManager(s, impl->scriptsManager.get(), nullptr);
 		Generators::uiManager(s, impl->uiManager.get());

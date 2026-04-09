@@ -7,6 +7,8 @@ namespace Yngin {
 	namespace UI {
 		class UIManager {
 		public:
+			Context* getContext() const;
+
 			UIElement* getRootElement() const;
 			UIElement* getElement(uint32_t id) const;
 

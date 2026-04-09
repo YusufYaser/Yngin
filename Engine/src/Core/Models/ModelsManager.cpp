@@ -12,6 +12,10 @@ namespace Yngin {
 
 	ModelsManager::~ModelsManager() = default;
 
+	Context* ModelsManager::getContext() const {
+		return impl->ctx;
+	}
+
 	Model* ModelsManager::createModel(const ModelData& data) {
 		return createModel(data, impl->nextId);
 	}

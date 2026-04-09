@@ -33,6 +33,8 @@ namespace Yngin {
 
 	class ModelsManager {
 	public:
+		Context* getContext() const;
+
 		Model* createModel(const ModelData& data);
 		Model* createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length);
 		Model* createModel(const ModelData& data, uint32_t id, bool override = false);

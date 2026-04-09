@@ -21,6 +21,8 @@ namespace Yngin {
 
 	enum class COLLIDER_TYPE : uint8_t;
 
+	struct PakLoadSettings;
+	struct PakGenSettings;
 	struct ContextSettings;
 	struct Vertex;
 	struct ModelData;

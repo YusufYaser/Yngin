@@ -20,6 +20,10 @@ namespace Yngin::UI {
 
 	UIManager::~UIManager() = default;
 
+	Context* UIManager::getContext() const {
+		return impl->ctx;
+	}
+
 	uint32_t UIManager::acquireId() {
 		return impl->nextId++;
 	}

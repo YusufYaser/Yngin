@@ -62,7 +62,7 @@ namespace Yngin::GameFiles {
 				W(index, uint32_t);
 			}
 
-			meta(s, model->meta);
+			meta(s, model->meta, mgr->getContext());
 		}
 
 		return true;
@@ -142,7 +142,7 @@ namespace Yngin::GameFiles {
 
 			delete[] pixels;
 
-			meta(s, texture->meta);
+			meta(s, texture->meta, mgr->getContext());
 		}
 		if (activatedTexture != nullptr) {
 			mgr->setActive(activatedTexture->getId());
@@ -178,7 +178,7 @@ namespace Yngin::GameFiles {
 
 			s.write(script->impl->byteCode.data(), scriptData.dataSize);
 
-			meta(s, script->meta);
+			meta(s, script->meta, mgr->getContext());
 		}
 
 		return true;
@@ -204,7 +204,7 @@ namespace Yngin::GameFiles {
 
 			W(objData, GameObjectData);
 
-			meta(s, obj->meta);
+			meta(s, obj->meta, mgr->getContext());
 
 			ComponentData compData{};
 			Components::Mesh* mesh = obj->getComponent<Components::Mesh>();
@@ -315,7 +315,7 @@ namespace Yngin::GameFiles {
 
 			W(cameraData, CameraData);
 
-			meta(s, camera->meta);
+			meta(s, camera->meta, mgr->getContext());
 		}
 
 		return true;
@@ -412,7 +412,7 @@ namespace Yngin::GameFiles {
 			}
 			}
 
-			meta(s, element->meta);
+			meta(s, element->meta, mgr->getContext());
 		}
 
 		return true;
@@ -434,17 +434,39 @@ namespace Yngin::GameFiles {
 		}
 	}
 
-	bool Generators::meta(std::ostream& s, const Meta& meta) {
+	bool Generators::meta(std::ostream& s, const Meta& meta, Context* ctx) {
+		PakGenSettings settings = ctx->getCurrentGenPakSettings();
+
 		auto metas = meta.getMetas();
 
 		MetaHeader metaHeader{};
 		for (auto& [key, val] : metas) {
-			if (key[0] != '#') metaHeader.metasCount++;
+			if (key[0] == '#') continue;
+
+			bool ignored = false;
+			for (auto& prefix : settings.ignoredMetaPrefixes) {
+				if (key.starts_with(prefix)) {
+					ignored = true;
+					break;
+				}
+			}
+			if (ignored) continue;
+
+			metaHeader.metasCount++;
 		}
 		W(metaHeader, MetaHeader);
 
 		for (auto& [key, val] : metas) {
 			if (key[0] == '#') continue;
+
+			bool ignored = false;
+			for (auto& prefix : settings.ignoredMetaPrefixes) {
+				if (key.starts_with(prefix)) {
+					ignored = true;
+					break;
+				}
+			}
+			if (ignored) continue;
 
 			MetaGeneric generic{};
 			generic.type = getMetaType(val);

@@ -20,7 +20,10 @@ namespace Yngin {
 		defaultCamera->setWeight(1.0f);
 	}
 
-	CamerasManager::~CamerasManager() {
+	CamerasManager::~CamerasManager() = default;
+
+	Context* CamerasManager::getContext() const {
+		return impl->ctx;
 	}
 
 	Camera* CamerasManager::createCamera() {

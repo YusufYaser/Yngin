@@ -15,7 +15,7 @@ namespace Yngin {
 
 	ScriptsManager::~ScriptsManager() = default;
 
-	Context* ScriptsManager::getContext() {
+	Context* ScriptsManager::getContext() const {
 		return impl->ctx;
 	}
 

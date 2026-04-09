@@ -42,6 +42,8 @@ namespace Yngin {
 
 	class CamerasManager {
 	public:
+		Context* getContext() const;
+
 		Camera* createCamera();
 		Camera* createCamera(uint32_t id, bool override = false);
 		void deleteCamera(uint32_t cameraId);

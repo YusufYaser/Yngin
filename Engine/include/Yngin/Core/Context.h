@@ -27,6 +27,16 @@ namespace Yngin {
 		WindowSettings windowSettings{};
 	};
 
+	struct PakLoadSettings {
+		bool applyContextSettings = true;
+	};
+
+	struct PakGenSettings {
+		bool forceContextSettings = false;
+		ContextSettings forcedContextSettings;
+		std::vector<std::string> ignoredMetaPrefixes;
+	};
+
 	class Context {
 	public:
 		static void deleteAllContexts();
@@ -89,15 +99,20 @@ namespace Yngin {
 		template <typename T>
 		T* getService() const;
 
+		void pushLoadPakSettings(const PakLoadSettings& settings);
+		void popLoadPakSettings();
+		PakLoadSettings getCurrentLoadPakSettings() const;
+
+		void pushGenPakSettings(const PakGenSettings& settings);
+		void popGenPakSettings();
+		PakGenSettings getCurrentGenPakSettings() const;
+
 		void loadGamePak(const char* gamePakData, size_t size);
 		std::vector<char> generateGamePak();
 
 		void loadCorePak(const char* corePakData, size_t size);
-		// You can replace the settings stored in the core.pak
-		// By default, it uses the initial settings you used when you
-		// initialized the context
+
 		std::vector<char> generateCorePak();
-		std::vector<char> generateCorePak(const ContextSettings& settings);
 
 		void loadResourcesPak(const char* resourcesPakData, size_t size);
 		std::vector<char> generateResourcesPak();

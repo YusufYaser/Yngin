@@ -54,7 +54,7 @@ namespace Yngin::GameFiles {
 
 		Model* model = mgr->createModel(modelData, pakModelData.id, true);
 
-		meta(s, model->meta);
+		meta(s, model->meta, mgr->getContext());
 
 		return true;
 	}
@@ -135,7 +135,7 @@ namespace Yngin::GameFiles {
 
 		if (tex == nullptr) return false;
 
-		meta(s, tex->meta);
+		meta(s, tex->meta, mgr->getContext());
 
 		return true;
 	}
@@ -189,7 +189,7 @@ namespace Yngin::GameFiles {
 			printf("[Yngin] [Script #%i] Error while loading script from resources:: %s\n", scriptData.id, error.what());
 		}
 
-		meta(s, script->meta);
+		meta(s, script->meta, mgr->getContext());
 
 		return true;
 	}
@@ -207,7 +207,7 @@ namespace Yngin::GameFiles {
 		camera->setFov(cameraData.fov);
 		camera->setWeight(cameraData.weight);
 
-		meta(s, camera->meta);
+		meta(s, camera->meta, mgr->getContext());
 
 		return true;
 	}
@@ -309,12 +309,12 @@ namespace Yngin::GameFiles {
 		glm::vec2 pivot = glm::make_vec2(elementData.pivot);
 		element->setPivot(pivot);
 
-		meta(s, element->meta);
+		meta(s, element->meta, mgr->getContext());
 
 		return true;
 	}
 
-	bool Loaders::meta(std::istream& s, Meta& meta) {
+	bool Loaders::meta(std::istream& s, Meta& meta, Context* ctx) {
 		MetaHeader metaHeader{};
 		R(metaHeader, MetaHeader);
 

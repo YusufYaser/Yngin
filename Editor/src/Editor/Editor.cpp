@@ -11,8 +11,19 @@
 #include <format>
 #include <filesystem>
 #include "DefaultScripts.h"
-
 #include "Editor.h"
+
+#ifdef _WIN32
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#undef APIENTRY
+#define NOMINMAX
+#include <Windows.h>
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
+#undef min
+#undef max
+#endif
 
 using namespace Yngin;
 
@@ -29,7 +40,23 @@ Editor::Editor() {
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-	ctx = createContext();
+	ctx = createContext({
+		.windowSettings = {
+			.size = glm::ivec2(1280, 720),
+			.position = glm::ivec2((mode->width - 1280) / 2, (mode->height - 720) / 2),
+			.title = "Yngin Editor",
+		}
+		});
+
+	if (ctx == nullptr || ctx->getStatus() != CONTEXT_STATUS::WAITING_FOR_READY) {
+		printf("Failed to create context\n");
+		return;
+	}
+
+#ifdef _WIN32
+	BOOL darkMode = TRUE;
+	DwmSetWindowAttribute(glfwGetWin32Window(ctx->getWindow()->getGLFWwindow()), 20, &darkMode, sizeof(BOOL));
+#endif
 
 	{
 		std::ifstream file("core.pak", std::ios::binary);
@@ -65,20 +92,10 @@ Editor::Editor() {
 		}
 	}
 
-	Window* window = ctx->getWindow();
-	window->setSize(glm::ivec2(1280, 720));
-	window->setPosition(glm::ivec2((mode->width - 1280) / 2, (mode->height - 720) / 2));
-	window->setTitle("Yngin Editor");
-
 	ctx->meta.setMeta("#IsEditor", 1);
 
 
 	ctx->setMaxFPS(0);
-
-	if (ctx == nullptr || ctx->getStatus() != CONTEXT_STATUS::WAITING_FOR_READY) {
-		printf("Failed to create context\n");
-		return;
-	}
 
 	activeScene = ctx->getScenesManager()->createScene();
 
@@ -341,25 +358,37 @@ if Yngin.Context.meta:getMetaInt("#IsEditor", 0) == 1 then
 	return
 end
 
-Yngin.Window:setTitle("{}")
-Yngin.Window:setSize(IVec2.new({}, {}))
-Yngin.Window:setFullscreen({})
-
 function onReady()
 	Yngin.ScenesManager:setActive({})
 	
 	Yngin.ScriptsManager:deleteScript(Script.ID)
 end
-)LUA", gameSettings.name, gameSettings.windowWidth, gameSettings.windowHeight, gameSettings.fullscreen, 0).c_str());
+)LUA", 0).c_str());
 
 	{
 		std::ofstream file("bin/game.pak", std::ios::binary);
 		if (file) {
+			PakGenSettings settings{};
+
+			settings.ignoredMetaPrefixes = { "Editor." };
+			settings.forceContextSettings = true;
+
+			ContextSettings ctxSettings{};
+			memcpy_s(ctxSettings.windowSettings.title, 32, gameSettings.name.c_str(), 32);
+			ctxSettings.windowSettings.title[31] = '\0';
+			ctxSettings.windowSettings.size = { gameSettings.windowWidth, gameSettings.windowHeight };
+			ctxSettings.windowSettings.fullScreen = gameSettings.fullscreen;
+			settings.forcedContextSettings = ctxSettings;
+
+			ctx->pushGenPakSettings(settings);
 			std::vector<char> bytes = ctx->generateGamePak();
+			ctx->popGenPakSettings();
+
 			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
 			file.close();
 		}
 	}
+
 
 	loadPreviousGameState();
 }
@@ -409,7 +438,13 @@ void Editor::loadPreviousGameState() {
 		glm::ivec2 size = window->getSize();
 		bool fullscreen = window->isFullscreen();
 
+		PakLoadSettings settings{};
+		settings.applyContextSettings = false;
+
+		ctx->pushLoadPakSettings(settings);
 		ctx->loadGamePak(gameBytes.str().c_str(), gameBytes.str().size());
+		ctx->popLoadPakSettings();
+
 		gameBytes.clear();
 
 		window->setTitle(title.c_str());
