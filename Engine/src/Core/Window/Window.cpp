@@ -12,6 +12,7 @@ namespace Yngin {
 		auto& m = *impl;
 
 		glfwWindowHint(GLFW_DECORATED, settings.hasTitleBar ? GLFW_TRUE : GLFW_FALSE);
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 		m.glfwWindow = glfwCreateWindow(settings.size.x, settings.size.y, settings.title, nullptr, nullptr);
 		impl->makeCurrent();
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -25,8 +26,24 @@ namespace Yngin {
 		glfwDestroyWindow(impl->glfwWindow);
 	}
 
+	Context* Window::getContext() const {
+		return impl->ctx;
+	}
+
 	GLFWwindow* Window::getGLFWwindow() const {
 		return impl->glfwWindow;
+	}
+
+	bool Window::getWindowVisible() const {
+		return glfwGetWindowAttrib(impl->glfwWindow, GLFW_VISIBLE);
+	}
+
+	void Window::showWindow() {
+		glfwShowWindow(impl->glfwWindow);
+	}
+
+	void Window::hideWindow() {
+		glfwHideWindow(impl->glfwWindow);
 	}
 
 	void Window::setFocused() {

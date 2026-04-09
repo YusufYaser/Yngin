@@ -15,7 +15,13 @@ namespace Yngin {
 
 	class Window {
 	public:
+		Context* getContext() const;
+
 		GLFWwindow* getGLFWwindow() const;
+
+		bool getWindowVisible() const;
+		void showWindow();
+		void hideWindow();
 
 		void setFocused();
 		bool isFocused() const;

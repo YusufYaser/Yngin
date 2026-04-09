@@ -173,6 +173,7 @@ namespace Yngin {
 		impl->scriptsManager->impl->onReady();
 		impl->status = CONTEXT_STATUS::RUNNING;
 		impl->scriptsManager->impl->onSceneActive();
+		impl->window->showWindow();
 	}
 
 	void Context::update(bool swap) {
