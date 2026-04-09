@@ -37,6 +37,7 @@ int main() {
 
 	if (!Yngin::isYnginInitialized()) {
 		error("Failed to initialize Yngin");
+		return 1;
 	}
 
 	std::ifstream gamePak("game.pak", std::ios::binary);
@@ -53,6 +54,9 @@ int main() {
 	gamePak.close();
 	ctx->loadGamePak(gameBytes.str().c_str(), gameBytes.str().size());
 	gameBytes.clear();
+
+	Window* window = ctx->getWindow();
+	window->setPositionCentered();
 
 	InputSystem* input = ctx->getInputSystem();
 

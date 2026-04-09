@@ -84,6 +84,15 @@ namespace Yngin {
 		glfwRestoreWindow(impl->glfwWindow);
 	}
 
+	void Window::setPositionCentered() {
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+		glm::ivec2 size = getSize();
+
+		setPosition(glm::ivec2((mode->width - size.x) / 2, (mode->height - size.y) / 2));
+	}
+
 	void Window::setPosition(glm::ivec2 pos) {
 		glfwSetWindowPos(impl->glfwWindow, pos.x, pos.y);
 	}

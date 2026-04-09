@@ -43,7 +43,6 @@ Editor::Editor() {
 	ctx = createContext({
 		.windowSettings = {
 			.size = glm::ivec2(1280, 720),
-			.position = glm::ivec2((mode->width - 1280) / 2, (mode->height - 720) / 2),
 			.title = "Yngin Editor",
 		}
 		});
@@ -52,6 +51,8 @@ Editor::Editor() {
 		printf("Failed to create context\n");
 		return;
 	}
+
+	ctx->getWindow()->setPositionCentered();
 
 #ifdef _WIN32
 	BOOL darkMode = TRUE;
@@ -64,7 +65,12 @@ Editor::Editor() {
 			std::ostringstream bytes(std::ios::binary);
 			bytes << file.rdbuf();
 			file.close();
+			PakLoadSettings settings{};
+			settings.applyContextSettings = false;
+
+			ctx->pushLoadPakSettings(settings);
 			ctx->loadCorePak(bytes.str().c_str(), bytes.str().size());
+			ctx->popLoadPakSettings();
 			bytes.clear();
 		}
 	}

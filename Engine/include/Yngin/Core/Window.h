@@ -37,6 +37,7 @@ namespace Yngin {
 		void maximize();
 		void minimize();
 
+		void setPositionCentered();
 		void setPosition(glm::ivec2);
 		glm::ivec2 getPosition() const;
 
