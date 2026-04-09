@@ -19,6 +19,10 @@ namespace Yngin {
 		void createScriptTable();
 
 		std::vector<char> byteCode;
+
+		std::vector<std::string> scriptOutput;
+
+		void pushOutput(std::string out);
 	};
 
 	struct ScriptsManager::Impl {
@@ -43,5 +47,7 @@ namespace Yngin {
 		std::vector<uint32_t> deleteQueue;
 
 		std::vector<uint32_t> onReadyQueue;
+
+		std::vector<std::pair<uint32_t, std::string>> globalOutput;
 	};
 }

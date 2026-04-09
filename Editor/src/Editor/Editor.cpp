@@ -840,18 +840,30 @@ void Editor::update() {
 
 	glm::ivec2 viewportSize = ctx->getViewportSize();
 
+	ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive]);
 	ImGui::SetNextWindowPos(ImVec2(250, windowSize.y - 260.0f));
 	ImGui::SetNextWindowSize(ImVec2(windowSize.x - 250 - 300.0f, 260.0f));
-	ImGui::Begin("Information", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-	ImGui::Text("FPS: %.1f", 1 / ctx->getDeltaTime());
-	ImGui::Text("Viewport Size: %ix%i", viewportSize.x, viewportSize.y);
-	ImGui::Text("%i GameObjects", activeScene->getGameObjectsManager()->getGameObjectsCount());
-	ImGui::Text("%i UI Elements", activeScene->getUIManager()->getElementsCount());
-	ImGui::Text("%i Textures", ctx->getTexturesManager()->getTexturesCount());
-	ImGui::Text("%i Models", ctx->getModelsManager()->getModelsCount());
-	ImGui::Text("%i Materials", ctx->getMaterialsManager()->getMaterialsCount());
-	ImGui::Text("Position: %f %f %f", editorCamera->getPosition().x, editorCamera->getPosition().y, editorCamera->getPosition().z);
+	ImGui::Begin("Output", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+	{
+		std::string logs = "";
+		for (auto& [id, log] : ctx->getScriptsManager()->getGlobalOutput()) {
+			std::string source = id == -1 ? "ScriptsManager" : std::format("Script {}", id);
+
+			logs.insert(0, "[" + source + "] " + log + "\n");
+		}
+
+		char* temp = new char[logs.size() + 1];
+		memcpy(temp, logs.c_str(), logs.size());
+		temp[logs.size()] = '\0';
+
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
+		ImGui::InputTextMultiline("##Output Text", temp, logs.size() + 1, ImVec2(-1, -1), ImGuiInputTextFlags_ReadOnly);
+		ImGui::PopStyleColor();
+
+		delete[] temp;
+	}
 	ImGui::End();
+	ImGui::PopStyleColor();
 
 	float frameHeight = ImGui::GetFrameHeight();
 	glm::vec2 viewPos = { 250.0f, menubarHeight };

@@ -11,6 +11,22 @@ namespace Yngin {
 
 		impl->ctx = ctx;
 		impl->lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::table, sol::lib::string, sol::lib::os);
+
+		auto globalOutput = &impl->globalOutput;
+
+		impl->lua["print"] = [globalOutput](sol::variadic_args va, sol::this_state L) {
+			sol::state_view lua = L;
+
+			std::string output;
+			for (auto arg : va) {
+				sol::object obj = arg;
+
+				output += lua["tostring"](obj).get<std::string>() + " ";
+			}
+			if (!output.empty()) output.pop_back();
+			printf("[ScriptsManager] %s\n", output.c_str());
+			globalOutput->push_back({ -1, output });
+			};
 	}
 
 	ScriptsManager::~ScriptsManager() = default;
@@ -46,6 +62,24 @@ namespace Yngin {
 		impl->nextId = std::max(impl->nextId, id + 1);
 		script->impl->id = id;
 		impl->scripts[id] = std::unique_ptr<Script>(script);
+
+		auto globalOutput = &impl->globalOutput;
+		auto scriptOutput = &script->impl->scriptOutput;
+
+		script->impl->env["print"] = [id, globalOutput, scriptOutput](sol::variadic_args va, sol::this_state L) {
+			sol::state_view lua = L;
+
+			std::string output;
+			for (auto arg : va) {
+				sol::object obj = arg;
+
+				output += lua["tostring"](obj).get<std::string>() + " ";
+			}
+			if (!output.empty()) output.pop_back();
+			printf("[Script %i] %s\n", id, output.c_str());
+			globalOutput->push_back({ id, output });
+			scriptOutput->push_back(output);
+			};
 
 		script->impl->createScriptTable();
 
@@ -137,6 +171,10 @@ namespace Yngin {
 		return it->second.get();
 	}
 
+	std::vector<std::pair<uint32_t, std::string>> ScriptsManager::getGlobalOutput() const {
+		return impl->globalOutput;
+	}
+
 	bool ScriptsManager::execute(const char* script) {
 		bool success = true;
 
@@ -145,6 +183,7 @@ namespace Yngin {
 			impl->lua.script(script);
 		} catch (sol::error error) {
 			printf("[Yngin] [ScriptsManager] Error while executing code globally: %s\n", error.what());
+			impl->globalOutput.push_back({ -1, error.what() });
 			success = false;
 		}
 		impl->deleteQueueEnabled = false;
@@ -171,6 +210,7 @@ namespace Yngin {
 				sol::error error = res;
 
 				printf("[Yngin] [Script #%i] Error while invoking onReady(): %s\n", id, error.what());
+				script->impl->pushOutput(error.what());
 			}
 		}
 		deleteQueueEnabled = false;
@@ -203,6 +243,7 @@ namespace Yngin {
 				sol::error error = res;
 
 				printf("[Yngin] [Script #%i] Error while invoking onSceneActive(): %s\n", id, error.what());
+				script->impl->pushOutput(error.what());
 			}
 		}
 		deleteQueueEnabled = false;
@@ -235,6 +276,7 @@ namespace Yngin {
 				sol::error error = res;
 
 				printf("[Yngin] [Script #%i] Error while invoking onSceneInactive(): %s\n", id, error.what());
+				script->impl->pushOutput(error.what());
 			}
 		}
 		deleteQueueEnabled = false;
@@ -267,6 +309,7 @@ namespace Yngin {
 				sol::error error = res;
 
 				printf("[Yngin] [Script #%i] Error while invoking onUpdate(): %s\n", id, error.what());
+				script->impl->pushOutput(error.what());
 			}
 		}
 		deleteQueueEnabled = false;
@@ -321,6 +364,11 @@ namespace Yngin {
 		Script["Scene"] = scene;
 	}
 
+	void Script::Impl::pushOutput(std::string out) {
+		scriptOutput.push_back(out);
+		ctx->getScriptsManager()->impl->globalOutput.push_back({ id, out });
+	}
+
 	bool Script::execute(const char* script) {
 		if (!impl->enabled) return false;
 
@@ -330,8 +378,13 @@ namespace Yngin {
 			lua.script(script, impl->env);
 		} catch (sol::error error) {
 			printf("[Yngin] [Script #%i] Error while executing code: %s\n", impl->id, error.what());
+			impl->pushOutput(error.what());
 			return false;
 		}
 		return true;
+	}
+
+	std::vector<std::string> Script::getScriptOutput() const {
+		return impl->scriptOutput;
 	}
 }

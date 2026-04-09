@@ -24,6 +24,8 @@ namespace Yngin {
 		// execute code within the script environments
 		bool execute(const char* script);
 
+		std::vector<std::string> getScriptOutput() const;
+
 	private:
 		friend class ScriptsManager;
 		friend struct std::default_delete<Script>;
@@ -51,6 +53,8 @@ namespace Yngin {
 		std::vector<Script*> getScripts() const;
 
 		Script* getScript(uint32_t id) const;
+
+		std::vector<std::pair<uint32_t, std::string>> getGlobalOutput() const;
 
 		// execute code in the global context
 		bool execute(const char* script);
