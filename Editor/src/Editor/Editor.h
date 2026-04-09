@@ -58,6 +58,8 @@ public:
 
 	bool running = false;
 
+	bool editorLighting = false;
+
 	bool viewingObject = false;
 
 	struct {

@@ -65,7 +65,9 @@ int main() {
 #ifdef _WIN32
 		if (input->isKeyJustPressed(KEY::F4)) {
 			consoleShown = !consoleShown;
+			bool wasFocused = window->isFocused();
 			ShowWindow(GetConsoleWindow(), consoleShown ? SW_SHOW : SW_HIDE);
+			if (wasFocused) window->setFocused();
 		}
 #endif
 

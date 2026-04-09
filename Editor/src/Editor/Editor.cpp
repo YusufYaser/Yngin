@@ -99,8 +99,6 @@ Editor::Editor() {
 	}
 
 	ctx->meta.setMeta("#IsEditor", 1);
-
-
 	ctx->setMaxFPS(0);
 
 	activeScene = ctx->getScenesManager()->createScene();
@@ -261,6 +259,10 @@ void Editor::resetContext() {
 	for (auto& c : ctx->getScriptsManager()->getScripts()) {
 		ctx->getScriptsManager()->deleteScript(c);
 	}
+
+	ctx->meta.reset();
+	ctx->meta.setMeta("#IsEditor", 1);
+	ctx->setMaxFPS(0);
 }
 
 void Editor::setupViewerScene() {
@@ -654,6 +656,10 @@ void Editor::update() {
 					if (ImGui::Button("GitHub")) {
 						system("start https://github.com/YusufYaser/Yngin");
 					}
+					ImGui::SameLine();
+					if (ImGui::Button("Close")) {
+						showAbout = false;
+					}
 				}
 				ImGui::End();
 			}
@@ -706,24 +712,57 @@ void Editor::update() {
 		ImGui::EndMainMenuBar();
 	}
 
-	ImGui::SetNextWindowPos(ImVec2(255.0f, 25.0f));
-	ImGui::SetNextWindowSize(ImVec2(125.0f, 50.0f));
-	ImGui::Begin("Play Mode", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
-	ImGui::PushStyleColor(ImGuiCol_Button, running ? ImVec4(.5f, 0, 0, 1) : ImVec4(0, .5f, 0, 1));
 	if (explorerSelection.first != EXPLORER_SELECTION_TYPE::SCRIPT) {
-		if (!viewingObject) {
-			ImGui::Text("Scene Viewer");
-			if (ImGui::Button(((running ? "Stop" : "Start") + std::string("##TogglePlayMode")).c_str())) {
-				togglePlayMode();
+		std::string title = "Scene Viewer";
+		if (running) title = "Play Mode";
+		if (viewingObject) title = "Resource Viewer";
+
+		ImGui::SetNextWindowPos(ImVec2(250.0f, menubarHeight));
+		ImGui::SetNextWindowSize(ImVec2(windowSize.x - 250.0f - 300.0f, 0));
+
+		ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive]);
+
+		if (ImGui::Begin(title.c_str(), 0, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar)) {
+
+			if (ImGui::BeginMenuBar()) {
+				if (!viewingObject) {
+					ImGui::PushStyleColor(ImGuiCol_Button, running ? ImVec4(.5f, 0, 0, 1) : ImVec4(0, .5f, 0, 1));
+					if (ImGui::Button(((running ? "Stop" : "Start") + std::string("##TogglePlayMode")).c_str())) {
+						togglePlayMode();
+					}
+					ImGui::PopStyleColor();
+					if (!running) {
+						ImGui::SameLine();
+						ImGui::Checkbox("Lighting", &editorLighting);
+					}
+				} else {
+					if (explorerSelection.first == EXPLORER_SELECTION_TYPE::MODEL) {
+						Model* model = ctx->getModelsManager()->getModel(explorerSelection.second);
+						if (model) {
+							const ModelData& d = model->getModelData();
+
+							ImGui::Text("Vertices: %i\tIndices: %i", d.vertices.size(), d.indices.size());
+						}
+					} else if (explorerSelection.first == EXPLORER_SELECTION_TYPE::TEXTURE) {
+						Texture* texture = ctx->getTexturesManager()->getTexture(explorerSelection.second);
+						if (texture) {
+							glm::ivec2 size = texture->getSize();
+
+							ImGui::Text("Size: %ix%i", size.x, size.y);
+						}
+					}
+				}
+
+				ImGui::EndMenuBar();
 			}
-		} else {
-			ImGui::Text("Resource Viewer");
+
+			ImGui::End();
 		}
+
+		ImGui::PopStyleColor();
 	}
-	ImGui::PopStyleColor();
-	ImGui::End();
 	ctx->getPhysicsEngine()->setSimulationEnabled(running);
-	ctx->getRenderer()->setLightingEnabled(running || (explorerSelection.first == EXPLORER_SELECTION_TYPE::MATERIAL));
+	ctx->getRenderer()->setLightingEnabled(running || (explorerSelection.first == EXPLORER_SELECTION_TYPE::MATERIAL) || editorLighting);
 
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 
@@ -801,8 +840,8 @@ void Editor::update() {
 
 	glm::ivec2 viewportSize = ctx->getViewportSize();
 
-	ImGui::SetNextWindowPos(ImVec2(250, windowSize.y - 300.0f));
-	ImGui::SetNextWindowSize(ImVec2(windowSize.x - 250 - 300.0f, 300.0f));
+	ImGui::SetNextWindowPos(ImVec2(250, windowSize.y - 260.0f));
+	ImGui::SetNextWindowSize(ImVec2(windowSize.x - 250 - 300.0f, 260.0f));
 	ImGui::Begin("Information", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 	ImGui::Text("FPS: %.1f", 1 / ctx->getDeltaTime());
 	ImGui::Text("Viewport Size: %ix%i", viewportSize.x, viewportSize.y);
@@ -814,9 +853,10 @@ void Editor::update() {
 	ImGui::Text("Position: %f %f %f", editorCamera->getPosition().x, editorCamera->getPosition().y, editorCamera->getPosition().z);
 	ImGui::End();
 
+	float frameHeight = ImGui::GetFrameHeight();
 	glm::vec2 viewPos = { 250.0f, menubarHeight };
-	glm::vec2 viewSize = { windowSize.x - 250.0f - 300.0f, windowSize.y - menubarHeight - 300.0f };
-	ctx->forceViewport(viewPos, viewSize);
+	glm::vec2 viewSize = { windowSize.x - 250.0f - 300.0f, windowSize.y - menubarHeight - 260.0f };
+	ctx->forceViewport(viewPos + glm::vec2(0, frameHeight * 2), viewSize - glm::vec2(0, frameHeight * 2));
 	if (explorerSelection.first == EXPLORER_SELECTION_TYPE::SCRIPT) {
 		ctx->forceViewport({ -1, -1 }, { 1, 1 });
 
