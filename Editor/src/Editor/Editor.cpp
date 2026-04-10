@@ -840,6 +840,8 @@ void Editor::update() {
 
 	glm::ivec2 viewportSize = ctx->getViewportSize();
 
+	float frameHeight = ImGui::GetFrameHeight();
+
 	ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive]);
 	ImGui::SetNextWindowPos(ImVec2(250, windowSize.y - 260.0f));
 	ImGui::SetNextWindowSize(ImVec2(windowSize.x - 250 - 300.0f, 260.0f));
@@ -857,15 +859,25 @@ void Editor::update() {
 		temp[logs.size()] = '\0';
 
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
-		ImGui::InputTextMultiline("##Output Text", temp, logs.size() + 1, ImVec2(-1, -1), ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputTextMultiline("##Output Text", temp, logs.size() + 1, ImVec2(-1, -frameHeight - 4), ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopStyleColor();
 
 		delete[] temp;
+
+		{
+			static char v[1024] = {};
+
+			ImGui::PushItemWidth(-1);
+			if (ImGui::InputText("##Global Execute", v, IM_ARRAYSIZE(v), ImGuiInputTextFlags_EnterReturnsTrue)) {
+				ctx->getScriptsManager()->execute(v);
+				v[0] = '\0';
+			}
+			ImGui::PopItemWidth();
+		}
 	}
 	ImGui::End();
 	ImGui::PopStyleColor();
 
-	float frameHeight = ImGui::GetFrameHeight();
 	glm::vec2 viewPos = { 250.0f, menubarHeight };
 	glm::vec2 viewSize = { windowSize.x - 250.0f - 300.0f, windowSize.y - menubarHeight - 260.0f };
 	ctx->forceViewport(viewPos + glm::vec2(0, frameHeight * 2), viewSize - glm::vec2(0, frameHeight * 2));

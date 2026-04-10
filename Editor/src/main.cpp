@@ -9,14 +9,14 @@
 int main() {
 	IMGUI_CHECKVERSION();
 
-#ifdef _DEBUG
-	if (AllocConsole()) {
-		FILE* fDummy;
-		freopen_s(&fDummy, "CONOUT$", "w", stdout);
-		freopen_s(&fDummy, "CONOUT$", "w", stderr);
-		freopen_s(&fDummy, "CONIN$", "r", stdin);
-	}
-#endif
+	//#ifdef _DEBUG
+	//	if (AllocConsole()) {
+	//		FILE* fDummy;
+	//		freopen_s(&fDummy, "CONOUT$", "w", stdout);
+	//		freopen_s(&fDummy, "CONOUT$", "w", stderr);
+	//		freopen_s(&fDummy, "CONIN$", "r", stdin);
+	//	}
+	//#endif
 
 	Yngin::initializeYngin();
 
