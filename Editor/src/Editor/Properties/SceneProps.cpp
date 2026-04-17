@@ -11,9 +11,10 @@ void Editor::showSceneProps(uint32_t id) {
 	ImGui::Text("Properties (Scene)");
 	ImGui::Separator();
 
-	ImGui::Text("Skybox Texture ID");
-	ImGui::SameLine(150);
 	{
+		ImGui::BeginGroup();
+		ImGui::Text("Skybox Texture ID");
+		ImGui::SameLine(150);
 		static int v = 0;
 		ImGui::PushItemWidth(-1);
 		if (ImGui::InputInt("##SceneSkybox", &v, 1)) {
@@ -22,6 +23,16 @@ void Editor::showSceneProps(uint32_t id) {
 			v = scene->getSkyboxTextureId();
 		}
 		ImGui::PopItemWidth();
+		ImGui::EndGroup();
+
+		if (ImGui::BeginDragDropTarget()) {
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_ID")) {
+				v = *(uint32_t*)payload->Data;
+				scene->setSkyboxTexture(v);
+			}
+
+			ImGui::EndDragDropTarget();
+		}
 	}
 
 	{

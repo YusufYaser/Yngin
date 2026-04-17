@@ -845,8 +845,10 @@ void Editor::update() {
 	ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive]);
 	ImGui::SetNextWindowPos(ImVec2(250, windowSize.y - 260.0f));
 	ImGui::SetNextWindowSize(ImVec2(windowSize.x - 250 - 300.0f, 260.0f));
-	ImGui::Begin("Output", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
-	{
+	ImGui::Begin("Bottom", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+
+	ImGui::BeginTabBar("Tabs");
+	if (ImGui::BeginTabItem("Output")) {
 		std::string logs = "";
 		for (auto& [id, log] : ctx->getScriptsManager()->getGlobalOutput()) {
 			std::string source = id == -1 ? "ScriptsManager" : std::format("Script {}", id);
@@ -874,7 +876,40 @@ void Editor::update() {
 			}
 			ImGui::PopItemWidth();
 		}
+
+		ImGui::EndTabItem();
 	}
+	if (ImGui::BeginTabItem("Textures")) {
+		auto textures = ctx->getTexturesManager()->getTextures();
+
+		int maxElementsPerRow = (windowSize.x - 250 - 300.0f) / 144;
+
+		int i = 0;
+		for (auto& tex : textures) {
+			if (i % maxElementsPerRow != 0) ImGui::SameLine();
+
+			GLuint GLid = tex->getGLid();
+
+			if (ImGui::ImageButton(std::string("Texture #" + std::to_string(tex->getId())).c_str(), (void*)(intptr_t)GLid, ImVec2(128, 128))) {
+				//explorerSelection = { EXPLORER_SELECTION_TYPE::TEXTURE, tex->getId() };
+			}
+			if (ImGui::BeginDragDropSource()) {
+				uint32_t id = tex->getId();
+				ImGui::SetDragDropPayload("TEXTURE_ID", &id, sizeof(uint32_t));
+
+				ImGui::Image((void*)(intptr_t)GLid, ImVec2(128, 128));
+				ImGui::Text("Texture #%i", tex->getId());
+
+				ImGui::EndDragDropSource();
+			}
+
+			i++;
+		}
+		ImGui::NewLine();
+
+		ImGui::EndTabItem();
+	}
+	ImGui::EndTabBar();
 	ImGui::End();
 	ImGui::PopStyleColor();
 

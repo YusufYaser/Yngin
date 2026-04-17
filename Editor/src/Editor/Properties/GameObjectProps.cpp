@@ -157,14 +157,26 @@ void Editor::showGameObjectProps(uint32_t id) {
 				v = mesh->getModel();
 			}
 		}
-		ImGui::Text("Texture ID");
-		ImGui::SameLine(100);
+
 		{
+			ImGui::BeginGroup();
+			ImGui::Text("Texture ID");
+			ImGui::SameLine(100);
 			static int v = 0;
 			if (ImGui::InputInt("##MeshTextureID", &v)) {
 				mesh->setTexture(v);
 			} else {
 				v = mesh->getTexture();
+			}
+			ImGui::EndGroup();
+
+			if (ImGui::BeginDragDropTarget()) {
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_ID")) {
+					v = *(uint32_t*)payload->Data;
+					mesh->setTexture(v);
+				}
+
+				ImGui::EndDragDropTarget();
 			}
 		}
 		{

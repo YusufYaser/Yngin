@@ -42,6 +42,8 @@ namespace Yngin {
 
 		Meta meta;
 
+		uint32_t getGLid() const;
+
 		void activate();
 
 		void setData(const TextureData& data);

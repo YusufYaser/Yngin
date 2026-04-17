@@ -312,14 +312,25 @@ void Editor::showUIElementProps(uint32_t id, bool global) {
 		UI::Image* image = button ? dynamic_cast<UI::Button*>(element)->getImage() : dynamic_cast<UI::Image*>(element);
 
 		ImGui::SeparatorText("Image");
-		ImGui::Text("Texture ID");
-		ImGui::SameLine(100);
 		{
+			ImGui::BeginGroup();
+			ImGui::Text("Texture ID");
+			ImGui::SameLine(100);
 			static int v = 0;
 			if (ImGui::InputInt("##UITextureID", &v)) {
 				image->setTexture(v);
 			} else {
 				v = image->getTexture();
+			}
+			ImGui::EndGroup();
+
+			if (ImGui::BeginDragDropTarget()) {
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_ID")) {
+					v = *(uint32_t*)payload->Data;
+					image->setTexture(v);
+				}
+
+				ImGui::EndDragDropTarget();
 			}
 		}
 
@@ -331,14 +342,25 @@ void Editor::showUIElementProps(uint32_t id, bool global) {
 		UI::Text* text = button ? dynamic_cast<UI::Button*>(element)->getTextElement() : dynamic_cast<UI::Text*>(element);
 
 		ImGui::SeparatorText("Text");
-		ImGui::Text("Texture ID");
-		ImGui::SameLine(100);
 		{
+			ImGui::BeginGroup();
+			ImGui::Text("Texture ID");
+			ImGui::SameLine(100);
 			static int v = 0;
 			if (ImGui::InputInt("##UIGlyphID", &v)) {
 				text->setGlyph(v);
 			} else {
 				v = text->getGlyph();
+			}
+			ImGui::EndGroup();
+
+			if (ImGui::BeginDragDropTarget()) {
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_ID")) {
+					v = *(uint32_t*)payload->Data;
+					text->setGlyph(v);
+				}
+
+				ImGui::EndDragDropTarget();
 			}
 		}
 
