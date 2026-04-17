@@ -221,9 +221,6 @@ Editor::Editor() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr;
-
-	scriptEditor.SetLanguageDefinition(TextEditor::LanguageDefinition::Lua());
-	scriptEditor.SetShowWhitespaces(false);
 }
 
 Editor::~Editor() {
@@ -405,6 +402,9 @@ void Editor::togglePlayMode() {
 	running = !running;
 
 	if (running) {
+		explorerSelectionBeforePlaying = explorerSelection;
+		explorerSelection = {};
+
 		setupPreviousGameState();
 		activeScene->activate();
 		ctx->getScenesManager()->deleteScene(viewerScene);
@@ -413,6 +413,10 @@ void Editor::togglePlayMode() {
 		loadScripts();
 		ctx->ready();
 	} else {
+		if (explorerSelection.first == EXPLORER_SELECTION_TYPE::NONE) {
+			explorerSelection = explorerSelectionBeforePlaying;
+		}
+
 		loadPreviousGameState();
 	}
 }
@@ -597,29 +601,43 @@ void Editor::update() {
 		}
 
 		if (ImGui::BeginMenu("Edit")) {
+			bool canUndo = false;
+			bool canRedo = false;
+
+			TextEditor* editor = nullptr;
+
+			uint32_t scriptId = explorerSelection.second;
+
+			auto it = scripts.find(scriptId);
+			if (it != scripts.end()) {
+				editor = &it->second.editor;
+				canUndo = editor->CanUndo();
+				canRedo = editor->CanRedo();
+			}
+
 			bool enabled = explorerSelection.first == EXPLORER_SELECTION_TYPE::SCRIPT;
-			if (ImGui::MenuItem("Undo", "Ctrl+Z", false, enabled && scriptEditor.CanUndo())) {
-				scriptEditor.Undo();
+			if (ImGui::MenuItem("Undo", "Ctrl+Z", false, enabled && editor && canUndo)) {
+				editor->Undo();
 			}
-			if (ImGui::MenuItem("Redo", "Ctrl+Y", false, enabled && scriptEditor.CanRedo())) {
-				scriptEditor.Redo();
-			}
-			ImGui::Separator();
-			if (ImGui::MenuItem("Cut", "Ctrl+X", false, enabled)) {
-				scriptEditor.Cut();
-			}
-			if (ImGui::MenuItem("Copy", "Ctrl+C", false, enabled)) {
-				scriptEditor.Copy();
-			}
-			if (ImGui::MenuItem("Paste", "Ctrl+V", false, enabled)) {
-				scriptEditor.Paste();
-			}
-			if (ImGui::MenuItem("Delete", "Del", false, enabled)) {
-				scriptEditor.Delete();
+			if (ImGui::MenuItem("Redo", "Ctrl+Y", false, enabled && editor && canRedo)) {
+				editor->Redo();
 			}
 			ImGui::Separator();
-			if (ImGui::MenuItem("Select All", "Ctrl+A", false, enabled)) {
-				scriptEditor.SelectAll();
+			if (ImGui::MenuItem("Cut", "Ctrl+X", false, enabled && editor)) {
+				editor->Cut();
+			}
+			if (ImGui::MenuItem("Copy", "Ctrl+C", false, enabled && editor)) {
+				editor->Copy();
+			}
+			if (ImGui::MenuItem("Paste", "Ctrl+V", false, enabled && editor)) {
+				editor->Paste();
+			}
+			if (ImGui::MenuItem("Delete", "Del", false, enabled && editor)) {
+				editor->Delete();
+			}
+			ImGui::Separator();
+			if (ImGui::MenuItem("Select All", "Ctrl+A", false, enabled && editor)) {
+				editor->SelectAll();
 			}
 			ImGui::EndMenu();
 		}
@@ -714,7 +732,7 @@ void Editor::update() {
 
 	if (explorerSelection.first != EXPLORER_SELECTION_TYPE::SCRIPT) {
 		std::string title = "Scene Viewer";
-		if (running) title = "Play Mode";
+		if (running) title = gameSettings.name;
 		if (viewingObject) title = "Resource Viewer";
 
 		ImGui::SetNextWindowPos(ImVec2(250.0f, menubarHeight));
@@ -871,6 +889,7 @@ void Editor::update() {
 
 			ImGui::PushItemWidth(-1);
 			if (ImGui::InputText("##Global Execute", v, IM_ARRAYSIZE(v), ImGuiInputTextFlags_EnterReturnsTrue)) {
+				ImGui::SetKeyboardFocusHere(-1);
 				ctx->getScriptsManager()->execute(v);
 				v[0] = '\0';
 			}
@@ -930,6 +949,11 @@ void Editor::update() {
 		if (it != scripts.end()) {
 			EditorScript& script = it->second;
 
+			if (script.editor.GetLanguageDefinition().mName == "HLSL") {
+				script.editor.SetLanguageDefinition(TextEditor::LanguageDefinition::Lua());
+				script.editor.SetShowWhitespaces(false);
+			}
+
 			std::string title = script.name;
 
 			ImGui::Begin(title.append("###Script Editor").c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
@@ -937,13 +961,13 @@ void Editor::update() {
 
 				if (scriptId != prevScriptId) {
 					prevScriptId = scriptId;
-					scriptEditor.SetText(script.code.c_str());
+					script.editor.SetText(script.code.c_str());
 				}
 
-				scriptEditor.SetReadOnly(running);
-				scriptEditor.Render("Script Editor Code");
-				if (scriptEditor.IsTextChanged()) {
-					std::string codeStr = scriptEditor.GetText();
+				script.editor.SetReadOnly(running);
+				script.editor.Render("Script Editor Code");
+				if (script.editor.IsTextChanged()) {
+					std::string codeStr = script.editor.GetText();
 					codeStr.erase(codeStr.size() - 1); // remove \n at the end
 					script.code = codeStr;
 				}

@@ -26,6 +26,7 @@ struct EditorScript {
 	std::string name;
 	uint32_t scene = uint32_t(-1);
 	std::string code;
+	TextEditor editor;
 };
 
 struct ScriptFileHeader {
@@ -74,8 +75,6 @@ public:
 	double lastSaved = 0;
 
 private:
-	TextEditor scriptEditor;
-
 	void resetContext();
 	void setupViewerScene();
 
@@ -83,6 +82,8 @@ private:
 
 	void exportGame();
 	void togglePlayMode();
+
+	std::pair<EXPLORER_SELECTION_TYPE, int> explorerSelectionBeforePlaying = {};
 
 	void handleCameraMovement(Yngin::Camera* camera);
 
