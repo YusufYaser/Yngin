@@ -49,7 +49,8 @@ namespace Yngin::GameFiles {
 
 			W(pakModelData, PakModelData);
 
-			for (auto& vertex : data.vertices) {
+			for (int i = 0; i < pakModelData.verticesCount; i++) {
+				Vertex vertex = data.vertices[i];
 				ModelVertexData v{};
 				v.position = vertex.pos;
 				v.texCoord = vertex.texCoord;
@@ -58,7 +59,8 @@ namespace Yngin::GameFiles {
 				W(v, ModelVertexData);
 			}
 
-			for (auto& index : data.indices) {
+			for (int i = 0; i < pakModelData.indicesCount; i++) {
+				uint32_t index = data.indices[i];
 				W(index, uint32_t);
 			}
 
@@ -137,7 +139,7 @@ namespace Yngin::GameFiles {
 				rawDataHeader.numCh = 4;
 				W(rawDataHeader, TextureRawDataHeader);
 
-				s.write(pixels, width * height * 4);
+				s.write(pixels, pakTexData.dataSize - sizeof(TextureRawDataHeader));
 			}
 
 			delete[] pixels;
