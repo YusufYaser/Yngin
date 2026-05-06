@@ -71,9 +71,11 @@ namespace Yngin {
 		texData.height = 1;
 		texData.numCh = 1;
 		texData.bytes = "\x00";
-		m.texturesManager->createTexture(texData);
+		Texture* black = m.texturesManager->createTexture(texData);
+		black->meta.setMeta("Editor.Name", "Black");
 		texData.bytes = "\xff";
-		m.texturesManager->createTexture(texData);
+		Texture* white = m.texturesManager->createTexture(texData);
+		white->meta.setMeta("Editor.Name", "White");
 
 		Shader* worldShader = m.shadersManager->getShader(SHADER_TYPE::WORLD);
 		Shader* skyboxShader = m.shadersManager->getShader(SHADER_TYPE::SKYBOX);

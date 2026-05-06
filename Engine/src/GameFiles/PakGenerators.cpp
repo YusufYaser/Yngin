@@ -531,6 +531,8 @@ namespace Yngin::GameFiles {
 			data.specularColor = mat->getSpecularColor();
 			data.specularComponent = mat->getSpecularComponent();
 			W(data, PakMaterialData);
+
+			meta(s, mat->meta, mgr->getContext());
 		}
 
 		return true;

@@ -14,7 +14,7 @@ using namespace Yngin::GameFiles::GamePak;
 
 namespace Yngin {
 	namespace GameFiles {
-		const int VERSION = 4;
+		const int VERSION = 5;
 	}
 
 	void Context::pushLoadPakSettings(const PakLoadSettings& settings) {

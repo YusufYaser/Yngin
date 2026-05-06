@@ -19,7 +19,9 @@ namespace {
 
 		if (open) {
 			for (auto& model : models) {
-				ImGui::TreeNodeEx(std::string("Model #" + std::to_string(model->getId())).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+				std::string name = model->meta.getMetaString("Editor.Name", std::string("Model #" + std::to_string(model->getId())));
+
+				ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
 					clicked = model->getId();
@@ -42,7 +44,9 @@ namespace {
 
 		if (open) {
 			for (auto& mat : materials) {
-				ImGui::TreeNodeEx(std::string("Material #" + std::to_string(mat->getId())).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+				std::string name = mat->meta.getMetaString("Editor.Name", std::string("Material #" + std::to_string(mat->getId())));
+
+				ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
 					clicked = mat->getId();
@@ -65,7 +69,9 @@ namespace {
 
 		if (open) {
 			for (auto& texture : textures) {
-				ImGui::TreeNodeEx(std::string("Texture #" + std::to_string(texture->getId())).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+				std::string name = texture->meta.getMetaString("Editor.Name", std::string("Texture #" + std::to_string(texture->getId())));
+
+				ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
 					clicked = texture->getId();

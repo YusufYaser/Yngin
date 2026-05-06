@@ -8,17 +8,14 @@
 #include <fstream>
 #include <sstream>
 #include <glm/gtc/type_ptr.hpp>
+#include <filesystem>
 
 using namespace Yngin;
 
 void Editor::showModelProps(uint32_t id) {
-	if (id != -1) {
-		ImGui::Text("Properties (Model #%i)", id);
-	} else {
-		ImGui::Text("Models");
-	}
-	ImGui::Separator();
 	if (explorerSelection.second == -1) {
+		ImGui::Text("Models");
+		ImGui::Separator();
 		// TODO: add file selector
 		{
 			const float degToRad = (3.14159265359f / 180);
@@ -90,6 +87,11 @@ void Editor::showModelProps(uint32_t id) {
 						}
 
 						Model* model = ctx->getModelsManager()->createModel(data);
+
+						std::filesystem::path fsPath(path);
+						std::string filename = fsPath.filename().stem().string();
+						model->meta.setMeta("Editor.Name", filename);
+
 						explorerSelection = { EXPLORER_SELECTION_TYPE::MODEL, model->getId() };
 					}
 
@@ -100,10 +102,32 @@ void Editor::showModelProps(uint32_t id) {
 				}
 			}
 		}
+
+		return;
 	}
 
 	Model* model = ctx->getModelsManager()->getModel(explorerSelection.second);
-	if (model == nullptr) return;
+	if (model == nullptr) {
+		ImGui::Text("Invalid Model");
+		return;
+	}
+
+	std::string name = model->meta.getMetaString("Editor.Name", std::string("Model #" + std::to_string(model->getId())));
+
+	ImGui::Text("Properties (%s)", name.c_str());
+	ImGui::Separator();
+	{
+		static char v[32] = {};
+		ImGui::Text("Name");
+		ImGui::SameLine(100);
+		if (ImGui::InputText("##ObjectName", v, 32)) {
+			name = v;
+			model->meta.setMeta("Editor.Name", name);
+		} else {
+			strcpy_s(v, 32, name.c_str());
+		}
+	}
+	ImGui::Separator();
 
 	if (!running) {
 		viewingObject = true;
@@ -125,13 +149,10 @@ void Editor::showModelProps(uint32_t id) {
 }
 
 void Editor::showMaterialProps(uint32_t id) {
-	if (id != -1) {
-		ImGui::Text("Properties (Material #%i)", id);
-	} else {
-		ImGui::Text("Materials");
-	}
-	ImGui::Separator();
 	if (explorerSelection.second == -1) {
+		ImGui::Text("Materials");
+		ImGui::Separator();
+
 		if (ImGui::Button("Create Material", ImVec2(-1, 40))) {
 			Material* mat = ctx->getMaterialsManager()->createMaterial();
 			explorerSelection = { EXPLORER_SELECTION_TYPE::MATERIAL, mat->getId() };
@@ -160,6 +181,17 @@ void Editor::showMaterialProps(uint32_t id) {
 					file.close();
 
 					auto created = ctx->getMaterialsManager()->loadMtl(fileData.str().c_str(), fileData.str().length());
+
+					std::filesystem::path fsPath(path);
+					std::string filename = fsPath.filename().stem().string();
+
+					for (auto& [name, id] : created) {
+						Material* mat = ctx->getMaterialsManager()->getMaterial(id);
+						if (mat == nullptr) continue;
+
+						mat->meta.setMeta("Editor.Name", filename + ": " + name);
+					}
+
 					if (created.size() != 0) {
 						explorerSelection = { EXPLORER_SELECTION_TYPE::MATERIAL, created.begin()->second };
 					}
@@ -171,8 +203,30 @@ void Editor::showMaterialProps(uint32_t id) {
 		return;
 	}
 
+	ImGui::Separator();
+
 	Material* mat = ctx->getMaterialsManager()->getMaterial(explorerSelection.second);
-	if (mat == nullptr) return;
+	if (mat == nullptr) {
+		ImGui::Text("Invalid Material");
+		return;
+	}
+
+	std::string name = mat->meta.getMetaString("Editor.Name", std::string("Material #" + std::to_string(mat->getId())));
+
+	ImGui::Text("Properties (%s)", name.c_str());
+	ImGui::Separator();
+	{
+		static char v[32] = {};
+		ImGui::Text("Name");
+		ImGui::SameLine(100);
+		if (ImGui::InputText("##ObjectName", v, 32)) {
+			name = v;
+			mat->meta.setMeta("Editor.Name", name);
+		} else {
+			strcpy_s(v, 32, name.c_str());
+		}
+	}
+	ImGui::Separator();
 
 	{
 		static glm::vec3 v = {};
@@ -272,13 +326,9 @@ void Editor::showMaterialProps(uint32_t id) {
 }
 
 void Editor::showTextureProps(uint32_t id) {
-	if (id != -1) {
-		ImGui::Text("Properties (Texture #%i)", id);
-	} else {
+	if (id == -1) {
 		ImGui::Text("Textures");
-	}
-	ImGui::Separator();
-	if (explorerSelection.second == -1) {
+		ImGui::Separator();
 		// TODO: add file selector
 		{
 			static char v[256] = {};
@@ -291,108 +341,135 @@ void Editor::showTextureProps(uint32_t id) {
 			if (ImGui::Button("Create Texture", ImVec2(-1, 40))) {
 				std::string path = v;
 				Texture* texture = ctx->getTexturesManager()->createTexture(path.c_str());
+
+				std::filesystem::path fsPath(path);
+				std::string filename = fsPath.filename().stem().string();
+				texture->meta.setMeta("Editor.Name", filename);
+
 				explorerSelection = { EXPLORER_SELECTION_TYPE::TEXTURE, texture->getId() };
 				v[0] = '\0';
 			}
 		}
-	} else {
-		Texture* texture = ctx->getTexturesManager()->getTexture(explorerSelection.second);
-		if (texture == nullptr) return;
 
-		if (!running) {
-			viewingObject = true;
-
-			viewerObject->setScale(glm::vec3(0.0f));
-			viewerImage->setSize({ 1, 0, 1, 0 });
-			viewerImage->setTexture(texture);
-
-			glm::vec2 viewportSize = ctx->getViewportSize();
-			glm::ivec2 texSize = texture->getSize();
-			float ratio = texSize.x * 1.0f / texSize.y;
-			if (int(viewportSize.y * ratio) > viewportSize.x) {
-				viewerImage->setSize({ 0, int(viewportSize.x), 0, int(viewportSize.x / ratio) });
-			} else {
-				viewerImage->setSize({ 0, int(viewportSize.y * ratio), 0, int(viewportSize.y) });
-			}
-		}
-
-		// TODO: add file selector
-		{
-			static char v[256] = {};
-			ImGui::Text("Path");
-			ImGui::SameLine(50);
-			ImGui::PushItemWidth(-1);
-			ImGui::InputText("##New Texture Path", v, 256);
-			ImGui::PopItemWidth();
-
-			if (ImGui::Button("Change Texture", ImVec2(-1, 0))) {
-				std::string path = v;
-				texture->setData(path.c_str());
-				v[0] = '\0';
-			}
-		}
-
-		ImGui::SeparatorText("Texture Settings");
-
-		bool settingsChanged = false;
-
-		TextureSettings settings = texture->getTextureSettings();
-
-		{
-			static bool v = false;
-			ImGui::Text("Repeat");
-			ImGui::SameLine(100);
-			if (ImGui::Checkbox("##TextureRepeat", &v)) {
-				settings.wrap = v ? TEXTURE_WRAP::REPEAT : TEXTURE_WRAP::CLAMP;
-				settingsChanged = true;
-			} else {
-				v = settings.wrap == TEXTURE_WRAP::REPEAT;
-			}
-		}
-
-		{
-			static const char* componentsToCreate[] = {
-				"Nearest",
-				"Linear"
-			};
-
-			static int v = 0;
-
-			ImGui::Text("Filter");
-			ImGui::SameLine(100);
-			if (ImGui::Combo("##TextureFilter", &v, componentsToCreate, IM_ARRAYSIZE(componentsToCreate))) {
-				if (v == 0) {
-					settings.filterMin = TEXTURE_FILTER::NEAREST;
-					settings.filterMag = TEXTURE_FILTER::NEAREST;
-				} else {
-					settings.filterMin = TEXTURE_FILTER::LINEAR_MIPMAP_LINEAR;
-					settings.filterMag = TEXTURE_FILTER::LINEAR;
-				}
-				settingsChanged = true;
-			} else {
-				TEXTURE_FILTER filter = settings.filterMin;
-				if (filter == TEXTURE_FILTER::NEAREST) {
-					v = 0;
-				} else {
-					v = 1;
-				}
-			}
-		}
-
-		if (settingsChanged) {
-			texture->setSettings(settings);
-		}
-
-		ImGui::Separator();
-
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
-		ImGui::BeginDisabled(id == 0 || id == 1);
-		if (ImGui::Button("Delete", ImVec2(-1, 0))) {
-			ctx->getTexturesManager()->deleteTexture(id);
-			explorerSelection = {};
-		}
-		ImGui::EndDisabled();
-		ImGui::PopStyleColor(2);
+		return;
 	}
+
+	Texture* texture = ctx->getTexturesManager()->getTexture(id);
+	if (texture == nullptr) {
+		ImGui::Text("Invalid Texture");
+		return;
+	}
+
+	std::string name = texture->meta.getMetaString("Editor.Name", std::string("Texture #" + std::to_string(texture->getId())));
+
+	ImGui::Text("Properties (%s)", name.c_str());
+	ImGui::Separator();
+	{
+		static char v[32] = {};
+		ImGui::Text("Name");
+		ImGui::SameLine(100);
+		if (ImGui::InputText("##ObjectName", v, 32)) {
+			name = v;
+			texture->meta.setMeta("Editor.Name", name);
+		} else {
+			strcpy_s(v, 32, name.c_str());
+		}
+	}
+	ImGui::Separator();
+
+	if (!running) {
+		viewingObject = true;
+
+		viewerObject->setScale(glm::vec3(0.0f));
+		viewerImage->setSize({ 1, 0, 1, 0 });
+		viewerImage->setTexture(texture);
+
+		glm::vec2 viewportSize = ctx->getViewportSize();
+		glm::ivec2 texSize = texture->getSize();
+		float ratio = texSize.x * 1.0f / texSize.y;
+		if (int(viewportSize.y * ratio) > viewportSize.x) {
+			viewerImage->setSize({ 0, int(viewportSize.x), 0, int(viewportSize.x / ratio) });
+		} else {
+			viewerImage->setSize({ 0, int(viewportSize.y * ratio), 0, int(viewportSize.y) });
+		}
+	}
+
+	// TODO: add file selector
+	{
+		static char v[256] = {};
+		ImGui::Text("Path");
+		ImGui::SameLine(50);
+		ImGui::PushItemWidth(-1);
+		ImGui::InputText("##New Texture Path", v, 256);
+		ImGui::PopItemWidth();
+
+		if (ImGui::Button("Change Texture", ImVec2(-1, 0))) {
+			std::string path = v;
+			texture->setData(path.c_str());
+			v[0] = '\0';
+		}
+	}
+
+	ImGui::SeparatorText("Texture Settings");
+
+	bool settingsChanged = false;
+
+	TextureSettings settings = texture->getTextureSettings();
+
+	{
+		static bool v = false;
+		ImGui::Text("Repeat");
+		ImGui::SameLine(100);
+		if (ImGui::Checkbox("##TextureRepeat", &v)) {
+			settings.wrap = v ? TEXTURE_WRAP::REPEAT : TEXTURE_WRAP::CLAMP;
+			settingsChanged = true;
+		} else {
+			v = settings.wrap == TEXTURE_WRAP::REPEAT;
+		}
+	}
+
+	{
+		static const char* componentsToCreate[] = {
+			"Nearest",
+			"Linear"
+		};
+
+		static int v = 0;
+
+		ImGui::Text("Filter");
+		ImGui::SameLine(100);
+		if (ImGui::Combo("##TextureFilter", &v, componentsToCreate, IM_ARRAYSIZE(componentsToCreate))) {
+			if (v == 0) {
+				settings.filterMin = TEXTURE_FILTER::NEAREST;
+				settings.filterMag = TEXTURE_FILTER::NEAREST;
+			} else {
+				settings.filterMin = TEXTURE_FILTER::LINEAR_MIPMAP_LINEAR;
+				settings.filterMag = TEXTURE_FILTER::LINEAR;
+			}
+			settingsChanged = true;
+		} else {
+			TEXTURE_FILTER filter = settings.filterMin;
+			if (filter == TEXTURE_FILTER::NEAREST) {
+				v = 0;
+			} else {
+				v = 1;
+			}
+		}
+	}
+
+	if (settingsChanged) {
+		texture->setSettings(settings);
+	}
+
+	ImGui::Separator();
+
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
+	ImGui::BeginDisabled(id == 0 || id == 1);
+	if (ImGui::Button("Delete", ImVec2(-1, 0))) {
+		ctx->getTexturesManager()->deleteTexture(id);
+		explorerSelection = {};
+	}
+	ImGui::EndDisabled();
+	ImGui::PopStyleColor(2);
 }

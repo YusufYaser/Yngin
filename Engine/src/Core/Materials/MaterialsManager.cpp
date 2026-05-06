@@ -11,6 +11,10 @@ namespace Yngin {
 
 	MaterialsManager::~MaterialsManager() = default;
 
+	Context* MaterialsManager::getContext() const {
+		return impl->ctx;
+	}
+
 	Material* MaterialsManager::createMaterial(uint32_t id, bool override) {
 		if (id != -1) {
 			if (getMaterial(id) != nullptr) {

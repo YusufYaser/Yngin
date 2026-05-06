@@ -84,7 +84,7 @@ Editor::Editor() {
 			ctx->loadResourcesPak(bytes.str().c_str(), bytes.str().size());
 			bytes.clear();
 		} else {
-			ctx->getTexturesManager()->createTexture({
+			Texture* grid = ctx->getTexturesManager()->createTexture({
 			.width = 2,
 			.height = 2,
 			.numCh = 1,
@@ -95,6 +95,8 @@ Editor::Editor() {
 				.filterMag = TEXTURE_FILTER::NEAREST
 				}
 			);
+
+			grid->meta.setMeta("Editor.Name", "Grid");
 		}
 	}
 
@@ -115,6 +117,7 @@ Editor::Editor() {
 			activeScene = ctx->getScenesManager()->createScene(0, true);
 
 			Model* cubeModel = ctx->getModelsManager()->createModel(cubeModelData);
+			cubeModel->meta.setMeta("Editor.Name", "Cube");
 
 			GameObject* defaultCube = activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
 			Components::Mesh* defaultCubeMesh = defaultCube->createComponent<Components::Mesh>();
@@ -133,6 +136,8 @@ Editor::Editor() {
 				.filterMag = TEXTURE_FILTER::NEAREST,
 				}
 				);
+
+			skyboxTex->meta.setMeta("Editor.Name", "Skybox");
 
 			activeScene->setSkyboxTexture(skyboxTex);
 
@@ -199,6 +204,7 @@ Editor::Editor() {
 	}
 
 	Material* defaultMat = ctx->getMaterialsManager()->createMaterial(0, true);
+	defaultMat->meta.setMeta("Editor.Name", "Default Material");
 
 	defaultMat->setAmbientColor(glm::vec3(1.0f));
 	defaultMat->setDiffuseColor(glm::vec3(1.0f));

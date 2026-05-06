@@ -6,17 +6,19 @@
 #include <windows.h>
 #endif
 
-int main() {
-	IMGUI_CHECKVERSION();
+int main(int argc, char* argv[]) {
+#if defined(_DEBUG) && defined(_WIN32)
+	if (AllocConsole()) {
+		SetConsoleTitle(L"Yngin Editor");
 
-	//#ifdef _DEBUG
-	//	if (AllocConsole()) {
-	//		FILE* fDummy;
-	//		freopen_s(&fDummy, "CONOUT$", "w", stdout);
-	//		freopen_s(&fDummy, "CONOUT$", "w", stderr);
-	//		freopen_s(&fDummy, "CONIN$", "r", stdin);
-	//	}
-	//#endif
+		FILE* fDummy;
+		freopen_s(&fDummy, "CONOUT$", "w", stdout);
+		freopen_s(&fDummy, "CONOUT$", "w", stderr);
+		freopen_s(&fDummy, "CONIN$", "r", stdin);
+	}
+#endif
+
+	IMGUI_CHECKVERSION();
 
 	Yngin::initializeYngin();
 
@@ -38,6 +40,6 @@ int main() {
 
 #ifdef _WIN32
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
-	return main();
+	return main(0, 0);
 }
 #endif

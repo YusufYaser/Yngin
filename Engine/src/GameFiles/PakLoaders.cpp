@@ -379,6 +379,8 @@ namespace Yngin::GameFiles {
 		mat->setSpecularColor(data.specularColor);
 		mat->setSpecularComponent(data.specularComponent);
 
+		meta(s, mat->meta, mgr->getContext());
+
 		return true;
 	}
 }

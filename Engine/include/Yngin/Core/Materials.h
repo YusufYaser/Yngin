@@ -5,10 +5,13 @@
 #include <glm/vec3.hpp>
 #include <string>
 #include <map>
+#include <Yngin/Utils/Meta.h>
 
 namespace Yngin {
 	class MaterialsManager {
 	public:
+		Context* getContext() const;
+
 		Material* createMaterial(uint32_t id = -1, bool override = false);
 		Material* getMaterial(uint32_t materialId);
 
@@ -36,6 +39,8 @@ namespace Yngin {
 	public:
 		uint32_t getId() const;
 		Context* getContext() const;
+
+		Meta meta;
 
 		glm::vec3 getAmbientColor() const;
 		void setAmbientColor(glm::vec3 color);
