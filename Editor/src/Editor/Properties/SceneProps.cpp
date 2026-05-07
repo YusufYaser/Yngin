@@ -1,6 +1,7 @@
 #include "../Editor.h"
 #include <Yngin/Core/Scenes.h>
 #include <ImGui/imgui.h>
+#include "../UI/UI.h"
 
 using namespace Yngin;
 
@@ -12,27 +13,16 @@ void Editor::showSceneProps(uint32_t id) {
 	ImGui::Separator();
 
 	{
-		ImGui::BeginGroup();
-		ImGui::Text("Skybox Texture ID");
+		ImGui::Text("Skybox Texture");
 		ImGui::SameLine(150);
-		static int v = 0;
+		static uint32_t v = 0;
 		ImGui::PushItemWidth(-1);
-		if (ImGui::InputInt("##SceneSkybox", &v, 1)) {
+		if (ui->textureSelector("##SkyboxTextureID", &v)) {
 			scene->setSkyboxTexture(v);
 		} else {
 			v = scene->getSkyboxTextureId();
 		}
 		ImGui::PopItemWidth();
-		ImGui::EndGroup();
-
-		if (ImGui::BeginDragDropTarget()) {
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_ID")) {
-				v = *(uint32_t*)payload->Data;
-				scene->setSkyboxTexture(v);
-			}
-
-			ImGui::EndDragDropTarget();
-		}
 	}
 
 	{

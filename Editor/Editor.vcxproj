@@ -281,6 +281,7 @@
     <ClCompile Include="src\Editor\Properties\GameObjectProps.cpp" />
     <ClCompile Include="src\Editor\Properties\ScriptProps.cpp" />
     <ClCompile Include="src\Editor\Properties\UIProps.cpp" />
+    <ClCompile Include="src\Editor\UI\UI.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -305,6 +306,7 @@
     <ClInclude Include="src\Editor\Cube_Model.h" />
     <ClInclude Include="src\Editor\DefaultScripts.h" />
     <ClInclude Include="src\Editor\Editor.h" />
+    <ClInclude Include="src\Editor\UI\UI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

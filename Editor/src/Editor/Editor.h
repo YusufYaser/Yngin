@@ -9,6 +9,7 @@
 #include <ImGui/imgui.h>
 #include <sstream>
 #include <ImGuiColorTextEdit/TextEditor.h>
+#include "UI/UI.h"
 
 enum class EXPLORER_SELECTION_TYPE {
 	NONE,
@@ -43,12 +44,16 @@ struct ScriptInfo {
 	size_t scriptSize;
 };
 
+class EditorUI;
+
 class Editor {
 public:
 	Editor();
 	~Editor();
 
 	void update();
+
+	std::unique_ptr<EditorUI> ui;
 
 	Yngin::Context* ctx;
 	Yngin::Scene* activeScene;

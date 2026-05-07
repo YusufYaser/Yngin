@@ -2,6 +2,7 @@
 #include <ImGui/imgui.h>
 #include "../Editor.h"
 #include <string>
+#include "../UI/UI.h"
 
 using namespace Yngin;
 
@@ -313,24 +314,13 @@ void Editor::showUIElementProps(uint32_t id, bool global) {
 
 		ImGui::SeparatorText("Image");
 		{
-			ImGui::BeginGroup();
-			ImGui::Text("Texture ID");
+			ImGui::Text("Texture");
 			ImGui::SameLine(100);
-			static int v = 0;
-			if (ImGui::InputInt("##UITextureID", &v)) {
+			static uint32_t v = 0;
+			if (ui->textureSelector("##ImageTextureID", &v)) {
 				image->setTexture(v);
 			} else {
 				v = image->getTexture();
-			}
-			ImGui::EndGroup();
-
-			if (ImGui::BeginDragDropTarget()) {
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_ID")) {
-					v = *(uint32_t*)payload->Data;
-					image->setTexture(v);
-				}
-
-				ImGui::EndDragDropTarget();
 			}
 		}
 
@@ -343,24 +333,13 @@ void Editor::showUIElementProps(uint32_t id, bool global) {
 
 		ImGui::SeparatorText("Text");
 		{
-			ImGui::BeginGroup();
-			ImGui::Text("Texture ID");
+			ImGui::Text("Font");
 			ImGui::SameLine(100);
-			static int v = 0;
-			if (ImGui::InputInt("##UIGlyphID", &v)) {
+			static uint32_t v = 0;
+			if (ui->textureSelector("##TextGlyphID", &v)) {
 				text->setGlyph(v);
 			} else {
 				v = text->getGlyph();
-			}
-			ImGui::EndGroup();
-
-			if (ImGui::BeginDragDropTarget()) {
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_ID")) {
-					v = *(uint32_t*)payload->Data;
-					text->setGlyph(v);
-				}
-
-				ImGui::EndDragDropTarget();
 			}
 		}
 

@@ -215,6 +215,7 @@ Editor::Editor() {
 
 	ctx->ready();
 
+	ui = std::make_unique<EditorUI>(this);
 
 	// initialize ImGui
 	ImGui::CreateContext();

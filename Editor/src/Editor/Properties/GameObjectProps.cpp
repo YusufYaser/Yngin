@@ -4,6 +4,7 @@
 #include <ImGui/imgui.h>
 #include "../Editor.h"
 #include <string>
+#include "../UI/UI.h"
 
 using namespace Yngin;
 
@@ -147,11 +148,11 @@ void Editor::showGameObjectProps(uint32_t id) {
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
 		bool deleted = ImGui::SmallButton("Delete Component##MeshComp");
 		ImGui::PopStyleColor(2);
-		ImGui::Text("Model ID");
+		ImGui::Text("Model");
 		ImGui::SameLine(100);
 		{
-			static int v = 0;
-			if (ImGui::InputInt("##MeshModelID", &v)) {
+			static uint32_t v = 0;
+			if (ui->modelSelector("##MeshModelID", &v)) {
 				mesh->setModel(v);
 			} else {
 				v = mesh->getModel();
@@ -159,24 +160,13 @@ void Editor::showGameObjectProps(uint32_t id) {
 		}
 
 		{
-			ImGui::BeginGroup();
-			ImGui::Text("Texture ID");
+			ImGui::Text("Texture");
 			ImGui::SameLine(100);
-			static int v = 0;
-			if (ImGui::InputInt("##MeshTextureID", &v)) {
+			static uint32_t v = 0;
+			if (ui->textureSelector("##MeshTextureID", &v)) {
 				mesh->setTexture(v);
 			} else {
 				v = mesh->getTexture();
-			}
-			ImGui::EndGroup();
-
-			if (ImGui::BeginDragDropTarget()) {
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_ID")) {
-					v = *(uint32_t*)payload->Data;
-					mesh->setTexture(v);
-				}
-
-				ImGui::EndDragDropTarget();
 			}
 		}
 		{
@@ -205,8 +195,8 @@ void Editor::showGameObjectProps(uint32_t id) {
 			ImGui::Text("Material %i", i);
 			ImGui::SameLine(100);
 			{
-				static int v[256] = {};
-				if (ImGui::InputInt(("##MeshMaterial" + std::to_string(i)).c_str(), &v[i])) {
+				static uint32_t v[256] = {};
+				if (ui->materialSelector(("##MeshMaterial" + std::to_string(i)).c_str(), &v[i])) {
 					mesh->setMaterial(i, v[i]);
 				} else {
 					v[i] = mesh->getMaterial(i);
