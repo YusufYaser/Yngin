@@ -16,7 +16,7 @@ void Editor::showModelProps(uint32_t id) {
 	if (explorerSelection.second == -1) {
 		ImGui::Text("Models");
 		ImGui::Separator();
-		// TODO: add file selector
+
 		{
 			const float degToRad = (3.14159265359f / 180);
 
@@ -42,7 +42,7 @@ void Editor::showModelProps(uint32_t id) {
 			ImGui::SetNextItemWidth(90.0f);
 			ImGui::InputFloat("##Rotation Z", &rot.z, 1.0f, 22.5f, "%.1f");
 
-			static glm::vec3 scale = {};
+			static glm::vec3 scale = { 1.0f, 1.0f, 1.0f };
 			ImGui::SeparatorText("Scale");
 			ImGui::SetNextItemWidth(90.0f);
 			ImGui::InputFloat("##Scale X", &scale.x, 1.0f, 1.0f, "%.1f");
@@ -53,52 +53,49 @@ void Editor::showModelProps(uint32_t id) {
 			ImGui::SetNextItemWidth(90.0f);
 			ImGui::InputFloat("##Scale Z", &scale.z, 1.0f, 1.0f, "%.1f");
 
-			ImGui::Separator();
+			ImGui::SeparatorText("Model File");
 
-			static char path[256] = {};
-			ImGui::Text("Path");
-			ImGui::SameLine(50);
-			ImGui::PushItemWidth(-1);
-			ImGui::InputText("##New Model Path", path, 256);
-			ImGui::PopItemWidth();
+			{
+				static char path[256] = {};
 
-			if (ImGui::Button("Load Model File", ImVec2(-1, 40))) {
-				std::ifstream modelFile(std::string(path, 256));
+				if (ui->fileSelector("New Model", { {"Model", "*.obj"}, {"All Files", "*.*"} }, path, 256)) {
+					std::ifstream modelFile(std::string(path, 256));
 
-				if (modelFile.is_open()) {
-					std::stringstream modelFileData;
-					modelFileData << modelFile.rdbuf();
+					if (modelFile.is_open()) {
+						std::stringstream modelFileData;
+						modelFileData << modelFile.rdbuf();
 
-					modelFile.close();
+						modelFile.close();
 
-					ModelData data{};
-					bool loaded = ctx->getModelsManager()->parseObjFile(modelFileData.str().c_str(), modelFileData.str().length(), data);
+						ModelData data{};
+						bool loaded = ctx->getModelsManager()->parseObjFile(modelFileData.str().c_str(), modelFileData.str().length(), data);
 
-					if (loaded) {
-						glm::mat4 modelMat = glm::mat4(1.0f);
-						modelMat = glm::translate(modelMat, offset);
-						modelMat = glm::rotate(modelMat, rot.x * degToRad, glm::vec3(1, 0, 0));
-						modelMat = glm::rotate(modelMat, rot.y * degToRad, glm::vec3(0, 1, 0));
-						modelMat = glm::rotate(modelMat, rot.z * degToRad, glm::vec3(0, 0, 1));
-						modelMat = glm::scale(modelMat, scale);
+						if (loaded) {
+							glm::mat4 modelMat = glm::mat4(1.0f);
+							modelMat = glm::translate(modelMat, offset);
+							modelMat = glm::rotate(modelMat, rot.x * degToRad, glm::vec3(1, 0, 0));
+							modelMat = glm::rotate(modelMat, rot.y * degToRad, glm::vec3(0, 1, 0));
+							modelMat = glm::rotate(modelMat, rot.z * degToRad, glm::vec3(0, 0, 1));
+							modelMat = glm::scale(modelMat, scale);
 
-						for (auto& vertex : data.vertices) {
-							vertex.pos = modelMat * glm::vec4(vertex.pos, 1.0f);
+							for (auto& vertex : data.vertices) {
+								vertex.pos = modelMat * glm::vec4(vertex.pos, 1.0f);
+							}
+
+							Model* model = ctx->getModelsManager()->createModel(data);
+
+							std::filesystem::path fsPath(path);
+							std::string filename = fsPath.filename().stem().string();
+							model->meta.setMeta("Editor.Name", filename);
+
+							explorerSelection = { EXPLORER_SELECTION_TYPE::MODEL, model->getId() };
 						}
 
-						Model* model = ctx->getModelsManager()->createModel(data);
-
-						std::filesystem::path fsPath(path);
-						std::string filename = fsPath.filename().stem().string();
-						model->meta.setMeta("Editor.Name", filename);
-
-						explorerSelection = { EXPLORER_SELECTION_TYPE::MODEL, model->getId() };
+						path[0] = '\0';
+						offset = {};
+						rot = {};
+						scale = {};
 					}
-
-					path[0] = '\0';
-					offset = {};
-					rot = {};
-					scale = {};
 				}
 			}
 		}
@@ -160,16 +157,10 @@ void Editor::showMaterialProps(uint32_t id) {
 
 		ImGui::SeparatorText("Load Material File");
 
-		// TODO: add file selector
 		{
 			static char v[256] = {};
-			ImGui::Text("Path");
-			ImGui::SameLine(50);
-			ImGui::PushItemWidth(-1);
-			ImGui::InputText("##New Material Path", v, 256);
-			ImGui::PopItemWidth();
 
-			if (ImGui::Button("Load Material File", ImVec2(-1, 40))) {
+			if (ui->fileSelector("New Material", { {"Material", "*.mtl"}, {"All Files", "*.*"} }, v, 256)) {
 				std::string path = v;
 
 				std::ifstream file(path);
@@ -329,17 +320,12 @@ void Editor::showTextureProps(uint32_t id) {
 	if (id == -1) {
 		ImGui::Text("Textures");
 		ImGui::Separator();
-		// TODO: add file selector
 		{
 			static char v[256] = {};
-			ImGui::Text("Path");
-			ImGui::SameLine(50);
-			ImGui::PushItemWidth(-1);
-			ImGui::InputText("##New Texture Path", v, 256);
-			ImGui::PopItemWidth();
 
-			if (ImGui::Button("Create Texture", ImVec2(-1, 40))) {
+			if (ui->fileSelector("New Texture", { {"All Images", "*.jpg;*.jpeg;*.png;*.tga;*.dds"}, {"All Files", "*.*"} }, v, 256)) {
 				std::string path = v;
+
 				Texture* texture = ctx->getTexturesManager()->createTexture(path.c_str());
 
 				std::filesystem::path fsPath(path);
@@ -375,7 +361,6 @@ void Editor::showTextureProps(uint32_t id) {
 			strcpy_s(v, 32, name.c_str());
 		}
 	}
-	ImGui::Separator();
 
 	if (!running) {
 		viewingObject = true;
@@ -394,16 +379,11 @@ void Editor::showTextureProps(uint32_t id) {
 		}
 	}
 
-	// TODO: add file selector
+	ImGui::SeparatorText("Change Texture");
 	{
 		static char v[256] = {};
-		ImGui::Text("Path");
-		ImGui::SameLine(50);
-		ImGui::PushItemWidth(-1);
-		ImGui::InputText("##New Texture Path", v, 256);
-		ImGui::PopItemWidth();
 
-		if (ImGui::Button("Change Texture", ImVec2(-1, 0))) {
+		if (ui->fileSelector("Change Texture##" + std::to_string(texture->getId()), { {"All Images", "*.jpg;*.jpeg;*.png;*.tga;*.dds"}, {"All Files", "*.*"} }, v, 256)) {
 			std::string path = v;
 			texture->setData(path.c_str());
 			v[0] = '\0';
