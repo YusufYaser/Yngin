@@ -52,7 +52,7 @@ int main() {
 	gamePak.close();
 
 	if (!Context::validateGamePak(gameBytes.str().c_str(), gameBytes.str().size())) {
-		error("The game.pak file is corrupted");
+		error("The game.pak file is corrupted or there's a version mismatch between the game.pak and the runtime executable");
 		gameBytes.clear();
 		terminateYngin();
 		return 1;

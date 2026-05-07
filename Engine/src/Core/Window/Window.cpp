@@ -76,12 +76,20 @@ namespace Yngin {
 		return size;
 	}
 
+	bool Window::isMaximized() const {
+		return glfwGetWindowAttrib(impl->glfwWindow, GLFW_MAXIMIZED) == GLFW_TRUE;
+	}
+
 	void Window::maximize() {
 		glfwMaximizeWindow(impl->glfwWindow);
 	}
 
-	void Window::minimize() {
+	void Window::restore() {
 		glfwRestoreWindow(impl->glfwWindow);
+	}
+
+	void Window::minimize() {
+		glfwIconifyWindow(impl->glfwWindow);
 	}
 
 	void Window::setPositionCentered() {

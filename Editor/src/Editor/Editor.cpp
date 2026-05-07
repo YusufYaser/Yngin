@@ -31,8 +31,9 @@ namespace fs = std::filesystem;
 
 Editor::Editor() {
 	fs::create_directory("temp");
-	fs::create_directory("scenes");
 	fs::create_directory("bin");
+	fs::create_directory("data");
+	fs::create_directory("data/scenes");
 
 	fs::path cwd = fs::current_path();
 	projectName = cwd.filename().string();
@@ -60,7 +61,7 @@ Editor::Editor() {
 #endif
 
 	{
-		std::ifstream file("core.pak", std::ios::binary);
+		std::ifstream file("data/core.pak", std::ios::binary);
 		if (file.is_open()) {
 			std::ostringstream bytes(std::ios::binary);
 			bytes << file.rdbuf();
@@ -76,7 +77,7 @@ Editor::Editor() {
 	}
 
 	{
-		std::ifstream file("resources.pak", std::ios::binary);
+		std::ifstream file("data/resources.pak", std::ios::binary);
 		if (file.is_open()) {
 			std::ostringstream bytes(std::ios::binary);
 			bytes << file.rdbuf();
@@ -106,7 +107,7 @@ Editor::Editor() {
 	activeScene = ctx->getScenesManager()->createScene();
 
 	{
-		std::ifstream file("scenes/scene0.pak", std::ios::binary);
+		std::ifstream file("data/scenes/scene0.pak", std::ios::binary);
 		if (file.is_open()) {
 			std::ostringstream bytes(std::ios::binary);
 			bytes << file.rdbuf();
@@ -156,7 +157,7 @@ Editor::Editor() {
 	setupViewerScene();
 
 	{
-		std::ifstream file("scripts_editor.pak", std::ios::binary);
+		std::ifstream file("data/scripts_editor.pak", std::ios::binary);
 		if (file.is_open()) {
 			ScriptFileHeader header{};
 			file.read(reinterpret_cast<char*>(&header), sizeof(ScriptFileHeader));
@@ -299,11 +300,11 @@ void Editor::saveProject() {
 	lastSaved = ctx->getTime();
 
 	fs::create_directory("temp");
-	fs::create_directory("scenes");
 	fs::create_directory("bin");
+	fs::create_directory("data/scenes");
 
 	{
-		std::ofstream file("core.pak", std::ios::binary);
+		std::ofstream file("data/core.pak", std::ios::binary);
 		if (file.is_open()) {
 			std::vector<char> bytes = ctx->generateCorePak();
 			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
@@ -312,7 +313,7 @@ void Editor::saveProject() {
 	}
 
 	{
-		std::ofstream file("resources.pak", std::ios::binary);
+		std::ofstream file("data/resources.pak", std::ios::binary);
 		if (file.is_open()) {
 			std::vector<char> bytes = ctx->generateResourcesPak();
 			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
@@ -321,7 +322,7 @@ void Editor::saveProject() {
 	}
 
 	{
-		std::ofstream file("scripts_editor.pak", std::ios::binary);
+		std::ofstream file("data/scripts_editor.pak", std::ios::binary);
 		if (file.is_open()) {
 			ScriptFileHeader header{};
 			strcpy_s(header.magic, 19, "YNGINEDITORSCRIPTS");
@@ -345,7 +346,7 @@ void Editor::saveProject() {
 	}
 
 	{
-		std::ofstream file("scenes/scene0.pak", std::ios::binary);
+		std::ofstream file("data/scenes/scene0.pak", std::ios::binary);
 		if (file.is_open()) {
 			std::vector<char> bytes = activeScene->generatePak();
 			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
@@ -581,7 +582,7 @@ void Editor::update() {
 					io.MousePos.y - startPos.y
 				};
 
-				if (delta.x != 0 || delta.y != 0) window->minimize();
+				if (delta.x != 0 || delta.y != 0) window->restore();
 
 				window->setPosition(window->getPosition() + delta);
 			} else {
@@ -691,37 +692,38 @@ void Editor::update() {
 		}
 
 		if (window->isFullscreen() || !window->hasTitleBar()) {
-			static bool wasClickedLastFrame = false;
-			if (!wasClickedLastFrame) {
-				ImGui::SameLine(window->getSize().x - 55.0f * (window->isFullscreen() ? 1.0f : 1.5f));
-				if (ImGui::BeginMenu("-")) {
-					wasClickedLastFrame = true;
-					if (window->isFullscreen()) {
-						window->setFullscreen(false);
-					} else {
-						window->minimize();
-					}
-					ImGui::EndMenu();
-				}
+			ImGui::SameLine(window->getSize().x - 65.0f * (window->isFullscreen() ? 1.0f : 1.5f));
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.3f, 0.4f, 1.0f));
+			ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(7.5f, 2.5f));
 
-				if (!window->isFullscreen()) {
-					if (ImGui::BeginMenu("O")) {
-						wasClickedLastFrame = true;
-						window->maximize();
-						ImGui::EndMenu();
-					}
+			if (ImGui::Button("-")) {
+				if (window->isFullscreen()) {
+					window->setFullscreen(false);
+				} else {
+					window->minimize();
 				}
-
-				ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(1, 0, 0, 1));
-				if (ImGui::BeginMenu("X")) {
-					wasClickedLastFrame = true;
-					ctx->close();
-					ImGui::EndMenu();
-				}
-				ImGui::PopStyleColor();
-			} else {
-				wasClickedLastFrame = false;
 			}
+
+			if (!window->isFullscreen()) {
+				if (ImGui::Button("O")) {
+					if (!window->isMaximized()) {
+						window->maximize();
+					} else {
+						window->restore();
+					}
+				}
+			}
+
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1, 0, 0, 1));
+			if (ImGui::Button("X")) {
+				ctx->close();
+			}
+			ImGui::PopStyleColor();
+
+			ImGui::PopStyleColor(2);
+			ImGui::PopStyleVar(2);
 		}
 
 		if (running) {
@@ -737,7 +739,7 @@ void Editor::update() {
 		ImGui::EndMainMenuBar();
 	}
 
-	if (explorerSelection.first != EXPLORER_SELECTION_TYPE::SCRIPT) {
+	if (explorerSelection.first != EXPLORER_SELECTION_TYPE::SCRIPT || explorerSelection.second == -1) {
 		std::string title = "Scene Viewer";
 		if (running) title = gameSettings.name;
 		if (viewingObject) title = "Resource Viewer";
@@ -787,7 +789,7 @@ void Editor::update() {
 		ImGui::PopStyleColor();
 	}
 	ctx->getPhysicsEngine()->setSimulationEnabled(running);
-	ctx->getRenderer()->setLightingEnabled(running || (explorerSelection.first == EXPLORER_SELECTION_TYPE::MATERIAL) || editorLighting);
+	ctx->getRenderer()->setLightingEnabled(running || (explorerSelection.first == EXPLORER_SELECTION_TYPE::MATERIAL && explorerSelection.second != -1) || editorLighting);
 
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 
@@ -942,7 +944,7 @@ void Editor::update() {
 	glm::vec2 viewPos = { 250.0f, menubarHeight };
 	glm::vec2 viewSize = { windowSize.x - 250.0f - 300.0f, windowSize.y - menubarHeight - 260.0f };
 	ctx->forceViewport(viewPos + glm::vec2(0, frameHeight * 2), viewSize - glm::vec2(0, frameHeight * 2));
-	if (explorerSelection.first == EXPLORER_SELECTION_TYPE::SCRIPT) {
+	if (explorerSelection.first == EXPLORER_SELECTION_TYPE::SCRIPT && explorerSelection.second != -1) {
 		ctx->forceViewport({ -1, -1 }, { 1, 1 });
 
 		ImGui::SetNextWindowPos({ viewPos.x, viewPos.y });
