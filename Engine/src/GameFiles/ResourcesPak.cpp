@@ -20,7 +20,49 @@ using namespace Yngin::GameFiles;
 using namespace Yngin::GameFiles::ResourcesPak;
 
 namespace Yngin {
+	bool Context::validateResourcesPak(const char* bytes, size_t size) {
+		std::istringstream s(std::string(bytes, size), std::ios::binary);
+
+		Header header{};
+		if (!R(header, Header)) return false;
+		if (std::memcmp(header.magic, "YNGINRESOURCES", 14) != 0) return false;
+		if (header.version != VERSION) return false;
+
+		Operation op{};
+
+		while (R(op, Operation)) {
+			switch (op.op) {
+			case OP::MODEL:
+			{
+				if (!Validators::modelsManager(s)) return false;
+				break;
+			}
+
+			case OP::TEXTURE:
+			{
+				if (!Validators::texturesManager(s)) return false;
+				break;
+			}
+
+			case OP::MATERIAL:
+			{
+				if (!Validators::materialsManager(s)) return false;
+				break;
+			}
+
+			default:
+			{
+				return false;
+			}
+			}
+		}
+
+		return true;
+	}
+
 	void Context::loadResourcesPak(const char* bytes, size_t size) {
+		if (!validateResourcesPak(bytes, size)) return;
+
 		bool stop = false;
 
 		std::istringstream s(std::string(bytes, size), std::ios::binary);

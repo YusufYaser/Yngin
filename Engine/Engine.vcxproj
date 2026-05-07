@@ -96,6 +96,7 @@
     <ClCompile Include="src\Components\Light.cpp" />
     <ClCompile Include="src\Components\RigidBody.cpp" />
     <ClCompile Include="src\Core\Context\Init.cpp" />
+    <ClCompile Include="src\GameFiles\PakValidators.cpp" />
     <ClCompile Include="src\GameFiles\ResourcesPak.cpp" />
     <ClCompile Include="src\Core\InputSystem\InputSystem.cpp" />
     <ClCompile Include="src\GameFiles\ScenePak.cpp" />

@@ -47,11 +47,19 @@ int main() {
 		return 1;
 	}
 
-	Context* ctx = new Context();
-
 	std::ostringstream gameBytes(std::ios::binary);
 	gameBytes << gamePak.rdbuf();
 	gamePak.close();
+
+	if (!Context::validateGamePak(gameBytes.str().c_str(), gameBytes.str().size())) {
+		error("The game.pak file is corrupted");
+		gameBytes.clear();
+		terminateYngin();
+		return 1;
+	}
+
+	Context* ctx = new Context();
+
 	ctx->loadGamePak(gameBytes.str().c_str(), gameBytes.str().size());
 	gameBytes.clear();
 

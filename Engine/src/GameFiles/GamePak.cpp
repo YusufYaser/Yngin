@@ -53,7 +53,56 @@ namespace Yngin {
 		return settings;
 	}
 
+	bool Context::validateGamePak(const char* bytes, size_t size) {
+		std::istringstream s(std::string(bytes, size), std::ios::binary);
+
+		Header header{};
+		if (!R(header, Header)) return false;
+		if (std::memcmp(header.magic, "YNGINGAME", 10) != 0) return false;
+		if (header.version != VERSION) return false;
+
+		PakInfo pakInfo{};
+
+		while (R(pakInfo, PakInfo)) {
+			ValidatorCheck(uint8_t, pakInfo.pakSize);
+			char* bytes = new char[pakInfo.pakSize];
+			s.read(bytes, pakInfo.pakSize);
+
+			switch (pakInfo.pakType) {
+			case PAK_TYPE::CORE:
+			{
+				if (!validateCorePak(bytes, pakInfo.pakSize)) return false;
+				break;
+			}
+
+			case PAK_TYPE::RESOURCES:
+			{
+				if (!validateResourcesPak(bytes, pakInfo.pakSize)) return false;
+				break;
+			}
+
+			case PAK_TYPE::SCENE:
+			{
+				if (!ScenesManager::validateScenePak(bytes, pakInfo.pakSize)) return false;
+				break;
+			}
+
+			default:
+			{
+				delete[] bytes;
+				return false;
+			}
+			}
+
+			delete[] bytes;
+		}
+
+		return true;
+	}
+
 	void Context::loadGamePak(const char* bytes, size_t size) {
+		if (!validateGamePak(bytes, size)) return;
+
 		std::istringstream s(std::string(bytes, size), std::ios::binary);
 
 		Header header{};

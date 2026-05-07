@@ -27,6 +27,8 @@ namespace Yngin {
 		void setActive(uint32_t sceneId);
 		void setActive(Scene* scene);
 
+		static bool validateScenePak(const char* scenePakData, size_t size);
+
 	private:
 		friend class Context;
 		friend struct std::default_delete<ScenesManager>;

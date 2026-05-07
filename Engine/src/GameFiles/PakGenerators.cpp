@@ -40,7 +40,7 @@ namespace Yngin::GameFiles {
 			pakModelData.frontFace = data.frontFace;
 
 			pakModelData.materialsCount = data.materialsCount;
-			for (int i = 0; i < data.materialsCount; i++) {
+			for (uint32_t i = 0; i < data.materialsCount; i++) {
 				pakModelData.defaultMaterials[i] = data.defaultMaterials[i];
 			}
 
@@ -49,7 +49,7 @@ namespace Yngin::GameFiles {
 
 			W(pakModelData, PakModelData);
 
-			for (int i = 0; i < pakModelData.verticesCount; i++) {
+			for (uint32_t i = 0; i < pakModelData.verticesCount; i++) {
 				Vertex vertex = data.vertices[i];
 				ModelVertexData v{};
 				v.position = vertex.pos;
@@ -59,7 +59,7 @@ namespace Yngin::GameFiles {
 				W(v, ModelVertexData);
 			}
 
-			for (int i = 0; i < pakModelData.indicesCount; i++) {
+			for (uint32_t i = 0; i < pakModelData.indicesCount; i++) {
 				uint32_t index = data.indices[i];
 				W(index, uint32_t);
 			}

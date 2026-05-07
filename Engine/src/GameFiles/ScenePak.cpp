@@ -16,7 +16,132 @@ using namespace Yngin::GameFiles;
 using namespace Yngin::GameFiles::ScenePak;
 
 namespace Yngin {
+	bool ScenesManager::validateScenePak(const char* bytes, size_t size) {
+		std::istringstream s(std::string(bytes, size), std::ios::binary);
+
+		Header header{};
+		if (!R(header, Header)) return false;
+		if (std::memcmp(header.magic, "YNGINSCENE", 10) != 0) return false;
+		if (header.version != VERSION) return false;
+
+		Operation op{};
+
+		bool gameObjectActive = false;
+		std::map<COMPONENT_TYPE, bool> addedComponents;
+
+		while (R(op, Operation)) {
+			switch (op.op) {
+			case OP::SCENE:
+			{
+				SceneData sceneData{};
+				if (!R(sceneData, SceneData)) return false;
+
+				if (!Validators::meta(s)) return false;
+
+				break;
+			}
+
+			case OP::GAMEOBJECT:
+			{
+				GameObjectData objData{};
+				if (!R(objData, GameObjectData)) return false;
+				gameObjectActive = true;
+				addedComponents.clear();
+
+				if (!Validators::meta(s)) return false;
+
+				break;
+			}
+
+			case OP::COMPONENT:
+			{
+				if (!gameObjectActive) return false;
+
+				ComponentData componentData{};
+				if (!R(componentData, ComponentData)) return false;
+
+				switch (componentData.componentType) {
+				case COMPONENT_TYPE::MESH:
+				{
+					if (addedComponents[COMPONENT_TYPE::MESH]) return false;
+					addedComponents[COMPONENT_TYPE::MESH] = true;
+
+					MeshData meshData{};
+					if (!R(meshData, MeshData)) return false;
+
+					break;
+				}
+				case COMPONENT_TYPE::LIGHT:
+				{
+					if (addedComponents[COMPONENT_TYPE::LIGHT]) return false;
+					addedComponents[COMPONENT_TYPE::LIGHT] = true;
+
+					LightData lightData{};
+					if (!R(lightData, LightData)) return false;
+
+					break;
+				}
+				case COMPONENT_TYPE::RIGIDBODY:
+				{
+					if (addedComponents[COMPONENT_TYPE::RIGIDBODY]) return false;
+					addedComponents[COMPONENT_TYPE::RIGIDBODY] = true;
+
+					RigidBodyData rigidBodyData{};
+					if (!R(rigidBodyData, RigidBodyData)) return false;
+
+					for (int i = 0; i < rigidBodyData.forcesCount; i++) {
+						ValidatorCheck(float, 4);
+						Seek(sizeof(float) * 4);
+					}
+
+					break;
+				}
+				case COMPONENT_TYPE::BOXCOLLIDER:
+				{
+					if (addedComponents[COMPONENT_TYPE::BOXCOLLIDER]) return false;
+					addedComponents[COMPONENT_TYPE::BOXCOLLIDER] = true;
+
+					BoxColliderData boxColliderData{};
+					if (!R(boxColliderData, BoxColliderData)) return false;
+
+					break;
+				}
+				}
+
+				break;
+			}
+
+			case OP::CAMERA:
+			{
+				if (!Validators::camerasManager(s)) return false;
+				break;
+			}
+
+			case OP::UIELEMENT:
+			{
+				if (!Validators::uiManager(s)) return false;
+				break;
+			}
+
+			case OP::SCRIPT:
+			{
+				if (!Validators::scriptsManager(s)) return false;
+				break;
+			}
+
+			default:
+			{
+				return false;
+			}
+			}
+		}
+
+		return true;
+	}
+
 	void Scene::Impl::loadPak(const char* bytes, size_t size) {
+		if (!ScenesManager::validateScenePak(bytes, size)) return;
+
 		std::istringstream s(std::string(bytes, size), std::ios::binary);
 
 		Header header{};
@@ -27,7 +152,6 @@ namespace Yngin {
 		Operation op{};
 
 		bool stop = false;
-		bool reachedScript = false;
 
 		std::map<int, int> gameObjectsParentsQueue;
 		std::map<int, int> uiElementsParentsQueue;
@@ -165,7 +289,6 @@ namespace Yngin {
 			case OP::SCRIPT:
 			{
 				stop = !Loaders::scriptsManager(s, ctx->getScriptsManager());
-				reachedScript = true;
 				break;
 			}
 

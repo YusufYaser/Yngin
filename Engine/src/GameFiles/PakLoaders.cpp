@@ -52,9 +52,14 @@ namespace Yngin::GameFiles {
 			modelData.indices.push_back(index);
 		}
 
-		Model* model = mgr->createModel(modelData, pakModelData.id, true);
+		if (modelData.vertices.size() != 0 && modelData.indices.size() != 0) {
+			Model* model = mgr->createModel(modelData, pakModelData.id, true);
 
-		meta(s, model->meta, mgr->getContext());
+			meta(s, model->meta, mgr->getContext());
+		} else {
+			Meta fakeMeta;
+			meta(s, fakeMeta, mgr->getContext());
+		}
 
 		return true;
 	}

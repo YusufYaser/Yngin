@@ -3,6 +3,15 @@
 #include <iostream>
 #include <map>
 
+#define ValidatorCheck(type, count) if (!( \
+	s.good() && \
+	(count) >= size_t(0) && \
+	(count) < (SIZE_MAX / sizeof(type)) && \
+	s.rdbuf()->in_avail() >= (count) * sizeof(type) \
+)) return false;
+
+#define Seek(count) s.seekg(count, std::ios::cur)
+
 namespace Yngin {
 	class ModelsManager;
 	class TexturesManager;
@@ -70,8 +79,8 @@ namespace Yngin {
 			static bool gameObjectsManager(std::ostream& s, const GameObjectsManager* mgr);
 			static bool camerasManager(std::ostream& s, const CamerasManager* mgr);
 			static bool uiManager(std::ostream& s, const UI::UIManager* mgr);
-			static bool meta(std::ostream& s, const Meta& meta, Context* ctx);
 			static bool materialsManager(std::ostream& s, const MaterialsManager* mgr);
+			static bool meta(std::ostream& s, const Meta& meta, Context* ctx);
 		};
 
 		class Loaders {
@@ -82,8 +91,20 @@ namespace Yngin {
 
 			static bool camerasManager(std::istream& s, CamerasManager* mgr);
 			static bool uiManager(std::istream& s, UI::UIManager* mgr, std::map<int, int>& parentsQueue = dummyMap);
-			static bool meta(std::istream& s, Meta& meta, Context* ctx);
 			static bool materialsManager(std::istream& s, MaterialsManager* mgr);
+			static bool meta(std::istream& s, Meta& meta, Context* ctx);
+		};
+
+		class Validators {
+		public:
+			static bool modelsManager(std::istream& s);
+			static bool texturesManager(std::istream& s);
+			static bool scriptsManager(std::istream& s);
+
+			static bool camerasManager(std::istream& s);
+			static bool uiManager(std::istream& s);
+			static bool materialsManager(std::istream& s);
+			static bool meta(std::istream& s);
 		};
 	}
 }
