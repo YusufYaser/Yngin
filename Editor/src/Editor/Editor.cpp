@@ -12,6 +12,7 @@
 #include <filesystem>
 #include "DefaultScripts.h"
 #include "Editor.h"
+#include "../main.h"
 
 #ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -29,7 +30,12 @@ using namespace Yngin;
 
 namespace fs = std::filesystem;
 
-Editor::Editor() {
+Editor::Editor(std::string path) {
+	this->path = path;
+
+	fs::path oldCwd = fs::current_path();
+	fs::current_path(path);
+
 	fs::create_directory("temp");
 	fs::create_directory("bin");
 	fs::create_directory("data");
@@ -50,6 +56,7 @@ Editor::Editor() {
 
 	if (ctx == nullptr || ctx->getStatus() != CONTEXT_STATUS::WAITING_FOR_READY) {
 		printf("Failed to create context\n");
+		fs::current_path(oldCwd);
 		return;
 	}
 
@@ -219,7 +226,8 @@ Editor::Editor() {
 	ui = std::make_unique<EditorUI>(this);
 
 	// initialize ImGui
-	ImGui::CreateContext();
+	imguiCtx = ImGui::CreateContext();
+	ImGui::SetCurrentContext(imguiCtx);
 	ImGui_ImplGlfw_InitForOpenGL(ctx->getWindow()->getGLFWwindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
@@ -229,17 +237,27 @@ Editor::Editor() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr;
+
+	saveProject();
+
+	fs::current_path(oldCwd);
 }
 
 Editor::~Editor() {
+	fs::path oldCwd = fs::current_path();
+	fs::current_path(path);
+
 	saveProject();
 
+	ImGui::SetCurrentContext(imguiCtx);
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
 	delete ctx;
 	ctx = nullptr;
+
+	fs::current_path(oldCwd);
 }
 
 void Editor::resetContext() {
@@ -489,9 +507,16 @@ void Editor::loadScripts() {
 }
 
 void Editor::update() {
+	fs::path oldCwd = fs::current_path();
+	fs::current_path(path);
+
+	ImGui::SetCurrentContext(imguiCtx);
+	ctx->makeCurrent();
+
 	ImGuiIO& io = ImGui::GetIO();
 
 	Window* window = ctx->getWindow();
+	window->setTitle(("Yngin Editor - " + projectName).c_str());
 
 	glm::ivec2 windowSize = window->getSize();
 	if (!viewingObject) {
@@ -598,11 +623,20 @@ void Editor::update() {
 		if (ImGui::BeginMenu("File")) {
 			ImGui::MenuItem(projectName.c_str(), 0, false, false);
 			ImGui::Separator();
+			if (ImGui::MenuItem("Start Window")) {
+				showStartWindow();
+			}
+			ImGui::Separator();
 			if (ImGui::MenuItem("Save", "Ctrl+S")) {
 				saveProject();
 			}
 			ImGui::Separator();
-			if (ImGui::MenuItem("Exit", "Alt+F4")) {
+			if (ImGui::MenuItem("Close Project")) {
+				ctx->close();
+				showStartWindow();
+			}
+			ImGui::Separator();
+			if (ImGui::MenuItem("Close Yngin Editor", "Alt+F4")) {
 				ctx->close();
 			}
 			ImGui::EndMenu();
@@ -991,4 +1025,6 @@ void Editor::update() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 	ctx->swapBuffers();
+
+	fs::current_path(oldCwd);
 }

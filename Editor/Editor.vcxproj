@@ -283,6 +283,7 @@
     <ClCompile Include="src\Editor\Properties\UIProps.cpp" />
     <ClCompile Include="src\Editor\UI\UI.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\StartWindow\StartWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
@@ -307,6 +308,8 @@
     <ClInclude Include="src\Editor\DefaultScripts.h" />
     <ClInclude Include="src\Editor\Editor.h" />
     <ClInclude Include="src\Editor\UI\UI.h" />
+    <ClInclude Include="src\main.h" />
+    <ClInclude Include="src\StartWindow\StartWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

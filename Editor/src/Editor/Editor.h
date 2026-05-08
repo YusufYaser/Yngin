@@ -48,8 +48,10 @@ class EditorUI;
 
 class Editor {
 public:
-	Editor();
+	Editor(std::string path);
 	~Editor();
+
+	std::string path;
 
 	void update();
 
@@ -80,6 +82,8 @@ public:
 	double lastSaved = 0;
 
 private:
+	ImGuiContext* imguiCtx;
+
 	void resetContext();
 	void setupViewerScene();
 
