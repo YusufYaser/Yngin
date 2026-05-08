@@ -1,6 +1,14 @@
 #pragma once
 #include <ImGui/imgui.h>
 #include <GLFW/glfw3.h>
+#include <map>
+#include <string>
+
+struct RecentProject {
+	std::string name;
+	std::string path;
+	uint64_t lastOpened;
+};
 
 class StartWindow {
 public:
@@ -20,4 +28,6 @@ private:
 
 	ImFont* defaultFont;
 	ImFont* titleFont;
+
+	std::map<std::string, RecentProject> recentProjects;
 };

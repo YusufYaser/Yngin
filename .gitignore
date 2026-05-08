@@ -367,3 +367,4 @@ bin
 intermediates
 imgui.ini
 *.pak
+*.dat

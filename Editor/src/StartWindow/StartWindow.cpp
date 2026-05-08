@@ -2,6 +2,9 @@
 #include <string>
 #include "../main.h"
 #include <filesystem>
+#include <chrono>
+#include <ctime>
+#include <fstream>
 
 #define IMGUI_IMPL_OPENGL_LOADER_GL3W
 #include <GLFW/glfw3.h>
@@ -23,6 +26,12 @@
 namespace fs = std::filesystem;
 
 namespace {
+	uint64_t getUnixTime() {
+		auto now = std::chrono::system_clock::now();
+		auto duration = now.time_since_epoch();
+		return std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+	}
+
 	std::string openDirectory(GLFWwindow* window) {
 #ifdef _WIN32
 		HWND hwnd = glfwGetWin32Window(window);
@@ -118,9 +127,55 @@ StartWindow::StartWindow() {
 
 	defaultFont = io.Fonts->AddFontDefault();
 	titleFont = io.Fonts->AddFontFromFileTTF("assets/ArchivoBlack.ttf", 48.0f);
+
+
+	// Load recent projects
+
+	{
+		std::ifstream file("recent_projects.dat");
+
+		if (file.is_open()) {
+			std::string data;
+
+			while (std::getline(file, data, ';')) {
+				RecentProject proj{};
+
+				proj.path = data;
+
+				if (!std::getline(file, data, ';')) break;
+				proj.name = data;
+
+				if (!std::getline(file, data)) break;
+
+				try {
+					proj.lastOpened = std::stoll(data);
+
+					recentProjects[proj.path] = proj;
+				} catch (std::exception) {
+					continue;
+				}
+			}
+
+			file.close();
+		}
+	}
 }
 
 StartWindow::~StartWindow() {
+	{
+		std::ofstream file("recent_projects.dat", std::ios::trunc);
+
+		if (file.is_open()) {
+			for (auto it = recentProjects.rbegin(); it != recentProjects.rend(); it++) {
+				RecentProject proj = it->second;
+
+				file << proj.path << ";" << proj.name << ";" << proj.lastOpened << "\n";
+			}
+
+			file.close();
+		}
+	}
+
 	ImGui::SetCurrentContext(imguiCtx);
 	glfwMakeContextCurrent(window);
 	ImGui_ImplOpenGL3_Shutdown();
@@ -153,6 +208,8 @@ void StartWindow::update() {
 	ImGui::SetNextWindowPos({ 0, 0 });
 	ImGui::SetNextWindowSize(windowSize);
 	ImGui::Begin("Start Window", 0, windowFlags | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoInputs);
+
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
 
 	// Title
 	{
@@ -190,21 +247,55 @@ void StartWindow::update() {
 		ImGui::SetNextWindowSize(ImVec2(400, 200));
 		ImGui::Begin("Recent Projects", 0, windowFlags);
 
-		for (int i = 0; i < 10; i++) {
+		RecentProject* projToOpen = nullptr;
+
+		std::map<uint64_t, RecentProject*> sorted;
+		for (auto& [_, proj] : recentProjects) {
+			sorted[proj.lastOpened] = &proj;
+		}
+
+		for (auto it = sorted.rbegin(); it != sorted.rend(); it++) {
+			RecentProject* proj = it->second;
+
+			std::string lastOpened = "08/05/2026 9:12 PM";
+
+			std::tm date;
+			localtime_s(&date, (const time_t*)&proj->lastOpened);
+			char lastOpenedBuf[128];
+			std::strftime(lastOpenedBuf, sizeof(lastOpenedBuf), "%d %b %Y %I:%M %p", &date);
+			lastOpened = lastOpenedBuf;
+
 			ImGui::BeginGroup();
 
 			ImVec2 p = ImGui::GetCursorScreenPos();
-			ImGui::Selectable(("##RecentProject" + std::to_string(i)).c_str(), false, 0, ImVec2(400, 50));
+			if (ImGui::Selectable(("##RecentProject" + proj->path).c_str(), false, 0, ImVec2(400, 50))) {
+				projToOpen = proj;
+			}
+
 			ImGui::SetCursorScreenPos(p);
 
-			ImGui::Text(("Project #" + std::to_string(i + 1)).c_str());
-			ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1), "D:\\Codes\\Yngin\\Editor\\TestProject.user");
-			ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1), "Last Opened: 08/05/2026 9:12 PM");
+			ImGui::Text(proj->name.c_str());
+			ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1), proj->path.c_str());
+			ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1), ("Last Opened: " + lastOpened).c_str());
 
 			ImGui::EndGroup();
 
 			if (ImGui::IsItemHovered()) {
 				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+			}
+		}
+
+		if (projToOpen != nullptr) {
+			std::string path = projToOpen->path;
+
+			if (fs::exists(path) && fs::is_directory(path)) {
+				projToOpen->lastOpened = getUnixTime();
+
+				printf("[Yngin Editor] Opening project from recents: %s\n", path.c_str());
+				openProject(path);
+				closing = true;
+			} else {
+				printf("[Yngin Editor] This project no longer exists\n");
 			}
 		}
 
@@ -219,6 +310,19 @@ void StartWindow::update() {
 		ImGui::SetWindowSize(size);
 
 		ImGui::End();
+
+		if (recentProjects.size() == 0) {
+			std::string text = "No Recent Projects";
+
+			ImVec2 size = ImGui::CalcTextSize(text.c_str());
+			ImVec2 pos = ImVec2{
+				windowSize.x / 2 - size.x / 2,
+				windowSize.y / 2 - size.y / 2,
+			};
+
+			ImGui::SetCursorPos(pos);
+			ImGui::Text(text.c_str());
+		}
 	}
 
 	// Other Options
@@ -230,8 +334,15 @@ void StartWindow::update() {
 
 		if (ImGui::Button("Open Another Project", ImVec2(250, 25))) {
 			std::string path = openDirectory(window);
-			if (!path.empty()) {
+			if (!path.empty() && path.find(';') == std::string::npos) {
 				if (fs::exists(path) && fs::is_directory(path)) {
+					RecentProject proj;
+					proj.path = path;
+					proj.name = fs::path(path).filename().string();
+					proj.lastOpened = getUnixTime();
+
+					recentProjects[path] = proj;
+
 					printf("[Yngin Editor] Opening project: %s\n", path.c_str());
 					openProject(path);
 					closing = true;
@@ -286,6 +397,8 @@ void StartWindow::update() {
 
 		ImGui::PopFont();
 	}
+
+	ImGui::PopStyleColor();
 
 	ImGui::End();
 
