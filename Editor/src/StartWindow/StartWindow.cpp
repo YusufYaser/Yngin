@@ -12,9 +12,12 @@
 #ifdef _WIN32
 #include <Windows.h>
 #include <shobjidl.h> 
-#include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
+#undef min
+#undef max
 #endif
 
 namespace fs = std::filesystem;
@@ -89,7 +92,15 @@ StartWindow::StartWindow() {
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-	glfwSetWindowPos(window, (mode->width - 800) / 2, (mode->height - 600) / 2);
+	int windowWidth, windowHeight;
+
+	glfwGetWindowSize(window, &windowWidth, &windowHeight);
+	glfwSetWindowPos(window, (mode->width - windowWidth) / 2, (mode->height - windowHeight) / 2);
+
+#ifdef _WIN32
+	BOOL darkMode = TRUE;
+	DwmSetWindowAttribute(glfwGetWin32Window(window), 20, &darkMode, sizeof(BOOL));
+#endif
 
 	glfwDefaultWindowHints();
 
@@ -138,6 +149,7 @@ void StartWindow::update() {
 		ImGui::GetColorU32(ImGuiCol_WindowBg)
 	);
 
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
 	ImGui::SetNextWindowPos({ 0, 0 });
 	ImGui::SetNextWindowSize(windowSize);
 	ImGui::Begin("Start Window", 0, windowFlags | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoInputs);
@@ -151,7 +163,7 @@ void StartWindow::update() {
 		ImVec2 size = ImGui::CalcTextSize(text.c_str());
 		ImVec2 pos = ImVec2{
 			windowSize.x / 2 - size.x / 2,
-			100
+			75
 		};
 
 		ImGui::SetCursorPos(pos);
@@ -160,22 +172,63 @@ void StartWindow::update() {
 		ImGui::PopFont();
 	}
 
-	// Options
+	// Recent Projects
 	{
-		ImVec2 size = { 250, 175 };
+		{
+			std::string text = "Recent Projects";
+
+			ImVec2 size = ImGui::CalcTextSize(text.c_str());
+			ImVec2 pos = ImVec2{
+				windowSize.x / 2 - size.x / 2,
+				150
+			};
+
+			ImGui::SetCursorPos(pos);
+			ImGui::Text(text.c_str());
+		}
+
+		ImGui::SetNextWindowSize(ImVec2(400, 200));
+		ImGui::Begin("Recent Projects", 0, windowFlags);
+
+		for (int i = 0; i < 10; i++) {
+			ImGui::BeginGroup();
+
+			ImVec2 p = ImGui::GetCursorScreenPos();
+			ImGui::Selectable(("##RecentProject" + std::to_string(i)).c_str(), false, 0, ImVec2(400, 50));
+			ImGui::SetCursorScreenPos(p);
+
+			ImGui::Text(("Project #" + std::to_string(i + 1)).c_str());
+			ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1), "D:\\Codes\\Yngin\\Editor\\TestProject.user");
+			ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1), "Last Opened: 08/05/2026 9:12 PM");
+
+			ImGui::EndGroup();
+
+			if (ImGui::IsItemHovered()) {
+				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+			}
+		}
+
+
+		ImVec2 size = ImGui::GetWindowSize();
 		ImVec2 pos = ImVec2{
 			(windowSize.x - size.x) / 2,
 			(windowSize.y - size.y) / 2
 		};
 
+		ImGui::SetWindowPos(pos);
+		ImGui::SetWindowSize(size);
+
+		ImGui::End();
+	}
+
+	// Other Options
+	{
+
 		ImGui::PushFont(defaultFont);
 
-		ImGui::SetNextWindowSize(size);
-		ImGui::SetNextWindowPos(pos);
+		ImGui::Begin("Other Options", 0, windowFlags | ImGuiWindowFlags_AlwaysAutoResize);
 
-		ImGui::Begin("Options", 0, windowFlags);
-
-		if (ImGui::Button("Open Project", ImVec2(-1, 50))) {
+		if (ImGui::Button("Open Another Project", ImVec2(250, 25))) {
 			std::string path = openDirectory(window);
 			if (!path.empty()) {
 				if (fs::exists(path) && fs::is_directory(path)) {
@@ -186,7 +239,9 @@ void StartWindow::update() {
 			}
 		}
 
-		if (ImGui::Button("New Project", ImVec2(-1, 50))) {
+		ImGui::Dummy(ImVec2(0, 10));
+
+		if (ImGui::Button("Create a new project", ImVec2(250, 50))) {
 			std::string path = openDirectory(window);
 			if (!path.empty()) {
 				if (fs::exists(path) && fs::is_directory(path)) {
@@ -201,9 +256,13 @@ void StartWindow::update() {
 			}
 		}
 
-		if (ImGui::Button("Close", ImVec2(-1, 50))) {
-			closing = true;
-		}
+		ImVec2 size = ImGui::GetWindowSize();
+		ImVec2 pos = ImVec2{
+			(windowSize.x - size.x) / 2,
+			windowSize.y - size.y - 50
+		};
+
+		ImGui::SetWindowPos(pos);
 
 		ImGui::End();
 
@@ -229,6 +288,8 @@ void StartWindow::update() {
 	}
 
 	ImGui::End();
+
+	ImGui::PopStyleVar();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

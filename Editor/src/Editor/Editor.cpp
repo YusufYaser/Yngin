@@ -516,7 +516,7 @@ void Editor::update() {
 	ImGuiIO& io = ImGui::GetIO();
 
 	Window* window = ctx->getWindow();
-	window->setTitle(("Yngin Editor - " + projectName).c_str());
+	window->setTitle((projectName + " - Yngin Editor").c_str());
 
 	glm::ivec2 windowSize = window->getSize();
 	if (!viewingObject) {
