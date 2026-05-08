@@ -169,6 +169,8 @@ StartWindow::~StartWindow() {
 			for (auto it = recentProjects.rbegin(); it != recentProjects.rend(); it++) {
 				RecentProject proj = it->second;
 
+				if (proj.path.find(';') != std::string::npos || proj.name.find(';') != std::string::npos) continue;
+
 				file << proj.path << ";" << proj.name << ";" << proj.lastOpened << "\n";
 			}
 
@@ -296,6 +298,7 @@ void StartWindow::update() {
 				closing = true;
 			} else {
 				printf("[Yngin Editor] This project no longer exists\n");
+				ImGui::OpenPopup("ProjectNotFound");
 			}
 		}
 
@@ -308,6 +311,20 @@ void StartWindow::update() {
 
 		ImGui::SetWindowPos(pos);
 		ImGui::SetWindowSize(size);
+
+		// Path Not Found
+		{
+			if (ImGui::BeginPopupModal("Project Not Found###ProjectNotFound", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+				ImGui::Text("This project no longer exists");
+
+				ImGui::Dummy(ImVec2(0, 5));
+				if (ImGui::Button("Close")) {
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::EndPopup();
+			}
+		}
 
 		ImGui::End();
 
@@ -334,7 +351,7 @@ void StartWindow::update() {
 
 		if (ImGui::Button("Open Another Project", ImVec2(250, 25))) {
 			std::string path = openDirectory(window);
-			if (!path.empty() && path.find(';') == std::string::npos) {
+			if (!path.empty()) {
 				if (fs::exists(path) && fs::is_directory(path)) {
 					RecentProject proj;
 					proj.path = path;
@@ -362,6 +379,7 @@ void StartWindow::update() {
 						closing = true;
 					} else {
 						printf("[Yngin Editor] Please create an empty directory for a new project\n");
+						ImGui::OpenPopup("NonEmptyPath");
 					}
 				}
 			}
@@ -374,6 +392,20 @@ void StartWindow::update() {
 		};
 
 		ImGui::SetWindowPos(pos);
+
+		// Non-empty Path
+		{
+			if (ImGui::BeginPopupModal("Error###NonEmptyPath", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+				ImGui::Text("Please create an empty directory to create a new project");
+
+				ImGui::Dummy(ImVec2(0, 5));
+				if (ImGui::Button("Close")) {
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::EndPopup();
+			}
+		}
 
 		ImGui::End();
 
