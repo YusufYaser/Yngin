@@ -126,6 +126,9 @@ StartWindow::StartWindow() {
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr;
 
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.FrameRounding = 5.0f;
+
 	defaultFont = io.Fonts->AddFontDefault();
 	titleFont = io.Fonts->AddFontFromFileTTF("assets/ArchivoBlack.ttf", 48.0f);
 
@@ -411,7 +414,7 @@ void StartWindow::update() {
 		// Non-empty Path
 		{
 			if (ImGui::BeginPopupModal("Error###NonEmptyPath", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
-				ImGui::Text("Please create an empty directory to create a new project");
+				ImGui::Text("Please create an empty folder to create a new project");
 
 				ImGui::Dummy(ImVec2(0, 5));
 				if (ImGui::Button("Close")) {

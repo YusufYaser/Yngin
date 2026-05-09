@@ -31,6 +31,32 @@ namespace fs = std::filesystem;
 Editor::Editor(std::string path) {
 	this->path = path;
 
+#ifdef _WIN32
+	{
+		std::string pathForMux = fs::canonical(path).string();
+
+		for (char& c : pathForMux) {
+			if (c == '\\' || c == '/' || c == ':') c = '_';
+			c = std::tolower(c);
+		}
+
+		std::string name = "Global\\YnginEditor_" + pathForMux;
+
+		mutex = CreateMutexA(NULL, TRUE, name.c_str());
+		if (mutex == nullptr) {
+			printf("CreateMutex failed: %lu\n", GetLastError());
+		}
+
+		if (GetLastError() == ERROR_ALREADY_EXISTS) {
+			printf("[Yngin Editor] This project is already opened\n");
+			CloseHandle(mutex);
+			mutex = 0;
+			showStartWindow();
+			return;
+		}
+	}
+#endif
+
 	fs::path oldCwd = fs::current_path();
 	fs::current_path(path);
 
@@ -159,6 +185,7 @@ Editor::Editor(std::string path) {
 	lastSaved = ctx->getTime();
 
 	ctx->ready();
+	filesLoaded = true;
 
 	ui = std::make_unique<EditorUI>(this);
 
@@ -181,20 +208,26 @@ Editor::Editor(std::string path) {
 }
 
 Editor::~Editor() {
-	fs::path oldCwd = fs::current_path();
-	fs::current_path(path);
+	if (filesLoaded) {
+		fs::path oldCwd = fs::current_path();
+		fs::current_path(path);
 
-	saveProject();
+		saveProject();
 
-	ImGui::SetCurrentContext(imguiCtx);
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
+		fs::current_path(oldCwd);
+	}
+
+	if (mutex != 0) CloseHandle(mutex);
+
+	if (imguiCtx) {
+		ImGui::SetCurrentContext(imguiCtx);
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
+	}
 
 	delete ctx;
 	ctx = nullptr;
-
-	fs::current_path(oldCwd);
 }
 
 void Editor::resetContext() {

@@ -57,6 +57,7 @@ int main(int argc, char* argv[]) {
 
 		if (createStartWindow) {
 			createStartWindow = false;
+			running = true;
 			if (startWindow == nullptr) {
 				startWindow = new StartWindow();
 			} else {
@@ -65,8 +66,10 @@ int main(int argc, char* argv[]) {
 		}
 
 		for (auto& path : openProjectQueue) {
+			running = true;
+
 			Editor* editor = new Editor(path);
-			if (editor->ctx->getStatus() == Yngin::CONTEXT_STATUS::RUNNING) {
+			if (editor->ctx && editor->ctx->getStatus() == Yngin::CONTEXT_STATUS::RUNNING) {
 				editors.push_back(editor);
 			} else {
 				delete editor;
