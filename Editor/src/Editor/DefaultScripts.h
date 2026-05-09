@@ -8,7 +8,7 @@ std::vector<EditorScript> defaultScripts = {
 		R"(-- Yngin Default Freecam Script
 local settings = {
 	speed = 5.0,
-	sensitivity = 0.15,
+	sensitivity = 0.002,
 	invertY = false
 }
 
@@ -37,9 +37,9 @@ function onUpdate(dt)
 		local yaw = math.atan2(orientation.x, orientation.y)
 		local pitch = math.asin(orientation.z)
 
-		orientation.x = math.cos(pitch) * math.sin(yaw + movement.x * settings.sensitivity * dt)
-		orientation.y = math.cos(pitch) * math.cos(yaw + movement.x * settings.sensitivity * dt)
-		orientation.z = math.sin(math.max(math.min(pitch - movement.y * settings.sensitivity * dt, 1.57), -1.57))
+		orientation.x = math.cos(pitch) * math.sin(yaw + movement.x * settings.sensitivity)
+		orientation.y = math.cos(pitch) * math.cos(yaw + movement.x * settings.sensitivity)
+		orientation.z = math.sin(math.max(math.min(pitch - movement.y * settings.sensitivity, 1.57), -1.57))
 
 		camera:setOrientation(orientation)
 
