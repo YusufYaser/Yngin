@@ -5,6 +5,7 @@
 #include <chrono>
 #include <ctime>
 #include <fstream>
+#include "../Editor/Editor.h"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GL3W
 #include <GLFW/glfw3.h>
@@ -270,9 +271,11 @@ void StartWindow::update() {
 			ImGui::BeginGroup();
 
 			ImVec2 p = ImGui::GetCursorScreenPos();
+			ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.26f, 0.59f, 0.98f, 0.4f));
 			if (ImGui::Selectable(("##RecentProject" + proj->path).c_str(), false, 0, ImVec2(400, 50))) {
 				projToOpen = proj;
 			}
+			ImGui::PopStyleColor();
 
 			ImGui::SetCursorScreenPos(p);
 
@@ -375,8 +378,20 @@ void StartWindow::update() {
 				if (fs::exists(path) && fs::is_directory(path)) {
 					if (fs::is_empty(path)) {
 						printf("[Yngin Editor] Creating new project at: %s\n", path.c_str());
-						openProject(path);
-						closing = true;
+
+						if (Editor::generateNewProject(path)) {
+							RecentProject proj;
+							proj.path = path;
+							proj.name = fs::path(path).filename().string();
+							proj.lastOpened = getUnixTime();
+
+							recentProjects[path] = proj;
+
+							openProject(path);
+							closing = true;
+						} else {
+							printf("[Yngin Editor] Failed to create a new project\n");
+						}
 					} else {
 						printf("[Yngin Editor] Please create an empty directory for a new project\n");
 						ImGui::OpenPopup("NonEmptyPath");

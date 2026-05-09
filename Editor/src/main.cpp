@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 		openProjectQueue.clear();
 
 		for (auto& editor : editors) {
-			if (editor && editor->ctx->getStatus() == Yngin::CONTEXT_STATUS::RUNNING) {
+			if (editor && editor->ctx && editor->ctx->getStatus() == Yngin::CONTEXT_STATUS::RUNNING) {
 				running = true;
 				fs::path oldCwd = fs::current_path();
 				editor->update();

@@ -51,6 +51,8 @@ public:
 	Editor(std::string path);
 	~Editor();
 
+	static bool generateNewProject(std::string path);
+
 	std::string path;
 
 	void update();
@@ -88,6 +90,7 @@ private:
 	void setupViewerScene();
 
 	void saveProject();
+	static bool saveContext(Yngin::Context* ctx, std::map<uint32_t, EditorScript> scripts = {});
 
 	void exportGame();
 	void togglePlayMode();

@@ -5,12 +5,10 @@
 #include <ImGui/imgui_impl_glfw.h>
 #include <ImGui/imgui_internal.h>
 #include <GLFW/glfw3.h>
-#include "Cube_Model.h"
 #include <fstream>
 #include <sstream>
 #include <format>
 #include <filesystem>
-#include "DefaultScripts.h"
 #include "Editor.h"
 #include "../main.h"
 
@@ -91,20 +89,6 @@ Editor::Editor(std::string path) {
 			file.close();
 			ctx->loadResourcesPak(bytes.str().c_str(), bytes.str().size());
 			bytes.clear();
-		} else {
-			Texture* grid = ctx->getTexturesManager()->createTexture({
-			.width = 2,
-			.height = 2,
-			.numCh = 1,
-			.bytes = "\xff\x80\x80\xff"
-				}, {
-				.wrap = TEXTURE_WRAP::REPEAT,
-				.filterMin = TEXTURE_FILTER::NEAREST,
-				.filterMag = TEXTURE_FILTER::NEAREST
-				}
-			);
-
-			grid->meta.setMeta("Editor.Name", "Grid");
 		}
 	}
 
@@ -121,37 +105,6 @@ Editor::Editor(std::string path) {
 			file.close();
 			activeScene = ctx->getScenesManager()->createScene(bytes.str().c_str(), bytes.str().size(), 0, true);
 			bytes.clear();
-		} else {
-			activeScene = ctx->getScenesManager()->createScene(0, true);
-
-			Model* cubeModel = ctx->getModelsManager()->createModel(cubeModelData);
-			cubeModel->meta.setMeta("Editor.Name", "Cube");
-
-			GameObject* defaultCube = activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
-			Components::Mesh* defaultCubeMesh = defaultCube->createComponent<Components::Mesh>();
-			defaultCubeMesh->setModel(cubeModel);
-			defaultCubeMesh->setTexture(2);
-			defaultCube->meta.setMeta("Editor.Name", "Cube");
-
-			Texture* skyboxTex = ctx->getTexturesManager()->createTexture({
-				.width = 1,
-				.height = 1,
-				.numCh = 3,
-				.bytes = "\x4E\x4E\xFB",
-				}, {
-				.wrap = TEXTURE_WRAP::CLAMP,
-				.filterMin = TEXTURE_FILTER::NEAREST,
-				.filterMag = TEXTURE_FILTER::NEAREST,
-				}
-				);
-
-			skyboxTex->meta.setMeta("Editor.Name", "Skybox");
-
-			activeScene->setSkyboxTexture(skyboxTex);
-
-			editorCamera = activeScene->getCamerasManager()->getCamera(0);
-			editorCamera->setPosition(glm::vec3(2.0f));
-			editorCamera->lookAt(glm::vec3());
 		}
 	}
 	activeScene->activate();
@@ -200,24 +153,8 @@ Editor::Editor(std::string path) {
 			}
 
 			file.close();
-		} else {
-			for (auto& script : defaultScripts) {
-				scripts[nextScriptId++] = EditorScript{
-					.name = script.name,
-					.scene = script.scene,
-					.code = script.code
-				};
-			}
 		}
 	}
-
-	Material* defaultMat = ctx->getMaterialsManager()->createMaterial(0, true);
-	defaultMat->meta.setMeta("Editor.Name", "Default Material");
-
-	defaultMat->setAmbientColor(glm::vec3(1.0f));
-	defaultMat->setDiffuseColor(glm::vec3(1.0f));
-	defaultMat->setSpecularColor(glm::vec3(1.0f));
-	defaultMat->setSpecularComponent(64.0f);
 
 	lastSaved = ctx->getTime();
 
@@ -315,64 +252,93 @@ void Editor::saveProject() {
 		return;
 	}
 
-	lastSaved = ctx->getTime();
+	if (saveContext(ctx, scripts)) {
+		lastSaved = ctx->getTime();
+		printf("[Yngin Editor] Saved Project\n");
+	}
+}
 
+bool Editor::saveContext(Yngin::Context* ctx, std::map<uint32_t, EditorScript> scripts) {
 	fs::create_directory("temp");
 	fs::create_directory("bin");
 	fs::create_directory("data/scenes");
 
-	{
-		std::ofstream file("data/core.pak", std::ios::binary);
-		if (file.is_open()) {
-			std::vector<char> bytes = ctx->generateCorePak();
-			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+	std::ofstream core("data/core.pak", std::ios::binary);
+	std::ofstream resources("data/resources.pak", std::ios::binary);
+	std::ofstream scriptsFile("data/scripts_editor.pak", std::ios::binary);
+
+	std::map<uint32_t, std::ofstream> scenesFiles;
+
+	bool allScenesFilesOpened = true;
+
+	for (auto& scene : ctx->getScenesManager()->getScenes()) {
+		if (scene->meta.getMetaInt("#NoExport", 0) == 1) continue;
+
+		scenesFiles[scene->getId()] = std::ofstream(("data/scenes/scene" + std::to_string(scene->getId()) + ".pak").c_str(), std::ios::binary);
+
+		if (!scenesFiles[scene->getId()].is_open()) allScenesFilesOpened = false;
+	}
+
+	if (!allScenesFilesOpened || !core.is_open() || !resources.is_open() || !scriptsFile.is_open()) {
+		core.close();
+		resources.close();
+		scriptsFile.close();
+
+		for (auto& [id, file] : scenesFiles) {
 			file.close();
 		}
+		scenesFiles.clear();
+
+		return false;
 	}
 
 	{
-		std::ofstream file("data/resources.pak", std::ios::binary);
-		if (file.is_open()) {
-			std::vector<char> bytes = ctx->generateResourcesPak();
-			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
-			file.close();
-		}
+		std::vector<char> bytes = ctx->generateCorePak();
+		core.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+		core.close();
 	}
 
 	{
-		std::ofstream file("data/scripts_editor.pak", std::ios::binary);
-		if (file.is_open()) {
-			ScriptFileHeader header{};
-			strcpy_s(header.magic, 19, "YNGINEDITORSCRIPTS");
-			header.version = 0;
-			header.scriptsCount = (uint32_t)scripts.size();
-			file.write(reinterpret_cast<const char*>(&header), sizeof(ScriptFileHeader));
+		std::vector<char> bytes = ctx->generateResourcesPak();
+		resources.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+		resources.close();
+	}
 
-			for (auto& [id, script] : scripts) {
-				ScriptInfo info{};
-				info.id = id;
-				info.nameSize = script.name.length();
-				strcpy_s(info.name, sizeof(info.name), script.name.c_str());
-				info.scene = script.scene;
-				info.scriptSize = script.code.length();
-				file.write(reinterpret_cast<const char*>(&info), sizeof(ScriptInfo));
-				file << script.name;
-				file << script.code;
+	{
+		ScriptFileHeader header{};
+		strcpy_s(header.magic, 19, "YNGINEDITORSCRIPTS");
+		header.version = 0;
+		header.scriptsCount = (uint32_t)scripts.size();
+		scriptsFile.write(reinterpret_cast<const char*>(&header), sizeof(ScriptFileHeader));
+
+		for (auto& [id, script] : scripts) {
+			ScriptInfo info{};
+			info.id = id;
+			info.nameSize = script.name.length();
+			strcpy_s(info.name, sizeof(info.name), script.name.c_str());
+			info.scene = script.scene;
+			info.scriptSize = script.code.length();
+			scriptsFile.write(reinterpret_cast<const char*>(&info), sizeof(ScriptInfo));
+			scriptsFile << script.name;
+			scriptsFile << script.code;
+		}
+		scriptsFile.close();
+	}
+
+	{
+		for (auto& scene : ctx->getScenesManager()->getScenes()) {
+			if (scene->meta.getMetaInt("#NoExport", 0) == 1) continue;
+
+			std::ofstream& file = scenesFiles[scene->getId()];
+			if (file.is_open()) {
+				std::vector<char> bytes = scene->generatePak();
+				file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+				file.close();
 			}
-			file.close();
 		}
 	}
 
-	{
-		std::ofstream file("data/scenes/scene0.pak", std::ios::binary);
-		if (file.is_open()) {
-			std::vector<char> bytes = activeScene->generatePak();
-			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
-			file.close();
-		}
-	}
-
-	printf("[Yngin Editor] Saved Project\n");
+	return true;
 }
 
 void Editor::exportGame() {
