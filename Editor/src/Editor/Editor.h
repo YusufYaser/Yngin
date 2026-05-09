@@ -134,4 +134,6 @@ private:
 	std::map<uint32_t, EditorScript> scripts;
 
 	void loadScripts();
+
+	int logsStart = 0;
 };
