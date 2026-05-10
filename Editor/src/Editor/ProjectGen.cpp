@@ -21,20 +21,6 @@ bool Editor::generateNewProject(std::string path) {
 
 	Context* ctx = new Context();
 
-	Texture* grid = ctx->getTexturesManager()->createTexture({
-	.width = 2,
-	.height = 2,
-	.numCh = 1,
-	.bytes = "\xff\x80\x80\xff"
-		}, {
-		.wrap = TEXTURE_WRAP::REPEAT,
-		.filterMin = TEXTURE_FILTER::NEAREST,
-		.filterMag = TEXTURE_FILTER::NEAREST
-		}
-	);
-
-	grid->meta.setMeta("Editor.Name", "Grid");
-
 
 	Scene* activeScene = ctx->getScenesManager()->createScene(0, true);
 

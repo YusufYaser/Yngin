@@ -23,7 +23,8 @@ namespace Yngin::UI {
 		UIElement::impl->prepareUniforms();
 
 		Texture* tex = UIElement::impl->ctx->getTexturesManager()->getTexture(impl->texId);
-		if (tex) tex->activate();
+		if (tex == nullptr) tex = UIElement::impl->ctx->getTexturesManager()->getTexture(2);
+		tex->activate();
 
 		Model* model = UIElement::impl->ctx->getInternalModelsManager()->getModel(INTERNAL_MODEL_SQUARE_ID);
 		glDisable(GL_DEPTH_TEST);

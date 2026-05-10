@@ -66,16 +66,35 @@ namespace Yngin {
 
 		m.services[std::type_index(typeid(Services::Tween))] = std::unique_ptr<Services::Tween>(new Services::Tween(this));
 
-		TextureData texData{};
-		texData.width = 1;
-		texData.height = 1;
-		texData.numCh = 1;
-		texData.bytes = "\x00";
-		Texture* black = m.texturesManager->createTexture(texData);
+		Texture* black = m.texturesManager->createTexture({
+			.width = 1,
+			.height = 1,
+			.numCh = 1,
+			.bytes = "\x00"
+			});
 		black->meta.setMeta("Editor.Name", "Black");
-		texData.bytes = "\xff";
-		Texture* white = m.texturesManager->createTexture(texData);
+
+		Texture* white = m.texturesManager->createTexture({
+			.width = 1,
+			.height = 1,
+			.numCh = 1,
+			.bytes = "\xff"
+			});
 		white->meta.setMeta("Editor.Name", "White");
+
+		Texture* grid = m.texturesManager->createTexture({
+			.width = 2,
+			.height = 2,
+			.numCh = 1,
+			.bytes = "\xff\x80\x80\xff"
+			},
+			{
+			.wrap = TEXTURE_WRAP::REPEAT,
+			.filterMin = TEXTURE_FILTER::NEAREST,
+			.filterMag = TEXTURE_FILTER::NEAREST
+			}
+		);
+		grid->meta.setMeta("Editor.Name", "Grid");
 
 		Shader* worldShader = m.shadersManager->getShader(SHADER_TYPE::WORLD);
 		Shader* skyboxShader = m.shadersManager->getShader(SHADER_TYPE::SKYBOX);

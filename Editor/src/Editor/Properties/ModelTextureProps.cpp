@@ -445,7 +445,7 @@ void Editor::showTextureProps(uint32_t id) {
 
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
-	ImGui::BeginDisabled(id == 0 || id == 1);
+	ImGui::BeginDisabled(id == 0 || id == 1 || id == 2);
 	if (ImGui::Button("Delete", ImVec2(-1, 0))) {
 		ctx->getTexturesManager()->deleteTexture(id);
 		explorerSelection = {};

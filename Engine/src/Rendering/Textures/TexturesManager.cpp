@@ -57,9 +57,9 @@ namespace Yngin {
 	}
 
 	void TexturesManager::deleteTexture(uint32_t textureId) {
-		assert(textureId != 0);
+		assert(textureId != 0 && textureId != 1 && textureId != 2);
 
-		if (textureId == 0) return;
+		if (textureId == 0 || textureId == 1 || textureId == 2) return;
 
 		impl->textures.erase(textureId);
 	}

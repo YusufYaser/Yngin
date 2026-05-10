@@ -160,7 +160,7 @@ namespace Yngin::Rendering {
 		if (model == nullptr) return;
 
 		Texture* tex = cimpl->ctx->getTexturesManager()->getTexture(mimpl->texId);
-		if (tex == nullptr) cimpl->ctx->getTexturesManager()->getTexture(0);
+		if (tex == nullptr) tex = cimpl->ctx->getTexturesManager()->getTexture(2);
 
 		GameObject* obj = cimpl->gameObject;
 

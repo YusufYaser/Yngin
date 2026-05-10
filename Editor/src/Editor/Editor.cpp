@@ -242,7 +242,7 @@ void Editor::resetContext() {
 	}
 
 	for (auto& c : ctx->getTexturesManager()->getTextures()) {
-		if (c->getId() == 0) continue;
+		if (c->getId() == 0 || c->getId() == 1 || c->getId() == 2) continue;
 		ctx->getTexturesManager()->deleteTexture(c->getId());
 	}
 
