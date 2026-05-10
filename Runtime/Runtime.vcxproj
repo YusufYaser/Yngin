@@ -71,20 +71,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IntDir>intermediates\</IntDir>
+    <IntDir>intermediates\Debug\</IntDir>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)\</OutDir>
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IntDir>intermediates\</IntDir>
+    <IntDir>intermediates\Release\</IntDir>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)\</OutDir>
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>intermediates\</IntDir>
+    <IntDir>intermediates\Debug\</IntDir>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)\</OutDir>
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IntDir>intermediates\</IntDir>
+    <IntDir>intermediates\Release\</IntDir>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)\</OutDir>
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -98,6 +102,12 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PreBuildEvent>
+      <Command>rmdir $(OutDir) /s /q &amp; exit 0</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Remove all files in output directory</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -113,6 +123,12 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PreBuildEvent>
+      <Command>rmdir $(OutDir) /s /q &amp; exit 0</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Remove all files in output directory</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -126,6 +142,12 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PreBuildEvent>
+      <Command>rmdir $(OutDir) /s /q &amp; exit 0</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Remove all files in output directory</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -141,6 +163,12 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PreBuildEvent>
+      <Command>rmdir $(OutDir) /s /q &amp; exit 0</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Remove all files in output directory</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
