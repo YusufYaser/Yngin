@@ -9,6 +9,9 @@ namespace Yngin {
 		Context* ctx;
 
 		GLuint glId;
+
+		std::map<std::string, GLuint> uniformLocationsCache;
+		GLuint getUniformLocationCached(const char* name);
 	};
 
 	struct ShadersManager::Impl {

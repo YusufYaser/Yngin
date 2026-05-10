@@ -61,6 +61,7 @@ namespace Yngin {
 		glDeleteShader(fragmentShader);
 
 		if (wasActive) glUseProgram(id);
+		impl->uniformLocationsCache.clear();
 
 		impl->glId = id;
 
@@ -72,43 +73,50 @@ namespace Yngin {
 		glUseProgram(impl->glId);
 	}
 
+	GLuint Shader::Impl::getUniformLocationCached(const char* name) {
+		GLuint& cached = uniformLocationsCache[name];
+		if (cached == 0) cached = glGetUniformLocation(glId, name);
+
+		return cached;
+	}
+
 	void Shader::setMat4(const char* name, glm::mat4 v) {
-		GLuint loc = glGetUniformLocation(impl->glId, name);
+		GLuint loc = impl->getUniformLocationCached(name);
 		glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(v));
 	}
 
 	void Shader::setMat3(const char* name, glm::mat3 v) {
-		GLuint loc = glGetUniformLocation(impl->glId, name);
+		GLuint loc = impl->getUniformLocationCached(name);
 		glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(v));
 	}
 
 	void Shader::setFloat(const char* name, float v) {
-		GLuint loc = glGetUniformLocation(impl->glId, name);
+		GLuint loc = impl->getUniformLocationCached(name);
 		glUniform1f(loc, v);
 	}
 
 	void Shader::setInt(const char* name, int v) {
-		GLuint loc = glGetUniformLocation(impl->glId, name);
+		GLuint loc = impl->getUniformLocationCached(name);
 		glUniform1i(loc, v);
 	}
 
 	void Shader::setIVec2(const char* name, glm::ivec2 v) {
-		GLuint loc = glGetUniformLocation(impl->glId, name);
+		GLuint loc = impl->getUniformLocationCached(name);
 		glUniform2iv(loc, 1, glm::value_ptr(v));
 	}
 
 	void Shader::setVec2(const char* name, glm::vec2 v) {
-		GLuint loc = glGetUniformLocation(impl->glId, name);
+		GLuint loc = impl->getUniformLocationCached(name);
 		glUniform2fv(loc, 1, glm::value_ptr(v));
 	}
 
 	void Shader::setVec3(const char* name, glm::vec3 v) {
-		GLuint loc = glGetUniformLocation(impl->glId, name);
+		GLuint loc = impl->getUniformLocationCached(name);
 		glUniform3fv(loc, 1, glm::value_ptr(v));
 	}
 
 	void Shader::setVec4(const char* name, glm::vec4 v) {
-		GLuint loc = glGetUniformLocation(impl->glId, name);
+		GLuint loc = impl->getUniformLocationCached(name);
 		glUniform4fv(loc, 1, glm::value_ptr(v));
 	}
 }
