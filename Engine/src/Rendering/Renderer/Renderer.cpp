@@ -184,10 +184,12 @@ namespace Yngin::Rendering {
 
 		worldShader->setVec4("color", glm::vec4(mimpl->color, 1));
 
-		worldShader->setVec3("materials[0].ambientColor", scene->getLightSettings().ambientLight);
-		worldShader->setVec3("materials[0].diffuseColor", glm::vec3(1.0f));
-		worldShader->setVec3("materials[0].specularColor", glm::vec3(1.0f));
-		worldShader->setFloat("materials[0].specularComponent", 64);
+		if (mimpl->meshMaterialsCount == 0) {
+			worldShader->setVec3("materials[0].ambientColor", scene->getLightSettings().ambientLight);
+			worldShader->setVec3("materials[0].diffuseColor", glm::vec3(1.0f));
+			worldShader->setVec3("materials[0].specularColor", glm::vec3(1.0f));
+			worldShader->setFloat("materials[0].specularComponent", 64);
+		}
 
 		auto materials = cimpl->ctx->getMaterialsManager()->getMaterials();
 

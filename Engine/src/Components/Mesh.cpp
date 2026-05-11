@@ -27,10 +27,11 @@ namespace Yngin {
 
 			const ModelData& d = newModel->getModelData();
 
-			for (int i = 0; i < 256; i++) {
+			impl->meshMaterialsCount = d.materialsCount;
+
+			for (int i = 0; i < impl->meshMaterialsCount; i++) {
 				impl->materials[i] = d.defaultMaterials[i];
 			}
-			impl->meshMaterialsCount = d.materialsCount;
 
 			impl->modelId = newModel->getId();
 		}
@@ -40,10 +41,12 @@ namespace Yngin {
 		}
 
 		uint32_t Components::Mesh::getMaterial(uint8_t modelMatIdx) const {
+			if (modelMatIdx >= impl->meshMaterialsCount) return -1;
 			return impl->materials[modelMatIdx];
 		}
 
 		void Components::Mesh::setMaterial(uint8_t modelMatIdx, uint32_t materialId) {
+			if (modelMatIdx >= impl->meshMaterialsCount) return;
 			impl->materials[modelMatIdx] = materialId;
 		}
 

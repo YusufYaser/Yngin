@@ -23,7 +23,7 @@ namespace Yngin {
 			glm::vec3 color = glm::vec3(1.0f);
 
 			uint8_t meshMaterialsCount;
-			std::map<uint8_t, uint32_t> materials;
+			uint32_t materials[256];
 		};
 
 		struct Light::Impl {
