@@ -13,6 +13,7 @@ namespace Yngin {
 	namespace Components {
 		Mesh::Mesh(GameObject* gameObject) : Component(gameObject) {
 			impl = std::make_unique<Impl>();
+			setModel((uint32_t)0);
 		}
 
 		Mesh::~Mesh() = default;

@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <stdexcept>
 #include "Models_Internal.h"
+#include <Yngin/Core/Materials.h>
 
 namespace Yngin {
 	Model::Model(Context* ctx) {
@@ -14,9 +15,13 @@ namespace Yngin {
 	Model::~Model() {
 		impl->ctx->makeCurrent();
 
-		glDeleteVertexArrays(1, &impl->VAO);
-		glDeleteBuffers(1, &impl->VBO);
-		glDeleteBuffers(1, &impl->VAO);
+		impl->submeshes.clear();
+	}
+
+	InternalSubmesh::~InternalSubmesh() {
+		glDeleteVertexArrays(1, &VAO);
+		glDeleteBuffers(1, &VBO);
+		glDeleteBuffers(1, &VAO);
 	}
 
 	void Model::Impl::init(const ModelData& d) {
@@ -26,31 +31,69 @@ namespace Yngin {
 
 		ctx->makeCurrent();
 
+		submeshes.clear();
+
 		indicesCount = static_cast<GLsizei>(d.indices.size());
 
-		glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
+		std::map<uint32_t, InternalSubmesh*> matSubmeshes;
+		std::map<InternalSubmesh*, std::map<uint32_t, uint32_t>> indicesMap;
+		std::map<InternalSubmesh*, std::vector<Vertex>> submeshesVertices;
+		std::map<InternalSubmesh*, std::vector<uint32_t>> submeshesIndices;
 
-		glGenBuffers(1, &VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, d.vertices.size() * sizeof(d.vertices[0]), d.vertices.data(), GL_STATIC_DRAW);
+		for (auto& index : d.indices) {
+			if (d.vertices.size() <= index) continue;
 
-		glGenBuffers(1, &EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, d.indices.size() * sizeof(d.indices[0]), d.indices.data(), GL_STATIC_DRAW);
+			const Vertex& v = d.vertices[index];
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-		glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(Vertex), (void*)offsetof(Vertex, matId));
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-		glEnableVertexAttribArray(3);
+			InternalSubmesh* submesh = nullptr;
 
-		glBindVertexArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			if (matSubmeshes.find(v.matId) == matSubmeshes.end()) {
+				submesh = new InternalSubmesh();
+				submesh->matId = v.matId;
+				matSubmeshes[v.matId] = submesh;
+				submeshes.push_back(std::unique_ptr<InternalSubmesh>(submesh));
+			} else {
+				submesh = matSubmeshes[v.matId];
+			}
+
+			if (indicesMap[submesh].find(index) == indicesMap[submesh].end()) {
+				uint32_t newIndex = submeshesVertices[submesh].size();
+				submeshesVertices[submesh].push_back(v);
+				indicesMap[submesh][index] = newIndex;
+			}
+
+			submeshesIndices[submesh].push_back(indicesMap[submesh][index]);
+		}
+
+		for (auto& submesh : submeshes) {
+			auto& vertices = submeshesVertices[submesh.get()];
+			auto& indices = submeshesIndices[submesh.get()];
+
+			glGenVertexArrays(1, &submesh->VAO);
+			glBindVertexArray(submesh->VAO);
+
+			glGenBuffers(1, &submesh->VBO);
+			glBindBuffer(GL_ARRAY_BUFFER, submesh->VBO);
+			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STATIC_DRAW);
+
+			glGenBuffers(1, &submesh->EBO);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, submesh->EBO);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW);
+
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+			glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(Vertex), (void*)offsetof(Vertex, matId));
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
+			glEnableVertexAttribArray(3);
+
+			glBindVertexArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		}
+
 
 		this->modelData = d;
 
@@ -65,33 +108,77 @@ namespace Yngin {
 		return impl->ctx;
 	}
 
-	void Model::render() {
-		impl->ctx->makeCurrent();
+	void Model::Impl::render() {
+		ctx->makeCurrent();
 
-		ModelsManager* mgr = impl->ctx->getModelsManager();
+		ModelsManager* mgr = ctx->getModelsManager();
 
-		if (impl->modelData.frontFace == MODEL_FRONT_FACE::NONE) {
+		if (modelData.frontFace == MODEL_FRONT_FACE::NONE) {
 			glDisable(GL_CULL_FACE);
 		} else {
 			glEnable(GL_CULL_FACE);
-			if (impl->modelData.frontFace == MODEL_FRONT_FACE::CW) {
+			if (modelData.frontFace == MODEL_FRONT_FACE::CW) {
 				glFrontFace(GL_CW);
 			} else {
 				glFrontFace(GL_CCW);
 			}
 		}
 
-		glBindVertexArray(impl->VAO);
+		Shader* worldShader = ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
 
-		Shader* shader = impl->ctx->getShadersManager()->getActive();
+		for (auto& submesh : submeshes) {
+			glBindVertexArray(submesh->VAO);
 
-		Scene* scene = impl->ctx->getScenesManager()->getActive();
+			glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+		}
+	}
 
-		glDrawElements(GL_TRIANGLES, impl->indicesCount, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
+	void Model::Impl::renderWithMaterials(const uint32_t materialsMap[256]) {
+		ctx->makeCurrent();
+
+		ModelsManager* mgr = ctx->getModelsManager();
+
+		if (modelData.frontFace == MODEL_FRONT_FACE::NONE) {
+			glDisable(GL_CULL_FACE);
+		} else {
+			glEnable(GL_CULL_FACE);
+			if (modelData.frontFace == MODEL_FRONT_FACE::CW) {
+				glFrontFace(GL_CW);
+			} else {
+				glFrontFace(GL_CCW);
+			}
+		}
+
+		Shader* worldShader = ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
+
+		for (auto& submesh : submeshes) {
+			if (submesh->matId >= 256) continue;
+			uint32_t matId = materialsMap[submesh->matId];
+			Material* mat = ctx->getMaterialsManager()->getMaterial(matId);
+			if (mat == nullptr) continue;
+
+			std::string idStr = std::to_string(0);
+
+			glm::vec3 col = mat->getDiffuseColor();
+
+			worldShader->setVec3("material.ambientColor", mat->getAmbientColor());
+			worldShader->setVec3("material.diffuseColor", mat->getDiffuseColor());
+			worldShader->setVec3("material.specularColor", mat->getSpecularColor());
+			worldShader->setFloat("material.specularComponent", mat->getSpecularComponent());
+
+			glBindVertexArray(submesh->VAO);
+
+			glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+		}
 	}
 
 	const ModelData& Model::getModelData() const {
 		return impl->modelData;
+	}
+
+	size_t Model::getSubmeshesCount() const {
+		return impl->submeshes.size();
 	}
 }

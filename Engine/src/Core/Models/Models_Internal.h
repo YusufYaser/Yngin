@@ -4,15 +4,25 @@
 #include <map>
 
 namespace Yngin {
-	struct Model::Impl {
-		Context* ctx;
-		void init(const ModelData& d);
-
-		uint32_t id;
+	struct InternalSubmesh {
+		~InternalSubmesh();
 
 		GLuint VAO;
 		GLuint VBO;
 		GLuint EBO;
+		uint32_t matId;
+	};
+
+	struct Model::Impl {
+		Context* ctx;
+		void init(const ModelData& d);
+
+		void render();
+		void renderWithMaterials(const uint32_t materialsMap[256]);
+
+		uint32_t id;
+
+		std::vector<std::unique_ptr<InternalSubmesh>> submeshes;
 
 		GLsizei indicesCount;
 

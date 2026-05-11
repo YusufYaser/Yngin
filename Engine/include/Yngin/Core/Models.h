@@ -68,9 +68,9 @@ namespace Yngin {
 
 		Meta meta;
 
-		void render();
-
 		const ModelData& getModelData() const;
+
+		size_t getSubmeshesCount() const;
 
 	private:
 		Model(Context* ctx);
@@ -79,6 +79,9 @@ namespace Yngin {
 		friend class ModelsManager;
 		friend struct std::default_delete<Model>;
 		friend class Context;
+		friend class Rendering::Renderer;
+		friend class UI::Image;
+		friend class UI::Text;
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;

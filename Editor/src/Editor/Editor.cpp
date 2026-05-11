@@ -803,7 +803,7 @@ void Editor::update() {
 						if (model) {
 							const ModelData& d = model->getModelData();
 
-							ImGui::Text("Vertices: %i\tIndices: %i", d.vertices.size(), d.indices.size());
+							ImGui::Text("Vertices: %i\tSubmeshes: %i", d.vertices.size(), model->getSubmeshesCount());
 						}
 					} else if (explorerSelection.first == EXPLORER_SELECTION_TYPE::TEXTURE) {
 						Texture* texture = ctx->getTexturesManager()->getTexture(explorerSelection.second);

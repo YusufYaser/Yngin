@@ -158,6 +158,8 @@ namespace Yngin {
 			BIND(Model, meta),
 
 			BIND(Model, getId),
+
+			BIND(Model, getSubmeshesCount),
 			BIND(Model, getModelData)
 		);
 

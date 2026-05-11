@@ -15,6 +15,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
 #include "../../Core/Context/Context_Internal.h"
+#include "../../Core/Models/Models_Internal.h"
 #include <Yngin/Core/GameObject.h>
 #include "../../Components/Components_Internal.h"
 #include <Yngin/Components/Component.h>
@@ -71,7 +72,7 @@ namespace Yngin::Rendering {
 			skyboxShader->setMat4("view", glm::mat4(glm::mat3(view)));
 
 			skyboxTex->activate();
-			skybox->render();
+			skybox->impl->render();
 			glClear(GL_DEPTH_BUFFER_BIT);
 		}
 
@@ -185,28 +186,13 @@ namespace Yngin::Rendering {
 		worldShader->setVec4("color", glm::vec4(mimpl->color, 1));
 
 		if (mimpl->meshMaterialsCount == 0) {
-			worldShader->setVec3("materials[0].ambientColor", scene->getLightSettings().ambientLight);
-			worldShader->setVec3("materials[0].diffuseColor", glm::vec3(1.0f));
-			worldShader->setVec3("materials[0].specularColor", glm::vec3(1.0f));
-			worldShader->setFloat("materials[0].specularComponent", 64);
-		}
-
-		auto materials = cimpl->ctx->getMaterialsManager()->getMaterials();
-
-		for (int i = 0; i < mimpl->meshMaterialsCount; i++) {
-			uint32_t matId = mimpl->materials[i];
-			Material* mat = cimpl->ctx->getMaterialsManager()->getMaterial(matId);
-			if (mat == nullptr) continue;
-
-			std::string idStr = std::to_string(i);
-
-			worldShader->setVec3(std::string("materials[" + idStr + "].ambientColor").c_str(), mat->getAmbientColor());
-			worldShader->setVec3(std::string("materials[" + idStr + "].diffuseColor").c_str(), mat->getDiffuseColor());
-			worldShader->setVec3(std::string("materials[" + idStr + "].specularColor").c_str(), mat->getSpecularColor());
-			worldShader->setFloat(std::string("materials[" + idStr + "].specularComponent").c_str(), mat->getSpecularComponent());
+			worldShader->setVec3("material.ambientColor", scene->getLightSettings().ambientLight);
+			worldShader->setVec3("material.diffuseColor", glm::vec3(1.0f));
+			worldShader->setVec3("material.specularColor", glm::vec3(1.0f));
+			worldShader->setFloat("material.specularComponent", 64);
 		}
 
 		if (tex) tex->activate();
-		model->render();
+		model->impl->renderWithMaterials(mimpl->materials);
 	}
 }

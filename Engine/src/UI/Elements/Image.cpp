@@ -7,6 +7,7 @@
 #include "UI_Elements_Internal.h"
 #include <glad/glad.h>
 #include "../../Core/Context/Context_Internal.h"
+#include "../../Core/Models/Models_Internal.h"
 
 namespace Yngin::UI {
 	Image::Image(Context* ctx, Scene* scene, UIManager* mgr, UIElement* parent) : UIElement(ctx, scene, mgr, parent) {
@@ -28,7 +29,7 @@ namespace Yngin::UI {
 
 		Model* model = UIElement::impl->ctx->getInternalModelsManager()->getModel(INTERNAL_MODEL_SQUARE_ID);
 		glDisable(GL_DEPTH_TEST);
-		model->render();
+		model->impl->render();
 		glEnable(GL_DEPTH_TEST);
 	}
 

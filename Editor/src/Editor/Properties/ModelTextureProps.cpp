@@ -143,6 +143,11 @@ void Editor::showModelProps(uint32_t id) {
 		explorerSelection = {};
 	}
 	ImGui::PopStyleColor(2);
+
+	ImGui::SeparatorText("Internal");
+
+	ImGui::Text("Vertices: %i", model->getModelData().vertices.size());
+	ImGui::Text("Submeshes: %i", model->getSubmeshesCount());
 }
 
 void Editor::showMaterialProps(uint32_t id) {
