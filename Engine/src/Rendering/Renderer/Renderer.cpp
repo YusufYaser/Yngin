@@ -23,6 +23,7 @@
 #include "../../UI/Elements/UI_Elements_Internal.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/euler_angles.hpp>
+#include <limits>
 
 #define MAX_LIGHTS 32
 
@@ -37,6 +38,7 @@ namespace Yngin::Rendering {
 		size_t maxUnitSize = std::max(sizeof(InstanceVertexOffset), sizeof(InstanceFragmentOffset));
 
 		impl->maxInstances = static_cast<size_t>(maxBlockSize) / maxUnitSize;
+		impl->maxInstances = std::min(impl->maxInstances, std::numeric_limits<GLsizeiptr>::max() / sizeof(InstanceVertexOffset));
 
 		impl->ssboSize = SSBO_GROW_UNIT;
 

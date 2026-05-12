@@ -66,9 +66,9 @@ namespace Yngin {
 			bool preparingInstances = false;
 			std::map<std::pair<InternalSubmesh*, Texture*>, InstancePrepData> instancesPrep;
 
-			int ssboSize = 0;
+			size_t ssboSize = 0;
 			// max instances supported by the GPU
-			int maxInstances = 1;
+			size_t maxInstances = 1;
 
 			GLuint vertexSSBO;
 			GLuint fragSSBO;
