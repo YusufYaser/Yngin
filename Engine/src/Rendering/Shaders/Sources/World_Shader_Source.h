@@ -13,20 +13,44 @@ layout(location = 1) in vec2 inTexCoord;
 layout(location = 2) in vec3 inNormal;
 layout(location = 3) in uint inMatId;
 
+struct InstanceVertexOffset {
+	mat4 model;
+	mat4 normalMatrix;
+};
+
+layout(std430, binding = 0) buffer InstanceVertexOffsets {
+	InstanceVertexOffset vertexOffsets[];
+};
+
 uniform mat4 projection;
 uniform mat4 view;
-uniform mat4 model;
-uniform mat3 normalMatrix;
+uniform bool instancing;
+uniform mat4 uModel;
+uniform mat3 uNormalMatrix;
 
+out flat int fInstanceID;
+out flat int fInstancing;
 out vec3 fPosition;
 out vec2 fTexCoord;
 out vec3 fNormal;
 
 void main() {
+	int id = gl_InstanceID;
+	
+	mat4 model = uModel;
+	mat3 normalMatrix = uNormalMatrix;
+	
+	if (instancing) {
+		model = vertexOffsets[id].model;
+		normalMatrix = mat3(vertexOffsets[id].normalMatrix);
+	}
+	
 	vec4 worldPosition = model * vec4(inPosition, 1.0);
 
 	gl_Position = projection * view * worldPosition;
 
+	fInstanceID = id;
+	fInstancing = 1;
 	fPosition = worldPosition.xyz;
 	fTexCoord = inTexCoord;
 	fNormal = normalize(normalMatrix * inNormal);
@@ -38,6 +62,28 @@ void main() {
 #version 460 core
 
 #define MAX_LIGHTS 32
+
+struct InstanceOffsetMaterial {
+	vec3 ambientColor;
+	float _pad1;
+	vec3 diffuseColor;
+	float _pad2;
+	vec3 specularColor;
+	float _pad3;
+	float specularComponent;
+    float _pads[3];
+};
+
+struct InstanceFragmentOffset {
+	vec4 color;
+	InstanceOffsetMaterial material;
+	int isLight;
+    int _pads[3];
+};
+
+layout(std430, binding = 1) buffer InstanceFragmentOffsets {
+	InstanceFragmentOffset fragOffsets[];
+};
 
 struct Light {
 	vec3 position;
@@ -57,29 +103,47 @@ struct SceneSettings {
 	vec3 ambientLight;
 };
 
+in flat int fInstanceID;
+in flat int fInstancing;
 in vec3 fPosition;
 in vec2 fTexCoord;
 in vec3 fNormal;
 
 out vec4 FragColor;
 
-uniform bool isLight;
+uniform bool uIsLight;
 uniform int lightsCount;
 uniform Light lights[MAX_LIGHTS];
-uniform Material material;
+uniform Material uMaterial;
 
 uniform vec3 cameraPos;
 
 uniform SceneSettings scene;
 
 uniform sampler2D tex0;
-uniform vec4 color;
+uniform vec4 uColor;
 
 void main() {
+	int id = fInstanceID;
+
 	vec3 totalLight;
 
 	vec3 diffusion;
 	vec3 specular;
+	
+	Material mat = uMaterial;
+	bool isLight = uIsLight;
+	vec4 color = uColor;
+
+	if (fInstancing != 0) {
+		InstanceOffsetMaterial omat = fragOffsets[fInstanceID].material;
+		mat.ambientColor = omat.ambientColor;
+		mat.diffuseColor = omat.diffuseColor;
+		mat.specularColor = omat.specularColor;
+		mat.specularComponent = omat.specularComponent;
+		isLight = fragOffsets[fInstanceID].isLight != 0;
+		color = fragOffsets[fInstanceID].color;
+	}
 	
 	if (!isLight) {
 		for (int i = 0; i < lightsCount; i++) {
@@ -99,13 +163,13 @@ void main() {
 			vec3 viewDir = normalize(cameraPos - fPosition);
 			vec3 reflectDir = reflect(-lightDir, fNormal);
 			
-			specular += pow(max(dot(viewDir, reflectDir), 0.0), material.specularComponent) * l.color * l.intensity * 0.5;
+			specular += pow(max(dot(viewDir, reflectDir), 0.0), mat.specularComponent) * l.color * l.intensity * 0.5;
 		}
 
-		totalLight = material.diffuseColor * material.ambientColor + diffusion * material.diffuseColor + specular * material.specularColor;
-		totalLight = clamp(totalLight / (totalLight + vec3(1.0f)), vec3(0.0), vec3(1.0));
+		totalLight = mat.diffuseColor * mat.ambientColor + diffusion * mat.diffuseColor + specular * mat.specularColor;
+		totalLight = clamp(totalLight / (totalLight + vec3(1.0)), vec3(0.0), vec3(1.0));
 	} else {
-		totalLight = material.diffuseColor;
+		totalLight = mat.diffuseColor;
 	}
 	
 	FragColor = texture(tex0, fTexCoord) * color * vec4(totalLight, 1.0);

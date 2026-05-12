@@ -21,6 +21,8 @@
 #include <Yngin/Components/Component.h>
 #include <Yngin/Components/Mesh.h>
 #include "../../UI/Elements/UI_Elements_Internal.h"
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/euler_angles.hpp>
 
 #define MAX_LIGHTS 32
 
@@ -28,9 +30,35 @@ namespace Yngin::Rendering {
 	Renderer::Renderer(Context* ctx) {
 		impl = std::make_unique<Impl>();
 		impl->ctx = ctx;
+
+		GLint maxBlockSize = 0;
+		glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &maxBlockSize);
+
+		size_t maxUnitSize = std::max(sizeof(InstanceVertexOffset), sizeof(InstanceFragmentOffset));
+
+		impl->maxInstances = static_cast<size_t>(maxBlockSize) / maxUnitSize;
+
+		impl->ssboSize = SSBO_GROW_UNIT;
+
+		glGenBuffers(1, &impl->vertexSSBO);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, impl->vertexSSBO);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, impl->vertexSSBO);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, impl->ssboSize * sizeof(InstanceVertexOffset), nullptr, GL_DYNAMIC_DRAW);
+
+		glGenBuffers(1, &impl->fragSSBO);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, impl->fragSSBO);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, impl->fragSSBO);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, impl->ssboSize * sizeof(InstanceFragmentOffset), nullptr, GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
 
-	Renderer::~Renderer() = default;
+	Renderer::~Renderer() {
+		glDeleteBuffers(1, &impl->vertexSSBO);
+		impl->vertexSSBO = 0;
+		glDeleteBuffers(1, &impl->fragSSBO);
+		impl->fragSSBO = 0;
+	}
 
 	Context* Renderer::getContext() const {
 		return impl->ctx;
@@ -115,7 +143,20 @@ namespace Yngin::Rendering {
 
 		worldShader->setVec3("cameraPos", scene->impl->camerasManager->getFinalPos());
 
+		preparingInstances = true;
+		worldShader->setInt("instancing", true);
 		render(scene->impl->gameObjectsManager->getRootGameObject(), -1);
+		preparingInstances = false;
+		for (auto& [meshTexPair, data] : instancesPrep) {
+			uint32_t* a = new uint32_t[256];
+			memset(a, 0, sizeof(a));
+			renderSubmeshInstanced(meshTexPair.first, meshTexPair.second, data, a);
+			delete[] a;
+			a = nullptr;
+		}
+		worldShader->setInt("instancing", false);
+		instancesPrep.clear();
+
 		render(scene->impl->uiManager->getRootElement(), -1);
 	}
 
@@ -165,34 +206,122 @@ namespace Yngin::Rendering {
 
 		GameObject* obj = cimpl->gameObject;
 
-		glm::mat4 modelMat = glm::mat4(1.0f);
+		static const glm::mat4 i(1.0f);
 
-		modelMat = glm::translate(modelMat, obj->getPosition());
-		modelMat = glm::rotate(modelMat, obj->getRotation().x, glm::vec3(1, 0, 0));
-		modelMat = glm::rotate(modelMat, obj->getRotation().y, glm::vec3(0, 1, 0));
-		modelMat = glm::rotate(modelMat, obj->getRotation().z, glm::vec3(0, 0, 1));
-		modelMat = glm::scale(modelMat, obj->getScale());
+		glm::vec3 rot = obj->getRotation();
+
+		glm::mat4 modelMat =
+			glm::translate(i, obj->getPosition()) *
+			glm::yawPitchRoll(rot.y, rot.x, rot.z) *
+			glm::scale(i, obj->getScale());
 
 		Shader* worldShader = cimpl->ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
 		worldShader->activate();
 
 		glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMat)));
 
-		worldShader->setMat3("normalMatrix", normalMatrix);
-		worldShader->setMat4("model", modelMat);
+		bool isLight = obj->getComponent<Components::Light>() != nullptr || !lightingEnabled;
 
-		worldShader->setInt("isLight", obj->getComponent<Components::Light>() != nullptr || !lightingEnabled);
+		if (!preparingInstances) {
+			worldShader->setMat4("uModel", modelMat);
+			worldShader->setMat3("uNormalMatrix", normalMatrix);
 
-		worldShader->setVec4("color", glm::vec4(mimpl->color, 1));
+			worldShader->setInt("uIsLight", isLight);
 
-		if (mimpl->meshMaterialsCount == 0) {
-			worldShader->setVec3("material.ambientColor", scene->getLightSettings().ambientLight);
-			worldShader->setVec3("material.diffuseColor", glm::vec3(1.0f));
-			worldShader->setVec3("material.specularColor", glm::vec3(1.0f));
-			worldShader->setFloat("material.specularComponent", 64);
+			worldShader->setVec4("uColor", glm::vec4(mimpl->color, 1));
+
+			if (mimpl->meshMaterialsCount == 0) {
+				worldShader->setVec3("uMaterial.ambientColor", scene->getLightSettings().ambientLight);
+				worldShader->setVec3("uMaterial.diffuseColor", glm::vec3(1.0f));
+				worldShader->setVec3("uMaterial.specularColor", glm::vec3(1.0f));
+				worldShader->setFloat("uMaterial.specularComponent", 64);
+			}
+
+			if (tex) tex->activate();
+			model->impl->renderWithMaterials(mimpl->materials);
+		} else {
+			for (auto& submesh : model->impl->submeshes) {
+				InstancePrepData& data = instancesPrep[{submesh.get(), tex}];
+
+				int instance = data.instances;
+				if (instance < maxInstances) {
+					InstanceVertexOffset vOffset{};
+					InstanceFragmentOffset fOffset{};
+
+					vOffset.model = modelMat;
+					vOffset.normalMatrix = normalMatrix;
+					fOffset.isLight = isLight;
+					fOffset.color = glm::vec4(mimpl->color, 1);
+					if (submesh->matId < 256) {
+						Material* mat = ctx->getMaterialsManager()->getMaterial(mimpl->materials[submesh->matId]);
+						if (mat) {
+							fOffset.material.ambientColor = mat->getAmbientColor();
+							fOffset.material.diffuseColor = mat->getDiffuseColor();
+							fOffset.material.specularColor = mat->getSpecularColor();
+							fOffset.material.specularComponent = mat->getSpecularComponent();
+						}
+					}
+
+					data.vOffsets.push_back(vOffset);
+					data.fOffsets.push_back(fOffset);
+				}
+
+				data.instances++;
+
+				if (data.instances >= maxInstances) {
+					renderSubmeshInstanced(submesh.get(), tex, data, mimpl->materials);
+					instancesPrep.erase({ submesh.get(), tex });
+				}
+			}
+		}
+	}
+
+	void Renderer::Impl::renderSubmeshInstanced(InternalSubmesh* submesh, Texture* tex, InstancePrepData& data, const uint32_t materialsMap[256]) {
+		ctx->makeCurrent();
+
+		Model* model = submesh->model;
+		const ModelData& modelData = model->getModelData();
+
+		if (modelData.frontFace == MODEL_FRONT_FACE::NONE) {
+			glDisable(GL_CULL_FACE);
+		} else {
+			glEnable(GL_CULL_FACE);
+			if (modelData.frontFace == MODEL_FRONT_FACE::CW) {
+				glFrontFace(GL_CW);
+			} else {
+				glFrontFace(GL_CCW);
+			}
 		}
 
-		if (tex) tex->activate();
-		model->impl->renderWithMaterials(mimpl->materials);
+		Shader* worldShader = ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
+		worldShader->activate();
+
+		if (data.instances > ssboSize) {
+			// Resize by 64
+			ssboSize += ((data.instances - ssboSize + (SSBO_GROW_UNIT - 1)) & ~(SSBO_GROW_UNIT - 1));
+
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, vertexSSBO);
+			glBufferData(GL_SHADER_STORAGE_BUFFER, ssboSize * sizeof(InstanceVertexOffset), nullptr, GL_DYNAMIC_DRAW);
+
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, fragSSBO);
+			glBufferData(GL_SHADER_STORAGE_BUFFER, ssboSize * sizeof(InstanceFragmentOffset), nullptr, GL_DYNAMIC_DRAW);
+
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		}
+
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, vertexSSBO);
+		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, data.vOffsets.size() * sizeof(InstanceVertexOffset), data.vOffsets.data());
+
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, fragSSBO);
+		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, data.fOffsets.size() * sizeof(InstanceFragmentOffset), data.fOffsets.data());
+
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+		tex->activate();
+
+		glBindVertexArray(submesh->VAO);
+
+		glDrawElementsInstanced(GL_TRIANGLES, submesh->indicesCount, GL_UNSIGNED_INT, 0, data.instances);
+		glBindVertexArray(0);
 	}
 }

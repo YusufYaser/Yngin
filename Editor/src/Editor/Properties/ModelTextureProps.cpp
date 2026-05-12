@@ -136,11 +136,11 @@ void Editor::showModelProps(uint32_t id) {
 		viewerImage->setSize({ 0, 0, 0, 0 });
 	}
 
+	bool del = false;
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
 	if (ImGui::Button("Delete", ImVec2(-1, 40))) {
-		ctx->getModelsManager()->deleteModel(explorerSelection.second);
-		explorerSelection = {};
+		del = true;
 	}
 	ImGui::PopStyleColor(2);
 
@@ -148,6 +148,11 @@ void Editor::showModelProps(uint32_t id) {
 
 	ImGui::Text("Vertices: %i", model->getModelData().vertices.size());
 	ImGui::Text("Submeshes: %i", model->getSubmeshesCount());
+
+	if (del) {
+		ctx->getModelsManager()->deleteModel(explorerSelection.second);
+		explorerSelection = {};
+	}
 }
 
 void Editor::showMaterialProps(uint32_t id) {

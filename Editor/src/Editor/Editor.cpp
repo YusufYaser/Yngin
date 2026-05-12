@@ -294,6 +294,8 @@ void Editor::saveProject() {
 }
 
 bool Editor::saveContext(Yngin::Context* ctx, std::map<uint32_t, EditorScript> scripts) {
+	ctx->makeCurrent();
+
 	fs::create_directory("temp");
 	fs::create_directory("bin");
 	fs::create_directory("data/scenes");

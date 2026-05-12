@@ -10,6 +10,7 @@ namespace Yngin {
 	Model::Model(Context* ctx) {
 		impl = std::make_unique<Impl>();
 		impl->ctx = ctx;
+		impl->owner = this;
 	}
 
 	Model::~Model() {
@@ -49,6 +50,7 @@ namespace Yngin {
 
 			if (matSubmeshes.find(v.matId) == matSubmeshes.end()) {
 				submesh = new InternalSubmesh();
+				submesh->model = owner;
 				submesh->matId = v.matId;
 				matSubmeshes[v.matId] = submesh;
 				submeshes.push_back(std::unique_ptr<InternalSubmesh>(submesh));
@@ -92,6 +94,9 @@ namespace Yngin {
 			glBindVertexArray(0);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+			submesh->verticesCount = vertices.size();
+			submesh->indicesCount = indices.size();
 		}
 
 
@@ -108,10 +113,8 @@ namespace Yngin {
 		return impl->ctx;
 	}
 
-	void Model::Impl::render() {
+	void Model::Impl::render(int instances) {
 		ctx->makeCurrent();
-
-		ModelsManager* mgr = ctx->getModelsManager();
 
 		if (modelData.frontFace == MODEL_FRONT_FACE::NONE) {
 			glDisable(GL_CULL_FACE);
@@ -129,15 +132,13 @@ namespace Yngin {
 		for (auto& submesh : submeshes) {
 			glBindVertexArray(submesh->VAO);
 
-			glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+			glDrawElementsInstanced(GL_TRIANGLES, submesh->indicesCount, GL_UNSIGNED_INT, 0, instances);
 			glBindVertexArray(0);
 		}
 	}
 
-	void Model::Impl::renderWithMaterials(const uint32_t materialsMap[256]) {
+	void Model::Impl::renderWithMaterials(const uint32_t materialsMap[256], int instances) {
 		ctx->makeCurrent();
-
-		ModelsManager* mgr = ctx->getModelsManager();
 
 		if (modelData.frontFace == MODEL_FRONT_FACE::NONE) {
 			glDisable(GL_CULL_FACE);
@@ -158,10 +159,6 @@ namespace Yngin {
 			Material* mat = ctx->getMaterialsManager()->getMaterial(matId);
 			if (mat == nullptr) continue;
 
-			std::string idStr = std::to_string(0);
-
-			glm::vec3 col = mat->getDiffuseColor();
-
 			worldShader->setVec3("material.ambientColor", mat->getAmbientColor());
 			worldShader->setVec3("material.diffuseColor", mat->getDiffuseColor());
 			worldShader->setVec3("material.specularColor", mat->getSpecularColor());
@@ -169,7 +166,7 @@ namespace Yngin {
 
 			glBindVertexArray(submesh->VAO);
 
-			glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+			glDrawElementsInstanced(GL_TRIANGLES, submesh->indicesCount, GL_UNSIGNED_INT, 0, instances);
 			glBindVertexArray(0);
 		}
 	}
