@@ -9,6 +9,7 @@
 #include "../../Rendering/Shaders/Sources/World_Shader_Source.h"
 #include "../../Rendering/Shaders/Sources/Skybox_Shader_Source.h"
 #include "../../Rendering/Shaders/Sources/UI_Shader_Source.h"
+#include "../../Rendering/Shaders/Sources/DepthPrePass_Shader_Source.h"
 #include "../../Physics/Physics_Internal.h"
 #include "../../Rendering/Renderer/Renderer_Internal.h"
 #include "../Models/Models_Internal.h"
@@ -105,9 +106,11 @@ namespace Yngin {
 		Shader* worldShader = m.shadersManager->getShader(SHADER_TYPE::WORLD);
 		Shader* skyboxShader = m.shadersManager->getShader(SHADER_TYPE::SKYBOX);
 		Shader* uiShader = m.shadersManager->getShader(SHADER_TYPE::UI);
+		Shader* prePassShader = m.shadersManager->getShader(SHADER_TYPE::DEPTH_PRE_PASS);
 		bool shadersBuilt = worldShader->setSource(ShaderSources::world);
 		shadersBuilt = shadersBuilt && skyboxShader->setSource(ShaderSources::skybox);
 		shadersBuilt = shadersBuilt && uiShader->setSource(ShaderSources::ui);
+		shadersBuilt = shadersBuilt && prePassShader->setSource(ShaderSources::depthPrePass, false);
 
 		if (!shadersBuilt) {
 			impl->status = CONTEXT_STATUS::FAILED_TO_INIT;

@@ -9,7 +9,8 @@ namespace Yngin {
 		NONE = 0,
 		WORLD,
 		SKYBOX,
-		UI
+		UI,
+		DEPTH_PRE_PASS
 	};
 
 	struct ShaderSource {
@@ -44,7 +45,7 @@ namespace Yngin {
 
 		Meta meta;
 
-		bool setSource(const ShaderSource& src);
+		bool setSource(const ShaderSource& src, bool hasFragment = true);
 		void activate();
 
 		void setMat3(const char* name, glm::mat3 v);

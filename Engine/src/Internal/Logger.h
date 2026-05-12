@@ -6,8 +6,7 @@
 #ifdef _DEBUG
 #ifdef LOGGER_NAME
 #define DEBUG(fmt, ...) do { \
-printf("[Yngin Debug] [" YNGIN_LOGGER_STRINGIZE(LOGGER_NAME) "] "); \
-printf(fmt "\n", ##__VA_ARGS__); \
+printf("[Yngin Debug] [" YNGIN_LOGGER_STRINGIZE(LOGGER_NAME) "] " fmt "\n", ##__VA_ARGS__); \
 } while (0)
 #else
 #define DEBUG(fmt, ...) do { \

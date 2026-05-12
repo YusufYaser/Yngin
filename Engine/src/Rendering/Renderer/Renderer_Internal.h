@@ -61,7 +61,7 @@ namespace Yngin {
 
 			void render(Components::Mesh* mesh);
 
-			void renderSubmeshInstanced(InternalSubmesh* submesh, Texture* tex, InstancePrepData& data, const uint32_t materialsMap[256]);
+			void renderSubmeshInstanced(InternalSubmesh* submesh, Texture* tex, const InstancePrepData& data);
 
 			bool preparingInstances = false;
 			std::map<std::pair<InternalSubmesh*, Texture*>, InstancePrepData> instancesPrep;

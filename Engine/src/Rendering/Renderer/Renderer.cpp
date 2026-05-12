@@ -114,8 +114,7 @@ namespace Yngin::Rendering {
 		Shader* worldShader = ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
 		worldShader->activate();
 
-		worldShader->setMat4("projection", proj);
-		worldShader->setMat4("view", view);
+		worldShader->setMat4("viewProjection", proj * view);
 
 		if (lightingEnabled) {
 			// register lights
@@ -151,16 +150,31 @@ namespace Yngin::Rendering {
 		worldShader->setVec3("cameraPos", scene->impl->camerasManager->getFinalPos());
 
 		preparingInstances = true;
-		worldShader->setInt("instancing", true);
 		render(scene->impl->gameObjectsManager->getRootGameObject(), -1);
 		preparingInstances = false;
+
+		Shader* prePassShader = ctx->getShadersManager()->getShader(SHADER_TYPE::DEPTH_PRE_PASS);
+		prePassShader->activate();
+		prePassShader->setMat4("viewProjection", proj * view);
+		glDepthFunc(GL_LESS);
+		glDepthMask(GL_TRUE);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		for (auto& [meshTexPair, data] : instancesPrep) {
-			uint32_t* a = new uint32_t[256];
-			memset(a, 0, sizeof(a));
-			renderSubmeshInstanced(meshTexPair.first, meshTexPair.second, data, a);
-			delete[] a;
-			a = nullptr;
+			renderSubmeshInstanced(meshTexPair.first, meshTexPair.second, data);
 		}
+
+		worldShader->activate();
+		worldShader->setInt("instancing", true);
+		glDepthFunc(GL_LEQUAL);
+		glDepthMask(GL_FALSE);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+		for (auto& [meshTexPair, data] : instancesPrep) {
+			renderSubmeshInstanced(meshTexPair.first, meshTexPair.second, data);
+		}
+		glDepthMask(GL_TRUE);
+		glDepthFunc(GL_LESS);
+
 		worldShader->setInt("instancing", false);
 		instancesPrep.clear();
 
@@ -271,19 +285,14 @@ namespace Yngin::Rendering {
 
 					data.vOffsets.push_back(vOffset);
 					data.fOffsets.push_back(fOffset);
-				}
 
-				data.instances++;
-
-				if (data.instances >= maxInstances) {
-					renderSubmeshInstanced(submesh.get(), tex, data, mimpl->materials);
-					instancesPrep.erase({ submesh.get(), tex });
+					data.instances++;
 				}
 			}
 		}
 	}
 
-	void Renderer::Impl::renderSubmeshInstanced(InternalSubmesh* submesh, Texture* tex, InstancePrepData& data, const uint32_t materialsMap[256]) {
+	void Renderer::Impl::renderSubmeshInstanced(InternalSubmesh* submesh, Texture* tex, const InstancePrepData& data) {
 		ctx->makeCurrent();
 
 		Model* model = submesh->model;
@@ -299,9 +308,6 @@ namespace Yngin::Rendering {
 				glFrontFace(GL_CCW);
 			}
 		}
-
-		Shader* worldShader = ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
-		worldShader->activate();
 
 		if (data.instances > ssboSize) {
 			// Resize by 64

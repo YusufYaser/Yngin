@@ -12,7 +12,7 @@ namespace Yngin {
 
 		impl->ctx = ctx;
 
-		for (int i = 1; i <= 3; i++) {
+		for (int i = 1; i <= 4; i++) {
 			impl->shaders[SHADER_TYPE(i)] = std::unique_ptr<Shader>(new Shader(ctx, SHADER_TYPE(i)));
 		}
 	}

@@ -22,8 +22,7 @@ layout(std430, binding = 0) buffer InstanceVertexOffsets {
 	InstanceVertexOffset vertexOffsets[];
 };
 
-uniform mat4 projection;
-uniform mat4 view;
+uniform mat4 viewProjection;
 uniform bool instancing;
 uniform mat4 uModel;
 uniform mat3 uNormalMatrix;
@@ -47,10 +46,10 @@ void main() {
 	
 	vec4 worldPosition = model * vec4(inPosition, 1.0);
 
-	gl_Position = projection * view * worldPosition;
+	gl_Position = viewProjection * worldPosition;
 
 	fInstanceID = id;
-	fInstancing = 1;
+	fInstancing = int(instancing);
 	fPosition = worldPosition.xyz;
 	fTexCoord = inTexCoord;
 	fNormal = normalize(normalMatrix * inNormal);

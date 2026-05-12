@@ -24,7 +24,9 @@ namespace Yngin {
 		return impl->ctx;
 	}
 
-	bool Shader::setSource(const ShaderSource& src) {
+	bool Shader::setSource(const ShaderSource& src, bool hasFragment) {
+		DEBUG("Updating shader source for shader %i", getType());
+
 		bool shadersFailed = false;
 		GLuint vertexShader, fragmentShader;
 		{
@@ -47,7 +49,7 @@ namespace Yngin {
 				}
 			}
 		}
-		{
+		if (hasFragment) {
 			fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 			glShaderSource(fragmentShader, 1, &src.fragment, 0);
 			glCompileShader(fragmentShader);
@@ -78,10 +80,10 @@ namespace Yngin {
 
 		GLuint id = glCreateProgram();
 		glAttachShader(id, vertexShader);
-		glAttachShader(id, fragmentShader);
+		if (hasFragment) glAttachShader(id, fragmentShader);
 		glLinkProgram(id);
 		glDeleteShader(vertexShader);
-		glDeleteShader(fragmentShader);
+		if (hasFragment) glDeleteShader(fragmentShader);
 
 		if (wasActive) glUseProgram(id);
 		impl->uniformLocationsCache.clear();
