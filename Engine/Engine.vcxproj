@@ -56,6 +56,7 @@
     <ClInclude Include="src\Core\InputSystem\InputSystem_Internal.h" />
     <ClInclude Include="src\Core\Models\DefaultModels\Skybox_Model.h" />
     <ClInclude Include="src\Core\Models\DefaultModels\Square_Model.h" />
+    <ClInclude Include="src\Internal\Logger.h" />
     <ClInclude Include="src\Physics\Physics_Internal.h" />
     <ClInclude Include="src\Rendering\Renderer\Renderer_Internal.h" />
     <ClInclude Include="src\Rendering\Shaders\Shaders_Internal.h" />
