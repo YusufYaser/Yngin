@@ -3,6 +3,9 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define LOGGER_NAME Shaders
+#include "../../Internal/Logger.h"
+
 namespace Yngin {
 	Shader::Shader(Context* ctx, SHADER_TYPE type) {
 		impl = std::make_unique<Impl>();
@@ -32,6 +35,16 @@ namespace Yngin {
 			glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &shaderCompiled);
 			if (!shaderCompiled) {
 				shadersFailed = true;
+				DEBUG("Failed to compile vertex shader %i", getType());
+
+				GLint logLength;
+				glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLength);
+
+				if (logLength > 0) {
+					std::vector<char> infoLog(logLength);
+					glGetShaderInfoLog(vertexShader, logLength, NULL, &infoLog[0]);
+					DEBUG("%s", &infoLog[0]);
+				}
 			}
 		}
 		{
@@ -42,6 +55,16 @@ namespace Yngin {
 			glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &shaderCompiled);
 			if (!shaderCompiled) {
 				shadersFailed = true;
+				DEBUG("Failed to compile fragment shader %i", getType());
+
+				GLint logLength;
+				glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &logLength);
+
+				if (logLength > 0) {
+					std::vector<char> infoLog(logLength);
+					glGetShaderInfoLog(fragmentShader, logLength, NULL, &infoLog[0]);
+					DEBUG("%s", &infoLog[0]);
+				}
 			}
 		}
 

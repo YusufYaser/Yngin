@@ -5,6 +5,9 @@
 #include <Yngin/Core/Scripting.h>
 #include "../Scripting/Scripting_Internal.h"
 
+#define LOGGER_NAME Scenes
+#include "../../Internal/Logger.h"
+
 namespace Yngin {
 	ScenesManager::ScenesManager(Context* ctx) {
 		if (ctx->getScenesManager()) {
@@ -60,6 +63,8 @@ namespace Yngin {
 		scene->impl->id = id;
 		impl->scenes[id] = std::unique_ptr<Scene>(scene);
 
+		DEBUG("Created scene %d", id);
+
 		scene->impl->init();
 
 		return scene;
@@ -79,6 +84,8 @@ namespace Yngin {
 		}
 
 		impl->scenes.erase(sceneId);
+
+		DEBUG("Deleted scene %d", sceneId);
 	}
 
 	void ScenesManager::deleteScene(Scene* scene) {

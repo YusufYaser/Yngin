@@ -5,6 +5,9 @@
 #include <Yngin/Core/Scenes.h>
 #include <stdio.h>
 
+#define LOGGER_NAME Scripting
+#include "../../Internal/Logger.h"
+
 namespace Yngin {
 	ScriptsManager::ScriptsManager(Context* ctx) {
 		impl = std::make_unique<Impl>();
@@ -45,6 +48,7 @@ namespace Yngin {
 	}
 
 	void ScriptsManager::Impl::bind() {
+		DEBUG("Binding lua types");
 		bindGlmTypes();
 		bindYnginTypes();
 		createYnginTable();
@@ -71,6 +75,8 @@ namespace Yngin {
 		impl->nextId = std::max(impl->nextId, id + 1);
 		script->impl->id = id;
 		impl->scripts[id] = std::unique_ptr<Script>(script);
+
+		DEBUG("Created script %d", id);
 
 		auto globalOutput = &impl->globalOutput;
 		auto scriptOutput = &script->impl->scriptOutput;
@@ -153,6 +159,7 @@ namespace Yngin {
 			return;
 		}
 		impl->scripts.erase(id);
+		DEBUG("Deleted script %d", id);
 	}
 
 	void ScriptsManager::deleteScript(Script* script) {

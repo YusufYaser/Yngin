@@ -2,6 +2,9 @@
 #include "Materials_Internal.h"
 #include <sstream>
 
+#define LOGGER_NAME Materials
+#include "../../Internal/Logger.h"
+
 namespace Yngin {
 	MaterialsManager::MaterialsManager(Context* ctx) {
 		impl = std::make_unique<Impl>();
@@ -33,6 +36,8 @@ namespace Yngin {
 		mat->impl->id = id;
 		impl->materials[id] = std::unique_ptr<Material>(mat);
 
+		DEBUG("Created material %d", id);
+
 		return mat;
 	}
 
@@ -45,6 +50,7 @@ namespace Yngin {
 
 	void MaterialsManager::deleteMaterial(uint32_t materialId) {
 		impl->materials.erase(materialId);
+		DEBUG("Deleted material %d", materialId);
 	}
 
 	void MaterialsManager::deleteMaterial(Material* material) {

@@ -17,6 +17,9 @@
 #include "../Scripting/Scripting_Internal.h"
 #include <Yngin/Services/Services.h>
 
+#define LOGGER_NAME Context
+#include "../../Internal/Logger.h"
+
 namespace Yngin {
 	std::vector<Context*> Context::contexts;
 
@@ -29,9 +32,12 @@ namespace Yngin {
 	Context::Context(const ContextSettings& settings) {
 		if (!isYnginInitialized()) {
 			impl->status = CONTEXT_STATUS::FAILED_TO_INIT;
-			throw std::exception("Cannot create new context before initialization");
+			throw std::exception("Cannot create new context before initializing Yngin");
+			return;
 		}
 		contexts.push_back(this);
+
+		DEBUG("Initializing new context: %p", this);
 
 		impl = std::make_unique<Impl>();
 
@@ -106,6 +112,7 @@ namespace Yngin {
 		if (!shadersBuilt) {
 			impl->status = CONTEXT_STATUS::FAILED_TO_INIT;
 			throw std::exception("Failed to initialize shaders");
+			return;
 		}
 
 		worldShader->activate();
@@ -137,6 +144,8 @@ namespace Yngin {
 		m.applySettings(settings);
 
 		impl->status = CONTEXT_STATUS::WAITING_FOR_READY;
+
+		DEBUG("Initialized context: %p", this);
 	}
 
 	Context::~Context() {
@@ -172,6 +181,7 @@ namespace Yngin {
 		for (Context* ctx : contexts) {
 			delete ctx;
 		}
+		contexts.clear();
 	}
 
 	void Context::makeCurrent() {
@@ -202,6 +212,13 @@ namespace Yngin {
 		if (getStatus() == CONTEXT_STATUS::WAITING_FOR_READY) return;
 		assert(getStatus() == CONTEXT_STATUS::RUNNING);
 		makeCurrent();
+
+#ifdef _DEBUG
+		GLenum glError;
+		while ((glError = glGetError()) != GL_NO_ERROR) {
+			DEBUG("OpenGL Error: %d", glError);
+		}
+#endif
 
 		auto& m = *impl;
 

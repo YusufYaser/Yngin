@@ -9,6 +9,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "GameFiles.h"
 
+#define LOGGER_NAME PakSerializer
+#include "../Internal/Logger.h"
+
 #define R(name, type) s.read(reinterpret_cast<char*>(&name), sizeof(type))
 #define W(name, type) s.write(reinterpret_cast<const char*>(&name), sizeof(type))
 
@@ -148,6 +151,8 @@ namespace Yngin {
 		R(header, Header);
 		if (std::memcmp(header.magic, "YNGINSCENE", 10) != 0) return;
 		if (header.version != VERSION) return;
+
+		DEBUG("Deserializing scene pak into scene %i", id);
 
 		Operation op{};
 
@@ -317,9 +322,13 @@ namespace Yngin {
 			if (obj == nullptr) continue;
 			obj->setParent(parentId);
 		}
+
+		DEBUG("Deserialized scene pak into scene %i successfully", id);
 	}
 
 	std::vector<char> Scene::generatePak() {
+		DEBUG("Serializing scene %i into a scene pak", impl->id);
+
 		std::ostringstream s(std::ios::binary);
 
 		Header header = {};
@@ -346,6 +355,8 @@ namespace Yngin {
 		Generators::camerasManager(s, impl->camerasManager.get());
 		Generators::uiManager(s, impl->uiManager.get());
 		Generators::scriptsManager(s, impl->ctx->getScriptsManager(), this);
+
+		DEBUG("Serialized scene %i into a scene pak", impl->id);
 
 		std::string_view sv = s.view();
 		return std::vector<char>(sv.begin(), sv.end());

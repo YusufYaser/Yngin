@@ -8,12 +8,17 @@
 #pragma comment(lib, "winmm.lib")
 #endif
 
+#define LOGGER_NAME Initializer
+#include "../../Internal/Logger.h"
+
 namespace {
 	bool initialized = false;
 }
 
 namespace Yngin {
 	bool initializeYngin() {
+		DEBUG("Initializing Yngin");
+
 		if (!glfwInit()) {
 			terminate();
 			return false;
@@ -29,6 +34,7 @@ namespace Yngin {
 
 		initialized = true;
 
+		DEBUG("Initialized Yngin");
 		return true;
 	}
 
@@ -37,11 +43,13 @@ namespace Yngin {
 	}
 
 	void terminateYngin() {
+		DEBUG("Terminating Yngin");
 		Context::deleteAllContexts();
 		glfwTerminate();
 #ifdef _WIN32
 		timeEndPeriod(1);
 #endif
 		initialized = false;
+		DEBUG("Terminated Yngin");
 	}
 }

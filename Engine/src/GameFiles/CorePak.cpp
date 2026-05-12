@@ -7,6 +7,9 @@
 #include <Yngin/UI/UIManager.h>
 #include <Yngin/UI/Elements/UIElement.h>
 
+#define LOGGER_NAME PakSerializer
+#include "../Internal/Logger.h"
+
 #define R(name, type) s.read(reinterpret_cast<char*>(&name), sizeof(type))
 #define W(name, type) s.write(reinterpret_cast<const char*>(&name), sizeof(type))
 
@@ -72,6 +75,8 @@ namespace Yngin {
 		if (std::memcmp(header.magic, "YNGINCORE", 10) != 0) return;
 		if (header.version != VERSION) return;
 
+		DEBUG("Deserializing core pak into context");
+
 		std::map<int, int> uiElementsParentsQueue;
 
 		Operation op{};
@@ -120,9 +125,13 @@ namespace Yngin {
 			if (obj == nullptr) continue;
 			obj->setParent(parentId);
 		}
+
+		DEBUG("Deserialized core pak into context successfully");
 	}
 
 	std::vector<char> Context::generateCorePak() {
+		DEBUG("Serializing context into a core pak");
+
 		ContextSettings& settings = impl->initialSettings;
 
 		PakGenSettings genSettings = getCurrentGenPakSettings();
@@ -153,6 +162,8 @@ namespace Yngin {
 
 		Generators::scriptsManager(s, impl->scriptsManager.get(), nullptr);
 		Generators::uiManager(s, impl->uiManager.get());
+
+		DEBUG("Serialized context into a core pak successfully");
 
 		std::string_view sv = s.view();
 		return std::vector<char>(sv.begin(), sv.end());

@@ -6,6 +6,9 @@
 #include "../Core/Context/Context_Internal.h"
 #include <Yngin/Core/Scenes.h>
 
+#define LOGGER_NAME PakSerializer
+#include "../Internal/Logger.h"
+
 #define R(name, type) s.read(reinterpret_cast<char*>(&name), sizeof(type))
 #define W(name, type) s.write(reinterpret_cast<const char*>(&name), sizeof(type))
 
@@ -110,6 +113,8 @@ namespace Yngin {
 		if (std::memcmp(header.magic, "YNGINGAME", 10) != 0) return;
 		if (header.version != VERSION) return;
 
+		DEBUG("Deserializing game pak to context");
+
 		std::map<int, int> uiElementsParentsQueue;
 
 		PakInfo pakInfo{};
@@ -146,9 +151,13 @@ namespace Yngin {
 
 			delete[] bytes;
 		}
+
+		DEBUG("Deserialized game pak to context successfully");
 	}
 
 	std::vector<char> Context::generateGamePak() {
+		DEBUG("Serializing context into a game pak");
+
 		std::ostringstream s(std::ios::binary);
 
 		Header header = {};
@@ -188,6 +197,9 @@ namespace Yngin {
 		pakInfo.linkedId = -1;
 
 		std::string_view sv = s.view();
+
+		DEBUG("Serialized context into a game pak successfully");
+
 		return std::vector<char>(sv.begin(), sv.end());
 	}
 }

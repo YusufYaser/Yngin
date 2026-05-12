@@ -11,6 +11,9 @@
 #include <cstring>
 #include <filesystem>
 
+#define LOGGER_NAME Model Loader
+#include "../../Internal/Logger.h"
+
 #define VERTEX_STATEMENT 1
 
 namespace fs = std::filesystem;
@@ -224,6 +227,7 @@ namespace Yngin {
 				fs::path path(filename);
 				filename = path.filename().string();
 
+				DEBUG("Opening material file %s", filename.c_str());
 				std::ifstream file(filename);
 
 				if (file.is_open()) {

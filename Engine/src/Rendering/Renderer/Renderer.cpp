@@ -25,6 +25,9 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <limits>
 
+#define LOGGER_NAME Renderer
+#include "../../Internal/Logger.h"
+
 #define MAX_LIGHTS 32
 
 namespace Yngin::Rendering {
@@ -39,6 +42,8 @@ namespace Yngin::Rendering {
 
 		impl->maxInstances = static_cast<size_t>(maxBlockSize) / maxUnitSize;
 		impl->maxInstances = std::min(impl->maxInstances, std::numeric_limits<GLsizeiptr>::max() / sizeof(InstanceVertexOffset));
+
+		DEBUG("Max instances supported by the system: %d", impl->maxInstances);
 
 		impl->ssboSize = SSBO_GROW_UNIT;
 
@@ -300,7 +305,12 @@ namespace Yngin::Rendering {
 
 		if (data.instances > ssboSize) {
 			// Resize by 64
-			ssboSize += ((data.instances - ssboSize + (SSBO_GROW_UNIT - 1)) & ~(SSBO_GROW_UNIT - 1));
+			size_t inc = ((data.instances - ssboSize + (SSBO_GROW_UNIT - 1)) & ~(SSBO_GROW_UNIT - 1));
+			ssboSize += inc;
+#ifdef _DEBUG
+			size_t oldSSBOSize = ssboSize - inc;
+			DEBUG("Increased SSBO instances size from %lld to %lld (+%lld)", oldSSBOSize, ssboSize, inc);
+#endif
 
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, vertexSSBO);
 			glBufferData(GL_SHADER_STORAGE_BUFFER, ssboSize * sizeof(InstanceVertexOffset), nullptr, GL_DYNAMIC_DRAW);

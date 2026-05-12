@@ -13,6 +13,9 @@
 #include <stb/stb_image_write.h>
 #include "GameFiles.h"
 
+#define LOGGER_NAME PakSerializer
+#include "../Internal/Logger.h"
+
 #define R(name, type) s.read(reinterpret_cast<char*>(&name), sizeof(type))
 #define W(name, type) s.write(reinterpret_cast<const char*>(&name), sizeof(type))
 
@@ -72,6 +75,8 @@ namespace Yngin {
 		if (std::memcmp(header.magic, "YNGINRESOURCES", 14) != 0) return;
 		if (header.version != VERSION) return;
 
+		DEBUG("Deserializing resources pak to context");
+
 		Operation op{};
 
 		while (!stop && R(op, Operation)) {
@@ -103,9 +108,13 @@ namespace Yngin {
 		}
 
 		if (stop) return;
+
+		DEBUG("Deserialized resources pak to context successfully");
 	}
 
 	std::vector<char> Context::generateResourcesPak() {
+		DEBUG("Serializing context resources into a resources pak");
+
 		std::ostringstream s(std::ios::binary);
 
 		Header header = {};
@@ -119,6 +128,8 @@ namespace Yngin {
 		Generators::modelsManager(s, impl->modelsManager.get());
 		Generators::texturesManager(s, impl->texturesManager.get());
 		Generators::materialsManager(s, impl->materialsManager.get());
+
+		DEBUG("Serialized context resources into a resources pak successfully");
 
 		std::string_view sv = s.view();
 		return std::vector<char>(sv.begin(), sv.end());

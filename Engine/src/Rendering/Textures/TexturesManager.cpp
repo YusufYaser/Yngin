@@ -3,6 +3,9 @@
 #include <stdexcept>
 #include <glad/glad.h>
 
+#define LOGGER_NAME Textures
+#include "../../Internal/Logger.h"
+
 namespace Yngin {
 	TexturesManager::TexturesManager(Context* ctx) {
 		if (ctx->getTexturesManager()) {
@@ -41,6 +44,8 @@ namespace Yngin {
 		texture->impl->id = id;
 		impl->textures[id] = std::move(texture);
 
+		DEBUG("Created texture %d", id);
+
 		return impl->textures[id].get();
 	}
 
@@ -62,6 +67,8 @@ namespace Yngin {
 		if (textureId == 0 || textureId == 1 || textureId == 2) return;
 
 		impl->textures.erase(textureId);
+
+		DEBUG("Deleted texture %d", textureId);
 	}
 
 	size_t TexturesManager::getTexturesCount() const {

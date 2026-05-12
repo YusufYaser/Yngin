@@ -3,6 +3,9 @@
 #include <stdexcept>
 #include "Models_Internal.h"
 
+#define LOGGER_NAME Models
+#include "../../Internal/Logger.h"
+
 namespace Yngin {
 	ModelsManager::ModelsManager(Context* ctx) {
 		impl = std::make_unique<Impl>();
@@ -39,6 +42,8 @@ namespace Yngin {
 		model->impl->id = id;
 		impl->models[id] = std::unique_ptr<Model>(model);
 
+		DEBUG("Created model %d", id);
+
 		model->impl->init(data);
 
 		return model;
@@ -62,6 +67,8 @@ namespace Yngin {
 
 	void ModelsManager::deleteModel(uint32_t modelId) {
 		impl->models.erase(modelId);
+
+		DEBUG("Deleted model %d", modelId);
 	}
 
 	void ModelsManager::deleteModel(Model* model) {
