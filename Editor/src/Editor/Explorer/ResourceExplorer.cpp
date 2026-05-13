@@ -21,7 +21,7 @@ namespace {
 			for (auto& model : models) {
 				std::string name = model->meta.getMetaString("Editor.Name", std::string("Model #" + std::to_string(model->getId())));
 
-				ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+				ImGui::TreeNodeEx((name + "##" + std::to_string(model->getId())).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
 					clicked = model->getId();

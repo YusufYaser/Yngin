@@ -60,7 +60,7 @@ void Editor::showUIElementProps(uint32_t id, bool global) {
 
 	name = element->meta.getMetaString("Editor.Name", std::string("UI Element #" + std::to_string(element->getId())));
 
-	ImGui::Text("Properties (%s)", name.c_str());
+	ImGui::Text("Properties (%s) (%i)", name.c_str(), element->getId());
 	ImGui::Separator();
 	{
 		static char v[32] = {};

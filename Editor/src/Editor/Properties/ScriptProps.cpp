@@ -27,7 +27,7 @@ void Editor::showScriptProps(uint32_t id) {
 
 	EditorScript& script = it->second;
 
-	ImGui::Text("Script Settings");
+	ImGui::Text("Script (%s)", script.name.c_str());
 	ImGui::Separator();
 
 	{

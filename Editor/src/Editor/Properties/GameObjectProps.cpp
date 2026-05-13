@@ -16,7 +16,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 			/*Components::Mesh* mesh = child->createComponent<Components::Mesh>();
 			mesh->setModel(cubeModel);
 			mesh->setTexture(gridTexture);*/
-			explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, child->getId() };
+			if (child) explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, child->getId() };
 		}
 		return;
 	}
@@ -36,7 +36,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 		name = "Game Objects";
 	}
 
-	ImGui::Text("Properties (%s)", name.c_str());
+	ImGui::Text("Properties (%s) (%i)", name.c_str(), obj->getId());
 	ImGui::Separator();
 	{
 		static char v[32] = {};
@@ -363,7 +363,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 		/*Components::Mesh* mesh = child->createComponent<Components::Mesh>();
 		mesh->setModel(cubeModel);
 		mesh->setTexture(gridTexture);*/
-		explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, child->getId() };
+		if (child) explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, child->getId() };
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Teleport")) {
