@@ -254,6 +254,12 @@ namespace Yngin {
 			BIND(GameObject, getScale),
 			BIND(GameObject, setScale),
 
+			"hasComponent", &GameObject::hasComponent<Components::Component>,
+			"hasComponentMesh", &GameObject::hasComponent<Components::Mesh>,
+			"hasComponentLight", &GameObject::hasComponent<Components::Light>,
+			"hasComponentBoxCollider", &GameObject::hasComponent<Components::BoxCollider>,
+			"hasComponentRigidBody", &GameObject::hasComponent<Components::RigidBody>,
+
 			"getComponent", &GameObject::getComponent<Components::Component>,
 			"getComponentMesh", &GameObject::getComponent<Components::Mesh>,
 			"getComponentLight", &GameObject::getComponent<Components::Light>,

@@ -43,7 +43,7 @@ namespace Yngin::Rendering {
 		impl->maxInstances = static_cast<size_t>(maxBlockSize) / maxUnitSize;
 		impl->maxInstances = std::min(impl->maxInstances, std::numeric_limits<GLsizeiptr>::max() / sizeof(InstanceVertexOffset));
 
-		DEBUG("Max instances supported by the system: %d", impl->maxInstances);
+		DEBUG("Max instances supported by the system: %lld", impl->maxInstances);
 
 		impl->ssboSize = SSBO_GROW_UNIT;
 
@@ -187,12 +187,8 @@ namespace Yngin::Rendering {
 		float distSq = glm::dot(delta, delta);
 
 		if (distSq <= renderDistance * renderDistance) {
-			for (auto& kvp : gameObject->impl->components) {
-				if (kvp.first == typeid(Components::Mesh)) {
-					render(dynamic_cast<Components::Mesh*>(kvp.second.get()));
-				}
-				kvp.second->onRender();
-			}
+			Components::Mesh* mesh = gameObject->getComponent<Components::Mesh>();
+			if (mesh) render(mesh);
 		}
 
 		if (renderChildren != 0) {
@@ -222,30 +218,31 @@ namespace Yngin::Rendering {
 		Model* model = cimpl->ctx->getModelsManager()->getModel(mimpl->modelId);
 		if (model == nullptr) return;
 
-		Texture* tex = cimpl->ctx->getTexturesManager()->getTexture(mimpl->texId);
-		if (tex == nullptr) tex = cimpl->ctx->getTexturesManager()->getTexture(2);
-
 		GameObject* obj = cimpl->gameObject;
 
 		static const glm::mat4 i(1.0f);
 
 		glm::vec3 rot = obj->getRotation();
 
-		glm::mat4 modelMat =
-			glm::translate(i, obj->getPosition()) *
-			glm::yawPitchRoll(rot.y, rot.x, rot.z) *
-			glm::scale(i, obj->getScale());
+		if (obj->impl->updateMatrices) {
+			obj->impl->modelMatrix =
+				glm::translate(i, obj->getPosition()) *
+				glm::yawPitchRoll(rot.y, rot.x, rot.z) *
+				glm::scale(i, obj->getScale());
+
+			obj->impl->normalMatrix = glm::transpose(glm::inverse(glm::mat3(obj->impl->modelMatrix)));
+
+			obj->impl->updateMatrices = false;
+		}
 
 		Shader* worldShader = cimpl->ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
 		worldShader->activate();
 
-		glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMat)));
-
-		bool isLight = obj->getComponent<Components::Light>() != nullptr || !lightingEnabled;
+		bool isLight = !lightingEnabled || obj->hasComponent<Components::Light>();
 
 		if (!preparingInstances) {
-			worldShader->setMat4("uModel", modelMat);
-			worldShader->setMat3("uNormalMatrix", normalMatrix);
+			worldShader->setMat4("uModel", obj->impl->modelMatrix);
+			worldShader->setMat3("uNormalMatrix", obj->impl->normalMatrix);
 
 			worldShader->setInt("uIsLight", isLight);
 
@@ -258,19 +255,21 @@ namespace Yngin::Rendering {
 				worldShader->setFloat("uMaterial.specularComponent", 64);
 			}
 
+			Texture* tex = cimpl->ctx->getTexturesManager()->getTexture(mimpl->texId);
+			if (tex == nullptr) tex = cimpl->ctx->getTexturesManager()->getTexture(2);
 			if (tex) tex->activate();
 			model->impl->renderWithMaterials(mimpl->materials);
 		} else {
 			for (auto& submesh : model->impl->submeshes) {
-				InstancePrepData& data = instancesPrep[{submesh.get(), tex}];
+				InstancePrepData& data = instancesPrep[{submesh.get(), mimpl->texId}];
 
 				int instance = data.instances;
 				if (instance < maxInstances) {
 					InstanceVertexOffset vOffset{};
 					InstanceFragmentOffset fOffset{};
 
-					vOffset.model = modelMat;
-					vOffset.normalMatrix = normalMatrix;
+					vOffset.model = obj->impl->modelMatrix;
+					vOffset.normalMatrix = obj->impl->normalMatrix;
 					fOffset.isLight = isLight;
 					fOffset.color = glm::vec4(mimpl->color, 1);
 					if (submesh->matId < 256) {
@@ -292,7 +291,7 @@ namespace Yngin::Rendering {
 		}
 	}
 
-	void Renderer::Impl::renderSubmeshInstanced(InternalSubmesh* submesh, Texture* tex, const InstancePrepData& data) {
+	void Renderer::Impl::renderSubmeshInstanced(InternalSubmesh* submesh, uint32_t texId, const InstancePrepData& data) {
 		ctx->makeCurrent();
 
 		Model* model = submesh->model;
@@ -335,6 +334,8 @@ namespace Yngin::Rendering {
 
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
+		Texture* tex = ctx->getTexturesManager()->getTexture(texId);
+		if (tex == nullptr) tex = ctx->getTexturesManager()->getTexture(2);
 		tex->activate();
 
 		glBindVertexArray(submesh->VAO);

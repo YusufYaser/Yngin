@@ -46,6 +46,9 @@ namespace Yngin {
 		void setScale(glm::vec3 scale);
 
 		template <typename T>
+		bool hasComponent() const;
+
+		template <typename T>
 		T* getComponent() const;
 
 		template <typename T>

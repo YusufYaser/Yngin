@@ -61,10 +61,10 @@ namespace Yngin {
 
 			void render(Components::Mesh* mesh);
 
-			void renderSubmeshInstanced(InternalSubmesh* submesh, Texture* tex, const InstancePrepData& data);
+			void renderSubmeshInstanced(InternalSubmesh* submesh, uint32_t texId, const InstancePrepData& data);
 
 			bool preparingInstances = false;
-			std::map<std::pair<InternalSubmesh*, Texture*>, InstancePrepData> instancesPrep;
+			std::map<std::pair<InternalSubmesh*, uint32_t>, InstancePrepData> instancesPrep;
 
 			size_t ssboSize = 0;
 			// max instances supported by the GPU
