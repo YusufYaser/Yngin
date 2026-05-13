@@ -1022,7 +1022,7 @@ void Editor::update() {
 				ImGui::TableSetColumnIndex(1);
 				ImGui::Text("%i", std::get<1>(row));
 				ImGui::TableSetColumnIndex(2);
-				ImGui::Text("%i", std::get<2>(row));
+				if (std::get<2>(row) != 0) ImGui::Text("%i", std::get<2>(row));
 			}
 
 			ImGui::EndTable();
@@ -1041,6 +1041,7 @@ void Editor::update() {
 
 			rows.push_back({ "Game Objects", activeScene->getGameObjectsManager()->getGameObjectsCount(), 0 });
 			rows.push_back({ "Scene UI Elements", activeScene->getUIManager()->getElementsCount(), 0 });
+			rows.push_back({ "Submeshes Rendered", ctx->getRenderer()->getSubmeshesRendered(), 0 });
 
 			for (auto& row : rows) {
 				ImGui::TableNextRow();
@@ -1050,7 +1051,7 @@ void Editor::update() {
 				ImGui::TableSetColumnIndex(1);
 				ImGui::Text("%i", std::get<1>(row));
 				ImGui::TableSetColumnIndex(2);
-				ImGui::Text("%i", std::get<2>(row));
+				if (std::get<2>(row) != 0) ImGui::Text("%i", std::get<2>(row));
 			}
 
 			ImGui::EndTable();

@@ -14,6 +14,8 @@ namespace Yngin {
 			float getRenderDistance() const;
 			void setRenderDistance(float renderDistance);
 
+			size_t getSubmeshesRendered() const;
+
 		private:
 			friend class Context;
 			friend struct std::default_delete<Renderer>;

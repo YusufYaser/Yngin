@@ -88,6 +88,10 @@ namespace Yngin::Rendering {
 		impl->renderDistance = renderDistance;
 	}
 
+	size_t Renderer::getSubmeshesRendered() const {
+		return impl->sceneSubmeshesRendered;
+	}
+
 	void Renderer::Impl::render(Scene* scene) {
 		ctx->makeCurrent();
 
@@ -170,6 +174,7 @@ namespace Yngin::Rendering {
 		worldShader->setVec3("cameraPos", scene->impl->camerasManager->getFinalPos());
 
 		preparingInstances = true;
+		sceneSubmeshesRendered = 0;
 		render(scene->impl->gameObjectsManager->getRootGameObject(), -1);
 		preparingInstances = false;
 
@@ -281,6 +286,7 @@ namespace Yngin::Rendering {
 			if (tex == nullptr) tex = cimpl->ctx->getTexturesManager()->getTexture(2);
 			if (tex) tex->activate();
 			model->impl->renderWithMaterials(mimpl->materials);
+			sceneSubmeshesRendered += model->impl->submeshes.size();
 		} else {
 			for (auto& submesh : model->impl->submeshes) {
 				float radius = submesh->radius * glm::compMax(scale);
@@ -319,6 +325,8 @@ namespace Yngin::Rendering {
 					data.fOffsets.push_back(fOffset);
 
 					data.instances++;
+
+					sceneSubmeshesRendered++;
 				}
 			}
 		}

@@ -64,6 +64,8 @@ namespace Yngin {
 
 			Plane frustumPlanes[6];
 
+			size_t sceneSubmeshesRendered = 0;
+
 			void render(Scene* scene);
 			// renderChildrenDepth = -1 for infinity
 			void render(GameObject* gameObject, int renderChildrenDepth = 0);
