@@ -288,6 +288,16 @@ namespace Yngin {
 			BIND(GameObjectsManager, getGameObjectsCount),
 			BIND(GameObjectsManager, getGameObjects),
 
+			"createGameObject", sol::overload(
+				static_cast<GameObject * (GameObjectsManager::*)()>(&GameObjectsManager::createGameObject),
+
+				[](GameObjectsManager& self, uint32_t id) {
+					return self.createGameObject(id);
+				},
+
+				static_cast<GameObject * (GameObjectsManager::*)(uint32_t, bool)>(&GameObjectsManager::createGameObject)
+			),
+
 			"deleteGameObject", sol::overload(
 				static_cast<void(GameObjectsManager::*)(uint32_t)>(&GameObjectsManager::deleteGameObject),
 				static_cast<void(GameObjectsManager::*)(GameObject*)>(&GameObjectsManager::deleteGameObject)

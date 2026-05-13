@@ -79,6 +79,8 @@ namespace Yngin {
 
 		GameObject* getRootGameObject() const;
 		GameObject* getGameObject(uint32_t gameObjectId) const;
+		GameObject* createGameObject();
+		GameObject* createGameObject(uint32_t customId, bool override = true);
 
 		size_t getGameObjectsCount() const;
 		std::vector<GameObject*> getGameObjects() const;

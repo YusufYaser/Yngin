@@ -39,6 +39,14 @@ namespace Yngin {
 		return it->second;
 	}
 
+	GameObject* GameObjectsManager::createGameObject() {
+		return impl->rootGameObject->createChild();
+	}
+
+	GameObject* GameObjectsManager::createGameObject(uint32_t customId, bool override) {
+		return impl->rootGameObject->createChild(customId, override);
+	}
+
 	size_t GameObjectsManager::getGameObjectsCount() const {
 		return impl->gameObjects.size();
 	}
