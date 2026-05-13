@@ -20,6 +20,9 @@ namespace Yngin {
 
 		size_t verticesCount;
 		size_t indicesCount;
+
+		glm::vec3 center;
+		float radius;
 	};
 
 	struct Model::Impl {

@@ -17,6 +17,15 @@ namespace Yngin {
 	}
 
 	namespace Rendering {
+		// View-Frustum Culling
+
+		struct Plane {
+			glm::vec3 normal = { 0.0f, 0.0f, 1.0f };
+			float distance = 0.0f;
+		};
+
+		// Instancing
+
 		struct InstanceOffsetMaterial {
 			glm::vec3 ambientColor = glm::vec3(1.0f);
 			float _pad1;
@@ -52,6 +61,8 @@ namespace Yngin {
 			bool lightingEnabled = true;
 
 			float renderDistance = 512.0f;
+
+			Plane frustumPlanes[6];
 
 			void render(Scene* scene);
 			// renderChildrenDepth = -1 for infinity

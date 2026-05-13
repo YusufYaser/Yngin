@@ -97,6 +97,16 @@ namespace Yngin {
 
 			submesh->verticesCount = vertices.size();
 			submesh->indicesCount = indices.size();
+
+			glm::vec3 maxPos = glm::vec3(std::numeric_limits<float>::min());
+
+			for (auto& v : vertices) {
+				submesh->center += v.pos;
+				maxPos = glm::max(maxPos, v.pos);
+			}
+
+			submesh->center /= vertices.size();
+			submesh->radius = glm::distance(submesh->center, maxPos);
 		}
 
 

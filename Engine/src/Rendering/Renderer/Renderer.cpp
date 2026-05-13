@@ -23,6 +23,7 @@
 #include "../../UI/Elements/UI_Elements_Internal.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/component_wise.hpp>
 #include <limits>
 
 #define LOGGER_NAME Renderer
@@ -96,6 +97,25 @@ namespace Yngin::Rendering {
 
 		glm::mat4 proj = scene->impl->camerasManager->impl->getFinalPerspectiveProjection();
 		glm::mat4 view = scene->impl->camerasManager->impl->getFinalView();
+		glm::mat4 viewProjection = proj * view;
+
+		// Setup Frustum
+
+		for (int i = 0; i < 6; i++) {
+			Plane& p = frustumPlanes[i];
+
+			int row = i / 2;
+
+			for (int j = 0; j < 3; j++) {
+				p.normal[j] = viewProjection[j][3] + viewProjection[j][row] * (i % 2 ? 1 : -1);
+			}
+			p.distance = viewProjection[3][3] + viewProjection[3][row] * (i % 2 ? 1 : -1);
+
+			float length = glm::length(p.normal);
+			p.normal /= length;
+			p.distance /= length;
+		}
+
 
 		Model* skybox = ctx->getInternalModelsManager()->getModel(INTERNAL_MODEL_SKYBOX_ID);
 		Texture* skyboxTex = ctx->getTexturesManager()->getTexture(scene->impl->skyboxTexId);
@@ -114,7 +134,7 @@ namespace Yngin::Rendering {
 		Shader* worldShader = ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
 		worldShader->activate();
 
-		worldShader->setMat4("viewProjection", proj * view);
+		worldShader->setMat4("viewProjection", viewProjection);
 
 		if (lightingEnabled) {
 			// register lights
@@ -155,7 +175,7 @@ namespace Yngin::Rendering {
 
 		Shader* prePassShader = ctx->getShadersManager()->getShader(SHADER_TYPE::DEPTH_PRE_PASS);
 		prePassShader->activate();
-		prePassShader->setMat4("viewProjection", proj * view);
+		prePassShader->setMat4("viewProjection", viewProjection);
 		glDepthFunc(GL_LESS);
 		glDepthMask(GL_TRUE);
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -222,13 +242,15 @@ namespace Yngin::Rendering {
 
 		static const glm::mat4 i(1.0f);
 
+		glm::vec3 pos = obj->getPosition();
 		glm::vec3 rot = obj->getRotation();
+		glm::vec3 scale = obj->getScale();
 
 		if (obj->impl->updateMatrices) {
 			obj->impl->modelMatrix =
-				glm::translate(i, obj->getPosition()) *
+				glm::translate(i, pos) *
 				glm::yawPitchRoll(rot.y, rot.x, rot.z) *
-				glm::scale(i, obj->getScale());
+				glm::scale(i, scale);
 
 			obj->impl->normalMatrix = glm::transpose(glm::inverse(glm::mat3(obj->impl->modelMatrix)));
 
@@ -261,6 +283,17 @@ namespace Yngin::Rendering {
 			model->impl->renderWithMaterials(mimpl->materials);
 		} else {
 			for (auto& submesh : model->impl->submeshes) {
+				float radius = submesh->radius * glm::compMax(scale);
+
+				bool showing = true;
+				for (int i = 0; i < 6; i++) {
+					if (glm::dot(frustumPlanes[i].normal, glm::vec3(obj->impl->modelMatrix * glm::vec4(submesh->center, 1.0f))) + frustumPlanes[i].distance < -radius) {
+						showing = false;
+						break;
+					}
+				}
+				if (!showing) continue;
+
 				InstancePrepData& data = instancesPrep[{submesh.get(), mimpl->texId}];
 
 				int instance = data.instances;
