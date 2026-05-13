@@ -997,6 +997,67 @@ void Editor::update() {
 
 		ImGui::EndTabItem();
 	}
+	if (ImGui::BeginTabItem("Debug")) {
+		if (ImGui::BeginTable("Context Info", 3, ImGuiTableFlags_Borders, ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, 0))) {
+			ImGui::TableSetupColumn("Name");
+			ImGui::TableSetupColumn("Value");
+			ImGui::TableSetupColumn("Max");
+
+			ImGui::TableHeadersRow();
+
+			std::vector<std::tuple<std::string, size_t, size_t>> rows;
+
+			rows.push_back({ "Models", ctx->getModelsManager()->getModelsCount(), ctx->getModelsManager()->getMaxModelsCount() });
+			rows.push_back({ "Materials", ctx->getMaterialsManager()->getMaterialsCount(), ctx->getMaterialsManager()->getMaxMaterialsCount() });
+			rows.push_back({ "Textures", ctx->getTexturesManager()->getTexturesCount(), ctx->getTexturesManager()->getMaxTexturesCount() });
+			rows.push_back({ "Loaded Scripts", ctx->getScriptsManager()->getScriptsCount(), 0 });
+
+			rows.push_back({ "Global UI Elements", ctx->getGlobalUIManager()->getElementsCount(), 0 });
+
+			for (auto& row : rows) {
+				ImGui::TableNextRow();
+
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("%s", std::get<0>(row).c_str());
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%i", std::get<1>(row));
+				ImGui::TableSetColumnIndex(2);
+				ImGui::Text("%i", std::get<2>(row));
+			}
+
+			ImGui::EndTable();
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::BeginTable("Scene Info", 3, ImGuiTableFlags_Borders, ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
+			ImGui::TableSetupColumn("Name");
+			ImGui::TableSetupColumn("Value");
+			ImGui::TableSetupColumn("Max");
+
+			ImGui::TableHeadersRow();
+
+			std::vector<std::tuple<std::string, size_t, size_t>> rows;
+
+			rows.push_back({ "Game Objects", activeScene->getGameObjectsManager()->getGameObjectsCount(), 0 });
+			rows.push_back({ "Scene UI Elements", activeScene->getUIManager()->getElementsCount(), 0 });
+
+			for (auto& row : rows) {
+				ImGui::TableNextRow();
+
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("%s", std::get<0>(row).c_str());
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%i", std::get<1>(row));
+				ImGui::TableSetColumnIndex(2);
+				ImGui::Text("%i", std::get<2>(row));
+			}
+
+			ImGui::EndTable();
+		}
+
+		ImGui::EndTabItem();
+	}
 	ImGui::EndTabBar();
 	ImGui::End();
 	ImGui::PopStyleColor();
