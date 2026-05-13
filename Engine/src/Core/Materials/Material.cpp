@@ -10,7 +10,7 @@ namespace Yngin {
 
 	Material::~Material() = default;
 
-	uint32_t Material::getId() const {
+	uint16_t Material::getId() const {
 		return impl->id;
 	}
 

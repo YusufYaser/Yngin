@@ -2,8 +2,11 @@
 #include <Yngin/Core/Context.h>
 #include <Yngin/Rendering/Textures.h>
 #include <glad/glad.h>
+#include <optional>
 
 namespace Yngin {
+	constexpr size_t MAX_TEXTURES = std::numeric_limits<uint16_t>::max();
+
 	struct Texture::Impl {
 		Context* ctx;
 
@@ -21,7 +24,11 @@ namespace Yngin {
 
 		Texture* activeTexture;
 
-		std::map<uint32_t, std::unique_ptr<Texture>> textures;
-		uint32_t nextId = 0;
+		size_t loadedTextures = 0;
+		std::unique_ptr<Texture> textures[MAX_TEXTURES];
+
+		std::optional<uint16_t> getAvailableId();
+		uint16_t nextId = 0;
+		std::vector<uint16_t> deletedIds;
 	};
 }

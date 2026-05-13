@@ -37,7 +37,7 @@ namespace Yngin {
 
 	class Texture {
 	public:
-		uint32_t getId() const;
+		uint16_t getId() const;
 		Context* getContext() const;
 
 		Meta meta;
@@ -74,17 +74,21 @@ namespace Yngin {
 		Context* getContext() const;
 
 		Texture* createTexture();
-		Texture* createTexture(uint32_t id, bool override = false);
-		Texture* createTexture(const TextureData& data, const TextureSettings& settings = {}, uint32_t id = -1, bool override = false);
-		Texture* createTexture(const char* path, const TextureSettings& settings = {}, uint32_t id = -1, bool override = false);
-		void deleteTexture(uint32_t textureId);
+		Texture* createTexture(const TextureData& data, const TextureSettings& settings = {});
+		Texture* createTexture(const char* path, const TextureSettings& settings = {});
 
+		Texture* createTexture(uint16_t id, bool override = false);
+		Texture* createTexture(const TextureData& data, const TextureSettings& settings, uint16_t id, bool override = false);
+		Texture* createTexture(const char* path, const TextureSettings& settings, uint16_t id, bool override = false);
+		void deleteTexture(uint16_t textureId);
+
+		size_t getMaxTexturesCount() const;
 		size_t getTexturesCount() const;
 		std::vector<Texture*> getTextures() const;
-		Texture* getTexture(uint32_t textureId) const;
+		Texture* getTexture(uint16_t textureId) const;
 
 		Texture* getActive() const;
-		void setActive(uint32_t textureId);
+		void setActive(uint16_t textureId);
 
 	private:
 		friend class Context;

@@ -12,16 +12,18 @@ namespace Yngin {
 	public:
 		Context* getContext() const;
 
-		Material* createMaterial(uint32_t id = -1, bool override = false);
-		Material* getMaterial(uint32_t materialId);
+		Material* createMaterial();
+		Material* createMaterial(uint16_t id, bool override = false);
+		Material* getMaterial(uint16_t materialId);
 
-		void deleteMaterial(uint32_t materialId);
+		void deleteMaterial(uint16_t materialId);
 		void deleteMaterial(Material* material);
 
+		size_t getMaxMaterialsCount() const;
 		size_t getMaterialsCount() const;
 		std::vector<Material*> getMaterials() const;
 
-		std::map<std::string, uint32_t> loadMtl(const char* data, size_t length);
+		std::map<std::string, uint16_t> loadMtl(const char* data, size_t length);
 
 	private:
 		friend class Context;
@@ -37,7 +39,7 @@ namespace Yngin {
 
 	class Material {
 	public:
-		uint32_t getId() const;
+		uint16_t getId() const;
 		Context* getContext() const;
 
 		Meta meta;

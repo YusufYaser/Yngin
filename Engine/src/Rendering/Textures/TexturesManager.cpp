@@ -25,14 +25,55 @@ namespace Yngin {
 		return impl->ctx;
 	}
 
-	Texture* TexturesManager::createTexture() {
-		return createTexture(impl->nextId);
+	std::optional<uint16_t> TexturesManager::Impl::getAvailableId() {
+		if (loadedTextures >= MAX_TEXTURES) return std::nullopt;
+
+		uint16_t id = nextId;
+		while (textures[id] && !deletedIds.empty()) {
+			id = deletedIds.back();
+			deletedIds.pop_back();
+		}
+
+		while (textures[id] && nextId++ < MAX_TEXTURES) {
+			id = nextId;
+			if (nextId >= MAX_TEXTURES - 1) {
+				nextId = 0;
+				break;
+			}
+		}
+
+		if (textures[id]) return std::nullopt;
+
+		return id;
 	}
 
-	Texture* TexturesManager::createTexture(uint32_t id, bool override) {
+	Texture* TexturesManager::createTexture() {
+		auto id = impl->getAvailableId();
+		if (!id.has_value()) return nullptr;
+
+		return createTexture(id.value());
+	}
+
+	Texture* TexturesManager::createTexture(const TextureData& data, const TextureSettings& settings) {
+		auto id = impl->getAvailableId();
+		if (!id.has_value()) return nullptr;
+
+		return createTexture(data, settings, id.value());
+	}
+
+	Texture* TexturesManager::createTexture(const char* path, const TextureSettings& settings) {
+		auto id = impl->getAvailableId();
+		if (!id.has_value()) return nullptr;
+
+		return createTexture(path, settings, id.value());
+	}
+
+	Texture* TexturesManager::createTexture(uint16_t id, bool override) {
 		if (getTexture(id) != nullptr) {
 			if (override) {
-				impl->textures.erase(id);
+				// We aren't using deleteTexture() in case we want to override a locked ID (0, 1, or 2)
+				impl->textures[id].reset();
+				impl->loadedTextures--;
 			} else {
 				return nullptr;
 			}
@@ -40,62 +81,68 @@ namespace Yngin {
 
 		auto texture = std::unique_ptr<Texture>(new Texture(impl->ctx));
 
-		impl->nextId = std::max(impl->nextId, id + 1);
+		if (id == impl->nextId) impl->nextId++;
 		texture->impl->id = id;
 		impl->textures[id] = std::move(texture);
+		impl->loadedTextures++;
 
 		DEBUG("Created texture %d", id);
 
 		return impl->textures[id].get();
 	}
 
-	Texture* TexturesManager::createTexture(const TextureData& data, const TextureSettings& settings, uint32_t id, bool override) {
-		Texture* tex = createTexture(id != -1 ? id : impl->nextId, override);
-		tex->setData(data, settings);
+	Texture* TexturesManager::createTexture(const TextureData& data, const TextureSettings& settings, uint16_t id, bool override) {
+		Texture* tex = createTexture(id, override);
+		if (tex) tex->setData(data, settings);
 		return tex;
 	}
 
-	Texture* TexturesManager::createTexture(const char* path, const TextureSettings& settings, uint32_t id, bool override) {
-		Texture* tex = createTexture(id != -1 ? id : impl->nextId, override);
-		tex->setData(path, settings);
+	Texture* TexturesManager::createTexture(const char* path, const TextureSettings& settings, uint16_t id, bool override) {
+		Texture* tex = createTexture(id, override);
+		if (tex) tex->setData(path, settings);
 		return tex;
 	}
 
-	void TexturesManager::deleteTexture(uint32_t textureId) {
-		assert(textureId != 0 && textureId != 1 && textureId != 2);
+	void TexturesManager::deleteTexture(uint16_t id) {
+		assert(id != 0 && id != 1 && id != 2);
 
-		if (textureId == 0 || textureId == 1 || textureId == 2) return;
+		if (id == 0 || id == 1 || id == 2) return;
 
-		impl->textures.erase(textureId);
+		if (!impl->textures[id]) return;
 
-		DEBUG("Deleted texture %d", textureId);
+		impl->textures[id].reset();
+		impl->loadedTextures--;
+		impl->deletedIds.push_back(id);
+
+		DEBUG("Deleted texture %d", id);
+	}
+
+	size_t TexturesManager::getMaxTexturesCount() const {
+		return MAX_TEXTURES;
 	}
 
 	size_t TexturesManager::getTexturesCount() const {
-		return impl->textures.size();
+		return impl->loadedTextures;
 	}
 
 	std::vector<Texture*> TexturesManager::getTextures() const {
 		std::vector<Texture*> textures;
-		for (auto& kvp : impl->textures) {
-			textures.push_back(kvp.second.get());
+		for (auto& texture : impl->textures) {
+			if (texture) textures.push_back(texture.get());
 		}
 		return textures;
 	}
 
-	Texture* TexturesManager::getTexture(uint32_t textureId) const {
-		auto it = impl->textures.find(textureId);
-		if (it == impl->textures.end()) return nullptr;
-
-		return it->second.get();
+	Texture* TexturesManager::getTexture(uint16_t id) const {
+		return impl->textures[id].get();
 	}
 
 	Texture* TexturesManager::getActive() const {
 		return impl->activeTexture;
 	}
 
-	void TexturesManager::setActive(uint32_t textureId) {
+	void TexturesManager::setActive(uint16_t textureId) {
 		Texture* texture = getTexture(textureId);
-		texture->activate();
+		if (texture) texture->activate();
 	}
 }

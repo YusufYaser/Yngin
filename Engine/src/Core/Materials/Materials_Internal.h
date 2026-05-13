@@ -1,8 +1,11 @@
 #pragma once
 #include <Yngin/Core/Materials.h>
 #include <map>
+#include <optional>
 
 namespace Yngin {
+	constexpr size_t MAX_MATERIALS = std::numeric_limits<uint16_t>::max();
+
 	struct Material::Impl {
 		Context* ctx;
 
@@ -16,7 +19,11 @@ namespace Yngin {
 	struct MaterialsManager::Impl {
 		Context* ctx;
 
-		std::map<uint32_t, std::unique_ptr<Material>> materials;
-		uint32_t nextId = 0;
+		size_t loadedMaterials = 0;
+		std::unique_ptr<Material> materials[MAX_MATERIALS];
+
+		std::optional<uint16_t> getAvailableId();
+		uint16_t nextId = 0;
+		std::vector<uint16_t> deletedIds;
 	};
 }

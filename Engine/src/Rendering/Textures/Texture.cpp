@@ -43,7 +43,7 @@ namespace Yngin {
 		glDeleteTextures(1, &impl->texId);
 	}
 
-	uint32_t Texture::getId() const {
+	uint16_t Texture::getId() const {
 		return impl->id;
 	}
 

@@ -22,10 +22,18 @@ namespace Yngin {
 	std::optional<uint16_t> ModelsManager::Impl::getAvailableId() {
 		if (loadedModels >= MAX_MODELS) return std::nullopt;
 
-		int id = nextId;
+		uint16_t id = nextId;
 		while (models[id] && !deletedIds.empty()) {
 			id = deletedIds.back();
 			deletedIds.pop_back();
+		}
+
+		while (models[id] && nextId++ < MAX_MODELS) {
+			id = nextId;
+			if (nextId >= MAX_MODELS - 1) {
+				nextId = 0;
+				break;
+			}
 		}
 
 		if (models[id]) return std::nullopt;

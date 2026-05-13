@@ -18,39 +18,67 @@ namespace Yngin {
 		return impl->ctx;
 	}
 
-	Material* MaterialsManager::createMaterial(uint32_t id, bool override) {
-		if (id != -1) {
-			if (getMaterial(id) != nullptr) {
-				if (override) {
-					deleteMaterial(id);
-				} else {
-					return nullptr;
-				}
+	std::optional<uint16_t> MaterialsManager::Impl::getAvailableId() {
+		if (loadedMaterials >= MAX_MATERIALS) return std::nullopt;
+
+		uint16_t id = nextId;
+		while (materials[id] && !deletedIds.empty()) {
+			id = deletedIds.back();
+			deletedIds.pop_back();
+		}
+
+		while (materials[id] && nextId++ < MAX_MATERIALS) {
+			id = nextId;
+			if (nextId >= MAX_MATERIALS - 1) {
+				nextId = 0;
+				break;
 			}
-		} else {
-			id = impl->nextId;
+		}
+
+		if (materials[id]) return std::nullopt;
+
+		return id;
+	}
+
+	Material* MaterialsManager::createMaterial() {
+		auto id = impl->getAvailableId();
+		if (!id.has_value()) return nullptr;
+
+		return createMaterial(id.value());
+	}
+
+	Material* MaterialsManager::createMaterial(uint16_t id, bool override) {
+		if (getMaterial(id) != nullptr) {
+			if (override) {
+				deleteMaterial(id);
+			} else {
+				return nullptr;
+			}
 		}
 
 		Material* mat = new Material(impl->ctx);
-		impl->nextId = std::max(impl->nextId, id + 1);
+		if (id == impl->nextId) impl->nextId++;
 		mat->impl->id = id;
 		impl->materials[id] = std::unique_ptr<Material>(mat);
+		impl->loadedMaterials++;
 
 		DEBUG("Created material %d", id);
 
 		return mat;
 	}
 
-	Material* MaterialsManager::getMaterial(uint32_t materialId) {
-		auto it = impl->materials.find(materialId);
-		if (it == impl->materials.end()) return nullptr;
-
-		return it->second.get();
+	Material* MaterialsManager::getMaterial(uint16_t id) {
+		return impl->materials[id].get();
 	}
 
-	void MaterialsManager::deleteMaterial(uint32_t materialId) {
-		impl->materials.erase(materialId);
-		DEBUG("Deleted material %d", materialId);
+	void MaterialsManager::deleteMaterial(uint16_t id) {
+		if (!impl->materials[id]) return;
+
+		impl->materials[id].reset();
+		impl->loadedMaterials--;
+		impl->deletedIds.push_back(id);
+
+		DEBUG("Deleted material %d", id);
 	}
 
 	void MaterialsManager::deleteMaterial(Material* material) {
@@ -59,19 +87,23 @@ namespace Yngin {
 		}
 	}
 
+	size_t MaterialsManager::getMaxMaterialsCount() const {
+		return MAX_MATERIALS;
+	}
+
 	size_t MaterialsManager::getMaterialsCount() const {
-		return impl->materials.size();
+		return impl->loadedMaterials;
 	}
 
 	std::vector<Material*> MaterialsManager::getMaterials() const {
 		std::vector<Material*> materials;
-		for (auto& kvp : impl->materials) {
-			materials.push_back(kvp.second.get());
+		for (auto& material : impl->materials) {
+			if (material) materials.push_back(material.get());
 		}
 		return materials;
 	}
 
-	std::map<std::string, uint32_t> MaterialsManager::loadMtl(const char* data, size_t length) {
+	std::map<std::string, uint16_t> MaterialsManager::loadMtl(const char* data, size_t length) {
 		std::string str(data, length);
 		std::stringstream stream(str);
 
@@ -79,7 +111,7 @@ namespace Yngin {
 
 		Material* currentMat = nullptr;
 
-		std::map<std::string, uint32_t > createdMats;
+		std::map<std::string, uint16_t> createdMats;
 
 		while (std::getline(stream, l)) {
 			if (l.empty()) continue;
@@ -94,10 +126,8 @@ namespace Yngin {
 			if (cmd == "newmtl") {
 				std::string v;
 				s >> v;
-				if (impl->nextId != std::numeric_limits<uint32_t>::max()) {
-					currentMat = createMaterial();
-					createdMats[v] = currentMat->getId();
-				}
+				currentMat = createMaterial();
+				if (currentMat) createdMats[v] = currentMat->getId();
 			} else if (currentMat != nullptr) {
 				if (cmd == "Ka") {
 					glm::vec3 v;
