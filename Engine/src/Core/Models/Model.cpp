@@ -105,7 +105,7 @@ namespace Yngin {
 		if (this->modelData.materialsCount == 0) this->modelData.materialsCount = 1;
 	}
 
-	uint32_t Model::getId() const {
+	uint16_t Model::getId() const {
 		return impl->id;
 	}
 

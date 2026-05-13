@@ -120,27 +120,8 @@ namespace Yngin {
 
 		worldShader->activate();
 
-		Model* skyboxModel = m.internalModelsManager->createModel(DefaultModels::skybox);
-		{
-			int oldId = skyboxModel->impl->id;
-			int newId = INTERNAL_MODEL_SKYBOX_ID;
-
-			skyboxModel->impl->id = newId;
-			auto modelPtr = std::move(m.internalModelsManager->impl->models[oldId]);
-			m.internalModelsManager->impl->models.erase(oldId);
-			m.internalModelsManager->impl->models[newId] = std::move(modelPtr);
-		}
-
-		Model* imageModel = m.internalModelsManager->createModel(DefaultModels::square);
-		{
-			int oldId = imageModel->impl->id;
-			int newId = INTERNAL_MODEL_SQUARE_ID;
-
-			imageModel->impl->id = newId;
-			auto modelPtr = std::move(m.internalModelsManager->impl->models[oldId]);
-			m.internalModelsManager->impl->models.erase(oldId);
-			m.internalModelsManager->impl->models[newId] = std::move(modelPtr);
-		}
+		Model* skyboxModel = m.internalModelsManager->createModel(DefaultModels::skybox, INTERNAL_MODEL_SKYBOX_ID);
+		Model* imageModel = m.internalModelsManager->createModel(DefaultModels::square, INTERNAL_MODEL_SQUARE_ID);
 
 		m.scriptsManager->impl->bind();
 

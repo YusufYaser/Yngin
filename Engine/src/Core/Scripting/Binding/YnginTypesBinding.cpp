@@ -172,25 +172,25 @@ namespace Yngin {
 				static_cast<Model * (ModelsManager::*)(const MODEL_FILE_TYPE&, const char*, size_t)>(&ModelsManager::createModel),
 
 
-				[](ModelsManager& self, const ModelData& data, uint32_t id) {
+				[](ModelsManager& self, const ModelData& data, uint16_t id) {
 					return self.createModel(data, id);
 				},
 
-				[](ModelsManager& self, const ModelData& data, uint32_t id, bool override) {
+				[](ModelsManager& self, const ModelData& data, uint16_t id, bool override) {
 					return self.createModel(data, id, override);
 				},
 
-				[](ModelsManager& self, const MODEL_FILE_TYPE& type, const char* data, size_t length, uint32_t id) {
+				[](ModelsManager& self, const MODEL_FILE_TYPE& type, const char* data, size_t length, uint16_t id) {
 					return self.createModel(type, data, length, id);
 				},
 
-				[](ModelsManager& self, const MODEL_FILE_TYPE& type, const char* data, size_t length, uint32_t id, bool override) {
+				[](ModelsManager& self, const MODEL_FILE_TYPE& type, const char* data, size_t length, uint16_t id, bool override) {
 					return self.createModel(type, data, length, id, override);
 				}
 			),
 
 			"deleteModel", sol::overload(
-				static_cast<void(ModelsManager::*)(uint32_t)>(&ModelsManager::deleteModel),
+				static_cast<void(ModelsManager::*)(uint16_t)>(&ModelsManager::deleteModel),
 				static_cast<void(ModelsManager::*)(Model*)>(&ModelsManager::deleteModel)
 			),
 

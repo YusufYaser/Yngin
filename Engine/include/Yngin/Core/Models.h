@@ -37,13 +37,14 @@ namespace Yngin {
 
 		Model* createModel(const ModelData& data);
 		Model* createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length);
-		Model* createModel(const ModelData& data, uint32_t id, bool override = false);
-		Model* createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length, uint32_t id, bool override = false);
-		void deleteModel(uint32_t modelId);
+		Model* createModel(const ModelData& data, uint16_t id, bool override = false);
+		Model* createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length, uint16_t id, bool override = false);
+		void deleteModel(uint16_t modelId);
 		void deleteModel(Model* model);
 
 		bool parseObjFile(const char* data, size_t length, ModelData& modelData);
 
+		size_t getMaxModelsCount() const;
 		size_t getModelsCount() const;
 		std::vector<Model*> getModels() const;
 
@@ -63,7 +64,7 @@ namespace Yngin {
 
 	class Model {
 	public:
-		uint32_t getId() const;
+		uint16_t getId() const;
 		Context* getContext() const;
 
 		Meta meta;

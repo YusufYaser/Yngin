@@ -19,15 +19,34 @@ namespace Yngin {
 		return impl->ctx;
 	}
 
+	std::optional<uint16_t> ModelsManager::Impl::getAvailableId() {
+		if (loadedModels >= MAX_MODELS) return std::nullopt;
+
+		int id = nextId;
+		while (models[id] && !deletedIds.empty()) {
+			id = deletedIds.back();
+			deletedIds.pop_back();
+		}
+
+		if (models[id]) return std::nullopt;
+
+		return id;
+	}
+
 	Model* ModelsManager::createModel(const ModelData& data) {
-		return createModel(data, impl->nextId);
+		auto id = impl->getAvailableId();
+		if (!id.has_value()) return nullptr;
+
+		return createModel(data, id.value());
 	}
 
 	Model* ModelsManager::createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length) {
-		return createModel(type, data, length, impl->nextId);
+		auto id = impl->getAvailableId();
+		if (!id.has_value()) return nullptr;
+		return createModel(type, data, length, id.value());
 	}
 
-	Model* ModelsManager::createModel(const ModelData& data, uint32_t id, bool override) {
+	Model* ModelsManager::createModel(const ModelData& data, uint16_t id, bool override) {
 		if (getModel(id) != nullptr) {
 			if (override) {
 				deleteModel(id);
@@ -36,11 +55,14 @@ namespace Yngin {
 			}
 		}
 
+		if (impl->loadedModels >= MAX_MODELS) return nullptr;
+
 		Model* model = new Model(impl->ctx);
 
-		impl->nextId = std::max(impl->nextId, id + 1);
+		if (id == impl->nextId) impl->nextId++;
 		model->impl->id = id;
 		impl->models[id] = std::unique_ptr<Model>(model);
+		impl->loadedModels++;
 
 		DEBUG("Created model %d", id);
 
@@ -49,7 +71,7 @@ namespace Yngin {
 		return model;
 	}
 
-	Model* ModelsManager::createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length, uint32_t id, bool override) {
+	Model* ModelsManager::createModel(const MODEL_FILE_TYPE& type, const char* data, size_t length, uint16_t id, bool override) {
 		ModelData modelData{};
 
 		switch (type) {
@@ -65,8 +87,12 @@ namespace Yngin {
 		return createModel(modelData, id, override);
 	}
 
-	void ModelsManager::deleteModel(uint32_t modelId) {
-		impl->models.erase(modelId);
+	void ModelsManager::deleteModel(uint16_t modelId) {
+		if (!impl->models[modelId]) return;
+
+		impl->models[modelId].reset();
+		impl->loadedModels--;
+		impl->deletedIds.push_back(modelId);
 
 		DEBUG("Deleted model %d", modelId);
 	}
@@ -77,22 +103,23 @@ namespace Yngin {
 		}
 	}
 
+	size_t ModelsManager::getMaxModelsCount() const {
+		return MAX_MODELS;
+	}
+
 	size_t ModelsManager::getModelsCount() const {
-		return impl->models.size();
+		return impl->loadedModels;
 	}
 
 	std::vector<Model*> ModelsManager::getModels() const {
 		std::vector<Model*> models;
-		for (auto& kvp : impl->models) {
-			models.push_back(kvp.second.get());
+		for (auto& model : impl->models) {
+			if (model) models.push_back(model.get());
 		}
 		return models;
 	}
 
 	Model* ModelsManager::getModel(uint32_t modelId) const {
-		auto it = impl->models.find(modelId);
-		if (it == impl->models.end()) return nullptr;
-
-		return it->second.get();
+		return impl->models[modelId].get();
 	}
 }

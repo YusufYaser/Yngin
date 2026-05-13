@@ -3,8 +3,11 @@
 #include <Yngin/Core/Context.h>
 #include <glad/glad.h>
 #include <map>
+#include <optional>
 
 namespace Yngin {
+	constexpr size_t MAX_MODELS = std::numeric_limits<uint16_t>::max();
+
 	struct InternalSubmesh {
 		~InternalSubmesh();
 
@@ -28,7 +31,7 @@ namespace Yngin {
 		void render(int instances = 1);
 		void renderWithMaterials(const uint32_t materialsMap[256], int instances = 1);
 
-		uint32_t id;
+		uint16_t id;
 
 		std::vector<std::unique_ptr<InternalSubmesh>> submeshes;
 
@@ -42,7 +45,11 @@ namespace Yngin {
 	struct ModelsManager::Impl {
 		Context* ctx;
 
-		std::map<uint32_t, std::unique_ptr<Model>> models;
-		uint32_t nextId = 0;
+		size_t loadedModels = 0;
+		std::unique_ptr<Model> models[MAX_MODELS];
+
+		std::optional<uint16_t> getAvailableId();
+		uint16_t nextId = 0;
+		std::vector<uint16_t> deletedIds;
 	};
 }
