@@ -107,7 +107,9 @@ namespace Yngin {
 			BIND(Rendering::Renderer, setLightingEnabled),
 
 			BIND(Rendering::Renderer, getRenderDistance),
-			BIND(Rendering::Renderer, setRenderDistance)
+			BIND(Rendering::Renderer, setRenderDistance),
+
+			BIND(Rendering::Renderer, getGameObjectId)
 		);
 
 

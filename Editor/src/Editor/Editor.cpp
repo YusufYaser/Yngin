@@ -577,6 +577,16 @@ void Editor::update() {
 		}
 	}*/
 	ctx->update(false);
+
+	if (!running && !viewingObject && !input->isMousePressed(Yngin::MOUSE_BUTTON::RIGHT) && input->isMouseJustPressed(Yngin::MOUSE_BUTTON::LEFT)) {
+		uint32_t id = ctx->getRenderer()->getGameObjectId(input->getMousePosition());
+		if (id != 0) {
+			explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, id };
+		} else {
+			explorerSelection = { EXPLORER_SELECTION_TYPE::NONE, 0 };
+		}
+	}
+
 	/*if (!running) {
 		if (oldUIColor.first != nullptr) oldUIColor.first->setColor(oldUIColor.second);
 		if (oldObjectColor.first != nullptr) oldObjectColor.first->setColor(oldObjectColor.second);
