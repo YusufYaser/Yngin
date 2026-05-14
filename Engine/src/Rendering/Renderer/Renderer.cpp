@@ -29,8 +29,6 @@
 #define LOGGER_NAME Renderer
 #include "../../Internal/Logger.h"
 
-#define MAX_LIGHTS 32
-
 namespace Yngin::Rendering {
 	Renderer::Renderer(Context* ctx) {
 		impl = std::make_unique<Impl>();
@@ -57,6 +55,11 @@ namespace Yngin::Rendering {
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, impl->fragSSBO);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, impl->fragSSBO);
 		glBufferData(GL_SHADER_STORAGE_BUFFER, impl->ssboSize * sizeof(InstanceFragmentOffset), nullptr, GL_DYNAMIC_DRAW);
+
+		glGenBuffers(1, &impl->lightsSSBO);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, impl->lightsSSBO);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, impl->lightsSSBO);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(ShaderLightsSSBOData), nullptr, GL_DYNAMIC_DRAW);
 
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
@@ -103,6 +106,8 @@ namespace Yngin::Rendering {
 		impl->vertexSSBO = 0;
 		glDeleteBuffers(1, &impl->fragSSBO);
 		impl->fragSSBO = 0;
+		glDeleteBuffers(1, &impl->lightsSSBO);
+		impl->lightsSSBO = 0;
 
 		glDeleteFramebuffers(1, &impl->FBO);
 		impl->FBO = 0;
@@ -136,6 +141,14 @@ namespace Yngin::Rendering {
 
 	size_t Renderer::getSubmeshesRendered() const {
 		return impl->sceneSubmeshesRendered;
+	}
+
+	size_t Renderer::getMaxSceneLightsCount() const {
+		return MAX_LIGHTS;
+	}
+
+	size_t Renderer::getSceneLightsCount() const {
+		return impl->sceneLights;
 	}
 
 	uint32_t Renderer::getGameObjectId(glm::ivec2 pixel) {
@@ -241,12 +254,12 @@ namespace Yngin::Rendering {
 
 		worldShader->setMat4("viewProjection", viewProjection);
 
+		sceneLights = 0;
 		if (lightingEnabled) {
 			// register lights
-			int lightsCount = 0;
-			for (auto& kvp : scene->impl->gameObjectsManager->impl->gameObjects) {
-				GameObject* obj = kvp.second;
+			ShaderLightsSSBOData* lights = new ShaderLightsSSBOData();
 
+			for (auto& [id, obj] : scene->impl->gameObjectsManager->impl->gameObjects) {
 				glm::vec3 delta = obj->impl->pos - camPos;
 				float distSq = glm::dot(delta, delta);
 
@@ -256,19 +269,30 @@ namespace Yngin::Rendering {
 
 				if (light == nullptr) continue;
 
-				worldShader->setVec3(std::string("lights[" + std::to_string(lightsCount) + "].position").c_str(), obj->getPosition());
-				worldShader->setVec3(std::string("lights[" + std::to_string(lightsCount) + "].color").c_str(), light->getColor());
-				worldShader->setFloat(std::string("lights[" + std::to_string(lightsCount) + "].distance").c_str(), light->getDistance());
-				worldShader->setFloat(std::string("lights[" + std::to_string(lightsCount) + "].intensity").c_str(), light->getIntensity());
+				ShaderLight shaderLight{};
 
-				lightsCount++;
+				shaderLight.position = obj->getPosition();
+				shaderLight.color = light->getColor();
+				shaderLight.distance = light->getDistance();
+				shaderLight.intensity = light->getIntensity();
 
-				if (lightsCount >= MAX_LIGHTS) {
+				lights->lights[lights->lightsCount] = shaderLight;
+
+				lights->lightsCount++;
+
+				if (lights->lightsCount >= MAX_LIGHTS) {
 					break;
 				}
 			}
 
-			worldShader->setInt("lightsCount", lightsCount);
+			sceneLights = lights->lightsCount;
+
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, lightsSSBO);
+			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(ShaderLightsSSBOData), lights);
+
+			delete lights;
+			lights = nullptr;
+
 			worldShader->setVec3("scene.ambientLight", scene->impl->lightSettings.ambientLight);
 		}
 

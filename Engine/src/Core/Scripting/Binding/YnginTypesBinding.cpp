@@ -109,6 +109,11 @@ namespace Yngin {
 			BIND(Rendering::Renderer, getRenderDistance),
 			BIND(Rendering::Renderer, setRenderDistance),
 
+			BIND(Rendering::Renderer, getSubmeshesRendered),
+
+			BIND(Rendering::Renderer, getMaxSceneLightsCount),
+			BIND(Rendering::Renderer, getSceneLightsCount),
+
 			BIND(Rendering::Renderer, getGameObjectId)
 		);
 

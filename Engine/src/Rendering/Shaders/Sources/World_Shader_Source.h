@@ -60,8 +60,6 @@ void main() {
 			R"(
 #version 460 core
 
-#define MAX_LIGHTS 32
-
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out uint outID;
 
@@ -84,15 +82,24 @@ struct InstanceFragmentOffset {
     int _pads[2];
 };
 
+struct Light {
+	vec3 position;
+	float _pad1;
+	vec3 color;
+	float _pad2;
+	float distance;
+	float intensity;
+	float _pads[2];
+};
+
 layout(std430, binding = 1) buffer InstanceFragmentOffsets {
 	InstanceFragmentOffset fragOffsets[];
 };
 
-struct Light {
-	vec3 position;
-	vec3 color;
-	float distance;
-	float intensity;
+layout(std430, binding = 2) buffer Lights {
+	int lightsCount;
+	int _pads[3];
+	Light lights[];
 };
 
 struct Material {
@@ -113,8 +120,6 @@ in vec2 fTexCoord;
 in vec3 fNormal;
 
 uniform bool uIsLight;
-uniform int lightsCount;
-uniform Light lights[MAX_LIGHTS];
 uniform Material uMaterial;
 
 uniform vec3 cameraPos;

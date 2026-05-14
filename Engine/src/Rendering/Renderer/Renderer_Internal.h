@@ -6,8 +6,6 @@
 #include <glm/matrix.hpp>
 #include <vector>
 
-constexpr int SSBO_GROW_UNIT = 128;
-
 namespace Yngin {
 	class Scene;
 	class GameObject;
@@ -17,6 +15,25 @@ namespace Yngin {
 	}
 
 	namespace Rendering {
+		constexpr int SSBO_GROW_UNIT = 128;
+		constexpr int MAX_LIGHTS = 256;
+
+		struct ShaderLight {
+			glm::vec3 position;
+			float _pad1;
+			glm::vec3 color;
+			float _pad2;
+			float distance;
+			float intensity;
+			float _pads[2];
+		};
+
+		struct ShaderLightsSSBOData {
+			int lightsCount = 0;
+			int _pads[3];
+			ShaderLight lights[MAX_LIGHTS];
+		};
+
 		// View-Frustum Culling
 
 		struct Plane {
@@ -66,6 +83,7 @@ namespace Yngin {
 			Plane frustumPlanes[6];
 
 			size_t sceneSubmeshesRendered = 0;
+			size_t sceneLights = 0;
 
 			void render(Scene* scene);
 			// renderChildrenDepth = -1 for infinity
@@ -86,6 +104,7 @@ namespace Yngin {
 
 			GLuint vertexSSBO;
 			GLuint fragSSBO;
+			GLuint lightsSSBO;
 
 			glm::ivec2 renderedViewportSize;
 			GLuint FBO;
