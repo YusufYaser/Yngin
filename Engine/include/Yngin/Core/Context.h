@@ -29,6 +29,7 @@ namespace Yngin {
 
 	struct PakLoadSettings {
 		bool applyContextSettings = true;
+		bool loadScripts = true;
 	};
 
 	struct PakGenSettings {

@@ -101,6 +101,7 @@ Editor::Editor(std::string path) {
 			file.close();
 			PakLoadSettings settings{};
 			settings.applyContextSettings = false;
+			settings.loadScripts = false;
 
 			ctx->pushLoadPakSettings(settings);
 			ctx->loadCorePak(bytes.str().c_str(), bytes.str().size());
@@ -131,7 +132,12 @@ Editor::Editor(std::string path) {
 			std::ostringstream bytes(std::ios::binary);
 			bytes << file.rdbuf();
 			file.close();
+			PakLoadSettings settings{};
+			settings.loadScripts = false;
+
+			ctx->pushLoadPakSettings(settings);
 			activeScene = ctx->getScenesManager()->createScene(bytes.str().c_str(), bytes.str().size(), 0, true);
+			ctx->popLoadPakSettings();
 			bytes.clear();
 		}
 	}

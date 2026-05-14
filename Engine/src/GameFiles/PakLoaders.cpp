@@ -146,6 +146,8 @@ namespace Yngin::GameFiles {
 	}
 
 	bool Loaders::scriptsManager(std::istream& s, ScriptsManager* mgr) {
+		PakLoadSettings settings = mgr->getContext()->getCurrentLoadPakSettings();
+
 		ScriptData scriptData;
 		R(scriptData, ScriptData);
 
@@ -156,6 +158,13 @@ namespace Yngin::GameFiles {
 
 		std::vector<char> bytes(scriptData.dataSize);
 		s.read(bytes.data(), scriptData.dataSize);
+
+		if (!settings.loadScripts) {
+			Meta fakeMeta;
+			meta(s, fakeMeta, mgr->getContext());
+
+			return false;
+		}
 
 		Scene* scene = nullptr;
 		if (scriptData.scene != -1) {
