@@ -1,6 +1,7 @@
 #pragma once
 #include <Yngin/Forward.h>
 #include <memory>
+#include <glm/vec2.hpp>
 
 namespace Yngin {
 	namespace Rendering {
@@ -15,6 +16,8 @@ namespace Yngin {
 			void setRenderDistance(float renderDistance);
 
 			size_t getSubmeshesRendered() const;
+
+			uint32_t getGameObjectId(glm::ivec2 pixel);
 
 		private:
 			friend class Context;

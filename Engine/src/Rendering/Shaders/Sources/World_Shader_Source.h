@@ -62,6 +62,9 @@ void main() {
 
 #define MAX_LIGHTS 32
 
+layout(location = 0) out vec4 FragColor;
+layout(location = 1) out uint outID;
+
 struct InstanceOffsetMaterial {
 	vec3 ambientColor;
 	float _pad1;
@@ -76,8 +79,9 @@ struct InstanceOffsetMaterial {
 struct InstanceFragmentOffset {
 	vec4 color;
 	InstanceOffsetMaterial material;
+	uint objectId;
 	int isLight;
-    int _pads[3];
+    int _pads[2];
 };
 
 layout(std430, binding = 1) buffer InstanceFragmentOffsets {
@@ -107,8 +111,6 @@ in flat int fInstancing;
 in vec3 fPosition;
 in vec2 fTexCoord;
 in vec3 fNormal;
-
-out vec4 FragColor;
 
 uniform bool uIsLight;
 uniform int lightsCount;
@@ -172,6 +174,7 @@ void main() {
 	}
 	
 	FragColor = texture(tex0, fTexCoord) * color * vec4(totalLight, 1.0);
+	outID = fragOffsets[fInstanceID].objectId;
 }
 			)",
 		};

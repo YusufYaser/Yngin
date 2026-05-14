@@ -66,6 +66,7 @@ namespace Yngin::Rendering {
 		glGenFramebuffers(1, &impl->FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, impl->FBO);
 
+		//
 		glGenTextures(1, &impl->colorsTex);
 		glBindTexture(GL_TEXTURE_2D, impl->colorsTex);
 
@@ -75,12 +76,22 @@ namespace Yngin::Rendering {
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, impl->colorsTex, 0);
 
+		//
 		glGenRenderbuffers(1, &impl->RBO);
 		glBindRenderbuffer(GL_RENDERBUFFER, impl->RBO);
 
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
-
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, impl->RBO);
+
+		//
+		glGenTextures(1, &impl->IDsTex);
+		glBindTexture(GL_TEXTURE_2D, impl->IDsTex);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, 800, 600, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, impl->IDsTex, 0);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
@@ -99,6 +110,8 @@ namespace Yngin::Rendering {
 		impl->RBO = 0;
 		glDeleteTextures(1, &impl->colorsTex);
 		impl->colorsTex = 0;
+		glDeleteTextures(1, &impl->IDsTex);
+		impl->IDsTex = 0;
 	}
 
 	Context* Renderer::getContext() const {
@@ -123,6 +136,27 @@ namespace Yngin::Rendering {
 
 	size_t Renderer::getSubmeshesRendered() const {
 		return impl->sceneSubmeshesRendered;
+	}
+
+	uint32_t Renderer::getGameObjectId(glm::ivec2 pixel) {
+		if (pixel.x < 0 || pixel.y < 0 || pixel.x >= impl->renderedViewportSize.x || pixel.y >= impl->renderedViewportSize.y) return 0;
+
+		GLuint readId = 0;
+
+		glBindFramebuffer(GL_FRAMEBUFFER, impl->FBO);
+		glReadBuffer(GL_COLOR_ATTACHMENT1);
+
+		glReadPixels(
+			pixel.x, impl->renderedViewportSize.y - pixel.y, 1, 1,
+			GL_RED_INTEGER,
+			GL_UNSIGNED_INT,
+			&readId
+		);
+
+		glReadBuffer(GL_COLOR_ATTACHMENT0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		return readId;
 	}
 
 	void Renderer::Impl::render(Scene* scene) {
@@ -155,9 +189,11 @@ namespace Yngin::Rendering {
 
 		glm::ivec2 viewportPos = ctx->getViewportPos();
 		glm::ivec2 viewportSize = ctx->getViewportSize();
+		renderedViewportSize = viewportSize;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
+		//
 		glBindTexture(GL_TEXTURE_2D, colorsTex);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, viewportSize.x, viewportSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
@@ -166,9 +202,18 @@ namespace Yngin::Rendering {
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorsTex, 0);
 
+		//
 		glBindRenderbuffer(GL_RENDERBUFFER, RBO);
 
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, viewportSize.x, viewportSize.y);
+
+		//
+
+		glBindTexture(GL_TEXTURE_2D, IDsTex);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, viewportSize.x, viewportSize.y, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -250,6 +295,9 @@ namespace Yngin::Rendering {
 		glDepthMask(GL_FALSE);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
+		GLenum colors[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+		glDrawBuffers(2, colors);
+
 		for (auto& [meshTexPair, data] : instancesPrep) {
 			renderSubmeshInstanced(meshTexPair.first, meshTexPair.second, data);
 		}
@@ -270,6 +318,8 @@ namespace Yngin::Rendering {
 			viewportPos.x, windowSize.y - viewportPos.y - viewportSize.y, viewportPos.x + viewportSize.x, windowSize.y - viewportPos.y,
 			GL_COLOR_BUFFER_BIT, GL_NEAREST
 		);
+
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
 		worldShader->setInt("instancing", false);
 		instancesPrep.clear();
@@ -315,6 +365,7 @@ namespace Yngin::Rendering {
 		if (model == nullptr) return;
 
 		GameObject* obj = cimpl->gameObject;
+		uint32_t objId = obj->getId();
 
 		static const glm::mat4 i(1.0f);
 
@@ -380,6 +431,8 @@ namespace Yngin::Rendering {
 
 					vOffset.model = obj->impl->modelMatrix;
 					vOffset.normalMatrix = obj->impl->normalMatrix;
+
+					fOffset.objectId = objId;
 					fOffset.isLight = isLight;
 					fOffset.color = glm::vec4(mimpl->color, 1);
 					if (submesh->matId < 256) {

@@ -45,8 +45,9 @@ namespace Yngin {
 		struct InstanceFragmentOffset {
 			glm::vec4 color;
 			InstanceOffsetMaterial material;
+			uint32_t objectId;
 			int isLight;
-			int _pads[3];
+			int _pads[2];
 		};
 
 		struct InstancePrepData {
@@ -86,8 +87,10 @@ namespace Yngin {
 			GLuint vertexSSBO;
 			GLuint fragSSBO;
 
+			glm::ivec2 renderedViewportSize;
 			GLuint FBO;
 			GLuint colorsTex;
+			GLuint IDsTex;
 			GLuint RBO;
 		};
 	}
