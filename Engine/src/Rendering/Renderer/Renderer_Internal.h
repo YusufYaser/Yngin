@@ -85,6 +85,10 @@ namespace Yngin {
 
 			GLuint vertexSSBO;
 			GLuint fragSSBO;
+
+			GLuint FBO;
+			GLuint colorsTex;
+			GLuint RBO;
 		};
 	}
 }

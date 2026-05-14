@@ -59,6 +59,32 @@ namespace Yngin::Rendering {
 		glBufferData(GL_SHADER_STORAGE_BUFFER, impl->ssboSize * sizeof(InstanceFragmentOffset), nullptr, GL_DYNAMIC_DRAW);
 
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+
+
+
+		glGenFramebuffers(1, &impl->FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, impl->FBO);
+
+		glGenTextures(1, &impl->colorsTex);
+		glBindTexture(GL_TEXTURE_2D, impl->colorsTex);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 800, 600, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, impl->colorsTex, 0);
+
+		glGenRenderbuffers(1, &impl->RBO);
+		glBindRenderbuffer(GL_RENDERBUFFER, impl->RBO);
+
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
+
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, impl->RBO);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	Renderer::~Renderer() {
@@ -66,6 +92,13 @@ namespace Yngin::Rendering {
 		impl->vertexSSBO = 0;
 		glDeleteBuffers(1, &impl->fragSSBO);
 		impl->fragSSBO = 0;
+
+		glDeleteFramebuffers(1, &impl->FBO);
+		impl->FBO = 0;
+		glDeleteFramebuffers(1, &impl->RBO);
+		impl->RBO = 0;
+		glDeleteTextures(1, &impl->colorsTex);
+		impl->colorsTex = 0;
 	}
 
 	Context* Renderer::getContext() const {
@@ -120,6 +153,29 @@ namespace Yngin::Rendering {
 			p.distance /= length;
 		}
 
+		glm::ivec2 viewportPos = ctx->getViewportPos();
+		glm::ivec2 viewportSize = ctx->getViewportSize();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+		glBindTexture(GL_TEXTURE_2D, colorsTex);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, viewportSize.x, viewportSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorsTex, 0);
+
+		glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, viewportSize.x, viewportSize.y);
+
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glViewport(0, 0, viewportSize.x, viewportSize.y);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		Model* skybox = ctx->getInternalModelsManager()->getModel(INTERNAL_MODEL_SKYBOX_ID);
 		Texture* skyboxTex = ctx->getTexturesManager()->getTexture(scene->impl->skyboxTexId);
@@ -199,6 +255,21 @@ namespace Yngin::Rendering {
 		}
 		glDepthMask(GL_TRUE);
 		glDepthFunc(GL_LESS);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, FBO);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+		glm::ivec2 windowSize = ctx->getWindow()->getSize();
+
+		glViewport(viewportPos.x, viewportPos.y, viewportSize.x, viewportSize.y);
+
+		glBlitFramebuffer(
+			0, 0, viewportSize.x, viewportSize.y,
+			viewportPos.x, windowSize.y - viewportPos.y - viewportSize.y, viewportPos.x + viewportSize.x, windowSize.y - viewportPos.y,
+			GL_COLOR_BUFFER_BIT, GL_NEAREST
+		);
 
 		worldShader->setInt("instancing", false);
 		instancesPrep.clear();
