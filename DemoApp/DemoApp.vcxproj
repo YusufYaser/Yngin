@@ -68,13 +68,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>rmdir $(OutDir) /s /q &amp; exit 0</Command>
+      <Command>rmdir "$(OutDir)" /s /q &amp; exit 0</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Remove all files in output directory</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>xcopy assets $(OutDir)assets\</Command>
+      <Command>xcopy assets "$(OutDir)assets\"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy the assets folder to build directory</Message>
@@ -97,13 +97,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>rmdir $(OutDir) /s /q &amp; exit 0</Command>
+      <Command>rmdir "$(OutDir)" /s /q &amp; exit 0</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Remove all files in output directory</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>xcopy assets $(OutDir)assets\</Command>
+      <Command>xcopy assets "$(OutDir)assets\"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy the assets folder to build directory</Message>

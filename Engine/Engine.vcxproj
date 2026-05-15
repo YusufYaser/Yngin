@@ -190,10 +190,12 @@
       <AdditionalLibraryDirectories>deps\lib</AdditionalLibraryDirectories>
     </Lib>
     <PreBuildEvent>
-      <Command>rmdir $(OutDir) /s /q &amp; exit 0</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>Remove all files in output directory</Message>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -221,10 +223,12 @@
       <AdditionalLibraryDirectories>deps\lib</AdditionalLibraryDirectories>
     </Lib>
     <PreBuildEvent>
-      <Command>rmdir $(OutDir) /s /q &amp; exit 0</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>Remove all files in output directory</Message>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
