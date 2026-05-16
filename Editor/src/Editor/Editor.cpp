@@ -528,10 +528,12 @@ void Editor::update() {
 	window->setTitle((projectName + " - Yngin Editor").c_str());
 
 	glm::ivec2 windowSize = window->getSize();
-	if (!viewingObject) {
-		handleCameraMovement(editorCamera);
-	} else {
-		handleCameraMovement(viewerScene->getCamerasManager()->getCamera(0));
+	if (!ImGui::GetDragDropPayload()) {
+		if (!viewingObject) {
+			handleCameraMovement(editorCamera);
+		} else {
+			handleCameraMovement(viewerScene->getCamerasManager()->getCamera(0));
+		}
 	}
 
 	InputSystem* input = ctx->getInputSystem();
@@ -548,55 +550,57 @@ void Editor::update() {
 		//window->setFullscreen(!window->isFullscreen());
 	//}
 
-	/*std::pair<UI::UIElement*, glm::vec4> oldUIColor = {};
-	std::pair<Components::Mesh*, glm::vec3> oldObjectColor = {};
-	if (!running) {
-		for (auto& element : activeScene->getUIManager()->getElements()) {
-			if (element->getType() == UI_TYPE::NONE) continue;
+	Components::Mesh* targetMesh = nullptr;
+	bool viewingTextureOnMesh = false;
+	uint32_t highlightedMeshOldTexId = 0;
 
-			if (element->isClicked()) {
-				explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, element->getId() };
-			}
-		}
-
-		if (explorerSelection.first == EXPLORER_SELECTION_TYPE::GAMEOBJECT) {
-			uint32_t id = explorerSelection.second;
-			if (id != -1) {
-				GameObject* obj = activeScene->getGameObjectsManager()->getGameObject(id);
-				if (obj) {
-					Components::Mesh* mesh = obj->getComponent<Components::Mesh>();
-					if (mesh) {
-						oldObjectColor = { mesh, mesh->getColor() };
-						mesh->setColor(mesh->getColor() * glm::vec3(0.5f, 1, 1));
-					}
-				}
-			}
-		} else if (explorerSelection.first == EXPLORER_SELECTION_TYPE::UIELEMENT) {
-			uint32_t id = explorerSelection.second;
-			if (id != -1) {
-				UI::UIElement* element = activeScene->getUIManager()->getElement(id);
-				if (element) {
-					oldUIColor = { element, element->getColor() };
-					element->setColor(element->getColor() * glm::vec4(0.5f, 1, 1, 1));
-				}
-			}
-		}
-	}*/
-	ctx->update(false);
-
-	if (!running && !viewingObject && !input->isMousePressed(Yngin::MOUSE_BUTTON::RIGHT) && input->isMouseJustPressed(Yngin::MOUSE_BUTTON::LEFT)) {
+	{
 		uint32_t id = ctx->getRenderer()->getGameObjectId(input->getMousePosition());
 		if (id != 0) {
-			explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, id };
+			GameObject* obj = activeScene->getGameObjectsManager()->getGameObject(id);
+			if (obj) targetMesh = obj->getComponent<Components::Mesh>();
+		}
+	}
+
+	{
+		const ImGuiPayload* payload = ImGui::GetDragDropPayload();
+
+		static bool wasDragging = false;
+		static uint32_t texId = -1;
+
+		if (payload && payload->IsDataType("TEXTURE_ID")) {
+			wasDragging = true;
+
+			if (targetMesh) {
+				texId = *(const uint32_t*)payload->Data;
+
+				viewingTextureOnMesh = true;
+				highlightedMeshOldTexId = targetMesh->getTexture();
+				targetMesh->setTexture(texId);
+			}
+		} else if (wasDragging) {
+			wasDragging = false;
+
+			if (targetMesh) {
+				targetMesh->setTexture(texId);
+			}
+		}
+	}
+
+	ctx->update(false);
+
+	if (viewingTextureOnMesh && targetMesh) {
+		targetMesh->setTexture(highlightedMeshOldTexId);
+	}
+
+	if (!running && !viewingObject && !input->isMousePressed(Yngin::MOUSE_BUTTON::RIGHT) && input->isMouseJustPressed(Yngin::MOUSE_BUTTON::LEFT)) {
+		if (targetMesh) {
+			explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, targetMesh->getGameObject()->getId() };
 		} else {
 			explorerSelection = { EXPLORER_SELECTION_TYPE::NONE, 0 };
 		}
 	}
 
-	/*if (!running) {
-		if (oldUIColor.first != nullptr) oldUIColor.first->setColor(oldUIColor.second);
-		if (oldObjectColor.first != nullptr) oldObjectColor.first->setColor(oldObjectColor.second);
-	}*/
 	io.DisplaySize = ImVec2((float)windowSize.x, (float)windowSize.y);
 
 	if (!input->isMousePressed(Yngin::MOUSE_BUTTON::RIGHT) && input->isKeyPressed(Yngin::KEY::LCTRL) && input->isKeyJustPressed(Yngin::KEY::S)) {
