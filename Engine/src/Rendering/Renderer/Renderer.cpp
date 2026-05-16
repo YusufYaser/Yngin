@@ -335,7 +335,7 @@ namespace Yngin::Rendering {
 
 		glm::ivec2 windowSize = ctx->getWindow()->getSize();
 
-		glViewport(viewportPos.x, viewportPos.y, viewportSize.x, viewportSize.y);
+		glViewport(viewportPos.x, windowSize.y - viewportPos.y - viewportSize.y, viewportSize.x, viewportSize.y);
 
 		glBlitFramebuffer(
 			0, 0, viewportSize.x, viewportSize.y,
