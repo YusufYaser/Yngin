@@ -33,17 +33,9 @@ bool Editor::generateNewProject(std::string path) {
 	defaultCubeMesh->setTexture(2);
 	defaultCube->meta.setMeta("Editor.Name", "Cube");
 
-	Texture* skyboxTex = ctx->getTexturesManager()->createTexture({
-		.width = 1,
-		.height = 1,
-		.numCh = 3,
-		.bytes = "\x4E\x4E\xFB",
-		}, {
-		.wrap = TEXTURE_WRAP::CLAMP,
-		.filterMin = TEXTURE_FILTER::NEAREST,
-		.filterMag = TEXTURE_FILTER::NEAREST,
-		}
-		);
+	fs::current_path(oldCwd);
+	Texture* skyboxTex = ctx->getTexturesManager()->createTexture("assets/default_skybox.png");
+	fs::current_path(path);
 
 	skyboxTex->meta.setMeta("Editor.Name", "Skybox");
 
