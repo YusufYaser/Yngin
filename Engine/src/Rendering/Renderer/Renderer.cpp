@@ -290,6 +290,8 @@ namespace Yngin::Rendering {
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, lightsSSBO);
 			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(ShaderLightsSSBOData), lights);
 
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
 			delete lights;
 			lights = nullptr;
 

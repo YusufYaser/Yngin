@@ -412,7 +412,7 @@ void Editor::showUIElementProps(uint32_t id, bool global) {
 	}
 	}
 
-	ImGui::Separator();
+	ImGui::SeparatorText("Other");
 
 	{
 		static int selectedElementType = 0;
@@ -443,9 +443,10 @@ void Editor::showUIElementProps(uint32_t id, bool global) {
 		}
 	}
 
+	ImGui::Separator();
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
-	if (ImGui::Button("Delete")) {
+	if (ImGui::Button("Delete", ImVec2(-1, 40))) {
 		mgr->deleteElement(id);
 		explorerSelection = {};
 	}

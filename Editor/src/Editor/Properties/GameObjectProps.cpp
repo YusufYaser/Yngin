@@ -116,21 +116,21 @@ void Editor::showGameObjectProps(uint32_t id) {
 		static glm::vec3 v = {};
 
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##ScaleX", &v.x, 0.1f, 1.0f, "%.1f")) {
+		if (ImGui::InputFloat("##ScaleX", &v.x, 0.1f, 1.0f, "%.2f")) {
 			scale.x = v.x;
 		} else {
 			v.x = scale.x;
 		}
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##ScaleY", &v.y, 0.1f, 1.0f, "%.1f")) {
+		if (ImGui::InputFloat("##ScaleY", &v.y, 0.1f, 1.0f, "%.2f")) {
 			scale.y = v.y;
 		} else {
 			v.y = scale.y;
 		}
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##ScaleZ", &v.z, 0.1f, 1.0f, "%.1f")) {
+		if (ImGui::InputFloat("##ScaleZ", &v.z, 0.1f, 1.0f, "%.2f")) {
 			scale.z = v.z;
 		} else {
 			v.z = scale.z;
@@ -356,23 +356,79 @@ void Editor::showGameObjectProps(uint32_t id) {
 		}
 	}
 
-	ImGui::Separator();
+	ImGui::SeparatorText("Other");
 
-	if (ImGui::Button("Create Child")) {
+	if (ImGui::Button("Go To", ImVec2(ImGui::GetContentRegionAvail().x / 2.0f, 40))) {
+		glm::vec3 newOrientation = glm::normalize(obj->getPosition() - editorCamera->getPosition());
+
+		Services::TweenSettings settings{};
+		settings.duration = 0.5f;
+		settings.function = Services::TWEEN_FUNCTION::EASE_INOUT;
+
+		ctx->getService<Services::Tween>()->tweenPos(editorCamera, obj->getPosition() - newOrientation * 2.0f, settings);
+
+		settings.duration = 0.25f;
+
+		// TODO: replace these when I add tween rotation
+		ctx->getService<Services::Tween>()->tweenFloat(editorCamera->getOrientation().x, newOrientation.x, settings, [this](float v) {
+			glm::vec3 o = editorCamera->getOrientation();
+			o.x = v;
+			editorCamera->setOrientation(o);
+			});
+
+		ctx->getService<Services::Tween>()->tweenFloat(editorCamera->getOrientation().y, newOrientation.y, settings, [this](float v) {
+			glm::vec3 o = editorCamera->getOrientation();
+			o.y = v;
+			editorCamera->setOrientation(o);
+			});
+
+		ctx->getService<Services::Tween>()->tweenFloat(editorCamera->getOrientation().z, newOrientation.z, settings, [this](float v) {
+			glm::vec3 o = editorCamera->getOrientation();
+			o.z = v;
+			editorCamera->setOrientation(o);
+			});
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Look At", ImVec2(-1, 40))) {
+		Services::TweenSettings settings{};
+		settings.duration = 0.25f;
+		settings.function = Services::TWEEN_FUNCTION::EASE_INOUT;
+
+		glm::vec3 newOrientation = glm::normalize(obj->getPosition() - editorCamera->getPosition());
+
+		// TODO: replace these when I add tween rotation
+		ctx->getService<Services::Tween>()->tweenFloat(editorCamera->getOrientation().x, newOrientation.x, settings, [this](float v) {
+			glm::vec3 o = editorCamera->getOrientation();
+			o.x = v;
+			editorCamera->setOrientation(o);
+			});
+
+		ctx->getService<Services::Tween>()->tweenFloat(editorCamera->getOrientation().y, newOrientation.y, settings, [this](float v) {
+			glm::vec3 o = editorCamera->getOrientation();
+			o.y = v;
+			editorCamera->setOrientation(o);
+			});
+
+		ctx->getService<Services::Tween>()->tweenFloat(editorCamera->getOrientation().z, newOrientation.z, settings, [this](float v) {
+			glm::vec3 o = editorCamera->getOrientation();
+			o.z = v;
+			editorCamera->setOrientation(o);
+			});
+	}
+
+	ImGui::Separator();
+	if (ImGui::Button("Create Child", ImVec2(-1, 40))) {
 		GameObject* child = obj->createChild();
 		/*Components::Mesh* mesh = child->createComponent<Components::Mesh>();
 		mesh->setModel(cubeModel);
 		mesh->setTexture(gridTexture);*/
 		if (child) explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, child->getId() };
 	}
-	ImGui::SameLine();
-	if (ImGui::Button("Teleport")) {
-		editorCamera->setPosition(obj->getPosition());
-	}
 
+	ImGui::Separator();
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
-	if (ImGui::Button("Delete")) {
+	if (ImGui::Button("Delete", ImVec2(-1, 40))) {
 		activeScene->getGameObjectsManager()->deleteGameObject(obj);
 		explorerSelection = {};
 	}

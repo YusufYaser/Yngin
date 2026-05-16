@@ -15,13 +15,13 @@ using namespace Yngin;
 void Editor::showModelProps(uint32_t id) {
 	if (explorerSelection.second == -1) {
 		ImGui::Text("Models");
-		ImGui::Separator();
+		ImGui::SeparatorText("Model Transform");
 
 		{
 			const float degToRad = (3.14159265359f / 180);
 
 			static glm::vec3 offset = {};
-			ImGui::SeparatorText("Offset");
+			ImGui::Text("Offset");
 			ImGui::SetNextItemWidth(90.0f);
 			ImGui::InputFloat("##Offset X", &offset.x, 1.0f, 1.0f, "%.1f");
 			ImGui::SameLine();
@@ -31,8 +31,8 @@ void Editor::showModelProps(uint32_t id) {
 			ImGui::SetNextItemWidth(90.0f);
 			ImGui::InputFloat("##Offset Z", &offset.z, 1.0f, 1.0f, "%.1f");
 
-			static glm::vec3 rot = {};
-			ImGui::SeparatorText("Rotation");
+			static glm::vec3 rot = glm::vec3(90.0f, 0, 0);
+			ImGui::Text("Rotation");
 			ImGui::SetNextItemWidth(90.0f);
 			ImGui::InputFloat("##Rotation X", &rot.x, 1.0f, 22.5f, "%.1f");
 			ImGui::SameLine();
@@ -42,16 +42,16 @@ void Editor::showModelProps(uint32_t id) {
 			ImGui::SetNextItemWidth(90.0f);
 			ImGui::InputFloat("##Rotation Z", &rot.z, 1.0f, 22.5f, "%.1f");
 
-			static glm::vec3 scale = { 1.0f, 1.0f, 1.0f };
-			ImGui::SeparatorText("Scale");
+			static glm::vec3 scale = glm::vec3(1.0f);
+			ImGui::Text("Scale");
 			ImGui::SetNextItemWidth(90.0f);
-			ImGui::InputFloat("##Scale X", &scale.x, 1.0f, 1.0f, "%.1f");
+			ImGui::InputFloat("##Scale X", &scale.x, 1.0f, 1.0f, "%.2f");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(90.0f);
-			ImGui::InputFloat("##Scale Y", &scale.y, 1.0f, 1.0f, "%.1f");
+			ImGui::InputFloat("##Scale Y", &scale.y, 1.0f, 1.0f, "%.2f");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(90.0f);
-			ImGui::InputFloat("##Scale Z", &scale.z, 1.0f, 1.0f, "%.1f");
+			ImGui::InputFloat("##Scale Z", &scale.z, 1.0f, 1.0f, "%.2f");
 
 			ImGui::SeparatorText("Model File");
 
@@ -95,8 +95,8 @@ void Editor::showModelProps(uint32_t id) {
 
 						path[0] = '\0';
 						offset = {};
-						rot = {};
-						scale = {};
+						rot = glm::vec3(90.0f, 0, 0);
+						scale = glm::vec3(1.0f);
 					}
 				}
 			}
