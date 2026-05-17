@@ -7,7 +7,8 @@ namespace Yngin {
 	enum class MOUSE_BUTTON : uint8_t {
 		LEFT,
 		RIGHT,
-		MIDDLE
+		MIDDLE,
+		COUNT
 	};
 
 	enum class KEY : uint8_t {

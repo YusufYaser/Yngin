@@ -53,18 +53,18 @@ namespace Yngin {
 		for (int i = 0; i < 3; i++) {
 			MOUSE_BUTTON btn = MOUSE_BUTTON(i);
 			if (isMousePressed(btn)) {
-				impl->lastFrameMousePressed[btn] = frameNum;
+				impl->lastFrameMousePressed[(int)btn] = frameNum;
 			} else {
-				impl->lastFrameMouseReleased[btn] = frameNum;
+				impl->lastFrameMouseReleased[(int)btn] = frameNum;
 			}
 		}
 
 		for (int i = 0; i < (int)Yngin::KEY::COUNT; i++) {
 			KEY key = KEY(i);
 			if (isKeyPressed(key)) {
-				impl->lastFrameKeyPressed[key] = frameNum;
+				impl->lastFrameKeyPressed[(int)key] = frameNum;
 			} else {
-				impl->lastFrameKeyReleased[key] = frameNum;
+				impl->lastFrameKeyReleased[(int)key] = frameNum;
 			}
 		}
 	}
@@ -86,16 +86,6 @@ namespace Yngin {
 	}
 
 	bool InputSystem::isMousePressed(const MOUSE_BUTTON& button) const {
-		if (!impl->ctx->getWindow()->isFocused()) return false;
-
-		glm::ivec2 mousePos = getMousePosition();
-		if (mousePos.x != -1) {
-			glm::ivec2 viewportSize = impl->ctx->getViewportSize();
-			if (mousePos.x < 0 || mousePos.y < 0 || mousePos.x >= viewportSize.x || mousePos.y >= viewportSize.y) {
-				return false;
-			}
-		}
-
 		int glfwButton = -1;
 		switch (button) {
 		case MOUSE_BUTTON::LEFT:
@@ -113,15 +103,33 @@ namespace Yngin {
 		Window* window = impl->ctx->getWindow();
 		GLFWwindow* glfwWindow = window->impl->glfwWindow;
 
-		return glfwGetMouseButton(glfwWindow, glfwButton);
+		bool pressed = glfwGetMouseButton(glfwWindow, glfwButton);
+
+		if (!impl->ctx->getWindow()->isFocused()) {
+			impl->mousePressedOutside[(int)button] = pressed;
+		} else if (!window->isCursorLocked()) {
+			glm::ivec2 mousePos = getMousePosition();
+			glm::ivec2 viewportSize = impl->ctx->getViewportSize();
+			if (mousePos.x < 0 || mousePos.y < 0 || mousePos.x >= viewportSize.x || mousePos.y >= viewportSize.y) {
+				impl->mousePressedOutside[(int)button] = pressed;
+				return false;
+			}
+		}
+
+		if (pressed) {
+			return !impl->mousePressedOutside[(int)button];
+		} else {
+			impl->mousePressedOutside[(int)button] = false;
+			return false;
+		}
 	}
 
 	bool InputSystem::isMouseJustPressed(const MOUSE_BUTTON& button) const {
-		return impl->lastFrameMouseReleased[button] == impl->ctx->getFrame() - 2;
+		return impl->lastFrameMouseReleased[(int)button] == impl->ctx->getFrame() - 2;
 	}
 
 	bool InputSystem::isMouseJustReleased(const MOUSE_BUTTON& button) const {
-		return impl->lastFrameMousePressed[button] == impl->ctx->getFrame() - 2;
+		return impl->lastFrameMousePressed[(int)button] == impl->ctx->getFrame() - 2;
 	}
 
 	bool InputSystem::isKeyPressed(const KEY& key) const {
@@ -136,10 +144,10 @@ namespace Yngin {
 	}
 
 	bool InputSystem::isKeyJustPressed(const KEY& key) const {
-		return impl->lastFrameKeyReleased[key] == impl->ctx->getFrame() - 2;
+		return impl->lastFrameKeyReleased[(int)key] == impl->ctx->getFrame() - 2;
 	}
 
 	bool InputSystem::isKeyJustReleased(const KEY& key) const {
-		return impl->lastFrameKeyPressed[key] == impl->ctx->getFrame() - 2;
+		return impl->lastFrameKeyPressed[(int)key] == impl->ctx->getFrame() - 2;
 	}
 }
