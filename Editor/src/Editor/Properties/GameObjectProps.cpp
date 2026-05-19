@@ -5,6 +5,9 @@
 #include "../Editor.h"
 #include <string>
 #include "../UI/UI.h"
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/component_wise.hpp>
 
 using namespace Yngin;
 
@@ -358,43 +361,41 @@ void Editor::showGameObjectProps(uint32_t id) {
 
 	ImGui::SeparatorText("Other");
 
-	if (ImGui::Button("Go To", ImVec2(ImGui::GetContentRegionAvail().x / 2.0f, 40))) {
-		glm::vec3 newOrientation = glm::normalize(obj->getPosition() - editorCamera->getPosition());
-
-		Services::TweenSettings settings{};
-		settings.duration = 0.5f;
-		settings.function = Services::TWEEN_FUNCTION::EASE_INOUT;
-
-		ctx->getService<Services::Tween>()->tweenPos(editorCamera, obj->getPosition() - newOrientation * 2.0f, settings);
-
-		settings.duration = 0.25f;
-
-		// TODO: replace these when I add tween rotation
-		ctx->getService<Services::Tween>()->tweenFloat(editorCamera->getOrientation().x, newOrientation.x, settings, [this](float v) {
-			glm::vec3 o = editorCamera->getOrientation();
-			o.x = v;
-			editorCamera->setOrientation(o);
-			});
-
-		ctx->getService<Services::Tween>()->tweenFloat(editorCamera->getOrientation().y, newOrientation.y, settings, [this](float v) {
-			glm::vec3 o = editorCamera->getOrientation();
-			o.y = v;
-			editorCamera->setOrientation(o);
-			});
-
-		ctx->getService<Services::Tween>()->tweenFloat(editorCamera->getOrientation().z, newOrientation.z, settings, [this](float v) {
-			glm::vec3 o = editorCamera->getOrientation();
-			o.z = v;
-			editorCamera->setOrientation(o);
-			});
-	}
+	bool gotoClicked = ImGui::Button("Go To", ImVec2(ImGui::GetContentRegionAvail().x / 2.0f, 40));
 	ImGui::SameLine();
-	if (ImGui::Button("Look At", ImVec2(-1, 40))) {
+	bool lookAtClicked = ImGui::Button("Look At", ImVec2(-1, 40));
+
+
+	if (lookAtClicked || gotoClicked) {
 		Services::TweenSettings settings{};
 		settings.duration = 0.25f;
 		settings.function = Services::TWEEN_FUNCTION::EASE_INOUT;
 
-		glm::vec3 newOrientation = glm::normalize(obj->getPosition() - editorCamera->getPosition());
+		glm::vec3 pos = obj->getPosition();
+		glm::vec3 newOrientation = glm::normalize(pos - editorCamera->getPosition());
+
+		if (Components::Mesh* mesh = obj->getComponent<Components::Mesh>()) {
+			Model* model = ctx->getModelsManager()->getModel(mesh->getModel());
+			if (model) {
+				glm::vec3 rot = obj->getRotation();
+				glm::vec3 scale = obj->getScale();
+
+				static const glm::mat4 i(1.0f);
+				glm::mat4 modelMatrix;
+
+				modelMatrix =
+					glm::yawPitchRoll(rot.y, rot.x, rot.z) *
+					glm::scale(i, scale);
+
+				pos += glm::vec3(modelMatrix * glm::vec4(model->getCenter(), 1.0f));
+
+				newOrientation = glm::normalize(pos - editorCamera->getPosition());
+
+				float radius = model->getRadius() * glm::compMax(obj->getScale());
+
+				pos -= newOrientation * radius * 1.5f;
+			}
+		}
 
 		// TODO: replace these when I add tween rotation
 		ctx->getService<Services::Tween>()->tweenFloat(editorCamera->getOrientation().x, newOrientation.x, settings, [this](float v) {
@@ -414,6 +415,12 @@ void Editor::showGameObjectProps(uint32_t id) {
 			o.z = v;
 			editorCamera->setOrientation(o);
 			});
+
+		if (gotoClicked) {
+			settings.duration = 0.5f;
+
+			ctx->getService<Services::Tween>()->tweenPos(editorCamera, pos, settings);
+		}
 	}
 
 	ImGui::Separator();

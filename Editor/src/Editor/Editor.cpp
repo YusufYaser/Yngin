@@ -243,6 +243,10 @@ void Editor::resetContext() {
 		ctx->getModelsManager()->deleteModel(c);
 	}
 
+	for (auto& c : ctx->getMaterialsManager()->getMaterials()) {
+		ctx->getMaterialsManager()->deleteMaterial(c);
+	}
+
 	for (auto& c : ctx->getScenesManager()->getScenes()) {
 		ctx->getScenesManager()->deleteScene(c);
 	}
