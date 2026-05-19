@@ -10,6 +10,8 @@ void Editor::handleCameraMovement(Yngin::Camera* camera) {
 	Context* ctx = camera->getContext();
 	InputSystem* input = ctx->getInputSystem();
 
+	if (!input->areKeyboardInputsEnabled() || !input->areMouseInputsEnabled()) return;
+
 	double delta = ctx->getDeltaTime();
 
 	ctx->getWindow()->setCursorLocked(input->isMousePressed(MOUSE_BUTTON::RIGHT));

@@ -526,7 +526,13 @@ void Editor::update() {
 	ImGui::SetCurrentContext(imguiCtx);
 	ctx->makeCurrent();
 
+	InputSystem* input = ctx->getInputSystem();
+
 	ImGuiIO& io = ImGui::GetIO();
+	ImGuiStyle& style = ImGui::GetStyle();
+
+	input->setMouseInputsEnabled(!io.WantCaptureMouse && !ImGui::IsPopupOpen("", ImGuiPopupFlags_AnyPopupId | ImGuiPopupFlags_AnyPopupLevel));
+	input->setKeyboardInputsEnabled(!io.WantCaptureKeyboard && !ImGui::IsPopupOpen("", ImGuiPopupFlags_AnyPopupId | ImGuiPopupFlags_AnyPopupLevel));
 
 	Window* window = ctx->getWindow();
 	window->setTitle((projectName + " - Yngin Editor").c_str());
@@ -539,8 +545,6 @@ void Editor::update() {
 			handleCameraMovement(viewerScene->getCamerasManager()->getCamera(0));
 		}
 	}
-
-	InputSystem* input = ctx->getInputSystem();
 
 	if (input->isKeyJustPressed(KEY::F1)) {
 		system("start https://github.com/YusufYaser/Yngin/wiki");
