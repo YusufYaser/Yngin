@@ -69,6 +69,27 @@ namespace Yngin {
 		}
 	}
 
+	void InputSystem::setAllInputsEnabled(bool enabled) {
+		impl->keysEnabled = enabled;
+		impl->mouseEnabled = enabled;
+	}
+
+	bool InputSystem::areKeyboardInputsEnabled() const {
+		return impl->keysEnabled;
+	}
+
+	void InputSystem::setKeyboardInputsEnabled(bool enabled) {
+		impl->keysEnabled = enabled;
+	}
+
+	bool InputSystem::areMouseInputsEnabled() const {
+		return impl->mouseEnabled;
+	}
+
+	void InputSystem::setMouseInputsEnabled(bool enabled) {
+		impl->mouseEnabled = enabled;
+	}
+
 	glm::ivec2 InputSystem::getMousePosition(bool bypassLock) const {
 		Window* window = impl->ctx->getWindow();
 
@@ -105,7 +126,7 @@ namespace Yngin {
 
 		bool pressed = glfwGetMouseButton(glfwWindow, glfwButton);
 
-		if (!impl->ctx->getWindow()->isFocused()) {
+		if (!impl->enabled || !impl->mouseEnabled || !impl->ctx->getWindow()->isFocused()) {
 			impl->mousePressedOutside[(int)button] = pressed;
 		} else if (!window->isCursorLocked()) {
 			glm::ivec2 mousePos = getMousePosition();
@@ -133,7 +154,7 @@ namespace Yngin {
 	}
 
 	bool InputSystem::isKeyPressed(const KEY& key) const {
-		if (!impl->ctx->getWindow()->isFocused()) return false;
+		if (!impl->enabled || !impl->keysEnabled || !impl->ctx->getWindow()->isFocused()) return false;
 
 		int glfwKey = keyToGlfw(key);
 

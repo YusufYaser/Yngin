@@ -5,6 +5,10 @@ namespace Yngin {
 	struct InputSystem::Impl {
 		Context* ctx;
 
+		bool enabled = true;
+		bool mouseEnabled = true;
+		bool keysEnabled = true;
+
 		bool mousePressedOutside[(int)Yngin::MOUSE_BUTTON::COUNT];
 
 		uint64_t lastFrameMouseReleased[(int)Yngin::MOUSE_BUTTON::COUNT];

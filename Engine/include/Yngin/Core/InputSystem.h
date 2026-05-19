@@ -52,6 +52,14 @@ namespace Yngin {
 
 	class InputSystem {
 	public:
+		void setAllInputsEnabled(bool enabled);
+
+		bool areKeyboardInputsEnabled() const;
+		void setKeyboardInputsEnabled(bool enabled);
+
+		bool areMouseInputsEnabled() const;
+		void setMouseInputsEnabled(bool enabled);
+
 		// get mouse position relative to the window position
 		glm::ivec2 getMousePosition(bool bypassLock = false) const;
 		void setMousePosition(glm::ivec2 pos);
