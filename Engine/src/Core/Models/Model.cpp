@@ -22,7 +22,6 @@ namespace Yngin {
 	InternalSubmesh::~InternalSubmesh() {
 		glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
-		glDeleteBuffers(1, &VAO);
 	}
 
 	void Model::Impl::init(const ModelData& d) {
