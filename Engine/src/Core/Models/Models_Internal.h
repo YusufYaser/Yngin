@@ -31,6 +31,9 @@ namespace Yngin {
 
 		Model* owner;
 
+		glm::vec3 center;
+		float radius;
+
 		void render(int instances = 1);
 		void renderWithMaterials(const uint32_t materialsMap[256], int instances = 1);
 

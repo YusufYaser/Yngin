@@ -108,6 +108,14 @@ namespace Yngin {
 			submesh->radius = glm::distance(submesh->center, maxPos);
 		}
 
+		glm::vec3 maxPos = glm::vec3(std::numeric_limits<float>::min());
+		for (auto& v : d.vertices) {
+			center += v.pos;
+			maxPos = glm::max(maxPos, v.pos);
+		}
+
+		center /= d.vertices.size();
+		radius = glm::distance(center, maxPos);
 
 		this->modelData = d;
 
@@ -186,5 +194,13 @@ namespace Yngin {
 
 	size_t Model::getSubmeshesCount() const {
 		return impl->submeshes.size();
+	}
+
+	glm::vec3 Model::getCenter() const {
+		return impl->center;
+	}
+
+	float Model::getRadius() const {
+		return impl->radius;
 	}
 }

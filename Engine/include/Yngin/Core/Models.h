@@ -73,6 +73,9 @@ namespace Yngin {
 
 		size_t getSubmeshesCount() const;
 
+		glm::vec3 getCenter() const;
+		float getRadius() const;
+
 	private:
 		Model(Context* ctx);
 		~Model();
