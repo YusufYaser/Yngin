@@ -542,6 +542,8 @@ namespace Yngin {
 			BIND(Services::Tween, cancel),
 			BIND(Services::Tween, isActive),
 
+			BIND(Services::Tween, tweenFloat),
+
 			// TODO: add tweenFloat
 			"tweenPos", sol::overload(
 				static_cast<int(Services::Tween::*)(GameObject*, glm::vec3, const Services::TweenSettings&)>(&Services::Tween::tweenPos),

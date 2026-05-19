@@ -71,6 +71,8 @@ namespace Yngin::GameFiles {
 	}
 
 	bool Generators::texturesManager(std::ostream& s, TexturesManager* mgr, bool compressed) {
+		mgr->getContext()->makeCurrent();
+
 		Operation op;
 
 		Texture* activatedTexture = mgr->getActive();

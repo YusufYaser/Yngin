@@ -68,6 +68,8 @@ namespace Yngin {
 	}
 
 	void Texture::setData(const TextureData& data, const TextureSettings& settings) {
+		impl->ctx->makeCurrent();
+
 		int w = data.width;
 		int h = data.height;
 		int n = data.numCh;

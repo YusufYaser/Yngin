@@ -90,7 +90,7 @@ namespace Yngin::Rendering {
 		glGenTextures(1, &impl->IDsTex);
 		glBindTexture(GL_TEXTURE_2D, impl->IDsTex);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, 800, 600, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, 800, 600, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -224,7 +224,7 @@ namespace Yngin::Rendering {
 
 		glBindTexture(GL_TEXTURE_2D, IDsTex);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, viewportSize.x, viewportSize.y, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, viewportSize.x, viewportSize.y, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
