@@ -40,6 +40,9 @@ namespace Yngin {
 
 	class Context {
 	public:
+		static Context* createContext(const ContextSettings& settings = {});
+		static size_t getContextsCount();
+		static std::vector<Context*> getAllContexts();
 		static void deleteAllContexts();
 
 		Context(const ContextSettings& settings = {});
@@ -122,11 +125,8 @@ namespace Yngin {
 
 	private:
 		void cleanup();
-		static std::vector<Context*> contexts;
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;
 	};
-
-	Context* createContext(const ContextSettings& settings = {});
 }

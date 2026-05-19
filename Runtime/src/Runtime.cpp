@@ -58,7 +58,7 @@ int main() {
 		return 1;
 	}
 
-	Context* ctx = new Context();
+	Context* ctx = Context::createContext();
 
 	ctx->loadGamePak(gameBytes.str().c_str(), gameBytes.str().size());
 	gameBytes.clear();

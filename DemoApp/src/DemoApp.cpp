@@ -20,7 +20,7 @@ int main() {
 		.title = "Yngin Demo"
 	};
 
-	Context* ctx = createContext(settings);
+	Context* ctx = Context::createContext(settings);
 
 	printf("Context: %p\n", ctx);
 

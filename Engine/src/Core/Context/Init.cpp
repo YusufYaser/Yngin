@@ -17,9 +17,12 @@ namespace {
 
 namespace Yngin {
 	bool initializeYngin() {
+		if (initialized) return true;
+
 		DEBUG("Initializing Yngin");
 
 		if (!glfwInit()) {
+			DEBUG("Failed to initialize GLFW");
 			terminate();
 			return false;
 		}
@@ -43,6 +46,8 @@ namespace Yngin {
 	}
 
 	void terminateYngin() {
+		if (!initialized) return;
+
 		DEBUG("Terminating Yngin");
 		Context::deleteAllContexts();
 		glfwTerminate();

@@ -22,18 +22,34 @@
 #include "../../Internal/Logger.h"
 
 namespace Yngin {
-	std::vector<Context*> Context::contexts;
+	namespace {
+		std::vector<Context*> contexts;
+	}
 
-	Context* createContext(const ContextSettings& settings) {
-		Context* ctx = nullptr;
-		if (isYnginInitialized()) ctx = new Context(settings);
+	Context* Context::createContext(const ContextSettings& settings) {
+		Context* ctx = new Context(settings);
 		return ctx;
 	}
 
+	size_t Context::getContextsCount() {
+		return contexts.size();
+	}
+
+	std::vector<Context*> Context::getAllContexts() {
+		return std::vector<Context*>(contexts);
+	}
+
+	void Yngin::Context::deleteAllContexts() {
+		for (Context*& ctx : contexts) {
+			delete ctx;
+		}
+		contexts.clear();
+	}
+
 	Context::Context(const ContextSettings& settings) {
-		if (!isYnginInitialized()) {
+		if (!initializeYngin()) {
 			impl->status = CONTEXT_STATUS::FAILED_TO_INIT;
-			throw std::exception("Cannot create new context before initializing Yngin");
+			throw std::exception("Failed to initialize Yngin");
 			return;
 		}
 		contexts.push_back(this);
@@ -159,13 +175,6 @@ namespace Yngin {
 
 	ModelsManager* Context::getInternalModelsManager() const {
 		return impl->internalModelsManager.get();
-	}
-
-	void Yngin::Context::deleteAllContexts() {
-		for (Context* ctx : contexts) {
-			delete ctx;
-		}
-		contexts.clear();
 	}
 
 	void Context::makeCurrent() {

@@ -71,7 +71,7 @@ Editor::Editor(std::string path) {
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-	ctx = createContext({
+	ctx = Context::createContext({
 		.windowSettings = {
 			.size = glm::ivec2(1280, 720),
 			.title = "Yngin Editor",
