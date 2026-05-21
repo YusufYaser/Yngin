@@ -440,8 +440,10 @@ namespace Yngin::Rendering {
 				float radius = submesh->radius * glm::compMax(scale);
 
 				bool showing = true;
+				glm::vec3 center = glm::mat3(obj->impl->modelMatrix) * submesh->center + glm::vec3(obj->impl->modelMatrix[3]);
+
 				for (int i = 0; i < 6; i++) {
-					if (glm::dot(frustumPlanes[i].normal, glm::vec3(obj->impl->modelMatrix * glm::vec4(submesh->center, 1.0f))) + frustumPlanes[i].distance < -radius) {
+					if (glm::dot(frustumPlanes[i].normal, center) + frustumPlanes[i].distance < -radius) {
 						showing = false;
 						break;
 					}
@@ -449,6 +451,10 @@ namespace Yngin::Rendering {
 				if (!showing) continue;
 
 				InstancePrepData& data = instancesPrep[{submesh.get(), mimpl->texId}];
+				if (data.vOffsets.capacity() == 0) {
+					data.vOffsets.reserve(512);
+					data.fOffsets.reserve(512);
+				}
 
 				int instance = data.instances;
 				if (instance < maxInstances) {

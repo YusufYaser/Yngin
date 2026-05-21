@@ -727,32 +727,36 @@ void Editor::update() {
 		}
 
 		{
-			static bool showAbout = false;
+			bool openAbout = false;
+
 			if (ImGui::BeginMenu("Help")) {
 				if (ImGui::MenuItem("GitHub Wiki", "F1")) {
 					system("start https://github.com/YusufYaser/Yngin/wiki");
 				}
 				ImGui::Separator();
 				if (ImGui::MenuItem("About Yngin Editor")) {
-					showAbout = true;
+					openAbout = true;
 				}
 				ImGui::EndMenu();
 			}
 
-			if (showAbout) {
-				ImGui::SetNextWindowSize(ImVec2(360, 75));
-				ImGui::SetNextWindowPos(ImVec2(windowSize.x / 2.0f, windowSize.y / 2.0f - 100), 0, ImVec2(0.5f, 0.5f));
-				if (ImGui::Begin("About Yngin", &showAbout, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse)) {
-					ImGui::Text("Yngin Editor - Copyright (c) 2026 Yusuf Kelany");
-					if (ImGui::Button("GitHub")) {
-						system("start https://github.com/YusufYaser/Yngin");
-					}
-					ImGui::SameLine();
-					if (ImGui::Button("Close")) {
-						showAbout = false;
-					}
+			if (openAbout) {
+				ImGui::OpenPopup("About Yngin");
+			}
+
+			if (ImGui::BeginPopupModal("About Yngin", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+				ImGui::Text("Yngin Editor - Copyright (c) 2026 Yusuf Kelany");
+
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - (80 * 2 + style.ItemSpacing.x)) / 2.0f);
+
+				if (ImGui::Button("GitHub", ImVec2(80, 30))) {
+					system("start https://github.com/YusufYaser/Yngin");
 				}
-				ImGui::End();
+				ImGui::SameLine();
+				if (ImGui::Button("Close", ImVec2(80, 30))) {
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
 			}
 		}
 
@@ -843,6 +847,18 @@ void Editor::update() {
 							ImGui::Text("Size: %ix%i", size.x, size.y);
 						}
 					}
+				}
+
+				{
+					char fpsText[32];
+
+					snprintf(fpsText, sizeof(fpsText), "%i FPS", int(1 / ctx->getDeltaTime() + 0.5));
+
+					float textWidth = ImGui::CalcTextSize(fpsText).x;
+
+					ImGui::SameLine(ImGui::GetWindowWidth() - textWidth - style.WindowPadding.x - 10.0f);
+
+					ImGui::Text("%s", fpsText);
 				}
 
 				ImGui::EndMenuBar();

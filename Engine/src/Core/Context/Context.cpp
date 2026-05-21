@@ -255,12 +255,13 @@ namespace Yngin {
 
 		if (m.maxFPS > 0) {
 			double timeToFinish = m.lastFrameEnd + 1.0 / m.maxFPS;
+			double remaining = timeToFinish - getTime();
 
-			while (getTime() < timeToFinish) {
-				if (timeToFinish - getTime() > 0.002) {
-					std::this_thread::sleep_for(std::chrono::milliseconds(1));
-				}
+			if (remaining > 0.001) {
+				std::this_thread::sleep_for(std::chrono::duration<double>(remaining - 0.001));
 			}
+
+			while (getTime() < timeToFinish) _mm_pause();
 		}
 
 		double frameEnd = getTime();
