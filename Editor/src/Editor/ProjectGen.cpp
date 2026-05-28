@@ -27,11 +27,22 @@ bool Editor::generateNewProject(std::string path) {
 	Model* cubeModel = ctx->getModelsManager()->createModel(cubeModelData);
 	cubeModel->meta.setMeta("Editor.Name", "Cube");
 
-	GameObject* defaultCube = activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
-	Components::Mesh* defaultCubeMesh = defaultCube->createComponent<Components::Mesh>();
-	defaultCubeMesh->setModel(cubeModel);
-	defaultCubeMesh->setTexture(2);
-	defaultCube->meta.setMeta("Editor.Name", "Cube");
+	{
+		GameObject* defaultCube = activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
+		Components::Mesh* defaultCubeMesh = defaultCube->createComponent<Components::Mesh>();
+		defaultCubeMesh->setModel(cubeModel);
+		defaultCubeMesh->setTexture(1);
+		defaultCube->meta.setMeta("Editor.Name", "Cube");
+	}
+
+	{
+		GameObject* defaultLight = activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
+		Components::DirectionalLight* light = defaultLight->createComponent<Components::DirectionalLight>();
+		light->setIntensity(5.0f);
+		defaultLight->setRotation(glm::vec3(-0.785398185f, 3.92699075f, 0));
+		defaultLight->setPosition(glm::vec3(5.0f, 5.0f, 5.0f));
+		defaultLight->meta.setMeta("Editor.Name", "Sun");
+	}
 
 	fs::current_path(oldCwd);
 	Texture* skyboxTex = ctx->getTexturesManager()->createTexture("assets/default_skybox.png");
