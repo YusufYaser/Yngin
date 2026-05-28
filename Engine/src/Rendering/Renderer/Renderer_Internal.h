@@ -18,7 +18,7 @@ namespace Yngin {
 		constexpr int SSBO_GROW_UNIT = 128;
 		constexpr int MAX_LIGHTS = 256;
 
-		struct ShaderLight {
+		struct ShaderPointLight {
 			glm::vec3 position;
 			float _pad1;
 			glm::vec3 color;
@@ -29,9 +29,9 @@ namespace Yngin {
 		};
 
 		struct ShaderLightsSSBOData {
-			int lightsCount = 0;
+			int pointLightsCount = 0;
 			int _pads[3];
-			ShaderLight lights[MAX_LIGHTS];
+			ShaderPointLight pointLights[MAX_LIGHTS];
 		};
 
 		// View-Frustum Culling

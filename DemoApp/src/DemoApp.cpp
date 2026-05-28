@@ -162,7 +162,7 @@ int main() {
 		mesh->setTexture(whiteTex);
 		light->setPosition({ 0, 0, 2 });
 
-		Components::Light* lightComp = light->createComponent<Components::Light>();
+		Components::PointLight* lightComp = light->createComponent<Components::PointLight>();
 		lightComp->setIntensity(2.0f);
 		lightComp->setDistance(32.0f);
 		lightComp->setColor({ 1.0f, 0.8f, 0.45f });
@@ -176,7 +176,7 @@ int main() {
 		mesh->setTexture(whiteTex);
 		light->setPosition({ 0, 3.0f, -0.5f });
 
-		Components::Light* lightComp = light->createComponent<Components::Light>();
+		Components::PointLight* lightComp = light->createComponent<Components::PointLight>();
 		lightComp->setColor({ 1.0f, 0, 0 });
 		lightComp->setIntensity(10.0f);
 
@@ -190,7 +190,7 @@ int main() {
 		mesh->setTexture(whiteTex);
 		light->setPosition({ 3.0f, 0, 0.5f });
 
-		Components::Light* lightComp = light->createComponent<Components::Light>();
+		Components::PointLight* lightComp = light->createComponent<Components::PointLight>();
 		lightComp->setColor({ 0, 0, 1.0f });
 		lightComp->setIntensity(10.0f);
 
@@ -258,7 +258,7 @@ int main() {
 	rigidBody->setVelocity({ 0, 1, 0 });
 	rigidBody->applyForce({ 2.0f, 3.0f, 9.8f }, 1);
 	Components::Collider* fallingBodyCollider = fallingBody->createComponent<Components::BoxCollider>();
-	Components::Light* light = fallingBody->createComponent<Components::Light>();
+	Components::PointLight* light = fallingBody->createComponent<Components::PointLight>();
 	light->setDistance(15.0f);
 
 	GameObject* wall2 = gameObjMgr->getRootGameObject()->createChild();

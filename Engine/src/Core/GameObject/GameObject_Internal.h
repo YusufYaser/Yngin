@@ -9,7 +9,7 @@ namespace Yngin {
 	enum class COMPONENT_ID : uint8_t {
 		NONE = 0,
 		MESH,
-		LIGHT,
+		POINT_LIGHT,
 		BOX_COLLIDER,
 		RIGID_BODY,
 		COUNT

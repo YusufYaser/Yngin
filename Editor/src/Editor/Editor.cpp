@@ -281,7 +281,7 @@ void Editor::setupViewerScene() {
 
 	viewerLightObject = root->createChild();
 	viewerLightObject->setPosition(glm::vec3(0, 0, 5.0f));
-	Components::Light* light = viewerLightObject->createComponent<Components::Light>();
+	Components::PointLight* light = viewerLightObject->createComponent<Components::PointLight>();
 	light->setIntensity(5.0f);
 	light->setDistance(24.0f);
 

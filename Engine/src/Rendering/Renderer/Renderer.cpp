@@ -265,27 +265,27 @@ namespace Yngin::Rendering {
 
 				if (distSq > renderDistance * renderDistance) continue;
 
-				Components::Light* light = obj->getComponent<Components::Light>();
+				Components::PointLight* pointLight = obj->getComponent<Components::PointLight>();
 
-				if (light == nullptr) continue;
+				if (pointLight == nullptr) continue;
 
-				ShaderLight shaderLight{};
+				ShaderPointLight shaderLight{};
 
 				shaderLight.position = obj->getPosition();
-				shaderLight.color = light->getColor();
-				shaderLight.distance = light->getDistance();
-				shaderLight.intensity = light->getIntensity();
+				shaderLight.color = pointLight->getColor();
+				shaderLight.distance = pointLight->getDistance();
+				shaderLight.intensity = pointLight->getIntensity();
 
-				lights->lights[lights->lightsCount] = shaderLight;
+				lights->pointLights[lights->pointLightsCount] = shaderLight;
 
-				lights->lightsCount++;
+				lights->pointLightsCount++;
 
-				if (lights->lightsCount >= MAX_LIGHTS) {
+				sceneLights = lights->pointLightsCount;
+
+				if (sceneLights >= MAX_LIGHTS) {
 					break;
 				}
 			}
-
-			sceneLights = lights->lightsCount;
 
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, lightsSSBO);
 			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(ShaderLightsSSBOData), lights);
@@ -413,7 +413,7 @@ namespace Yngin::Rendering {
 		Shader* worldShader = cimpl->ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
 		worldShader->activate();
 
-		bool isLight = !lightingEnabled || obj->hasComponent<Components::Light>();
+		bool isLight = !lightingEnabled || obj->hasComponent<Components::PointLight>();
 
 		if (!preparingInstances) {
 			worldShader->setMat4("uModel", obj->impl->modelMatrix);

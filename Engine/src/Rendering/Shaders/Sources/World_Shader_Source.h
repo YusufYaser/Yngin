@@ -82,7 +82,7 @@ struct InstanceFragmentOffset {
     int _pads[2];
 };
 
-struct Light {
+struct PointLight {
 	vec3 position;
 	float _pad1;
 	vec3 color;
@@ -96,10 +96,10 @@ layout(std430, binding = 1) buffer InstanceFragmentOffsets {
 	InstanceFragmentOffset fragOffsets[];
 };
 
-layout(std430, binding = 2) buffer Lights {
-	int lightsCount;
+layout(std430, binding = 2) buffer SceneLights {
+	int pointLightsCount;
 	int _pads[3];
-	Light lights[];
+	PointLight pointLights[];
 };
 
 struct Material {
@@ -152,8 +152,8 @@ void main() {
 	}
 	
 	if (!isLight) {
-		for (int i = 0; i < lightsCount; i++) {
-			Light l = lights[i];
+		for (int i = 0; i < pointLightsCount; i++) {
+			PointLight l = pointLights[i];
 			vec3 diff = l.position - fPosition;
 			float dist = length(diff);
 			vec3 lightDir = diff / (dist + 0.0001);

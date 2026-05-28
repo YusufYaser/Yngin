@@ -76,9 +76,9 @@ namespace Yngin {
 				return false;
 			}
 
-			if (a->getType() == COLLIDER_TYPE::NONE || b->getType() == COLLIDER_TYPE::NONE) return false;
+			if (a->getType() == Components::COLLIDER_TYPE::NONE || b->getType() == Components::COLLIDER_TYPE::NONE) return false;
 
-			if (a->getType() == COLLIDER_TYPE::BOX && b->getType() == COLLIDER_TYPE::BOX) {
+			if (a->getType() == Components::COLLIDER_TYPE::BOX && b->getType() == Components::COLLIDER_TYPE::BOX) {
 				const Components::BoxCollider* boxA = dynamic_cast<const Components::BoxCollider*>(a);
 				const Components::BoxCollider* boxB = dynamic_cast<const Components::BoxCollider*>(b);
 
@@ -103,7 +103,7 @@ namespace Yngin {
 
 		bool PhysicsEngine::isPointInCollider(const Components::Collider* coll, glm::vec3 point) const {
 			switch (coll->getType()) {
-			case COLLIDER_TYPE::BOX:
+			case Components::COLLIDER_TYPE::BOX:
 			{
 				const Components::BoxCollider* box = dynamic_cast<const Components::BoxCollider*>(coll);
 				AABBBounds aabbBounds = box->impl->getBounds();
@@ -119,7 +119,7 @@ namespace Yngin {
 
 		float PhysicsEngine::getRayIntersection(const Components::Collider* coll, const Ray& ray) const {
 			switch (coll->getType()) {
-			case COLLIDER_TYPE::BOX:
+			case Components::COLLIDER_TYPE::BOX:
 			{
 				const Components::BoxCollider* box = dynamic_cast<const Components::BoxCollider*>(coll);
 				AABBBounds aabb = box->impl->getBounds();

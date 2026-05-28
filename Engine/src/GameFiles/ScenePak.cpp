@@ -74,10 +74,10 @@ namespace Yngin {
 
 					break;
 				}
-				case COMPONENT_TYPE::LIGHT:
+				case COMPONENT_TYPE::POINT_LIGHT:
 				{
-					if (addedComponents[COMPONENT_TYPE::LIGHT]) return false;
-					addedComponents[COMPONENT_TYPE::LIGHT] = true;
+					if (addedComponents[COMPONENT_TYPE::POINT_LIGHT]) return false;
+					addedComponents[COMPONENT_TYPE::POINT_LIGHT] = true;
 
 					LightData lightData{};
 					if (!R(lightData, LightData)) return false;
@@ -99,10 +99,10 @@ namespace Yngin {
 
 					break;
 				}
-				case COMPONENT_TYPE::BOXCOLLIDER:
+				case COMPONENT_TYPE::BOX_COLLIDER:
 				{
-					if (addedComponents[COMPONENT_TYPE::BOXCOLLIDER]) return false;
-					addedComponents[COMPONENT_TYPE::BOXCOLLIDER] = true;
+					if (addedComponents[COMPONENT_TYPE::BOX_COLLIDER]) return false;
+					addedComponents[COMPONENT_TYPE::BOX_COLLIDER] = true;
 
 					BoxColliderData boxColliderData{};
 					if (!R(boxColliderData, BoxColliderData)) return false;
@@ -219,12 +219,12 @@ namespace Yngin {
 					}
 					break;
 				}
-				case COMPONENT_TYPE::LIGHT:
+				case COMPONENT_TYPE::POINT_LIGHT:
 				{
 					LightData lightData{};
 					R(lightData, LightData);
 					if (obj) {
-						auto light = obj->createComponent<Components::Light>();
+						auto light = obj->createComponent<Components::PointLight>();
 						if (light) {
 							light->setIntensity(lightData.intensity);
 							light->setDistance(lightData.distance);
@@ -259,7 +259,7 @@ namespace Yngin {
 					}
 					break;
 				}
-				case COMPONENT_TYPE::BOXCOLLIDER:
+				case COMPONENT_TYPE::BOX_COLLIDER:
 				{
 					BoxColliderData boxColliderData{};
 					R(boxColliderData, BoxColliderData);

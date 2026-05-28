@@ -232,12 +232,12 @@ namespace Yngin::GameFiles {
 				W(meshData, MeshData);
 			}
 
-			Components::Light* light = obj->getComponent<Components::Light>();
+			Components::PointLight* light = obj->getComponent<Components::PointLight>();
 			if (light) {
 				op.op = OP::COMPONENT;
 				W(op, Operation);
 
-				compData.componentType = COMPONENT_TYPE::LIGHT;
+				compData.componentType = COMPONENT_TYPE::POINT_LIGHT;
 				W(compData, ComponentData);
 
 				LightData lightData{};
@@ -282,7 +282,7 @@ namespace Yngin::GameFiles {
 				op.op = OP::COMPONENT;
 				W(op, Operation);
 
-				compData.componentType = COMPONENT_TYPE::BOXCOLLIDER;
+				compData.componentType = COMPONENT_TYPE::BOX_COLLIDER;
 				W(compData, ComponentData);
 
 				BoxColliderData boxColliderData{};

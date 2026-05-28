@@ -8,16 +8,12 @@ namespace Yngin::Components {
 
 	Light::~Light() = default;
 
+	LIGHT_TYPE Light::getType() const {
+		return LIGHT_TYPE::NONE;
+	}
+
 	void Light::setColor(glm::vec3 color) {
 		impl->color = color;
-	}
-
-	float Light::getDistance() const {
-		return impl->distance;
-	}
-
-	void Light::setDistance(float distance) {
-		impl->distance = distance;
 	}
 
 	float Light::getIntensity() const {
@@ -30,5 +26,24 @@ namespace Yngin::Components {
 
 	glm::vec3 Light::getColor() const {
 		return impl->color;
+	}
+
+
+	PointLight::PointLight(GameObject* gameObject) : Light(gameObject) {
+		impl = std::make_unique<Impl>();
+	}
+
+	PointLight::~PointLight() = default;
+
+	LIGHT_TYPE PointLight::getType() const {
+		return LIGHT_TYPE::POINT;
+	}
+
+	float PointLight::getDistance() const {
+		return impl->distance;
+	}
+
+	void PointLight::setDistance(float distance) {
+		impl->distance = distance;
 	}
 }

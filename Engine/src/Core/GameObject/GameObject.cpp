@@ -182,7 +182,7 @@ namespace Yngin {
 
 		REGISTER_COMPONENT_ID(Components::Component, COMPONENT_ID::NONE);
 		REGISTER_COMPONENT_ID(Components::Mesh, COMPONENT_ID::MESH);
-		REGISTER_COMPONENT_ID(Components::Light, COMPONENT_ID::LIGHT);
+		REGISTER_COMPONENT_ID(Components::PointLight, COMPONENT_ID::POINT_LIGHT);
 		REGISTER_COMPONENT_ID(Components::BoxCollider, COMPONENT_ID::BOX_COLLIDER);
 		REGISTER_COMPONENT_ID(Components::RigidBody, COMPONENT_ID::RIGID_BODY);
 	}
@@ -220,7 +220,7 @@ namespace Yngin {
 
 	DEFINE_FOR_COMPONENT(Components::Component);
 	DEFINE_FOR_COMPONENT(Components::Mesh);
-	DEFINE_FOR_COMPONENT(Components::Light);
+	DEFINE_FOR_COMPONENT(Components::PointLight);
 	DEFINE_FOR_COMPONENT(Components::BoxCollider);
 	DEFINE_FOR_COMPONENT(Components::RigidBody);
 }

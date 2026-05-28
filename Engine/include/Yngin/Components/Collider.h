@@ -5,12 +5,12 @@
 #include "Component.h"
 
 namespace Yngin {
-	enum class COLLIDER_TYPE : uint8_t {
-		NONE,
-		BOX
-	};
-
 	namespace Components {
+		enum class COLLIDER_TYPE : uint8_t {
+			NONE,
+			BOX
+		};
+
 		class Collider : public Component {
 		public:
 			static const COLLIDER_TYPE staticType = COLLIDER_TYPE::NONE;

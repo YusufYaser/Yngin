@@ -215,9 +215,9 @@ void Editor::showGameObjectProps(uint32_t id) {
 	}
 
 
-	Components::Light* light = obj->getComponent<Components::Light>();
+	Components::PointLight* light = obj->getComponent<Components::PointLight>();
 	if (light) {
-		ImGui::SeparatorText("Light Component");
+		ImGui::SeparatorText("Point Light Component");
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
 		bool deleted = ImGui::SmallButton("Delete Component##LightComp");
@@ -266,10 +266,10 @@ void Editor::showGameObjectProps(uint32_t id) {
 		}
 
 		if (deleted) {
-			obj->deleteComponent<Components::Light>();
+			obj->deleteComponent<Components::PointLight>();
 		}
 	} else {
-		componentsToCreate.push_back("Light");
+		componentsToCreate.push_back("PointLight");
 	}
 
 
@@ -346,8 +346,10 @@ void Editor::showGameObjectProps(uint32_t id) {
 			ImGui::SameLine();
 			if (ImGui::Button("Create", ImVec2(-1, 0)) && selected != 0) {
 				const char* compName = componentsToCreate[selected];
-				if (compName == "Mesh") obj->createComponent<Components::Mesh>();
-				else if (compName == "Light") obj->createComponent<Components::Light>();
+				if (compName == "Mesh") {
+					Components::Mesh* mesh = obj->createComponent<Components::Mesh>();
+					if (mesh) mesh->setTexture(1);
+				} else if (compName == "PointLight") obj->createComponent<Components::PointLight>();
 				else if (compName == "RigidBody") obj->createComponent<Components::RigidBody>();
 				else if (compName == "BoxCollider") obj->createComponent<Components::BoxCollider>();
 

@@ -263,25 +263,25 @@ namespace Yngin {
 
 			"hasComponent", &GameObject::hasComponent<Components::Component>,
 			"hasComponentMesh", &GameObject::hasComponent<Components::Mesh>,
-			"hasComponentLight", &GameObject::hasComponent<Components::Light>,
+			"hasComponentPointLight", &GameObject::hasComponent<Components::PointLight>,
 			"hasComponentBoxCollider", &GameObject::hasComponent<Components::BoxCollider>,
 			"hasComponentRigidBody", &GameObject::hasComponent<Components::RigidBody>,
 
 			"getComponent", &GameObject::getComponent<Components::Component>,
 			"getComponentMesh", &GameObject::getComponent<Components::Mesh>,
-			"getComponentLight", &GameObject::getComponent<Components::Light>,
+			"getComponentPointLight", &GameObject::getComponent<Components::PointLight>,
 			"getComponentBoxCollider", &GameObject::getComponent<Components::BoxCollider>,
 			"getComponentRigidBody", &GameObject::getComponent<Components::RigidBody>,
 
 			"createComponent", &GameObject::createComponent<Components::Component>,
 			"createComponentMesh", &GameObject::createComponent<Components::Mesh>,
-			"createComponentLight", &GameObject::createComponent<Components::Light>,
+			"createComponentPointLight", &GameObject::createComponent<Components::PointLight>,
 			"createComponentBoxCollider", &GameObject::createComponent<Components::BoxCollider>,
 			"createComponentRigidBody", &GameObject::createComponent<Components::RigidBody>,
 
 			"deleteComponent", &GameObject::deleteComponent<Components::Component>,
 			"deleteComponentMesh", &GameObject::deleteComponent<Components::Mesh>,
-			"deleteComponentLight", &GameObject::deleteComponent<Components::Light>,
+			"deleteComponentPointLight", &GameObject::deleteComponent<Components::PointLight>,
 			"deleteComponentBoxCollider", &GameObject::deleteComponent<Components::BoxCollider>,
 			"deleteComponentRigidBody", &GameObject::deleteComponent<Components::RigidBody>
 		);
@@ -887,11 +887,16 @@ namespace Yngin {
 			BIND(Components::Light, setColor),
 			BIND(Components::Light, getColor),
 
-			BIND(Components::Light, setDistance),
-			BIND(Components::Light, getDistance),
-
 			BIND(Components::Light, setIntensity),
 			BIND(Components::Light, getIntensity)
+		);
+
+		lua.new_usertype<Components::PointLight>("PointLight",
+			sol::no_constructor,
+			sol::base_classes, sol::bases<Components::Light>(),
+
+			BIND(Components::PointLight, setDistance),
+			BIND(Components::PointLight, getDistance)
 		);
 
 		lua.new_usertype<Components::RigidBody>("RigidBody",

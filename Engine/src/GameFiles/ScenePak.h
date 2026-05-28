@@ -12,9 +12,9 @@ namespace Yngin {
 		namespace ScenePak {
 			enum COMPONENT_TYPE : uint8_t {
 				MESH,
-				LIGHT,
+				POINT_LIGHT,
 				RIGIDBODY,
-				BOXCOLLIDER
+				BOX_COLLIDER
 			};
 
 #pragma pack(push, 1)

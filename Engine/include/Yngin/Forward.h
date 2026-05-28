@@ -19,8 +19,6 @@ namespace Yngin {
 
 	enum class UI_TYPE : uint8_t;
 
-	enum class COLLIDER_TYPE : uint8_t;
-
 	struct PakLoadSettings;
 	struct PakGenSettings;
 	struct ContextSettings;
@@ -89,11 +87,17 @@ namespace Yngin {
 	}
 
 	namespace Components {
+		enum class COLLIDER_TYPE : uint8_t;
+		enum class LIGHT_TYPE : uint8_t;
+
 		class Component;
 
 		class Collider;
 		class BoxCollider;
+
 		class Light;
+		class PointLight;
+
 		class Mesh;
 		class RigidBody;
 	}

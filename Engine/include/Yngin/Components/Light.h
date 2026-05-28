@@ -6,13 +6,18 @@
 
 namespace Yngin {
 	namespace Components {
+		enum class LIGHT_TYPE : uint8_t {
+			NONE,
+			POINT
+		};
+
 		class Light : public Component {
 		public:
+			static const LIGHT_TYPE staticType = LIGHT_TYPE::NONE;
+			virtual LIGHT_TYPE getType() const;
+
 			glm::vec3 getColor() const;
 			void setColor(glm::vec3 color);
-
-			float getDistance() const;
-			void setDistance(float distance);
 
 			float getIntensity() const;
 			void setIntensity(float intensity);
@@ -23,6 +28,26 @@ namespace Yngin {
 
 			friend class GameObject;
 			friend struct std::default_delete<Light>;
+			friend class PointLight;
+
+			struct Impl;
+			std::unique_ptr<Impl> impl;
+		};
+
+		class PointLight : public Light {
+		public:
+			static const LIGHT_TYPE staticType = LIGHT_TYPE::POINT;
+			LIGHT_TYPE getType() const;
+
+			float getDistance() const;
+			void setDistance(float distance);
+
+		private:
+			PointLight(GameObject* gameObject);
+			~PointLight();
+
+			friend class GameObject;
+			friend struct std::default_delete<PointLight>;
 
 			struct Impl;
 			std::unique_ptr<Impl> impl;
