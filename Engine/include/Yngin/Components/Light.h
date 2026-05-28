@@ -8,7 +8,8 @@ namespace Yngin {
 	namespace Components {
 		enum class LIGHT_TYPE : uint8_t {
 			NONE,
-			POINT
+			POINT,
+			DIRECTIONAL_LIGHT
 		};
 
 		class Light : public Component {
@@ -29,6 +30,7 @@ namespace Yngin {
 			friend class GameObject;
 			friend struct std::default_delete<Light>;
 			friend class PointLight;
+			friend class DirectionalLight;
 
 			struct Impl;
 			std::unique_ptr<Impl> impl;
@@ -48,6 +50,22 @@ namespace Yngin {
 
 			friend class GameObject;
 			friend struct std::default_delete<PointLight>;
+
+			struct Impl;
+			std::unique_ptr<Impl> impl;
+		};
+
+		class DirectionalLight : public Light {
+		public:
+			static const LIGHT_TYPE staticType = LIGHT_TYPE::DIRECTIONAL_LIGHT;
+			LIGHT_TYPE getType() const;
+
+		private:
+			DirectionalLight(GameObject* gameObject);
+			~DirectionalLight();
+
+			friend class GameObject;
+			friend struct std::default_delete<DirectionalLight>;
 
 			struct Impl;
 			std::unique_ptr<Impl> impl;

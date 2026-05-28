@@ -28,10 +28,19 @@ namespace Yngin {
 			float _pads[2];
 		};
 
+		struct ShaderDirectionalLight {
+			glm::vec3 color;
+			float _pad2;
+			glm::vec3 direction;
+			float intensity;
+		};
+
 		struct ShaderLightsSSBOData {
 			int pointLightsCount = 0;
-			int _pads[3];
+			int directionalLightsCount = 0;
+			int _pads[2];
 			ShaderPointLight pointLights[MAX_LIGHTS];
+			ShaderDirectionalLight directionalLights[MAX_LIGHTS];
 		};
 
 		// View-Frustum Culling

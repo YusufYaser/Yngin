@@ -60,6 +60,8 @@ void main() {
 			R"(
 #version 460 core
 
+#define MAX_LIGHTS 256
+
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out uint outID;
 
@@ -92,14 +94,23 @@ struct PointLight {
 	float _pads[2];
 };
 
+struct DirectionalLight {
+	vec3 color;
+	float _pad2;
+	vec3 direction;
+	float intensity;
+};
+
 layout(std430, binding = 1) buffer InstanceFragmentOffsets {
 	InstanceFragmentOffset fragOffsets[];
 };
 
 layout(std430, binding = 2) buffer SceneLights {
 	int pointLightsCount;
-	int _pads[3];
-	PointLight pointLights[];
+	int directionalLightsCount;
+	int _pads[2];
+	PointLight pointLights[MAX_LIGHTS];
+	DirectionalLight directionalLights[MAX_LIGHTS];
 };
 
 struct Material {
@@ -152,13 +163,16 @@ void main() {
 	}
 	
 	if (!isLight) {
+		vec3 normal = normalize(fNormal);
+		vec3 viewDir = normalize(cameraPos - fPosition);
+
 		for (int i = 0; i < pointLightsCount; i++) {
 			PointLight l = pointLights[i];
 			vec3 diff = l.position - fPosition;
 			float dist = length(diff);
 			vec3 lightDir = diff / (dist + 0.0001);
 
-			float dotProduct = max(dot(fNormal, lightDir), 0.0);
+			float dotProduct = max(dot(normal, lightDir), 0.0);
 			
 			float distRatio = clamp(dist / l.distance, 0.0, 1.0);
 			float attenuation = 1.0 - (distRatio * distRatio);
@@ -166,10 +180,24 @@ void main() {
 
 			diffusion += dotProduct * l.intensity * attenuation * l.color;
 			
-			vec3 viewDir = normalize(cameraPos - fPosition);
-			vec3 reflectDir = reflect(-lightDir, fNormal);
+			vec3 reflectDir = reflect(-lightDir, normal);
+			if (dotProduct > 0.0) {
+				specular += pow(max(dot(viewDir, reflectDir), 0.0), mat.specularComponent) * l.color * l.intensity * 0.5 * attenuation;
+			}
+		}
+
+		for (int i = 0; i < directionalLightsCount; i++) {
+			DirectionalLight l = directionalLights[i];
+			vec3 lightDir = normalize(-l.direction);
+
+			float dotProduct = max(dot(normal, lightDir), 0.0);
+
+			diffusion += dotProduct * l.intensity * l.color;
 			
-			specular += pow(max(dot(viewDir, reflectDir), 0.0), mat.specularComponent) * l.color * l.intensity * 0.5;
+			vec3 reflectDir = reflect(-lightDir, normal);
+			if (dotProduct > 0.0) {
+				specular += pow(max(dot(viewDir, reflectDir), 0.0), mat.specularComponent) * l.color * l.intensity * 0.5;
+			}
 		}
 
 		totalLight = mat.diffuseColor * mat.ambientColor + diffusion * mat.diffuseColor + specular * mat.specularColor;

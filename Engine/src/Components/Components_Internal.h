@@ -35,6 +35,9 @@ namespace Yngin {
 			float distance = 12.0f;
 		};
 
+		struct DirectionalLight::Impl {
+		};
+
 		struct BoxCollider::Impl {
 			BoxCollider* owner;
 

@@ -14,7 +14,8 @@ namespace Yngin {
 				MESH,
 				POINT_LIGHT,
 				RIGIDBODY,
-				BOX_COLLIDER
+				BOX_COLLIDER,
+				DIRECTIONAL_LIGHT
 			};
 
 #pragma pack(push, 1)
@@ -51,9 +52,14 @@ namespace Yngin {
 				uint32_t materials[256];
 			};
 
-			struct LightData {
+			struct PointLightData {
 				float intensity;
 				float distance;
+				glm::vec3 color;
+			};
+
+			struct DirectionalLightData {
+				float intensity;
 				glm::vec3 color;
 			};
 

@@ -79,8 +79,18 @@ namespace Yngin {
 					if (addedComponents[COMPONENT_TYPE::POINT_LIGHT]) return false;
 					addedComponents[COMPONENT_TYPE::POINT_LIGHT] = true;
 
-					LightData lightData{};
-					if (!R(lightData, LightData)) return false;
+					PointLightData lightData{};
+					if (!R(lightData, PointLightData)) return false;
+
+					break;
+				}
+				case COMPONENT_TYPE::DIRECTIONAL_LIGHT:
+				{
+					if (addedComponents[COMPONENT_TYPE::DIRECTIONAL_LIGHT]) return false;
+					addedComponents[COMPONENT_TYPE::DIRECTIONAL_LIGHT] = true;
+
+					DirectionalLightData lightData{};
+					if (!R(lightData, DirectionalLightData)) return false;
 
 					break;
 				}
@@ -221,15 +231,27 @@ namespace Yngin {
 				}
 				case COMPONENT_TYPE::POINT_LIGHT:
 				{
-					LightData lightData{};
-					R(lightData, LightData);
+					PointLightData lightData{};
+					R(lightData, PointLightData);
 					if (obj) {
 						auto light = obj->createComponent<Components::PointLight>();
 						if (light) {
 							light->setIntensity(lightData.intensity);
 							light->setDistance(lightData.distance);
-							glm::vec3 color = glm::make_vec3(lightData.color);
-							light->setColor(color);
+							light->setColor(lightData.color);
+						}
+					}
+					break;
+				}
+				case COMPONENT_TYPE::DIRECTIONAL_LIGHT:
+				{
+					DirectionalLightData lightData{};
+					R(lightData, DirectionalLightData);
+					if (obj) {
+						auto light = obj->createComponent<Components::DirectionalLight>();
+						if (light) {
+							light->setIntensity(lightData.intensity);
+							light->setColor(lightData.color);
 						}
 					}
 					break;

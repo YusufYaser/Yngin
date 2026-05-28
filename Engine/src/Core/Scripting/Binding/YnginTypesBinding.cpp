@@ -264,24 +264,28 @@ namespace Yngin {
 			"hasComponent", &GameObject::hasComponent<Components::Component>,
 			"hasComponentMesh", &GameObject::hasComponent<Components::Mesh>,
 			"hasComponentPointLight", &GameObject::hasComponent<Components::PointLight>,
+			"hasComponentDirectionalLight", &GameObject::hasComponent<Components::DirectionalLight>,
 			"hasComponentBoxCollider", &GameObject::hasComponent<Components::BoxCollider>,
 			"hasComponentRigidBody", &GameObject::hasComponent<Components::RigidBody>,
 
 			"getComponent", &GameObject::getComponent<Components::Component>,
 			"getComponentMesh", &GameObject::getComponent<Components::Mesh>,
 			"getComponentPointLight", &GameObject::getComponent<Components::PointLight>,
+			"getComponentDirectionalLight", &GameObject::getComponent<Components::DirectionalLight>,
 			"getComponentBoxCollider", &GameObject::getComponent<Components::BoxCollider>,
 			"getComponentRigidBody", &GameObject::getComponent<Components::RigidBody>,
 
 			"createComponent", &GameObject::createComponent<Components::Component>,
 			"createComponentMesh", &GameObject::createComponent<Components::Mesh>,
 			"createComponentPointLight", &GameObject::createComponent<Components::PointLight>,
+			"createComponentDirectionalLight", &GameObject::createComponent<Components::DirectionalLight>,
 			"createComponentBoxCollider", &GameObject::createComponent<Components::BoxCollider>,
 			"createComponentRigidBody", &GameObject::createComponent<Components::RigidBody>,
 
 			"deleteComponent", &GameObject::deleteComponent<Components::Component>,
 			"deleteComponentMesh", &GameObject::deleteComponent<Components::Mesh>,
 			"deleteComponentPointLight", &GameObject::deleteComponent<Components::PointLight>,
+			"deleteComponentDirectionalLight", &GameObject::deleteComponent<Components::DirectionalLight>,
 			"deleteComponentBoxCollider", &GameObject::deleteComponent<Components::BoxCollider>,
 			"deleteComponentRigidBody", &GameObject::deleteComponent<Components::RigidBody>
 		);
@@ -897,6 +901,11 @@ namespace Yngin {
 
 			BIND(Components::PointLight, setDistance),
 			BIND(Components::PointLight, getDistance)
+		);
+
+		lua.new_usertype<Components::DirectionalLight>("DirectionalLight",
+			sol::no_constructor,
+			sol::base_classes, sol::bases<Components::Light>()
 		);
 
 		lua.new_usertype<Components::RigidBody>("RigidBody",

@@ -232,21 +232,40 @@ namespace Yngin::GameFiles {
 				W(meshData, MeshData);
 			}
 
-			Components::PointLight* light = obj->getComponent<Components::PointLight>();
-			if (light) {
-				op.op = OP::COMPONENT;
-				W(op, Operation);
+			{
+				Components::PointLight* light = obj->getComponent<Components::PointLight>();
+				if (light) {
+					op.op = OP::COMPONENT;
+					W(op, Operation);
 
-				compData.componentType = COMPONENT_TYPE::POINT_LIGHT;
-				W(compData, ComponentData);
+					compData.componentType = COMPONENT_TYPE::POINT_LIGHT;
+					W(compData, ComponentData);
 
-				LightData lightData{};
-				lightData.intensity = light->getIntensity();
-				lightData.distance = light->getDistance();
-				glm::vec3 color = light->getColor();
-				lightData.color = color;
+					PointLightData lightData{};
+					lightData.intensity = light->getIntensity();
+					lightData.distance = light->getDistance();
+					glm::vec3 color = light->getColor();
+					lightData.color = color;
 
-				W(lightData, LightData);
+					W(lightData, PointLightData);
+				}
+			}
+
+			{
+				Components::DirectionalLight* light = obj->getComponent<Components::DirectionalLight>();
+				if (light) {
+					op.op = OP::COMPONENT;
+					W(op, Operation);
+
+					compData.componentType = COMPONENT_TYPE::DIRECTIONAL_LIGHT;
+					W(compData, ComponentData);
+
+					DirectionalLightData lightData{};
+					lightData.intensity = light->getIntensity();
+					lightData.color = light->getColor();
+
+					W(lightData, DirectionalLightData);
+				}
 			}
 
 			Components::RigidBody* rigidBody = obj->getComponent<Components::RigidBody>();

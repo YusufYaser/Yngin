@@ -260,32 +260,57 @@ namespace Yngin::Rendering {
 			ShaderLightsSSBOData* lights = new ShaderLightsSSBOData();
 
 			for (auto& [id, obj] : scene->impl->gameObjectsManager->impl->gameObjects) {
-				glm::vec3 delta = obj->impl->pos - camPos;
-				float distSq = glm::dot(delta, delta);
+				if (lights->pointLightsCount < MAX_LIGHTS) {
+					glm::vec3 delta = obj->impl->pos - camPos;
+					float distSq = glm::dot(delta, delta);
 
-				if (distSq > renderDistance * renderDistance) continue;
+					if (distSq <= renderDistance * renderDistance) {
+						Components::PointLight* pointLight = obj->getComponent<Components::PointLight>();
 
-				Components::PointLight* pointLight = obj->getComponent<Components::PointLight>();
+						if (pointLight) {
+							ShaderPointLight shaderLight{};
 
-				if (pointLight == nullptr) continue;
+							shaderLight.position = obj->getPosition();
+							shaderLight.color = pointLight->getColor();
+							shaderLight.distance = pointLight->getDistance();
+							shaderLight.intensity = pointLight->getIntensity();
 
-				ShaderPointLight shaderLight{};
+							lights->pointLights[lights->pointLightsCount] = shaderLight;
 
-				shaderLight.position = obj->getPosition();
-				shaderLight.color = pointLight->getColor();
-				shaderLight.distance = pointLight->getDistance();
-				shaderLight.intensity = pointLight->getIntensity();
+							lights->pointLightsCount++;
+						}
+					}
+				}
 
-				lights->pointLights[lights->pointLightsCount] = shaderLight;
+				if (lights->directionalLightsCount < MAX_LIGHTS) {
+					Components::DirectionalLight* directionalLight = obj->getComponent<Components::DirectionalLight>();
 
-				lights->pointLightsCount++;
+					if (directionalLight) {
+						ShaderDirectionalLight shaderLight{};
+						shaderLight.color = directionalLight->getColor();
+						shaderLight.intensity = directionalLight->getIntensity();
 
-				sceneLights = lights->pointLightsCount;
+						glm::vec3 rads = obj->getRotation();
 
-				if (sceneLights >= MAX_LIGHTS) {
+						glm::vec3 direction;
+						direction.x = cos(rads.y) * cos(rads.x);
+						direction.y = sin(rads.y) * cos(rads.x);
+						direction.z = sin(rads.x);
+
+						shaderLight.direction = glm::normalize(direction);
+
+						lights->directionalLights[lights->directionalLightsCount] = shaderLight;
+						lights->directionalLightsCount++;
+					}
+				}
+
+
+				if (lights->pointLightsCount >= MAX_LIGHTS && lights->directionalLightsCount >= MAX_LIGHTS) {
 					break;
 				}
 			}
+
+			sceneLights = lights->pointLightsCount + lights->directionalLightsCount;
 
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, lightsSSBO);
 			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(ShaderLightsSSBOData), lights);
@@ -413,7 +438,7 @@ namespace Yngin::Rendering {
 		Shader* worldShader = cimpl->ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
 		worldShader->activate();
 
-		bool isLight = !lightingEnabled || obj->hasComponent<Components::PointLight>();
+		bool isLight = !lightingEnabled || obj->hasComponent<Components::PointLight>() || obj->hasComponent<Components::DirectionalLight>();
 
 		if (!preparingInstances) {
 			worldShader->setMat4("uModel", obj->impl->modelMatrix);

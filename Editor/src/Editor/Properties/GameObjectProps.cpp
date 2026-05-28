@@ -215,61 +215,113 @@ void Editor::showGameObjectProps(uint32_t id) {
 	}
 
 
-	Components::PointLight* light = obj->getComponent<Components::PointLight>();
-	if (light) {
-		ImGui::SeparatorText("Point Light Component");
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
-		bool deleted = ImGui::SmallButton("Delete Component##LightComp");
-		ImGui::PopStyleColor(2);
-		ImGui::Text("Intensity");
-		ImGui::SameLine(100);
-		{
-			static float v = 0;
-			if (ImGui::InputFloat("##LightIntensity", &v, 0.05f, 0.1f)) {
-				light->setIntensity(v);
-			} else {
-				v = light->getIntensity();
-			}
-		}
-		ImGui::Text("Distance");
-		ImGui::SameLine(100);
-		{
-			static float v = 0;
-			if (ImGui::InputFloat("##LightDistance", &v, 1.0f, 2.0f)) {
-				if (v < 0) v = 0;
-				light->setDistance(v);
-			} else {
-				v = light->getDistance();
-			}
-		}
-		{
-			static float v[3] = {};
-			ImGui::Text("Color");
-			ImGui::SameLine();
-			ImGui::ColorButton("LightColorPreview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
-			ImGui::SameLine();
-			if (ImGui::Button("Change Color##LightColorButton", ImVec2(-1, 0))) {
-				ImGui::OpenPopup("Light Color Picker");
-			}
-
-			if (ImGui::BeginPopup("Light Color Picker")) {
-				if (ImGui::ColorPicker3("Color##LightColor", v)) {
-					light->setColor(glm::vec3(v[0], v[1], v[2]));
+	{
+		Components::PointLight* light = obj->getComponent<Components::PointLight>();
+		if (light) {
+			ImGui::SeparatorText("Point Light Component");
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
+			bool deleted = ImGui::SmallButton("Delete Component##LightComp");
+			ImGui::PopStyleColor(2);
+			ImGui::Text("Intensity");
+			ImGui::SameLine(100);
+			{
+				static float v = 0;
+				if (ImGui::InputFloat("##LightIntensity", &v, 0.05f, 0.1f)) {
+					light->setIntensity(v);
+				} else {
+					v = light->getIntensity();
 				}
-				ImGui::EndPopup();
-			} else {
-				v[0] = light->getColor()[0];
-				v[1] = light->getColor()[1];
-				v[2] = light->getColor()[2];
 			}
-		}
+			ImGui::Text("Distance");
+			ImGui::SameLine(100);
+			{
+				static float v = 0;
+				if (ImGui::InputFloat("##LightDistance", &v, 1.0f, 2.0f)) {
+					if (v < 0) v = 0;
+					light->setDistance(v);
+				} else {
+					v = light->getDistance();
+				}
+			}
+			{
+				static float v[3] = {};
+				ImGui::Text("Color");
+				ImGui::SameLine();
+				ImGui::ColorButton("LightColorPreview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
+				ImGui::SameLine();
+				if (ImGui::Button("Change Color##LightColorButton", ImVec2(-1, 0))) {
+					ImGui::OpenPopup("Light Color Picker");
+				}
 
-		if (deleted) {
-			obj->deleteComponent<Components::PointLight>();
+				if (ImGui::BeginPopup("Light Color Picker")) {
+					if (ImGui::ColorPicker3("Color##LightColor", v)) {
+						light->setColor(glm::vec3(v[0], v[1], v[2]));
+					}
+					ImGui::EndPopup();
+				} else {
+					v[0] = light->getColor()[0];
+					v[1] = light->getColor()[1];
+					v[2] = light->getColor()[2];
+				}
+			}
+
+			if (deleted) {
+				obj->deleteComponent<Components::PointLight>();
+			}
+		} else {
+			componentsToCreate.push_back("PointLight");
 		}
-	} else {
-		componentsToCreate.push_back("PointLight");
+	}
+
+
+	{
+		Components::DirectionalLight* light = obj->getComponent<Components::DirectionalLight>();
+		if (light) {
+			ImGui::SeparatorText("Directional Light Component");
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
+			bool deleted = ImGui::SmallButton("Delete Component##DirLightComp");
+			ImGui::PopStyleColor(2);
+			ImGui::Text("Intensity");
+			ImGui::SameLine(100);
+			{
+				static float v = 0;
+				if (ImGui::InputFloat("##DirLightIntensity", &v, 0.05f, 0.1f)) {
+					light->setIntensity(v);
+				} else {
+					v = light->getIntensity();
+				}
+			}
+
+			{
+				static float v[3] = {};
+				ImGui::Text("Color");
+				ImGui::SameLine();
+				ImGui::ColorButton("##DirLightColorPreview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
+				ImGui::SameLine();
+				if (ImGui::Button("Change Color##DirLightColorButton", ImVec2(-1, 0))) {
+					ImGui::OpenPopup("Directional Light Color Picker");
+				}
+
+				if (ImGui::BeginPopup("Directional Light Color Picker")) {
+					if (ImGui::ColorPicker3("Color##DirLightColor", v)) {
+						light->setColor(glm::vec3(v[0], v[1], v[2]));
+					}
+					ImGui::EndPopup();
+				} else {
+					v[0] = light->getColor()[0];
+					v[1] = light->getColor()[1];
+					v[2] = light->getColor()[2];
+				}
+			}
+
+			if (deleted) {
+				obj->deleteComponent<Components::DirectionalLight>();
+			}
+		} else {
+			componentsToCreate.push_back("DirectionalLight");
+		}
 	}
 
 
@@ -350,6 +402,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 					Components::Mesh* mesh = obj->createComponent<Components::Mesh>();
 					if (mesh) mesh->setTexture(1);
 				} else if (compName == "PointLight") obj->createComponent<Components::PointLight>();
+				else if (compName == "DirectionalLight") obj->createComponent<Components::DirectionalLight>();
 				else if (compName == "RigidBody") obj->createComponent<Components::RigidBody>();
 				else if (compName == "BoxCollider") obj->createComponent<Components::BoxCollider>();
 

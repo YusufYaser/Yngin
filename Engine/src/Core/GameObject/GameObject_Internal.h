@@ -10,6 +10,7 @@ namespace Yngin {
 		NONE = 0,
 		MESH,
 		POINT_LIGHT,
+		DIRECTIONAL_LIGHT,
 		BOX_COLLIDER,
 		RIGID_BODY,
 		COUNT

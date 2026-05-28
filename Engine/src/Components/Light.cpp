@@ -29,6 +29,8 @@ namespace Yngin::Components {
 	}
 
 
+	// Point Light
+
 	PointLight::PointLight(GameObject* gameObject) : Light(gameObject) {
 		impl = std::make_unique<Impl>();
 	}
@@ -45,5 +47,18 @@ namespace Yngin::Components {
 
 	void PointLight::setDistance(float distance) {
 		impl->distance = distance;
+	}
+
+
+	// Directional Light
+
+	DirectionalLight::DirectionalLight(GameObject* gameObject) : Light(gameObject) {
+		impl = std::make_unique<Impl>();
+	}
+
+	DirectionalLight::~DirectionalLight() = default;
+
+	LIGHT_TYPE DirectionalLight::getType() const {
+		return LIGHT_TYPE::DIRECTIONAL_LIGHT;
 	}
 }
