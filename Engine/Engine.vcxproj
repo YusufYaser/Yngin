@@ -69,7 +69,7 @@
     <ClInclude Include="src\Rendering\Shaders\Sources\UI_Shader_Source.h" />
     <ClInclude Include="src\Rendering\Shaders\Sources\Skybox_Shader_Source.h" />
     <ClInclude Include="src\Rendering\Shaders\Sources\World_Shader_Source.h" />
-    <ClInclude Include="src\Rendering\Shaders\Sources\DepthPrePass_Shader_Source.h" />
+    <ClInclude Include="src\Rendering\Shaders\Sources\Depth_Shader_Source.h" />
     <ClInclude Include="src\Rendering\Textures\Textures_Internal.h" />
     <ClInclude Include="src\Core\Window\Window_Internal.h" />
     <ClInclude Include="src\Core\Scripting\Scripting_Internal.h" />

@@ -330,7 +330,7 @@ namespace Yngin::Rendering {
 		render(scene->impl->gameObjectsManager->getRootGameObject(), -1);
 		preparingInstances = false;
 
-		Shader* prePassShader = ctx->getShadersManager()->getShader(SHADER_TYPE::DEPTH_PRE_PASS);
+		Shader* prePassShader = ctx->getShadersManager()->getShader(SHADER_TYPE::DEPTH);
 		prePassShader->activate();
 		prePassShader->setMat4("viewProjection", viewProjection);
 		glDepthFunc(GL_LESS);

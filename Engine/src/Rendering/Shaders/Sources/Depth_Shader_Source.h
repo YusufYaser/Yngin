@@ -3,7 +3,7 @@
 
 namespace Yngin {
 	namespace ShaderSources {
-		const ShaderSource depthPrePass = {
+		const ShaderSource depth = {
 			// vertex
 			R"(
 #version 460 core

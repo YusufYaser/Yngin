@@ -210,7 +210,7 @@
     <ClInclude Include="src\Internal\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rendering\Shaders\Sources\DepthPrePass_Shader_Source.h">
+    <ClInclude Include="src\Rendering\Shaders\Sources\Depth_Shader_Source.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

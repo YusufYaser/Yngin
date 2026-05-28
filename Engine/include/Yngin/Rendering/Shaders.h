@@ -10,7 +10,7 @@ namespace Yngin {
 		WORLD,
 		SKYBOX,
 		UI,
-		DEPTH_PRE_PASS
+		DEPTH
 	};
 
 	struct ShaderSource {
