@@ -60,7 +60,8 @@ void main() {
 			R"(
 #version 460 core
 
-#define MAX_LIGHTS 256
+#define MAX_POINT_LIGHTS 256
+#define MAX_DIRECTIONAL_LIGHTS 2
 
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out uint outID;
@@ -95,6 +96,9 @@ struct PointLight {
 };
 
 struct DirectionalLight {
+	int index;
+	int _pads[3];
+	mat4 viewProjection;
 	vec3 color;
 	float _pad2;
 	vec3 direction;
@@ -109,8 +113,8 @@ layout(std430, binding = 2) buffer SceneLights {
 	int pointLightsCount;
 	int directionalLightsCount;
 	int _pads[2];
-	PointLight pointLights[MAX_LIGHTS];
-	DirectionalLight directionalLights[MAX_LIGHTS];
+	PointLight pointLights[MAX_POINT_LIGHTS];
+	DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS];
 };
 
 struct Material {
@@ -137,8 +141,31 @@ uniform vec3 cameraPos;
 
 uniform SceneSettings scene;
 
-uniform sampler2D tex0;
+uniform sampler2D tex;
+uniform sampler2DArray shadowMaps;
 uniform vec4 uColor;
+
+float CalculateDirectionalLightShadow(DirectionalLight l) {
+	vec4 lightSpace = l.viewProjection * vec4(fPosition, 1.0); 
+	vec3 projCoords = lightSpace.xyz / lightSpace.w;
+	
+	vec3 shadowCoord = projCoords * 0.5 + 0.5;
+
+	float currentDepth = shadowCoord.z;
+	
+	float shadows = 0.0;
+	
+	vec2 texelSize = 1.0 / vec2(textureSize(shadowMaps, 0).xy);
+	
+	for (int x = -1; x <= 1; x++) {
+		for (int y = -1; y <= 1; y++) {
+			float closestDepth = texture(shadowMaps, vec3(shadowCoord.xy + vec2(x, y) * texelSize, l.index)).r;
+			shadows += currentDepth > closestDepth + 0.001 ? 1.0 : 0.0;
+		}
+	}
+	
+	return shadows / 9.0;
+}
 
 void main() {
 	int id = fInstanceID;
@@ -192,11 +219,14 @@ void main() {
 
 			float dotProduct = max(dot(normal, lightDir), 0.0);
 
-			diffusion += dotProduct * l.intensity * l.color;
+			float shadow = CalculateDirectionalLightShadow(l);
+			float visibility = 1.0 - shadow;
+
+			diffusion += dotProduct * l.intensity * l.color * visibility;
 			
 			vec3 reflectDir = reflect(-lightDir, normal);
 			if (dotProduct > 0.0) {
-				specular += pow(max(dot(viewDir, reflectDir), 0.0), mat.specularComponent) * l.color * l.intensity * 0.5;
+				specular += pow(max(dot(viewDir, reflectDir), 0.0), mat.specularComponent) * l.color * l.intensity * 0.5 * visibility;
 			}
 		}
 
@@ -206,7 +236,7 @@ void main() {
 		totalLight = mat.diffuseColor;
 	}
 	
-	FragColor = texture(tex0, fTexCoord) * color * vec4(totalLight, 1.0);
+	FragColor = texture(tex, fTexCoord) * color * vec4(totalLight, 1.0);
 	outID = fragOffsets[fInstanceID].objectId;
 }
 			)",

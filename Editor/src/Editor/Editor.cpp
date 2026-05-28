@@ -1086,7 +1086,7 @@ void Editor::update() {
 			rows.push_back({ "Game Objects", activeScene->getGameObjectsManager()->getGameObjectsCount(), 0 });
 			rows.push_back({ "Scene UI Elements", activeScene->getUIManager()->getElementsCount(), 0 });
 			rows.push_back({ "Submeshes Rendered", ctx->getRenderer()->getSubmeshesRendered(), 0 });
-			rows.push_back({ "Lights", ctx->getRenderer()->getSceneLightsCount(), ctx->getRenderer()->getMaxSceneLightsCount() });
+			rows.push_back({ "Lights", ctx->getRenderer()->getSceneLightsCount(), 0 });
 
 			for (auto& row : rows) {
 				ImGui::TableNextRow();

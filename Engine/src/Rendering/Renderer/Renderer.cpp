@@ -99,6 +99,41 @@ namespace Yngin::Rendering {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+
+
+		// Shadows
+
+		glGenFramebuffers(1, &impl->shadowFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, impl->shadowFBO);
+
+		glGenTextures(1, &impl->shadowMapsTex);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, impl->shadowMapsTex);
+
+		glTexImage3D(
+			GL_TEXTURE_2D_ARRAY,
+			0,
+			GL_DEPTH_COMPONENT16,
+			SHADOW_MAP_WIDTH,
+			SHADOW_MAP_HEIGHT,
+			MAX_DIRECTIONAL_LIGHTS,
+			0,
+			GL_DEPTH_COMPONENT,
+			GL_FLOAT,
+			0
+		);
+
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		static const glm::vec4 white = glm::vec4(1.0f);
+		glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(white));
+
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	Renderer::~Renderer() {
@@ -143,10 +178,6 @@ namespace Yngin::Rendering {
 		return impl->sceneSubmeshesRendered;
 	}
 
-	size_t Renderer::getMaxSceneLightsCount() const {
-		return MAX_LIGHTS;
-	}
-
 	size_t Renderer::getSceneLightsCount() const {
 		return impl->sceneLights;
 	}
@@ -172,19 +203,7 @@ namespace Yngin::Rendering {
 		return readId;
 	}
 
-	void Renderer::Impl::render(Scene* scene) {
-		ctx->makeCurrent();
-
-		glm::vec3 camPos = scene->impl->camerasManager->getFinalPos();
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glm::mat4 proj = scene->impl->camerasManager->impl->getFinalPerspectiveProjection();
-		glm::mat4 view = scene->impl->camerasManager->impl->getFinalView();
-		glm::mat4 viewProjection = proj * view;
-
-		// Setup Frustum
-
+	void Renderer::Impl::setFrustumPlanes(glm::mat4 viewProjection) {
 		for (int i = 0; i < 6; i++) {
 			Plane& p = frustumPlanes[i];
 
@@ -198,6 +217,24 @@ namespace Yngin::Rendering {
 			float length = glm::length(p.normal);
 			p.normal /= length;
 			p.distance /= length;
+		}
+	}
+
+	void Renderer::Impl::render(Scene* scene) {
+		ctx->makeCurrent();
+
+		glm::vec3 camPos = scene->impl->camerasManager->getFinalPos();
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glm::mat4 proj = scene->impl->camerasManager->impl->getFinalPerspectiveProjection();
+		glm::mat4 view = scene->impl->camerasManager->impl->getFinalView();
+		glm::mat4 viewProjection = proj * view;
+
+		// This is a temporary workaround to fix objects hidden by frustum culling not casting shadows
+		// This will be fixed in the future
+		if (!lightingEnabled) {
+			setFrustumPlanes(viewProjection);
 		}
 
 		glm::ivec2 viewportPos = ctx->getViewportPos();
@@ -249,18 +286,26 @@ namespace Yngin::Rendering {
 			glClear(GL_DEPTH_BUFFER_BIT);
 		}
 
-		Shader* worldShader = ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
-		worldShader->activate();
+		preparingInstances = true;
+		sceneSubmeshesRendered = 0;
+		// this function name isn't really accurate
+		// this is just to prepare the instances
+		render(scene->impl->gameObjectsManager->getRootGameObject(), -1);
+		preparingInstances = false;
 
-		worldShader->setMat4("viewProjection", viewProjection);
+		Shader* depthShader = ctx->getShadersManager()->getShader(SHADER_TYPE::DEPTH);
+		depthShader->activate();
 
 		sceneLights = 0;
 		if (lightingEnabled) {
 			// register lights
 			ShaderLightsSSBOData* lights = new ShaderLightsSSBOData();
 
+			glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
+			glViewport(0, 0, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
+
 			for (auto& [id, obj] : scene->impl->gameObjectsManager->impl->gameObjects) {
-				if (lights->pointLightsCount < MAX_LIGHTS) {
+				if (lights->pointLightsCount < MAX_POINT_LIGHTS) {
 					glm::vec3 delta = obj->impl->pos - camPos;
 					float distSq = glm::dot(delta, delta);
 
@@ -282,7 +327,7 @@ namespace Yngin::Rendering {
 					}
 				}
 
-				if (lights->directionalLightsCount < MAX_LIGHTS) {
+				if (lights->directionalLightsCount < MAX_DIRECTIONAL_LIGHTS) {
 					Components::DirectionalLight* directionalLight = obj->getComponent<Components::DirectionalLight>();
 
 					if (directionalLight) {
@@ -299,16 +344,35 @@ namespace Yngin::Rendering {
 
 						shaderLight.direction = glm::normalize(direction);
 
-						lights->directionalLights[lights->directionalLightsCount] = shaderLight;
-						lights->directionalLightsCount++;
+						float halfBoxSize = 100.0f;
+						glm::mat4 proj = glm::ortho(-halfBoxSize, halfBoxSize, -halfBoxSize, halfBoxSize, 0.1f, 1000.0f);
+						glm::mat4 view = glm::lookAt(camPos - direction * 300.0f, camPos, { 0, 0, 1 });
+
+						glm::mat4 lightVP = proj * view;
+
+						shaderLight.viewProjection = lightVP;
+						shaderLight.index = lights->directionalLightsCount++;
+
+						lights->directionalLights[shaderLight.index] = shaderLight;
+
+						depthShader->setMat4("viewProjection", lightVP);
+
+						glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowMapsTex, 0, shaderLight.index);
+						glClear(GL_DEPTH_BUFFER_BIT);
+
+						for (auto& [meshTexPair, data] : instancesPrep) {
+							renderSubmeshInstanced(meshTexPair.first, meshTexPair.second, data);
+						}
 					}
 				}
 
 
-				if (lights->pointLightsCount >= MAX_LIGHTS && lights->directionalLightsCount >= MAX_LIGHTS) {
+				if (lights->pointLightsCount >= MAX_POINT_LIGHTS && lights->directionalLightsCount >= MAX_DIRECTIONAL_LIGHTS) {
 					break;
 				}
 			}
+			glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+			glViewport(0, 0, viewportSize.x, viewportSize.y);
 
 			sceneLights = lights->pointLightsCount + lights->directionalLightsCount;
 
@@ -319,20 +383,9 @@ namespace Yngin::Rendering {
 
 			delete lights;
 			lights = nullptr;
-
-			worldShader->setVec3("scene.ambientLight", scene->impl->lightSettings.ambientLight);
 		}
 
-		worldShader->setVec3("cameraPos", scene->impl->camerasManager->getFinalPos());
-
-		preparingInstances = true;
-		sceneSubmeshesRendered = 0;
-		render(scene->impl->gameObjectsManager->getRootGameObject(), -1);
-		preparingInstances = false;
-
-		Shader* prePassShader = ctx->getShadersManager()->getShader(SHADER_TYPE::DEPTH);
-		prePassShader->activate();
-		prePassShader->setMat4("viewProjection", viewProjection);
+		depthShader->setMat4("viewProjection", viewProjection);
 		glDepthFunc(GL_LESS);
 		glDepthMask(GL_TRUE);
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -340,7 +393,13 @@ namespace Yngin::Rendering {
 			renderSubmeshInstanced(meshTexPair.first, meshTexPair.second, data);
 		}
 
+
+		Shader* worldShader = ctx->getShadersManager()->getShader(SHADER_TYPE::WORLD);
 		worldShader->activate();
+
+		worldShader->setVec3("scene.ambientLight", scene->impl->lightSettings.ambientLight);
+		worldShader->setVec3("cameraPos", camPos);
+		worldShader->setMat4("viewProjection", viewProjection);
 		worldShader->setInt("instancing", true);
 		glDepthFunc(GL_LEQUAL);
 		glDepthMask(GL_FALSE);
@@ -462,18 +521,22 @@ namespace Yngin::Rendering {
 			sceneSubmeshesRendered += model->impl->submeshes.size();
 		} else {
 			for (auto& submesh : model->impl->submeshes) {
-				float radius = submesh->radius * glm::compMax(scale);
+				// This is a temporary workaround to fix objects hidden by frustum culling not casting shadows
+				// This will be fixed in the future
+				if (!lightingEnabled) {
+					float radius = submesh->radius * glm::compMax(scale);
 
-				bool showing = true;
-				glm::vec3 center = glm::mat3(obj->impl->modelMatrix) * submesh->center + glm::vec3(obj->impl->modelMatrix[3]);
+					bool showing = true;
+					glm::vec3 center = glm::mat3(obj->impl->modelMatrix) * submesh->center + glm::vec3(obj->impl->modelMatrix[3]);
 
-				for (int i = 0; i < 6; i++) {
-					if (glm::dot(frustumPlanes[i].normal, center) + frustumPlanes[i].distance < -radius) {
-						showing = false;
-						break;
+					for (int i = 0; i < 6; i++) {
+						if (glm::dot(frustumPlanes[i].normal, center) + frustumPlanes[i].distance < -radius) {
+							showing = false;
+							break;
+						}
 					}
+					if (!showing) continue;
 				}
-				if (!showing) continue;
 
 				InstancePrepData& data = instancesPrep[{submesh.get(), mimpl->texId}];
 				if (data.vOffsets.capacity() == 0) {

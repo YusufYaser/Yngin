@@ -16,7 +16,11 @@ namespace Yngin {
 
 	namespace Rendering {
 		constexpr int SSBO_GROW_UNIT = 128;
-		constexpr int MAX_LIGHTS = 256;
+		constexpr int MAX_POINT_LIGHTS = 256;
+		constexpr int MAX_DIRECTIONAL_LIGHTS = 2;
+
+		constexpr int SHADOW_MAP_WIDTH = 4096;
+		constexpr int SHADOW_MAP_HEIGHT = 4096;
 
 		struct ShaderPointLight {
 			glm::vec3 position;
@@ -29,6 +33,9 @@ namespace Yngin {
 		};
 
 		struct ShaderDirectionalLight {
+			int index;
+			int _pads[3];
+			glm::mat4 viewProjection;
 			glm::vec3 color;
 			float _pad2;
 			glm::vec3 direction;
@@ -39,8 +46,8 @@ namespace Yngin {
 			int pointLightsCount = 0;
 			int directionalLightsCount = 0;
 			int _pads[2];
-			ShaderPointLight pointLights[MAX_LIGHTS];
-			ShaderDirectionalLight directionalLights[MAX_LIGHTS];
+			ShaderPointLight pointLights[MAX_POINT_LIGHTS];
+			ShaderDirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS];
 		};
 
 		// View-Frustum Culling
@@ -89,6 +96,7 @@ namespace Yngin {
 
 			float renderDistance = 512.0f;
 
+			void setFrustumPlanes(glm::mat4 viewProjection);
 			Plane frustumPlanes[6];
 
 			size_t sceneSubmeshesRendered = 0;
@@ -120,6 +128,9 @@ namespace Yngin {
 			GLuint colorsTex;
 			GLuint IDsTex;
 			GLuint RBO;
+
+			GLuint shadowFBO;
+			GLuint shadowMapsTex;
 		};
 	}
 }

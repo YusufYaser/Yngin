@@ -17,7 +17,6 @@ namespace Yngin {
 
 			size_t getSubmeshesRendered() const;
 
-			size_t getMaxSceneLightsCount() const;
 			size_t getSceneLightsCount() const;
 
 			uint32_t getGameObjectId(glm::ivec2 pixel);
