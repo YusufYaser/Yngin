@@ -1,11 +1,4 @@
-#pragma once
-#include <Yngin/Rendering/Shaders.h>
-
-namespace Yngin {
-	namespace ShaderSources {
-		const ShaderSource depth = {
-			// vertex
-			R"(
+R"(
 #version 460 core
 
 layout(location = 0) in vec3 inPosition;
@@ -25,7 +18,4 @@ void main() {
 	// Depth Pre Pass only happens when objects are rendered by instancing
 	gl_Position = viewProjection * vertexOffsets[gl_InstanceID].model * vec4(inPosition, 1.0);
 }
-			)",
-		};
-	}
-}
+)"

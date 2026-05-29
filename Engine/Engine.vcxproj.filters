@@ -84,12 +84,6 @@
     <ClInclude Include="src\Rendering\Shaders\Shaders_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rendering\Shaders\Sources\World_Shader_Source.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Rendering\Shaders\Sources\Skybox_Shader_Source.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\Models\DefaultModels\Skybox_Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -133,9 +127,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Models\DefaultModels\Square_Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Rendering\Shaders\Sources\UI_Shader_Source.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Yngin\Components\Light.h">
@@ -210,7 +201,10 @@
     <ClInclude Include="src\Internal\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rendering\Shaders\Sources\Depth_Shader_Source.h">
+    <ClInclude Include="src\Rendering\Shaders\Sources\Shaders_Sources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rendering\Shaders\Shaders_Sources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
