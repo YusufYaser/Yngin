@@ -149,6 +149,8 @@
     <ClCompile Include="deps\vendor\ImGui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="deps\vendor\ImGui\imgui_tables.cpp" />
     <ClCompile Include="deps\vendor\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="deps\vendor\ImPlot\implot.cpp" />
+    <ClCompile Include="deps\vendor\ImPlot\implot_items.cpp" />
     <ClCompile Include="src\Editor\Camera.cpp" />
     <ClCompile Include="src\Editor\Editor.cpp" />
     <ClCompile Include="src\Editor\Explorer\GameExplorer.cpp" />
@@ -184,6 +186,8 @@
     <ClInclude Include="deps\vendor\ImGui\imstb_rectpack.h" />
     <ClInclude Include="deps\vendor\ImGui\imstb_textedit.h" />
     <ClInclude Include="deps\vendor\ImGui\imstb_truetype.h" />
+    <ClInclude Include="deps\vendor\ImPlot\implot.h" />
+    <ClInclude Include="deps\vendor\ImPlot\implot_internal.h" />
     <ClInclude Include="src\Editor\Cube_Model.h" />
     <ClInclude Include="src\Editor\DefaultScripts.h" />
     <ClInclude Include="src\Editor\Editor.h" />

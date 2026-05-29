@@ -33,3 +33,4 @@ Thanks to the [Open Source](https://opensource.org/) community for the libraries
 - Thanks to [glm](https://github.com/g-truc/glm) for providing the math to work with OpenGL
 - Thanks to [ImGui](https://github.com/ocornut/imgui) for providing the UI to make the editor
 - Thanks to [ImGuiColorTextEdit](https://github.com/BalazsJako/ImGuiColorTextEdit) for providing the text editor for editing scripts
+- Thanks to [ImPlot](https://github.com/epezent/implot) for providing the tools to implement the resource usage graphs
