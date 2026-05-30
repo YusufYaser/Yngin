@@ -83,7 +83,7 @@ uniform vec3 cameraPos;
 uniform SceneSettings scene;
 
 uniform sampler2D tex;
-uniform sampler2DArray shadowMaps;
+uniform sampler2DArrayShadow shadowMaps;
 uniform vec4 uColor;
 
 float CalculateDirectionalLightShadow(DirectionalLight l) {
@@ -95,13 +95,19 @@ float CalculateDirectionalLightShadow(DirectionalLight l) {
 	float currentDepth = shadowCoord.z;
 	
 	float shadows = 0.0;
-	
+
 	vec2 texelSize = 1.0 / vec2(textureSize(shadowMaps, 0).xy);
-	
+
 	for (int x = -1; x <= 1; x++) {
 		for (int y = -1; y <= 1; y++) {
-			float closestDepth = texture(shadowMaps, vec3(shadowCoord.xy + vec2(x, y) * texelSize, l.index)).r;
-			shadows += currentDepth > closestDepth + 0.001 ? 1.0 : 0.0;
+			shadows += 1.0 - texture(
+				shadowMaps,
+				vec4(
+					shadowCoord.xy + vec2(x,y) * texelSize * 2.0,
+					l.index,
+					currentDepth - 0.001
+				)
+			);
 		}
 	}
 	

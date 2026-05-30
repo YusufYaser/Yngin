@@ -123,8 +123,10 @@ namespace Yngin::Rendering {
 			0
 		);
 
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 		static const glm::vec4 white = glm::vec4(1.0f);
@@ -345,8 +347,15 @@ namespace Yngin::Rendering {
 						shaderLight.direction = glm::normalize(direction);
 
 						float halfBoxSize = 100.0f;
+						float unitsPerTexel = (halfBoxSize * 2.0f) / SHADOW_MAP_WIDTH;
+
+						glm::vec3 center = camPos;
+						center.x = std::floor(center.x / unitsPerTexel) * unitsPerTexel;
+						center.y = std::floor(center.y / unitsPerTexel) * unitsPerTexel;
+						center.z = std::floor(center.z / unitsPerTexel) * unitsPerTexel;
+
 						glm::mat4 proj = glm::ortho(-halfBoxSize, halfBoxSize, -halfBoxSize, halfBoxSize, 0.1f, 1000.0f);
-						glm::mat4 view = glm::lookAt(camPos - direction * 300.0f, camPos, { 0, 0, 1 });
+						glm::mat4 view = glm::lookAt(center - direction * 300.0f, center, { 0, 0, 1 });
 
 						glm::mat4 lightVP = proj * view;
 

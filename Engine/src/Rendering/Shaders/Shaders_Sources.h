@@ -1,9 +1,9 @@
 #pragma once
 #include <Yngin/Rendering/Shaders.h>
 
-#ifndef __INTELLISENSE__
 namespace Yngin {
 	namespace ShaderSources {
+#ifndef __INTELLISENSE__
 		const ShaderSource world = {
 #include "Sources/World/World.vert"
 			,
@@ -26,9 +26,12 @@ namespace Yngin {
 
 		const ShaderSource depth = {
 #include "Sources/Depth/Depth.vert"
-			,
-#include "Sources/Depth/Depth.frag"
 		};
+#else
+		const ShaderSource world = {};
+		const ShaderSource ui = {};
+		const ShaderSource skybox = {};
+		const ShaderSource depth = {};
+#endif
 	}
 }
-#endif
