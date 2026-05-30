@@ -9,6 +9,7 @@
 #include <ImGui/imgui.h>
 #include <sstream>
 #include <ImGuiColorTextEdit/TextEditor.h>
+#include <ImPlot/implot.h>
 #include "UI/UI.h"
 #ifdef _WIN32
 #include <Windows.h>
@@ -72,8 +73,9 @@ public:
 	std::pair<EXPLORER_SELECTION_TYPE, int> explorerSelection = {};
 
 	bool running = false;
+	double runningStartTime = 0;
 
-	bool editorLighting = false;
+	bool editorLighting = true;
 
 	bool viewingObject = false;
 
@@ -90,6 +92,7 @@ public:
 
 private:
 	ImGuiContext* imguiCtx;
+	ImPlotContext* implotCtx;
 
 	bool filesLoaded = false;
 
@@ -136,4 +139,9 @@ private:
 	void loadScripts();
 
 	int logsStart = 0;
+
+	float lastGraphTime = -5.0f;
+	std::vector<float> graphsTimes;
+	std::vector<float> graphsFPSValues;
+	std::vector<float> graphsMemoryValues;
 };

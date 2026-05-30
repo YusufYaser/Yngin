@@ -18,6 +18,7 @@
 #undef APIENTRY
 #define NOMINMAX
 #include <Windows.h>
+#include <psapi.h>
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
 #undef min
@@ -210,6 +211,8 @@ Editor::Editor(std::string path) {
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr;
 
+	implotCtx = ImPlot::CreateContext();
+
 	saveProject();
 
 	fs::current_path(oldCwd);
@@ -226,6 +229,11 @@ Editor::~Editor() {
 	}
 
 	if (mutex != 0) CloseHandle(mutex);
+
+	if (implotCtx) {
+		ImPlot::SetCurrentContext(implotCtx);
+		ImPlot::DestroyContext();
+	}
 
 	if (imguiCtx) {
 		ImGui::SetCurrentContext(imguiCtx);
@@ -450,6 +458,9 @@ void Editor::togglePlayMode() {
 		ctx->meta.setMeta("#IsPlaying", 1);
 		ctx->notReady();
 		loadScripts();
+
+		runningStartTime = ctx->getFrameStartTime();
+
 		ctx->ready();
 	} else {
 		if (explorerSelection.first == EXPLORER_SELECTION_TYPE::NONE) {
@@ -524,6 +535,7 @@ void Editor::update() {
 	fs::current_path(path);
 
 	ImGui::SetCurrentContext(imguiCtx);
+	ImPlot::SetCurrentContext(implotCtx);
 	ctx->makeCurrent();
 
 	InputSystem* input = ctx->getInputSystem();
@@ -592,6 +604,35 @@ void Editor::update() {
 			if (targetMesh) {
 				targetMesh->setTexture(texId);
 			}
+		}
+	}
+
+	{
+		float time = ctx->getFrameStartTime();
+		if (time - lastGraphTime > 0.1f) {
+			lastGraphTime = time;
+
+			if (!graphsTimes.empty() && time - graphsTimes[0] > 10) {
+				while (!graphsTimes.empty() && time - graphsTimes[0] > 7) {
+					graphsTimes.erase(graphsTimes.begin());
+					graphsFPSValues.erase(graphsFPSValues.begin());
+					graphsMemoryValues.erase(graphsMemoryValues.begin());
+				}
+			}
+
+			graphsTimes.push_back(time);
+			graphsFPSValues.push_back(1.0f / ctx->getDeltaTime());
+
+#ifdef _WIN32
+			PROCESS_MEMORY_COUNTERS pmc;
+			if (GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc))) {
+				graphsMemoryValues.push_back(pmc.WorkingSetSize / (1024.0f * 1024.0f)); // Memory in MB
+			} else {
+				graphsMemoryValues.push_back(0);
+			}
+#else
+			graphsMemoryValues.push_back(0);
+#endif
 		}
 	}
 
@@ -934,8 +975,10 @@ void Editor::update() {
 		}
 
 		case EXPLORER_SELECTION_TYPE::SCENE:
+		{
 			showSceneProps(explorerSelection.second);
 			break;
+		}
 		}
 		ImGui::End();
 	}
@@ -1038,6 +1081,40 @@ void Editor::update() {
 			i++;
 		}
 		ImGui::NewLine();
+
+		ImGui::EndTabItem();
+	}
+	if (ImGui::BeginTabItem("Performance")) {
+		if (!graphsTimes.empty()) {
+			ImVec2 contentSize = ImGui::GetContentRegionAvail();
+
+			if (ImPlot::BeginPlot("FPS", ImVec2(contentSize.x / 2.0f, -1), ImPlotFlags_NoLegend | ImPlotFlags_NoMouseText | ImPlotFlags_NoFrame | ImPlotFlags_Crosshairs | ImPlotFlags_NoInputs)) {
+
+				float max = *std::max_element(graphsFPSValues.begin(), graphsFPSValues.end());
+
+				ImPlot::SetupAxesLimits(graphsTimes[0], graphsTimes[0] + 10, 0, max + 5, ImPlotCond_Always);
+				ImPlot::SetupAxis(ImAxis_X1, nullptr, ImPlotAxisFlags_NoDecorations);
+
+				ImPlot::PlotShaded("Data", graphsTimes.data(), graphsFPSValues.data(), graphsTimes.size());
+
+				ImPlot::EndPlot();
+			}
+
+			ImGui::SameLine();
+
+			if (ImPlot::BeginPlot("RAM Usage", ImVec2(-1, -1), ImPlotFlags_NoLegend | ImPlotFlags_NoMouseText | ImPlotFlags_NoFrame | ImPlotFlags_Crosshairs | ImPlotFlags_NoInputs)) {
+
+				float max = *std::max_element(graphsMemoryValues.begin(), graphsMemoryValues.end());
+
+				ImPlot::SetupAxesLimits(graphsTimes[0], graphsTimes[0] + 10, 0, max + 5, ImPlotCond_Always);
+
+				ImPlot::SetupAxis(ImAxis_X1, nullptr, ImPlotAxisFlags_NoDecorations);
+
+				ImPlot::PlotShaded("Data", graphsTimes.data(), graphsMemoryValues.data(), graphsTimes.size());
+
+				ImPlot::EndPlot();
+			}
+		}
 
 		ImGui::EndTabItem();
 	}

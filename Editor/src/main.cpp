@@ -30,8 +30,6 @@ void openProject(std::string path) {
 
 int main(int argc, char* argv[]) {
 #if defined(_DEBUG) && defined(_WIN32)
-	LoadLibraryA("C:\\Program Files\\RenderDoc\\renderdoc.dll");
-
 	if (AllocConsole()) {
 		SetConsoleTitle(L"Yngin Editor");
 
