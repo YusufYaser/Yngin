@@ -44,8 +44,8 @@ namespace Yngin::GameFiles {
 				pakModelData.defaultMaterials[i] = data.defaultMaterials[i];
 			}
 
-			pakModelData.verticesCount = uint16_t(data.vertices.size());
-			pakModelData.indicesCount = uint16_t(data.indices.size());
+			pakModelData.verticesCount = uint32_t(data.vertices.size());
+			pakModelData.indicesCount = uint32_t(data.indices.size());
 
 			W(pakModelData, PakModelData);
 

@@ -35,7 +35,7 @@ namespace Yngin::GameFiles {
 			modelData.defaultMaterials[i] = pakModelData.defaultMaterials[i];
 		}
 
-		for (int i = 0; i < pakModelData.verticesCount; i++) {
+		for (uint32_t i = 0; i < pakModelData.verticesCount; i++) {
 			ModelVertexData v{};
 			R(v, ModelVertexData);
 			modelData.vertices.push_back(Vertex{
@@ -46,7 +46,7 @@ namespace Yngin::GameFiles {
 				});
 		}
 
-		for (int i = 0; i < pakModelData.indicesCount; i++) {
+		for (uint32_t i = 0; i < pakModelData.indicesCount; i++) {
 			uint32_t index = 0;
 			R(index, uint32_t);
 			modelData.indices.push_back(index);

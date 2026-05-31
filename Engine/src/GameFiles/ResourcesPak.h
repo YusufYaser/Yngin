@@ -32,8 +32,8 @@ namespace Yngin {
 				MODEL_FRONT_FACE frontFace;
 				uint8_t materialsCount;
 				uint32_t defaultMaterials[256];
-				uint16_t verticesCount;
-				uint16_t indicesCount;
+				uint32_t verticesCount;
+				uint32_t indicesCount;
 
 				// ModelVertex vertices[verticesCount]
 				// uint32_t indices[indicesCount]
