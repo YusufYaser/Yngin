@@ -87,7 +87,7 @@ void Editor::showModelProps(uint32_t id) {
 							if (model) {
 								std::filesystem::path fsPath(path);
 								std::string filename = fsPath.filename().stem().string();
-								model->meta.setMeta("Editor.Name", filename);
+								model->meta.setMeta("Editor.Name", filename.substr(0, 64));
 
 								explorerSelection = { EXPLORER_SELECTION_TYPE::MODEL, model->getId() };
 							}
@@ -116,14 +116,14 @@ void Editor::showModelProps(uint32_t id) {
 	ImGui::Text("Properties (%s) (%i)", name.c_str(), model->getId());
 	ImGui::Separator();
 	{
-		static char v[32] = {};
+		static char v[65] = {};
 		ImGui::Text("Name");
 		ImGui::SameLine(100);
-		if (ImGui::InputText("##ObjectName", v, 32)) {
+		if (ImGui::InputText("##ObjectName", v, 65)) {
 			name = v;
 			model->meta.setMeta("Editor.Name", name);
 		} else {
-			strcpy_s(v, 32, name.c_str());
+			strcpy_s(v, 65, name.c_str());
 		}
 	}
 	ImGui::Separator();
@@ -192,7 +192,7 @@ void Editor::showMaterialProps(uint32_t id) {
 						Material* mat = ctx->getMaterialsManager()->getMaterial(id);
 						if (mat == nullptr) continue;
 
-						mat->meta.setMeta("Editor.Name", filename + ": " + name);
+						mat->meta.setMeta("Editor.Name", (filename + ": " + name).substr(0, 64));
 					}
 
 					if (created.size() != 0) {
@@ -219,14 +219,14 @@ void Editor::showMaterialProps(uint32_t id) {
 	ImGui::Text("Properties (%s) (%i)", name.c_str(), mat->getId());
 	ImGui::Separator();
 	{
-		static char v[32] = {};
+		static char v[65] = {};
 		ImGui::Text("Name");
 		ImGui::SameLine(100);
-		if (ImGui::InputText("##ObjectName", v, 32)) {
+		if (ImGui::InputText("##ObjectName", v, 65)) {
 			name = v;
 			mat->meta.setMeta("Editor.Name", name);
 		} else {
-			strcpy_s(v, 32, name.c_str());
+			strcpy_s(v, 65, name.c_str());
 		}
 	}
 	ImGui::Separator();
@@ -343,7 +343,7 @@ void Editor::showTextureProps(uint32_t id) {
 				if (texture) {
 					std::filesystem::path fsPath(path);
 					std::string filename = fsPath.filename().stem().string();
-					texture->meta.setMeta("Editor.Name", filename);
+					texture->meta.setMeta("Editor.Name", filename.substr(0, 64));
 
 					explorerSelection = { EXPLORER_SELECTION_TYPE::TEXTURE, texture->getId() };
 					v[0] = '\0';
@@ -365,14 +365,14 @@ void Editor::showTextureProps(uint32_t id) {
 	ImGui::Text("Properties (%s) (%i)", name.c_str(), texture->getId());
 	ImGui::Separator();
 	{
-		static char v[32] = {};
+		static char v[65] = {};
 		ImGui::Text("Name");
 		ImGui::SameLine(100);
-		if (ImGui::InputText("##ObjectName", v, 32)) {
+		if (ImGui::InputText("##ObjectName", v, 65)) {
 			name = v;
 			texture->meta.setMeta("Editor.Name", name);
 		} else {
-			strcpy_s(v, 32, name.c_str());
+			strcpy_s(v, 65, name.c_str());
 		}
 	}
 

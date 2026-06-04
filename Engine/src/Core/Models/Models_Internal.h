@@ -6,7 +6,7 @@
 #include <optional>
 
 namespace Yngin {
-	constexpr size_t MAX_MODELS = std::numeric_limits<uint16_t>::max();
+	constexpr size_t MAX_MODELS = std::numeric_limits<uint16_t>::max() + 1;
 
 	struct InternalSubmesh {
 		~InternalSubmesh();

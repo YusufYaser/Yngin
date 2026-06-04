@@ -4,7 +4,7 @@
 #include <optional>
 
 namespace Yngin {
-	constexpr size_t MAX_MATERIALS = std::numeric_limits<uint16_t>::max();
+	constexpr size_t MAX_MATERIALS = std::numeric_limits<uint16_t>::max() + 1;
 
 	struct Material::Impl {
 		Context* ctx;

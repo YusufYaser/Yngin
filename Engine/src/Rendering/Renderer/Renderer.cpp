@@ -284,8 +284,9 @@ namespace Yngin::Rendering {
 			skyboxShader->setMat4("view", glm::mat4(glm::mat3(view)));
 
 			skyboxTex->activate();
+			glDepthMask(GL_FALSE);
 			skybox->impl->render();
-			glClear(GL_DEPTH_BUFFER_BIT);
+			glDepthMask(GL_TRUE);
 		}
 
 		preparingInstances = true;

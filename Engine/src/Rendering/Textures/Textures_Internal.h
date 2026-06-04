@@ -5,7 +5,7 @@
 #include <optional>
 
 namespace Yngin {
-	constexpr size_t MAX_TEXTURES = std::numeric_limits<uint16_t>::max();
+	constexpr size_t MAX_TEXTURES = std::numeric_limits<uint16_t>::max() + 1;
 
 	struct Texture::Impl {
 		Context* ctx;

@@ -365,6 +365,34 @@ void Editor::showGameObjectProps(uint32_t id) {
 			}
 		}
 
+		ImGui::SeparatorText("Velocity");
+		{
+			glm::vec3 velocity = rigidBody->getVelocity();
+			static glm::vec3 v = {};
+
+			ImGui::SetNextItemWidth(90.0f);
+			if (ImGui::InputFloat("##VelocityX", &v.x, 1.0f, 1.0f, "%.2f")) {
+				velocity.x = v.x;
+			} else {
+				v.x = velocity.x;
+			}
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(90.0f);
+			if (ImGui::InputFloat("##VelocityY", &v.y, 1.0f, 1.0f, "%.2f")) {
+				velocity.y = v.y;
+			} else {
+				v.y = velocity.y;
+			}
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(90.0f);
+			if (ImGui::InputFloat("##VelocityZ", &v.z, 1.0f, 1.0f, "%.2f")) {
+				velocity.z = v.z;
+			} else {
+				v.z = velocity.z;
+			}
+			rigidBody->setVelocity(velocity);
+		}
+
 		if (deleted) {
 			obj->deleteComponent<Components::RigidBody>();
 		}
