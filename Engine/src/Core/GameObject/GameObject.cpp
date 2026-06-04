@@ -14,9 +14,6 @@ template T* GameObject::createComponent<T>(); \
 template T* GameObject::getComponent<T>() const; \
 template bool GameObject::hasComponent<T>() const;
 
-#define REGISTER_COMPONENT_ID(T, ID) \
-template<> COMPONENT_ID getComponentId<T>() { return ID; }
-
 namespace Yngin {
 	using namespace Components;
 
@@ -176,26 +173,14 @@ namespace Yngin {
 		return impl->scale;
 	}
 
-	namespace {
-		template<typename T>
-		COMPONENT_ID getComponentId();
-
-		REGISTER_COMPONENT_ID(Components::Component, COMPONENT_ID::NONE);
-		REGISTER_COMPONENT_ID(Components::Mesh, COMPONENT_ID::MESH);
-		REGISTER_COMPONENT_ID(Components::PointLight, COMPONENT_ID::POINT_LIGHT);
-		REGISTER_COMPONENT_ID(Components::DirectionalLight, COMPONENT_ID::DIRECTIONAL_LIGHT);
-		REGISTER_COMPONENT_ID(Components::BoxCollider, COMPONENT_ID::BOX_COLLIDER);
-		REGISTER_COMPONENT_ID(Components::RigidBody, COMPONENT_ID::RIGID_BODY);
-	}
-
 	template<typename T>
 	bool GameObject::hasComponent() const {
-		return impl->components[static_cast<int>(getComponentId<T>())].get() != nullptr;
+		return impl->components[static_cast<int>(T::staticType)].get() != nullptr;
 	}
 
 	template<typename T>
 	inline T* GameObject::getComponent() const {
-		T* comp = dynamic_cast<T*>(impl->components[static_cast<int>(getComponentId<T>())].get());
+		T* comp = dynamic_cast<T*>(impl->components[static_cast<int>(T::staticType)].get());
 
 		return comp;
 	}
@@ -209,14 +194,14 @@ namespace Yngin {
 
 		auto component = std::unique_ptr<T>(new T(this));
 
-		impl->components[static_cast<int>(getComponentId<T>())] = std::move(component);
+		impl->components[static_cast<int>(T::staticType)] = std::move(component);
 
 		return getComponent<T>();
 	}
 
 	template<typename T>
 	void GameObject::deleteComponent() {
-		impl->components[static_cast<int>(getComponentId<T>())].reset();
+		impl->components[static_cast<int>(T::staticType)].reset();
 	}
 
 	DEFINE_FOR_COMPONENT(Components::Component);

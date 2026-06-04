@@ -65,6 +65,7 @@ namespace Yngin {
 		friend class Physics::PhysicsEngine;
 		friend class Rendering::Renderer;
 		friend class GameFiles::Generators;
+		friend class Components::Component;
 
 		GameObject(Context* ctx, Scene* scene, GameObject* parent);
 		~GameObject();
@@ -94,6 +95,7 @@ namespace Yngin {
 		friend class GameObject;
 		friend class Physics::PhysicsEngine;
 		friend class Rendering::Renderer;
+		friend class Components::Component;
 
 		GameObjectsManager(Context* ctx, Scene* scene);
 		~GameObjectsManager();

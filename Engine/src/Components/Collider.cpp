@@ -10,7 +10,7 @@ namespace Yngin::Components {
 
 	Collider::~Collider() = default;
 
-	COLLIDER_TYPE Collider::getType() const {
+	COLLIDER_TYPE Collider::getColliderType() const {
 		return COLLIDER_TYPE::NONE;
 	}
 
@@ -30,7 +30,11 @@ namespace Yngin::Components {
 
 	BoxCollider::~BoxCollider() = default;
 
-	COLLIDER_TYPE BoxCollider::getType() const {
+	COMPONENT_TYPE BoxCollider::getType() const {
+		return COMPONENT_TYPE::BOX_COLLIDER;
+	}
+
+	COLLIDER_TYPE BoxCollider::getColliderType() const {
 		return COLLIDER_TYPE::BOX;
 	}
 

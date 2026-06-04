@@ -9,6 +9,9 @@ namespace Yngin {
 	namespace Components {
 		class Mesh : public Component {
 		public:
+			static const COMPONENT_TYPE staticType = COMPONENT_TYPE::MESH;
+			COMPONENT_TYPE getType() const;
+
 			void setModel(uint32_t newModelId);
 			void setModel(Model* newModel);
 			uint32_t getModel() const;

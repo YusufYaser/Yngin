@@ -8,7 +8,7 @@ namespace Yngin::Components {
 
 	Light::~Light() = default;
 
-	LIGHT_TYPE Light::getType() const {
+	LIGHT_TYPE Light::getLightType() const {
 		return LIGHT_TYPE::NONE;
 	}
 
@@ -37,7 +37,11 @@ namespace Yngin::Components {
 
 	PointLight::~PointLight() = default;
 
-	LIGHT_TYPE PointLight::getType() const {
+	COMPONENT_TYPE PointLight::getType() const {
+		return COMPONENT_TYPE::POINT_LIGHT;
+	}
+
+	LIGHT_TYPE PointLight::getLightType() const {
 		return LIGHT_TYPE::POINT;
 	}
 
@@ -58,7 +62,11 @@ namespace Yngin::Components {
 
 	DirectionalLight::~DirectionalLight() = default;
 
-	LIGHT_TYPE DirectionalLight::getType() const {
-		return LIGHT_TYPE::DIRECTIONAL_LIGHT;
+	COMPONENT_TYPE DirectionalLight::getType() const {
+		return COMPONENT_TYPE::DIRECTIONAL_LIGHT;
+	}
+
+	LIGHT_TYPE DirectionalLight::getLightType() const {
+		return LIGHT_TYPE::DIRECTIONAL;
 	}
 }

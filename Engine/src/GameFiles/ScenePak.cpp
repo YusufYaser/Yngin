@@ -30,7 +30,7 @@ namespace Yngin {
 		Operation op{};
 
 		bool gameObjectActive = false;
-		std::map<COMPONENT_TYPE, bool> addedComponents;
+		std::map<PAK_COMPONENT_TYPE, bool> addedComponents;
 
 		while (R(op, Operation)) {
 			switch (op.op) {
@@ -64,40 +64,40 @@ namespace Yngin {
 				if (!R(componentData, ComponentData)) return false;
 
 				switch (componentData.componentType) {
-				case COMPONENT_TYPE::MESH:
+				case PAK_COMPONENT_TYPE::MESH:
 				{
-					if (addedComponents[COMPONENT_TYPE::MESH]) return false;
-					addedComponents[COMPONENT_TYPE::MESH] = true;
+					if (addedComponents[PAK_COMPONENT_TYPE::MESH]) return false;
+					addedComponents[PAK_COMPONENT_TYPE::MESH] = true;
 
 					MeshData meshData{};
 					if (!R(meshData, MeshData)) return false;
 
 					break;
 				}
-				case COMPONENT_TYPE::POINT_LIGHT:
+				case PAK_COMPONENT_TYPE::POINT_LIGHT:
 				{
-					if (addedComponents[COMPONENT_TYPE::POINT_LIGHT]) return false;
-					addedComponents[COMPONENT_TYPE::POINT_LIGHT] = true;
+					if (addedComponents[PAK_COMPONENT_TYPE::POINT_LIGHT]) return false;
+					addedComponents[PAK_COMPONENT_TYPE::POINT_LIGHT] = true;
 
 					PointLightData lightData{};
 					if (!R(lightData, PointLightData)) return false;
 
 					break;
 				}
-				case COMPONENT_TYPE::DIRECTIONAL_LIGHT:
+				case PAK_COMPONENT_TYPE::DIRECTIONAL_LIGHT:
 				{
-					if (addedComponents[COMPONENT_TYPE::DIRECTIONAL_LIGHT]) return false;
-					addedComponents[COMPONENT_TYPE::DIRECTIONAL_LIGHT] = true;
+					if (addedComponents[PAK_COMPONENT_TYPE::DIRECTIONAL_LIGHT]) return false;
+					addedComponents[PAK_COMPONENT_TYPE::DIRECTIONAL_LIGHT] = true;
 
 					DirectionalLightData lightData{};
 					if (!R(lightData, DirectionalLightData)) return false;
 
 					break;
 				}
-				case COMPONENT_TYPE::RIGIDBODY:
+				case PAK_COMPONENT_TYPE::RIGIDBODY:
 				{
-					if (addedComponents[COMPONENT_TYPE::RIGIDBODY]) return false;
-					addedComponents[COMPONENT_TYPE::RIGIDBODY] = true;
+					if (addedComponents[PAK_COMPONENT_TYPE::RIGIDBODY]) return false;
+					addedComponents[PAK_COMPONENT_TYPE::RIGIDBODY] = true;
 
 					RigidBodyData rigidBodyData{};
 					if (!R(rigidBodyData, RigidBodyData)) return false;
@@ -109,10 +109,10 @@ namespace Yngin {
 
 					break;
 				}
-				case COMPONENT_TYPE::BOX_COLLIDER:
+				case PAK_COMPONENT_TYPE::BOX_COLLIDER:
 				{
-					if (addedComponents[COMPONENT_TYPE::BOX_COLLIDER]) return false;
-					addedComponents[COMPONENT_TYPE::BOX_COLLIDER] = true;
+					if (addedComponents[PAK_COMPONENT_TYPE::BOX_COLLIDER]) return false;
+					addedComponents[PAK_COMPONENT_TYPE::BOX_COLLIDER] = true;
 
 					BoxColliderData boxColliderData{};
 					if (!R(boxColliderData, BoxColliderData)) return false;
@@ -210,7 +210,7 @@ namespace Yngin {
 				if (obj == nullptr) break;
 
 				switch (componentData.componentType) {
-				case COMPONENT_TYPE::MESH:
+				case PAK_COMPONENT_TYPE::MESH:
 				{
 					MeshData meshData{};
 					R(meshData, MeshData);
@@ -229,7 +229,7 @@ namespace Yngin {
 					}
 					break;
 				}
-				case COMPONENT_TYPE::POINT_LIGHT:
+				case PAK_COMPONENT_TYPE::POINT_LIGHT:
 				{
 					PointLightData lightData{};
 					R(lightData, PointLightData);
@@ -243,7 +243,7 @@ namespace Yngin {
 					}
 					break;
 				}
-				case COMPONENT_TYPE::DIRECTIONAL_LIGHT:
+				case PAK_COMPONENT_TYPE::DIRECTIONAL_LIGHT:
 				{
 					DirectionalLightData lightData{};
 					R(lightData, DirectionalLightData);
@@ -256,7 +256,7 @@ namespace Yngin {
 					}
 					break;
 				}
-				case COMPONENT_TYPE::RIGIDBODY:
+				case PAK_COMPONENT_TYPE::RIGIDBODY:
 				{
 					RigidBodyData rigidBodyData{};
 					R(rigidBodyData, RigidBodyData);
@@ -281,7 +281,7 @@ namespace Yngin {
 					}
 					break;
 				}
-				case COMPONENT_TYPE::BOX_COLLIDER:
+				case PAK_COMPONENT_TYPE::BOX_COLLIDER:
 				{
 					BoxColliderData boxColliderData{};
 					R(boxColliderData, BoxColliderData);

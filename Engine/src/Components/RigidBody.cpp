@@ -8,6 +8,10 @@ namespace Yngin::Components {
 
 	RigidBody::~RigidBody() = default;
 
+	COMPONENT_TYPE RigidBody::getType() const {
+		return COMPONENT_TYPE::RIGID_BODY;
+	}
+
 	void RigidBody::setMass(float mass) {
 		impl->mass = mass;
 	}

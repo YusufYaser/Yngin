@@ -18,6 +18,7 @@ namespace Yngin {
 	enum class TEXTURE_FILTER : uint8_t;
 
 	enum class UI_TYPE : uint8_t;
+	enum class COMPONENT_TYPE : uint8_t;
 
 	struct PakLoadSettings;
 	struct PakGenSettings;

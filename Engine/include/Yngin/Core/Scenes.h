@@ -72,6 +72,7 @@ namespace Yngin {
 		friend class Context;
 		friend class Physics::PhysicsEngine;
 		friend class Rendering::Renderer;
+		friend class Components::Component;
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;

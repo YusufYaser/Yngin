@@ -13,8 +13,8 @@ namespace Yngin {
 
 		class Collider : public Component {
 		public:
-			static const COLLIDER_TYPE staticType = COLLIDER_TYPE::NONE;
-			virtual COLLIDER_TYPE getType() const;
+			static const COLLIDER_TYPE staticColliderType = COLLIDER_TYPE::NONE;
+			virtual COLLIDER_TYPE getColliderType() const;
 
 			bool checkCollision(Collider* collider, bool fast = false) const;
 			bool isPointInCollider(glm::vec3 point) const;
@@ -31,8 +31,11 @@ namespace Yngin {
 
 		class BoxCollider : public Collider {
 		public:
-			static const COLLIDER_TYPE staticType = COLLIDER_TYPE::BOX;
-			COLLIDER_TYPE getType() const;
+			static const COMPONENT_TYPE staticType = COMPONENT_TYPE::BOX_COLLIDER;
+			COMPONENT_TYPE getType() const;
+
+			static const COLLIDER_TYPE staticColliderType = COLLIDER_TYPE::BOX;
+			COLLIDER_TYPE getColliderType() const;
 
 			void setSize(glm::vec3 size);
 			glm::vec3 getSize();

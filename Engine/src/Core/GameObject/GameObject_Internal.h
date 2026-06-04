@@ -4,18 +4,9 @@
 #include <typeindex>
 #include <map>
 #include <glm/matrix.hpp>
+#include "../../Components/Components_Internal.h"
 
 namespace Yngin {
-	enum class COMPONENT_ID : uint8_t {
-		NONE = 0,
-		MESH,
-		POINT_LIGHT,
-		DIRECTIONAL_LIGHT,
-		BOX_COLLIDER,
-		RIGID_BODY,
-		COUNT
-	};
-
 	struct GameObject::Impl {
 		uint32_t id;
 
@@ -29,8 +20,7 @@ namespace Yngin {
 		glm::vec3 rotation = {};
 		glm::vec3 scale = glm::vec3(1.0f);
 
-		std::unique_ptr<Components::Component> components[(unsigned long long)COMPONENT_ID::COUNT];
-
+		std::unique_ptr<Components::Component> components[(unsigned long long)COMPONENT_TYPE::COUNT];
 		bool updateMatrices = true;
 		glm::mat4 modelMatrix;
 		glm::mat3 normalMatrix;

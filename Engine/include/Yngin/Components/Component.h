@@ -3,9 +3,22 @@
 #include <memory>
 
 namespace Yngin {
+	enum class COMPONENT_TYPE : uint8_t {
+		NONE = 0,
+		MESH,
+		POINT_LIGHT,
+		DIRECTIONAL_LIGHT,
+		BOX_COLLIDER,
+		RIGID_BODY,
+		COUNT
+	};
+
 	namespace Components {
 		class Component {
 		public:
+			static const COMPONENT_TYPE staticType = COMPONENT_TYPE::NONE;
+			virtual COMPONENT_TYPE getType() const;
+
 			GameObject* getGameObject();
 
 		private:

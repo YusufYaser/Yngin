@@ -216,7 +216,7 @@ namespace Yngin::GameFiles {
 				op.op = OP::COMPONENT;
 				W(op, Operation);
 
-				compData.componentType = COMPONENT_TYPE::MESH;
+				compData.componentType = PAK_COMPONENT_TYPE::MESH;
 				W(compData, ComponentData);
 
 				MeshData meshData{};
@@ -238,7 +238,7 @@ namespace Yngin::GameFiles {
 					op.op = OP::COMPONENT;
 					W(op, Operation);
 
-					compData.componentType = COMPONENT_TYPE::POINT_LIGHT;
+					compData.componentType = PAK_COMPONENT_TYPE::POINT_LIGHT;
 					W(compData, ComponentData);
 
 					PointLightData lightData{};
@@ -257,7 +257,7 @@ namespace Yngin::GameFiles {
 					op.op = OP::COMPONENT;
 					W(op, Operation);
 
-					compData.componentType = COMPONENT_TYPE::DIRECTIONAL_LIGHT;
+					compData.componentType = PAK_COMPONENT_TYPE::DIRECTIONAL_LIGHT;
 					W(compData, ComponentData);
 
 					DirectionalLightData lightData{};
@@ -273,7 +273,7 @@ namespace Yngin::GameFiles {
 				op.op = OP::COMPONENT;
 				W(op, Operation);
 
-				compData.componentType = COMPONENT_TYPE::RIGIDBODY;
+				compData.componentType = PAK_COMPONENT_TYPE::RIGIDBODY;
 				W(compData, ComponentData);
 
 				RigidBodyData rigidBodyData{};
@@ -301,7 +301,7 @@ namespace Yngin::GameFiles {
 				op.op = OP::COMPONENT;
 				W(op, Operation);
 
-				compData.componentType = COMPONENT_TYPE::BOX_COLLIDER;
+				compData.componentType = PAK_COMPONENT_TYPE::BOX_COLLIDER;
 				W(compData, ComponentData);
 
 				BoxColliderData boxColliderData{};

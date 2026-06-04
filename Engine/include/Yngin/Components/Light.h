@@ -9,13 +9,13 @@ namespace Yngin {
 		enum class LIGHT_TYPE : uint8_t {
 			NONE,
 			POINT,
-			DIRECTIONAL_LIGHT
+			DIRECTIONAL
 		};
 
 		class Light : public Component {
 		public:
-			static const LIGHT_TYPE staticType = LIGHT_TYPE::NONE;
-			virtual LIGHT_TYPE getType() const;
+			static const LIGHT_TYPE staticLightType = LIGHT_TYPE::NONE;
+			virtual LIGHT_TYPE getLightType() const;
 
 			glm::vec3 getColor() const;
 			void setColor(glm::vec3 color);
@@ -38,8 +38,11 @@ namespace Yngin {
 
 		class PointLight : public Light {
 		public:
-			static const LIGHT_TYPE staticType = LIGHT_TYPE::POINT;
-			LIGHT_TYPE getType() const;
+			static const COMPONENT_TYPE staticType = COMPONENT_TYPE::POINT_LIGHT;
+			COMPONENT_TYPE getType() const;
+
+			static const LIGHT_TYPE staticLightType = LIGHT_TYPE::POINT;
+			LIGHT_TYPE getLightType() const;
 
 			float getDistance() const;
 			void setDistance(float distance);
@@ -57,8 +60,11 @@ namespace Yngin {
 
 		class DirectionalLight : public Light {
 		public:
-			static const LIGHT_TYPE staticType = LIGHT_TYPE::DIRECTIONAL_LIGHT;
-			LIGHT_TYPE getType() const;
+			static const COMPONENT_TYPE staticType = COMPONENT_TYPE::DIRECTIONAL_LIGHT;
+			COMPONENT_TYPE getType() const;
+
+			static const LIGHT_TYPE staticLightType = LIGHT_TYPE::DIRECTIONAL;
+			LIGHT_TYPE getLightType() const;
 
 		private:
 			DirectionalLight(GameObject* gameObject);

@@ -10,7 +10,7 @@ namespace Yngin {
 		extern const int VERSION;
 
 		namespace ScenePak {
-			enum COMPONENT_TYPE : uint8_t {
+			enum PAK_COMPONENT_TYPE : uint8_t {
 				MESH,
 				POINT_LIGHT,
 				RIGIDBODY,
@@ -42,7 +42,7 @@ namespace Yngin {
 			};
 
 			struct ComponentData {
-				COMPONENT_TYPE componentType;
+				PAK_COMPONENT_TYPE componentType;
 			};
 
 			struct MeshData {

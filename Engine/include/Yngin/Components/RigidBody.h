@@ -9,6 +9,9 @@ namespace Yngin {
 	namespace Components {
 		class RigidBody : public Component {
 		public:
+			static const COMPONENT_TYPE staticType = COMPONENT_TYPE::RIGID_BODY;
+			COMPONENT_TYPE getType() const;
+
 			void setMass(float mass);
 			float getMass();
 

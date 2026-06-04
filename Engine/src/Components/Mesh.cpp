@@ -18,6 +18,10 @@ namespace Yngin {
 
 		Mesh::~Mesh() = default;
 
+		COMPONENT_TYPE Mesh::getType() const {
+			return COMPONENT_TYPE::MESH;
+		}
+
 		void Mesh::setModel(uint32_t newModelId) {
 			Model* model = Component::impl->ctx->getModelsManager()->getModel(newModelId);
 			if (model) setModel(model);

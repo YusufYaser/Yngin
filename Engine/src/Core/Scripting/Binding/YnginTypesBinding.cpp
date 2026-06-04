@@ -856,8 +856,30 @@ namespace Yngin {
 
 
 		// Components
+		lua.new_enum<COMPONENT_TYPE>("COMPONENT_TYPE", {
+			{ "NONE", COMPONENT_TYPE::NONE },
+			{ "MESH", COMPONENT_TYPE::MESH },
+			{ "POINT_LIGHT", COMPONENT_TYPE::POINT_LIGHT },
+			{ "DIRECTIONAL_LIGHT", COMPONENT_TYPE::DIRECTIONAL_LIGHT },
+			{ "BOX_COLLIDER", COMPONENT_TYPE::BOX_COLLIDER },
+			{ "RIGID_BODY", COMPONENT_TYPE::RIGID_BODY },
+			});
+
+		lua.new_enum<Components::COLLIDER_TYPE>("COLLIDER_TYPE", {
+			{ "NONE", Components::COLLIDER_TYPE::NONE },
+			{ "BOX", Components::COLLIDER_TYPE::BOX },
+			});
+
+		lua.new_enum<Components::LIGHT_TYPE>("LIGHT_TYPE", {
+			{ "NONE", Components::LIGHT_TYPE::NONE },
+			{ "POINT", Components::LIGHT_TYPE::POINT },
+			{ "DIRECTIONAL", Components::LIGHT_TYPE::DIRECTIONAL }
+			});
+
 		lua.new_usertype<Components::Component>("Component",
 			sol::no_constructor,
+
+			BIND(Components::Component, getType),
 
 			BIND(Components::Component, getGameObject)
 		);
@@ -886,6 +908,8 @@ namespace Yngin {
 		lua.new_usertype<Components::Light>("Light",
 			sol::no_constructor,
 			sol::base_classes, sol::bases<Components::Component>(),
+
+			BIND(Components::Light, getLightType),
 
 			BIND(Components::Light, setColor),
 			BIND(Components::Light, getColor),
@@ -936,7 +960,8 @@ namespace Yngin {
 			sol::no_constructor,
 			sol::base_classes, sol::bases<Components::Component>(),
 
-			BIND(Components::Collider, getType),
+			BIND(Components::Collider, getColliderType),
+
 			BIND(Components::Collider, isPointInCollider),
 
 			"checkCollision", sol::overload(
