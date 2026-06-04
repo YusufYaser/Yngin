@@ -91,16 +91,14 @@ namespace Yngin {
 			.height = 1,
 			.numCh = 1,
 			.bytes = "\x00"
-			});
-		black->meta.setMeta("Editor.Name", "Black");
+			}, {}, 0);
 
 		Texture* white = m.texturesManager->createTexture({
 			.width = 1,
 			.height = 1,
 			.numCh = 1,
 			.bytes = "\xff"
-			});
-		white->meta.setMeta("Editor.Name", "White");
+			}, {}, 1);
 
 		Texture* grid = m.texturesManager->createTexture({
 			.width = 2,
@@ -112,9 +110,15 @@ namespace Yngin {
 			.wrap = TEXTURE_WRAP::REPEAT,
 			.filterMin = TEXTURE_FILTER::NEAREST,
 			.filterMag = TEXTURE_FILTER::NEAREST
-			}
+			},
+			2
 		);
-		grid->meta.setMeta("Editor.Name", "Grid");
+
+		Material* defaultMat = m.materialsManager->createMaterial(0, true);
+		defaultMat->setAmbientColor(glm::vec3(1.0f));
+		defaultMat->setDiffuseColor(glm::vec3(1.0f));
+		defaultMat->setSpecularColor(glm::vec3(1.0f));
+		defaultMat->setSpecularComponent(64.0f);
 
 		Shader* worldShader = m.shadersManager->getShader(SHADER_TYPE::WORLD);
 		Shader* skyboxShader = m.shadersManager->getShader(SHADER_TYPE::SKYBOX);

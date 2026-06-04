@@ -21,10 +21,15 @@ bool Editor::generateNewProject(std::string path) {
 
 	Context* ctx = new Context();
 
+	ctx->getTexturesManager()->getTexture(0)->meta.setMeta("Editor.Name", "Black");
+	ctx->getTexturesManager()->getTexture(1)->meta.setMeta("Editor.Name", "White");
+	ctx->getTexturesManager()->getTexture(2)->meta.setMeta("Editor.Name", "Grid");
+	ctx->getMaterialsManager()->getMaterial(0)->meta.setMeta("Editor.Name", "Default Material");
+
 
 	Scene* activeScene = ctx->getScenesManager()->createScene(0, true);
 
-	Model* cubeModel = ctx->getModelsManager()->createModel(cubeModelData);
+	Model* cubeModel = ctx->getModelsManager()->createModel(cubeModelData, 0, true);
 	cubeModel->meta.setMeta("Editor.Name", "Cube");
 
 	{
@@ -67,14 +72,6 @@ bool Editor::generateNewProject(std::string path) {
 			.code = script.code
 		};
 	}
-
-	Material* defaultMat = ctx->getMaterialsManager()->createMaterial(0, true);
-	defaultMat->meta.setMeta("Editor.Name", "Default Material");
-
-	defaultMat->setAmbientColor(glm::vec3(1.0f));
-	defaultMat->setDiffuseColor(glm::vec3(1.0f));
-	defaultMat->setSpecularColor(glm::vec3(1.0f));
-	defaultMat->setSpecularComponent(64.0f);
 
 	bool success = saveContext(ctx, scripts);
 
