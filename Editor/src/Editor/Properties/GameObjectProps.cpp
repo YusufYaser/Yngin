@@ -365,7 +365,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 			}
 		}
 
-		ImGui::SeparatorText("Velocity");
+		ImGui::Text("Velocity");
 		{
 			glm::vec3 velocity = rigidBody->getVelocity();
 			static glm::vec3 v = {};

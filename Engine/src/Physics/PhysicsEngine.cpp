@@ -11,7 +11,7 @@
 
 namespace Yngin {
 	namespace Physics {
-		constexpr float SMALLEST_UNIT = 0.1f;
+		constexpr float SMALLEST_UNIT = 0.0001f;
 
 		PhysicsEngine::PhysicsEngine(Context* ctx) {
 			impl = std::make_unique<Impl>();
@@ -171,22 +171,20 @@ namespace Yngin {
 			for (auto& rigidBody : rigidBodies) {
 				GameObject* obj = rigidBody->getGameObject();
 
-				if (rigidBody->impl->mass != 0.0f) {
-					float mass = rigidBody->impl->mass;
+				float mass = rigidBody->impl->mass;
 
-					rigidBody->impl->velocity.z -= scene->impl->gravity * t;
+				rigidBody->impl->velocity.z -= scene->impl->gravity * t;
 
-					rigidBody->impl->velocity += rigidBody->impl->impulseForceAccumulation / mass;
-					rigidBody->impl->impulseForceAccumulation = glm::vec3();
+				rigidBody->impl->velocity += rigidBody->impl->impulseForceAccumulation / mass;
+				rigidBody->impl->impulseForceAccumulation = glm::vec3();
 
-					for (auto& force : rigidBody->impl->forces) {
-						float time = std::min(t, force.w);
-						if (force.w <= 1e-6) continue;
+				for (auto& force : rigidBody->impl->forces) {
+					float time = std::min(t, force.w);
+					if (force.w <= 1e-6) continue;
 
-						rigidBody->impl->velocity += (force / mass) * time;
+					rigidBody->impl->velocity += (force / mass) * time;
 
-						force.w -= time;
-					}
+					force.w -= time;
 				}
 
 				glm::vec3 velocityDir = {

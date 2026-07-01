@@ -636,6 +636,8 @@ void Editor::update() {
 		}
 	}
 
+	ctx->getPhysicsEngine()->setSimulationEnabled(running);
+	ctx->getRenderer()->setLightingEnabled(running || (explorerSelection.first == EXPLORER_SELECTION_TYPE::MATERIAL && explorerSelection.second != -1) || editorLighting);
 	ctx->update(false);
 
 	if (viewingTextureOnMesh && targetMesh) {
@@ -910,8 +912,6 @@ void Editor::update() {
 
 		ImGui::PopStyleColor();
 	}
-	ctx->getPhysicsEngine()->setSimulationEnabled(running);
-	ctx->getRenderer()->setLightingEnabled(running || (explorerSelection.first == EXPLORER_SELECTION_TYPE::MATERIAL && explorerSelection.second != -1) || editorLighting);
 
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 

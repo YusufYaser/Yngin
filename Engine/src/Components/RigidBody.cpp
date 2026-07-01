@@ -14,6 +14,10 @@ namespace Yngin::Components {
 
 	void RigidBody::setMass(float mass) {
 		impl->mass = mass;
+
+		if (impl->mass < Physics::SMALLEST_UNIT) {
+			impl->mass = Physics::SMALLEST_UNIT;
+		}
 	}
 
 	float RigidBody::getMass() {

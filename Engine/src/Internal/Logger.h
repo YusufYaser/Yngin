@@ -10,8 +10,7 @@ printf("[Yngin Debug] [" YNGIN_LOGGER_STRINGIZE(LOGGER_NAME) "] " fmt "\n", ##__
 } while (0)
 #else
 #define DEBUG(fmt, ...) do { \
-printf("[Yngin Debug] "); \
-printf(fmt, ##__VA_ARGS__); \
+printf("[Yngin Debug] " fmt "\n", ##__VA_ARGS__); \
 } while (0)
 #endif
 #else
