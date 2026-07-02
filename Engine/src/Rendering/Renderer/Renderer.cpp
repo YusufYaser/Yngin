@@ -225,12 +225,12 @@ namespace Yngin::Rendering {
 	void Renderer::Impl::render(Scene* scene) {
 		ctx->makeCurrent();
 
-		glm::vec3 camPos = scene->impl->camerasManager->getFinalPos();
+		glm::vec3 camPos = scene->impl->camerasManager->getBlendedCamera()->getPosition();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 proj = scene->impl->camerasManager->impl->getFinalPerspectiveProjection();
-		glm::mat4 view = scene->impl->camerasManager->impl->getFinalView();
+		glm::mat4 proj = scene->impl->camerasManager->getBlendedCamera()->impl->getPerspectiveProjection();
+		glm::mat4 view = scene->impl->camerasManager->getBlendedCamera()->impl->getView();
 		glm::mat4 viewProjection = proj * view;
 
 		// This is a temporary workaround to fix objects hidden by frustum culling not casting shadows
@@ -448,7 +448,7 @@ namespace Yngin::Rendering {
 	}
 
 	void Renderer::Impl::render(GameObject* gameObject, int renderChildren) {
-		glm::vec3 camPos = gameObject->impl->scene->impl->camerasManager->getFinalPos();
+		glm::vec3 camPos = gameObject->impl->scene->impl->camerasManager->getBlendedCamera()->getPosition();
 		glm::vec3 delta = gameObject->impl->pos - camPos;
 		float distSq = glm::dot(delta, delta);
 

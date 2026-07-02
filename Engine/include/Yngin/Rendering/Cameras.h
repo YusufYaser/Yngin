@@ -15,9 +15,9 @@ namespace Yngin {
 
 		Meta meta;
 
-		glm::vec3 getPosition() const;
-		glm::vec3 getOrientation() const;
-		float getFov() const;
+		virtual glm::vec3 getPosition() const;
+		virtual glm::vec3 getOrientation() const;
+		virtual float getFov() const;
 
 		void setPosition(glm::vec3 newPos);
 		void setOrientation(glm::vec3 newOrientation);
@@ -32,6 +32,8 @@ namespace Yngin {
 		friend class CamerasManager;
 		friend struct std::default_delete<Camera>;
 		friend class Services::Tween;
+		friend class BlendedCamera;
+		friend class Rendering::Renderer;
 
 		Camera(Context* ctx, Scene* scene);
 		~Camera();
@@ -49,8 +51,11 @@ namespace Yngin {
 		void deleteCamera(uint32_t cameraId);
 		void deleteCamera(Camera* camera);
 
+		size_t getCamerasCount() const;
 		std::vector<Camera*> getCameras() const;
 		Camera* getCamera(uint32_t cameraId) const;
+
+		Camera* getBlendedCamera() const;
 
 		float getTotalWeight() const;
 
@@ -58,14 +63,11 @@ namespace Yngin {
 		void setActive(uint32_t cameraId);
 		void setActive(Camera* camera);
 
-		glm::vec3 getFinalPos() const;
-		glm::vec3 getFinalOrientation() const;
-		float getFinalFov() const;
-
 	private:
 		friend class Scene;
 		friend struct std::default_delete<CamerasManager>;
 		friend class Rendering::Renderer;
+		friend class BlendedCamera;
 
 		CamerasManager(Scene* scene);
 		~CamerasManager();

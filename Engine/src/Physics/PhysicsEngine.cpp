@@ -149,7 +149,7 @@ namespace Yngin {
 			std::vector<Components::RigidBody*> rigidBodies;
 			std::vector<Components::Collider*> colliders;
 
-			glm::vec3 pos = scene->getCamerasManager()->getFinalPos();
+			glm::vec3 pos = scene->getCamerasManager()->getBlendedCamera()->getPosition();
 
 			for (auto& kvp : scene->impl->gameObjectsManager->impl->gameObjects) {
 				GameObject* obj = kvp.second;

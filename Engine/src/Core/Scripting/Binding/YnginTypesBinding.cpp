@@ -414,6 +414,8 @@ namespace Yngin {
 				static_cast<void(CamerasManager::*)(Camera*)>(&CamerasManager::deleteCamera)
 			),
 
+			BIND(CamerasManager, getBlendedCamera),
+
 			BIND(CamerasManager, getCameras),
 			BIND(CamerasManager, getCamera),
 
@@ -422,11 +424,7 @@ namespace Yngin {
 			"setActive", sol::overload(
 				static_cast<void(CamerasManager::*)(uint32_t)>(&CamerasManager::setActive),
 				static_cast<void(CamerasManager::*)(Camera*)>(&CamerasManager::setActive)
-			),
-
-			BIND(CamerasManager, getFinalPos),
-			BIND(CamerasManager, getFinalOrientation),
-			BIND(CamerasManager, getFinalFov)
+			)
 		);
 
 		lua.new_usertype<Window>("Window",
