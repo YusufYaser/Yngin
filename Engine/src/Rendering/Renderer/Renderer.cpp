@@ -229,7 +229,7 @@ namespace Yngin::Rendering {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 proj = scene->impl->camerasManager->getBlendedCamera()->impl->getPerspectiveProjection();
+		glm::mat4 proj = scene->impl->camerasManager->getBlendedCamera()->impl->getMergedProjection();
 		glm::mat4 view = scene->impl->camerasManager->getBlendedCamera()->impl->getView();
 		glm::mat4 viewProjection = proj * view;
 
@@ -280,7 +280,7 @@ namespace Yngin::Rendering {
 			Shader* skyboxShader = ctx->getShadersManager()->getShader(SHADER_TYPE::SKYBOX);
 			skyboxShader->activate();
 
-			skyboxShader->setMat4("projection", proj);
+			skyboxShader->setMat4("projection", scene->impl->camerasManager->getBlendedCamera()->impl->getPerspectiveProjection());
 			skyboxShader->setMat4("view", glm::mat4(glm::mat3(view)));
 
 			skyboxTex->activate();

@@ -18,15 +18,21 @@ namespace Yngin {
 		virtual glm::vec3 getPosition() const;
 		virtual glm::vec3 getOrientation() const;
 		virtual float getFov() const;
-
-		void setPosition(glm::vec3 newPos);
-		void setOrientation(glm::vec3 newOrientation);
-		void setFov(float newFov);
-
-		void lookAt(glm::vec3 target);
+		virtual float getOrthographicBlend() const;
+		virtual float getOrthographicSize() const;
 
 		float getWeight() const;
 		void setWeight(float newWeight);
+
+		void setPosition(glm::vec3 newPos);
+		void setOrientation(glm::vec3 newOrientation);
+
+		void lookAt(glm::vec3 target);
+
+		void setFov(float newFov);
+
+		void setOrthographicBlend(float newBlend);
+		void setOrthographicSize(float newSize);
 
 	private:
 		friend class CamerasManager;

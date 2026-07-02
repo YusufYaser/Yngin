@@ -8,6 +8,8 @@ namespace Yngin {
 		glm::vec3 getPosition() const override;
 		glm::vec3 getOrientation() const override;
 		float getFov() const override;
+		float getOrthographicBlend() const override;
+		float getOrthographicSize() const override;
 
 	private:
 		friend class CamerasManager;
@@ -25,14 +27,20 @@ namespace Yngin {
 
 		uint32_t id;
 
-		float fov = 70.0f;
+		float weight;
+
 		glm::vec3 pos = { 0, 0, 0 };
 		glm::vec3 orientation = { 1, 0, 0 };
 
-		float weight;
+		float fov = 70.0f;
+
+		float orthographicBlend = 0.0f;
+		float orthographicSize = 5.0f;
 
 		glm::mat4 getView();
 		glm::mat4 getPerspectiveProjection();
+		glm::mat4 getOrthographicProjection();
+		glm::mat4 getMergedProjection();
 	};
 
 	struct CamerasManager::Impl {
