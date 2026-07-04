@@ -133,8 +133,6 @@ public:
 
 	void loadScripts();
 
-	int logsStart = 0;
-
 	float lastGraphTime = -5.0f;
 	std::vector<float> graphsTimes;
 	std::vector<float> graphsFPSValues;

@@ -151,6 +151,9 @@
     <ClCompile Include="deps\vendor\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="deps\vendor\ImPlot\implot.cpp" />
     <ClCompile Include="deps\vendor\ImPlot\implot_items.cpp" />
+    <ClCompile Include="src\Editor\Windows\ContextInfo\ContextInfoWindow.cpp" />
+    <ClCompile Include="src\Editor\Windows\Performance\PerformanceWindow.cpp" />
+    <ClCompile Include="src\Editor\Windows\ScriptOutput\ScriptOutputWindow.cpp" />
     <ClCompile Include="src\Editor\Windows\Properties\PropertiesWindow.cpp" />
     <ClCompile Include="src\Editor\Camera.cpp" />
     <ClCompile Include="src\Editor\Editor.cpp" />
@@ -190,6 +193,9 @@
     <ClInclude Include="deps\vendor\ImGui\imstb_truetype.h" />
     <ClInclude Include="deps\vendor\ImPlot\implot.h" />
     <ClInclude Include="deps\vendor\ImPlot\implot_internal.h" />
+    <ClInclude Include="src\Editor\Windows\ContextInfo\ContextInfoWindow.h" />
+    <ClInclude Include="src\Editor\Windows\Performance\PerformanceWindow.h" />
+    <ClInclude Include="src\Editor\Windows\ScriptOutput\ScriptOutputWindow.h" />
     <ClInclude Include="src\Editor\Windows\Properties\PropertiesWindow.h" />
     <ClInclude Include="src\Editor\Cube_Model.h" />
     <ClInclude Include="src\Editor\DefaultScripts.h" />

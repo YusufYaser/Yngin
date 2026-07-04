@@ -12,6 +12,9 @@
 #include "Editor.h"
 #include "../main.h"
 #include "Windows/Properties/PropertiesWindow.h"
+#include "Windows/ScriptOutput/ScriptOutputWindow.h"
+#include "Windows/Performance/PerformanceWindow.h"
+#include "Windows/ContextInfo/ContextInfoWindow.h"
 
 #ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -208,6 +211,7 @@ Editor::Editor(std::string path) {
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.FrameRounding = 5.0f;
 	style.FramePadding = { 3.0f, 3.0f };
+	style.DockingNodeHasCloseButton = false;
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr;
@@ -218,8 +222,6 @@ Editor::Editor(std::string path) {
 	saveProject();
 
 	fs::current_path(oldCwd);
-
-	windows.push_back(std::make_unique<PropertiesWindow>(this));
 }
 
 Editor::~Editor() {
@@ -893,6 +895,20 @@ void Editor::update() {
 	ImGui::DockSpace(dockRight);
 	ImGui::End();
 
+	ImGui::SetNextWindowPos({
+		viewPos.x,
+		frameHeight * 3 + viewSize.y
+		});
+	ImGui::SetNextWindowSize({
+		viewSize.x,
+		windowSize.y - frameHeight * 3 - viewSize.y
+		});
+
+	ImGui::Begin("BottomDockSpaceWindow", nullptr, dockspaceWindowFlags);
+	ImGuiID dockBottom = ImGui::GetID("BottomDockSpace");
+	ImGui::DockSpace(dockBottom);
+	ImGui::End();
+
 	ImGui::PopStyleColor(1);
 	ImGui::PopStyleVar(1);
 
@@ -908,7 +924,29 @@ void Editor::update() {
 	}
 
 	if (ctx->getFrame() == 1) {
-		ImGui::DockBuilderDockWindow(windows[0]->getWindowImGuiId().c_str(), dockRight);
+		// Right
+
+		PropertiesWindow* properties = new PropertiesWindow(this);
+		ImGui::DockBuilderDockWindow(properties->getWindowImGuiId().c_str(), dockRight);
+		windows.push_back(std::unique_ptr<PropertiesWindow>(properties));
+
+		// Bottom
+
+		ScriptOutputWindow* scriptOutput = new ScriptOutputWindow(this);
+		ImGui::DockBuilderDockWindow(scriptOutput->getWindowImGuiId().c_str(), dockBottom);
+		windows.push_back(std::unique_ptr<ScriptOutputWindow>(scriptOutput));
+
+		PerformanceWindow* performanceWindow = new PerformanceWindow(this);
+		ImGui::DockBuilderDockWindow(performanceWindow->getWindowImGuiId().c_str(), dockBottom);
+		windows.push_back(std::unique_ptr<PerformanceWindow>(performanceWindow));
+
+		ContextInfoWindow* contextInfoWindow = new ContextInfoWindow(this);
+		ImGui::DockBuilderDockWindow(contextInfoWindow->getWindowImGuiId().c_str(), dockBottom);
+		windows.push_back(std::unique_ptr<ContextInfoWindow>(contextInfoWindow));
+
+	} else if (ctx->getFrame() == 2) {
+		ImGui::SetWindowFocus("Window0");
+		ImGui::SetWindowFocus("Window1");
 	}
 
 	for (auto& window : windowsToRemove) {
@@ -1008,198 +1046,6 @@ void Editor::update() {
 	} else {
 		activeScene->activate();
 	}
-
-	ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive]);
-	ImGui::SetNextWindowPos(ImVec2(250, windowSize.y - 260.0f));
-	ImGui::SetNextWindowSize(ImVec2(windowSize.x - 250 - 300.0f, 260.0f));
-	ImGui::Begin("Bottom", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-
-	ImGui::BeginTabBar("Tabs");
-	if (ImGui::BeginTabItem("Output")) {
-		std::string logs = "";
-		int i = 0;
-
-		static char filter[512] = {};
-
-		for (auto& [id, log] : ctx->getScriptsManager()->getGlobalOutput()) {
-			if (i++ < logsStart) {
-				continue;
-			}
-			std::string source = id == -1 ? "ScriptsManager" : std::format("Script #{}", id);
-
-			std::string line = "[" + source + "] " + log + "\n";
-
-			if (line.find(std::string(filter)) != std::string::npos) {
-				logs.insert(0, line);
-			}
-		}
-
-		char* temp = new char[logs.size() + 1];
-		memcpy(temp, logs.c_str(), logs.size());
-		temp[logs.size()] = '\0';
-
-		ImGui::Text("Filter");
-		ImGui::SameLine();
-		ImGui::InputText("##Filter", filter, sizeof(filter));
-
-		ImGui::SameLine(ImGui::GetWindowWidth() - 50.0f);
-
-		if (ImGui::Button("Clear")) {
-			logsStart = i;
-		}
-
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
-		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f);
-		ImGui::InputTextMultiline("##Output Text", temp, logs.size() + 1, ImVec2(-1, -frameHeight - 4), ImGuiInputTextFlags_ReadOnly);
-		ImGui::PopStyleColor();
-		ImGui::PopStyleVar();
-
-		delete[] temp;
-
-		{
-			static char v[1024] = {};
-
-			ImGui::PushItemWidth(-1);
-			if (ImGui::InputText("##Global Execute", v, IM_ARRAYSIZE(v), ImGuiInputTextFlags_EnterReturnsTrue)) {
-				ImGui::SetKeyboardFocusHere(-1);
-				ctx->getScriptsManager()->execute(v);
-				v[0] = '\0';
-			}
-			ImGui::PopItemWidth();
-		}
-
-		ImGui::EndTabItem();
-	}
-	if (ImGui::BeginTabItem("Textures")) {
-		auto textures = ctx->getTexturesManager()->getTextures();
-
-		int maxElementsPerRow = (windowSize.x - 250 - 300.0f) / 144;
-
-		int i = 0;
-		for (auto& tex : textures) {
-			if (i % maxElementsPerRow != 0) ImGui::SameLine();
-
-			GLuint GLid = tex->getGLid();
-
-			if (ImGui::ImageButton(std::string("Texture #" + std::to_string(tex->getId())).c_str(), (void*)(intptr_t)GLid, ImVec2(128, 128))) {
-				//explorerSelection = { EXPLORER_SELECTION_TYPE::TEXTURE, tex->getId() };
-			}
-			if (ImGui::BeginDragDropSource()) {
-				uint32_t id = tex->getId();
-				ImGui::SetDragDropPayload("TEXTURE_ID", &id, sizeof(uint32_t));
-
-				ImGui::Image((void*)(intptr_t)GLid, ImVec2(128, 128));
-				ImGui::Text("Texture #%i", tex->getId());
-
-				ImGui::EndDragDropSource();
-			}
-
-			i++;
-		}
-		ImGui::NewLine();
-
-		ImGui::EndTabItem();
-	}
-	if (ImGui::BeginTabItem("Performance")) {
-		if (!graphsTimes.empty()) {
-			ImVec2 contentSize = ImGui::GetContentRegionAvail();
-
-			if (ImPlot::BeginPlot("FPS", ImVec2(contentSize.x / 2.0f, -1), ImPlotFlags_NoLegend | ImPlotFlags_NoMouseText | ImPlotFlags_NoFrame | ImPlotFlags_Crosshairs | ImPlotFlags_NoInputs)) {
-
-				float max = *std::max_element(graphsFPSValues.begin(), graphsFPSValues.end());
-
-				ImPlot::SetupAxesLimits(graphsTimes[0], graphsTimes[0] + 10, 0, max + 5, ImPlotCond_Always);
-				ImPlot::SetupAxis(ImAxis_X1, nullptr, ImPlotAxisFlags_NoDecorations);
-
-				ImPlot::PlotShaded("Data", graphsTimes.data(), graphsFPSValues.data(), graphsTimes.size());
-
-				ImPlot::EndPlot();
-			}
-
-			ImGui::SameLine();
-
-			if (ImPlot::BeginPlot("RAM Usage", ImVec2(-1, -1), ImPlotFlags_NoLegend | ImPlotFlags_NoMouseText | ImPlotFlags_NoFrame | ImPlotFlags_Crosshairs | ImPlotFlags_NoInputs)) {
-
-				float max = *std::max_element(graphsMemoryValues.begin(), graphsMemoryValues.end());
-
-				ImPlot::SetupAxesLimits(graphsTimes[0], graphsTimes[0] + 10, 0, max + 5, ImPlotCond_Always);
-
-				ImPlot::SetupAxis(ImAxis_X1, nullptr, ImPlotAxisFlags_NoDecorations);
-
-				ImPlot::PlotShaded("Data", graphsTimes.data(), graphsMemoryValues.data(), graphsTimes.size());
-
-				ImPlot::EndPlot();
-			}
-		}
-
-		ImGui::EndTabItem();
-	}
-	if (ImGui::BeginTabItem("Debug")) {
-		if (ImGui::BeginTable("Context Info", 3, ImGuiTableFlags_Borders, ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, 0))) {
-			ImGui::TableSetupColumn("Name");
-			ImGui::TableSetupColumn("Value");
-			ImGui::TableSetupColumn("Max");
-
-			ImGui::TableHeadersRow();
-
-			std::vector<std::tuple<std::string, size_t, size_t>> rows;
-
-			rows.push_back({ "Models", ctx->getModelsManager()->getModelsCount(), ctx->getModelsManager()->getMaxModelsCount() });
-			rows.push_back({ "Materials", ctx->getMaterialsManager()->getMaterialsCount(), ctx->getMaterialsManager()->getMaxMaterialsCount() });
-			rows.push_back({ "Textures", ctx->getTexturesManager()->getTexturesCount(), ctx->getTexturesManager()->getMaxTexturesCount() });
-			rows.push_back({ "Loaded Scripts", ctx->getScriptsManager()->getScriptsCount(), 0 });
-
-			rows.push_back({ "Global UI Elements", ctx->getGlobalUIManager()->getElementsCount(), 0 });
-
-			for (auto& row : rows) {
-				ImGui::TableNextRow();
-
-				ImGui::TableSetColumnIndex(0);
-				ImGui::Text("%s", std::get<0>(row).c_str());
-				ImGui::TableSetColumnIndex(1);
-				ImGui::Text("%i", std::get<1>(row));
-				ImGui::TableSetColumnIndex(2);
-				if (std::get<2>(row) != 0) ImGui::Text("%i", std::get<2>(row));
-			}
-
-			ImGui::EndTable();
-		}
-
-		ImGui::SameLine();
-
-		if (ImGui::BeginTable("Scene Info", 3, ImGuiTableFlags_Borders, ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
-			ImGui::TableSetupColumn("Name");
-			ImGui::TableSetupColumn("Value");
-			ImGui::TableSetupColumn("Max");
-
-			ImGui::TableHeadersRow();
-
-			std::vector<std::tuple<std::string, size_t, size_t>> rows;
-
-			rows.push_back({ "Game Objects", activeScene->getGameObjectsManager()->getGameObjectsCount(), 0 });
-			rows.push_back({ "Scene UI Elements", activeScene->getUIManager()->getElementsCount(), 0 });
-			rows.push_back({ "Submeshes Rendered", ctx->getRenderer()->getSubmeshesRendered(), 0 });
-			rows.push_back({ "Lights", ctx->getRenderer()->getSceneLightsCount(), 0 });
-
-			for (auto& row : rows) {
-				ImGui::TableNextRow();
-
-				ImGui::TableSetColumnIndex(0);
-				ImGui::Text("%s", std::get<0>(row).c_str());
-				ImGui::TableSetColumnIndex(1);
-				ImGui::Text("%i", std::get<1>(row));
-				ImGui::TableSetColumnIndex(2);
-				if (std::get<2>(row) != 0) ImGui::Text("%i", std::get<2>(row));
-			}
-
-			ImGui::EndTable();
-		}
-
-		ImGui::EndTabItem();
-	}
-	ImGui::EndTabBar();
-	ImGui::End();
-	ImGui::PopStyleColor();
 
 	if (explorerSelection.first == EXPLORER_SELECTION_TYPE::SCRIPT && explorerSelection.second != -1) {
 		ctx->forceViewport({ -1, -1 }, { 1, 1 });

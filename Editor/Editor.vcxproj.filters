@@ -93,6 +93,15 @@
     <ClCompile Include="src\Editor\Windows\Properties\PropertiesWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Editor\Windows\ScriptOutput\ScriptOutputWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\Windows\Performance\PerformanceWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\Windows\ContextInfo\ContextInfoWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="deps\vendor\ImGui\imgui_internal.h">
@@ -153,6 +162,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Editor\Windows\Properties\PropertiesWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\Windows\ScriptOutput\ScriptOutputWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\Windows\Performance\PerformanceWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\Windows\ContextInfo\ContextInfoWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
