@@ -1,0 +1,23 @@
+#pragma once
+#include "../Editor.h"
+
+class EditorWindow {
+public:
+	EditorWindow(Editor* editor);
+	~EditorWindow();
+
+	bool shouldClose() const;
+
+	virtual void draw() = 0;
+
+	uint32_t getUid() const;
+	std::string getWindowImGuiId() const;
+
+protected:
+	uint32_t uid;
+	Editor* editor;
+
+	std::string getGuiId(const char* name) const;
+
+	bool isWindowOpen = true;
+};

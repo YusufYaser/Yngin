@@ -1,12 +1,13 @@
-#include "../Editor.h"
+#include "../../Editor.h"
 #include <Yngin/Core/Scenes.h>
 #include <ImGui/imgui.h>
-#include "../UI/UI.h"
+#include "../../UI/UI.h"
+#include "PropertiesWindow.h"
 
 using namespace Yngin;
 
-void Editor::showSceneProps(uint32_t id) {
-	Scene* scene = ctx->getScenesManager()->getScene(0);
+void PropertiesWindow::showSceneProps(uint32_t id) {
+	Scene* scene = editor->ctx->getScenesManager()->getScene(0);
 	if (scene == nullptr) return;
 
 	ImGui::Text("Properties (Scene)");
@@ -17,7 +18,7 @@ void Editor::showSceneProps(uint32_t id) {
 		ImGui::SameLine(150);
 		static uint32_t v = 0;
 		ImGui::PushItemWidth(-1);
-		if (ui->textureSelector("##SkyboxTextureID", &v)) {
+		if (editor->ui->textureSelector("##SkyboxTextureID", &v)) {
 			scene->setSkyboxTexture(v);
 		} else {
 			v = scene->getSkyboxTextureId();

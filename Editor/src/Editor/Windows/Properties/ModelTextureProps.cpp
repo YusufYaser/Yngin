@@ -3,17 +3,18 @@
 #include <Yngin/Components/Components.h>
 #include <Yngin/Rendering/Cameras.h>
 #include <ImGui/imgui.h>
-#include "../Editor.h"
+#include "../../Editor.h"
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <glm/gtc/type_ptr.hpp>
 #include <filesystem>
+#include "PropertiesWindow.h"
 
 using namespace Yngin;
 
-void Editor::showModelProps(uint32_t id) {
-	if (explorerSelection.second == -1) {
+void PropertiesWindow::showModelProps(uint32_t id) {
+	if (editor->explorerSelection.second == -1) {
 		ImGui::Text("Models");
 		ImGui::SeparatorText("Model Transform");
 
@@ -58,7 +59,7 @@ void Editor::showModelProps(uint32_t id) {
 			{
 				static char path[256] = {};
 
-				if (ui->fileSelector("New Model", { {"Model", "*.obj"}, {"All Files", "*.*"} }, path, 256)) {
+				if (editor->ui->fileSelector("New Model", { {"Model", "*.obj"}, {"All Files", "*.*"} }, path, 256)) {
 					std::ifstream modelFile(std::string(path, 256));
 
 					if (modelFile.is_open()) {
@@ -68,7 +69,7 @@ void Editor::showModelProps(uint32_t id) {
 						modelFile.close();
 
 						ModelData data{};
-						bool loaded = ctx->getModelsManager()->parseObjFile(modelFileData.str().c_str(), modelFileData.str().length(), data);
+						bool loaded = editor->ctx->getModelsManager()->parseObjFile(modelFileData.str().c_str(), modelFileData.str().length(), data);
 
 						if (loaded) {
 							glm::mat4 modelMat = glm::mat4(1.0f);
@@ -82,14 +83,14 @@ void Editor::showModelProps(uint32_t id) {
 								vertex.pos = modelMat * glm::vec4(vertex.pos, 1.0f);
 							}
 
-							Model* model = ctx->getModelsManager()->createModel(data);
+							Model* model = editor->ctx->getModelsManager()->createModel(data);
 
 							if (model) {
 								std::filesystem::path fsPath(path);
 								std::string filename = fsPath.filename().stem().string();
 								model->meta.setMeta("Editor.Name", filename.substr(0, 64));
 
-								explorerSelection = { EXPLORER_SELECTION_TYPE::MODEL, model->getId() };
+								editor->explorerSelection = { EXPLORER_SELECTION_TYPE::MODEL, model->getId() };
 							}
 						}
 
@@ -105,7 +106,7 @@ void Editor::showModelProps(uint32_t id) {
 		return;
 	}
 
-	Model* model = ctx->getModelsManager()->getModel(explorerSelection.second);
+	Model* model = editor->ctx->getModelsManager()->getModel(editor->explorerSelection.second);
 	if (model == nullptr) {
 		ImGui::Text("Invalid Model");
 		return;
@@ -128,14 +129,14 @@ void Editor::showModelProps(uint32_t id) {
 	}
 	ImGui::Separator();
 
-	if (!running) {
-		viewingObject = true;
+	if (!editor->running) {
+		editor->viewingObject = true;
 
-		Components::Mesh* mesh = viewerObject->getComponent<Components::Mesh>();
+		Components::Mesh* mesh = editor->viewerObject->getComponent<Components::Mesh>();
 		mesh->setModel(model);
 		mesh->setTexture(2);
-		viewerObject->setScale(glm::vec3(1.0f));
-		viewerImage->setSize({ 0, 0, 0, 0 });
+		editor->viewerObject->setScale(glm::vec3(1.0f));
+		editor->viewerImage->setSize({ 0, 0, 0, 0 });
 	}
 
 	bool del = false;
@@ -152,19 +153,19 @@ void Editor::showModelProps(uint32_t id) {
 	ImGui::Text("Submeshes: %i", model->getSubmeshesCount());
 
 	if (del) {
-		ctx->getModelsManager()->deleteModel(explorerSelection.second);
-		explorerSelection = {};
+		editor->ctx->getModelsManager()->deleteModel(editor->explorerSelection.second);
+		editor->explorerSelection = {};
 	}
 }
 
-void Editor::showMaterialProps(uint32_t id) {
-	if (explorerSelection.second == -1) {
+void PropertiesWindow::showMaterialProps(uint32_t id) {
+	if (editor->explorerSelection.second == -1) {
 		ImGui::Text("Materials");
 		ImGui::Separator();
 
 		if (ImGui::Button("Create Material", ImVec2(-1, 40))) {
-			Material* mat = ctx->getMaterialsManager()->createMaterial();
-			if (mat) explorerSelection = { EXPLORER_SELECTION_TYPE::MATERIAL, mat->getId() };
+			Material* mat = editor->ctx->getMaterialsManager()->createMaterial();
+			if (mat) editor->explorerSelection = { EXPLORER_SELECTION_TYPE::MATERIAL, mat->getId() };
 		}
 
 		ImGui::SeparatorText("Load Material File");
@@ -172,7 +173,7 @@ void Editor::showMaterialProps(uint32_t id) {
 		{
 			static char v[256] = {};
 
-			if (ui->fileSelector("New Material", { {"Material", "*.mtl"}, {"All Files", "*.*"} }, v, 256)) {
+			if (editor->ui->fileSelector("New Material", { {"Material", "*.mtl"}, {"All Files", "*.*"} }, v, 256)) {
 				std::string path = v;
 
 				std::ifstream file(path);
@@ -183,20 +184,20 @@ void Editor::showMaterialProps(uint32_t id) {
 
 					file.close();
 
-					auto created = ctx->getMaterialsManager()->loadMtl(fileData.str().c_str(), fileData.str().length());
+					auto created = editor->ctx->getMaterialsManager()->loadMtl(fileData.str().c_str(), fileData.str().length());
 
 					std::filesystem::path fsPath(path);
 					std::string filename = fsPath.filename().stem().string();
 
 					for (auto& [name, id] : created) {
-						Material* mat = ctx->getMaterialsManager()->getMaterial(id);
+						Material* mat = editor->ctx->getMaterialsManager()->getMaterial(id);
 						if (mat == nullptr) continue;
 
 						mat->meta.setMeta("Editor.Name", (filename + ": " + name).substr(0, 64));
 					}
 
 					if (created.size() != 0) {
-						explorerSelection = { EXPLORER_SELECTION_TYPE::MATERIAL, created.begin()->second };
+						editor->explorerSelection = { EXPLORER_SELECTION_TYPE::MATERIAL, created.begin()->second };
 					}
 
 					v[0] = '\0';
@@ -208,7 +209,7 @@ void Editor::showMaterialProps(uint32_t id) {
 
 	ImGui::Separator();
 
-	Material* mat = ctx->getMaterialsManager()->getMaterial(explorerSelection.second);
+	Material* mat = editor->ctx->getMaterialsManager()->getMaterial(editor->explorerSelection.second);
 	if (mat == nullptr) {
 		ImGui::Text("Invalid Material");
 		return;
@@ -308,44 +309,44 @@ void Editor::showMaterialProps(uint32_t id) {
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
 	ImGui::BeginDisabled(id == 0);
 	if (ImGui::Button("Delete", ImVec2(-1, 0))) {
-		ctx->getMaterialsManager()->deleteMaterial(id);
-		explorerSelection = {};
+		editor->ctx->getMaterialsManager()->deleteMaterial(id);
+		editor->explorerSelection = {};
 	}
 	ImGui::EndDisabled();
 	ImGui::PopStyleColor(2);
 
-	if (!running) {
-		viewingObject = true;
+	if (!editor->running) {
+		editor->viewingObject = true;
 
-		Components::Mesh* mesh = viewerObject->getComponent<Components::Mesh>();
+		Components::Mesh* mesh = editor->viewerObject->getComponent<Components::Mesh>();
 		// TOOD: replace this after implementing an internal cube model
 		mesh->setModel(uint32_t(0));
 		mesh->setTexture(1);
-		viewerObject->setScale(glm::vec3(1024.0f, 1024.0f, 1.0f));
-		viewerImage->setSize({ 0, 0, 0, 0 });
+		editor->viewerObject->setScale(glm::vec3(1024.0f, 1024.0f, 1.0f));
+		editor->viewerImage->setSize({ 0, 0, 0, 0 });
 
 		mesh->setMaterial(0, id);
 	}
 }
 
-void Editor::showTextureProps(uint32_t id) {
+void PropertiesWindow::showTextureProps(uint32_t id) {
 	if (id == -1) {
 		ImGui::Text("Textures");
 		ImGui::Separator();
 		{
 			static char v[256] = {};
 
-			if (ui->fileSelector("New Texture", { {"All Images", "*.jpg;*.jpeg;*.png;*.tga;*.dds"}, {"All Files", "*.*"} }, v, 256)) {
+			if (editor->ui->fileSelector("New Texture", { {"All Images", "*.jpg;*.jpeg;*.png;*.tga;*.dds"}, {"All Files", "*.*"} }, v, 256)) {
 				std::string path = v;
 
-				Texture* texture = ctx->getTexturesManager()->createTexture(path.c_str());
+				Texture* texture = editor->ctx->getTexturesManager()->createTexture(path.c_str());
 
 				if (texture) {
 					std::filesystem::path fsPath(path);
 					std::string filename = fsPath.filename().stem().string();
 					texture->meta.setMeta("Editor.Name", filename.substr(0, 64));
 
-					explorerSelection = { EXPLORER_SELECTION_TYPE::TEXTURE, texture->getId() };
+					editor->explorerSelection = { EXPLORER_SELECTION_TYPE::TEXTURE, texture->getId() };
 					v[0] = '\0';
 				}
 			}
@@ -354,7 +355,7 @@ void Editor::showTextureProps(uint32_t id) {
 		return;
 	}
 
-	Texture* texture = ctx->getTexturesManager()->getTexture(id);
+	Texture* texture = editor->ctx->getTexturesManager()->getTexture(id);
 	if (texture == nullptr) {
 		ImGui::Text("Invalid Texture");
 		return;
@@ -376,20 +377,20 @@ void Editor::showTextureProps(uint32_t id) {
 		}
 	}
 
-	if (!running) {
-		viewingObject = true;
+	if (!editor->running) {
+		editor->viewingObject = true;
 
-		viewerObject->setScale(glm::vec3(0.0f));
-		viewerImage->setSize({ 1, 0, 1, 0 });
-		viewerImage->setTexture(texture);
+		editor->viewerObject->setScale(glm::vec3(0.0f));
+		editor->viewerImage->setSize({ 1, 0, 1, 0 });
+		editor->viewerImage->setTexture(texture);
 
-		glm::vec2 viewportSize = ctx->getViewportSize();
+		glm::vec2 viewportSize = editor->ctx->getViewportSize();
 		glm::ivec2 texSize = texture->getSize();
 		float ratio = texSize.x * 1.0f / texSize.y;
 		if (int(viewportSize.y * ratio) > viewportSize.x) {
-			viewerImage->setSize({ 0, int(viewportSize.x), 0, int(viewportSize.x / ratio) });
+			editor->viewerImage->setSize({ 0, int(viewportSize.x), 0, int(viewportSize.x / ratio) });
 		} else {
-			viewerImage->setSize({ 0, int(viewportSize.y * ratio), 0, int(viewportSize.y) });
+			editor->viewerImage->setSize({ 0, int(viewportSize.y * ratio), 0, int(viewportSize.y) });
 		}
 	}
 
@@ -397,7 +398,7 @@ void Editor::showTextureProps(uint32_t id) {
 	{
 		static char v[256] = {};
 
-		if (ui->fileSelector("Change Texture##" + std::to_string(texture->getId()), { {"All Images", "*.jpg;*.jpeg;*.png;*.tga;*.dds"}, {"All Files", "*.*"} }, v, 256)) {
+		if (editor->ui->fileSelector("Change Texture##" + std::to_string(texture->getId()), { {"All Images", "*.jpg;*.jpeg;*.png;*.tga;*.dds"}, {"All Files", "*.*"} }, v, 256)) {
 			std::string path = v;
 			texture->setData(path.c_str());
 			v[0] = '\0';
@@ -461,8 +462,8 @@ void Editor::showTextureProps(uint32_t id) {
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
 	ImGui::BeginDisabled(id == 0 || id == 1 || id == 2);
 	if (ImGui::Button("Delete", ImVec2(-1, 0))) {
-		ctx->getTexturesManager()->deleteTexture(id);
-		explorerSelection = {};
+		editor->ctx->getTexturesManager()->deleteTexture(id);
+		editor->explorerSelection = {};
 	}
 	ImGui::EndDisabled();
 	ImGui::PopStyleColor(2);

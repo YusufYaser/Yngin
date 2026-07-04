@@ -11,6 +11,7 @@
 #include <filesystem>
 #include "Editor.h"
 #include "../main.h"
+#include "Windows/Properties/PropertiesWindow.h"
 
 #ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -210,12 +211,15 @@ Editor::Editor(std::string path) {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	implotCtx = ImPlot::CreateContext();
 
 	saveProject();
 
 	fs::current_path(oldCwd);
+
+	windows.push_back(std::make_unique<PropertiesWindow>(this));
 }
 
 Editor::~Editor() {
@@ -851,6 +855,68 @@ void Editor::update() {
 		ImGui::EndMainMenuBar();
 	}
 
+	float frameHeight = ImGui::GetFrameHeight();
+
+	glm::vec2 viewPos = {
+		250.0f,
+		menubarHeight + frameHeight * 2
+	};
+
+	glm::vec2 viewSize = {
+		windowSize.x - 250.0f - 300.0f,
+		windowSize.y - menubarHeight - 260.0f - frameHeight * 2
+	};
+
+	ctx->forceViewport(viewPos, viewSize);
+
+	static const ImGuiWindowFlags dockspaceWindowFlags =
+		ImGuiWindowFlags_NoDocking |
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove;
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::PushStyleColor(ImGuiCol_DockingEmptyBg, ImVec4(0.05f, 0.05f, 0.05f, 1.0f));
+
+	ImGui::SetNextWindowPos({
+		viewPos.x + viewSize.x,
+		frameHeight
+		});
+	ImGui::SetNextWindowSize({
+		windowSize.x - viewPos.x - viewSize.x,
+		windowSize.y - frameHeight
+		});
+
+	ImGui::Begin("RightDockSpaceWindow", nullptr, dockspaceWindowFlags);
+	ImGuiID dockRight = ImGui::GetID("RightDockSpace");
+	ImGui::DockSpace(dockRight);
+	ImGui::End();
+
+	ImGui::PopStyleColor(1);
+	ImGui::PopStyleVar(1);
+
+	std::vector<EditorWindow*> windowsToRemove;
+
+	for (auto& window : windows) {
+		if (window->shouldClose()) {
+			windowsToRemove.push_back(window.get());
+			continue;
+		}
+
+		window->draw();
+	}
+
+	if (ctx->getFrame() == 1) {
+		ImGui::DockBuilderDockWindow(windows[0]->getWindowImGuiId().c_str(), dockRight);
+	}
+
+	for (auto& window : windowsToRemove) {
+		windows.erase(std::remove_if(windows.begin(), windows.end(), [window](const std::unique_ptr<EditorWindow>& w) {
+			return w.get() == window;
+			}), windows.end());
+	}
+
 	if (explorerSelection.first != EXPLORER_SELECTION_TYPE::SCRIPT || explorerSelection.second == -1) {
 		std::string title = "Scene Viewer";
 		if (running) title = gameSettings.name;
@@ -936,62 +1002,12 @@ void Editor::update() {
 	}
 
 	viewingObject = false;
-	if (ImGui::BeginViewportSideBar("##Properties", viewport, ImGuiDir_Right, 300.0f, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNavFocus)) {
-		switch (explorerSelection.first) {
-		case EXPLORER_SELECTION_TYPE::GAME:
-			showGameProps();
-			break;
-
-		case EXPLORER_SELECTION_TYPE::SCRIPT:
-			showScriptProps(explorerSelection.second);
-			break;
-
-		case EXPLORER_SELECTION_TYPE::GAMEOBJECT:
-			showGameObjectProps(explorerSelection.second);
-			break;
-
-		case EXPLORER_SELECTION_TYPE::UIELEMENT:
-		{
-			showUIElementProps(explorerSelection.second, false);
-			break;
-		}
-
-		case EXPLORER_SELECTION_TYPE::MODEL:
-		{
-			showModelProps(explorerSelection.second);
-			break;
-		}
-
-		case EXPLORER_SELECTION_TYPE::MATERIAL:
-		{
-			showMaterialProps(explorerSelection.second);
-			break;
-		}
-
-		case EXPLORER_SELECTION_TYPE::TEXTURE:
-		{
-			showTextureProps(explorerSelection.second);
-			break;
-		}
-
-		case EXPLORER_SELECTION_TYPE::SCENE:
-		{
-			showSceneProps(explorerSelection.second);
-			break;
-		}
-		}
-		ImGui::End();
-	}
 
 	if (viewingObject && !running) {
 		viewerScene->activate();
 	} else {
 		activeScene->activate();
 	}
-
-	glm::ivec2 viewportSize = ctx->getViewportSize();
-
-	float frameHeight = ImGui::GetFrameHeight();
 
 	ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive]);
 	ImGui::SetNextWindowPos(ImVec2(250, windowSize.y - 260.0f));
@@ -1185,9 +1201,6 @@ void Editor::update() {
 	ImGui::End();
 	ImGui::PopStyleColor();
 
-	glm::vec2 viewPos = { 250.0f, menubarHeight };
-	glm::vec2 viewSize = { windowSize.x - 250.0f - 300.0f, windowSize.y - menubarHeight - 260.0f };
-	ctx->forceViewport(viewPos + glm::vec2(0, frameHeight * 2), viewSize - glm::vec2(0, frameHeight * 2));
 	if (explorerSelection.first == EXPLORER_SELECTION_TYPE::SCRIPT && explorerSelection.second != -1) {
 		ctx->forceViewport({ -1, -1 }, { 1, 1 });
 

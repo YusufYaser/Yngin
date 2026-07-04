@@ -42,7 +42,7 @@
     <ClCompile Include="src\Editor\Explorer\SceneExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Editor\Properties\GameObjectProps.cpp">
+    <ClCompile Include="src\Editor\Windows\Properties\GameObjectProps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
@@ -51,25 +51,25 @@
     <ClCompile Include="src\Editor\Explorer\ResourceExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Editor\Properties\ModelTextureProps.cpp">
+    <ClCompile Include="src\Editor\Windows\Properties\ModelTextureProps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Editor\Properties\SceneProps.cpp">
+    <ClCompile Include="src\Editor\Windows\Properties\SceneProps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Editor\Explorer\GameExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Editor\Properties\GameProps.cpp">
+    <ClCompile Include="src\Editor\Windows\Properties\GameProps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="deps\vendor\ImGuiColorTextEdit\TextEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Editor\Properties\ScriptProps.cpp">
+    <ClCompile Include="src\Editor\Windows\Properties\ScriptProps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Editor\Properties\UIProps.cpp">
+    <ClCompile Include="src\Editor\Windows\Properties\UIProps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Editor\UI\UI.cpp">
@@ -85,6 +85,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="deps\vendor\ImPlot\implot_items.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\Windows\EditorWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\Windows\Properties\PropertiesWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -141,6 +147,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="deps\vendor\ImPlot\implot_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\Windows\EditorWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\Windows\Properties\PropertiesWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

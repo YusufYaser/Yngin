@@ -1,27 +1,28 @@
 #include <ImGui/imgui.h>
-#include "../Editor.h"
+#include "../../Editor.h"
 #include <string>
+#include "PropertiesWindow.h"
 
 using namespace Yngin;
 
-void Editor::showScriptProps(uint32_t id) {
+void PropertiesWindow::showScriptProps(uint32_t id) {
 	if (id == -1) {
 		ImGui::Text("Game Scripts");
 		if (ImGui::Button("Create Script", ImVec2(-1, 40))) {
-			uint32_t newId = nextScriptId++;
+			uint32_t newId = editor->nextScriptId++;
 
-			scripts[newId] = EditorScript{
+			editor->scripts[newId] = EditorScript{
 				.name = "Script #" + std::to_string(newId),
 				.code = ""
 			};
 
-			explorerSelection = { EXPLORER_SELECTION_TYPE::SCRIPT, newId };
+			editor->explorerSelection = { EXPLORER_SELECTION_TYPE::SCRIPT, newId };
 		}
 		return;
 	}
 
-	auto it = scripts.find(id);
-	if (it == scripts.end()) {
+	auto it = editor->scripts.find(id);
+	if (it == editor->scripts.end()) {
 		return;
 	}
 
@@ -46,8 +47,8 @@ void Editor::showScriptProps(uint32_t id) {
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
 	if (ImGui::Button("Delete", ImVec2(-1, 40))) {
-		scripts.erase(id);
-		explorerSelection = {};
+		editor->scripts.erase(id);
+		editor->explorerSelection = {};
 	}
 	ImGui::PopStyleColor(2);
 }

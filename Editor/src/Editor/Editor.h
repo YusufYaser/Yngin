@@ -51,6 +51,7 @@ struct ScriptInfo {
 };
 
 class EditorUI;
+class EditorWindow;
 
 class Editor {
 public:
@@ -90,7 +91,10 @@ public:
 
 	double lastSaved = 0;
 
-private:
+	uint32_t nextScriptId = 0;
+	std::map<uint32_t, EditorScript> scripts;
+
+	//private:
 	ImGuiContext* imguiCtx;
 	ImPlotContext* implotCtx;
 
@@ -99,6 +103,9 @@ private:
 #ifdef _WIN32
 	HANDLE mutex;
 #endif
+
+	uint32_t nextWindowUid = 0;
+	std::vector<std::unique_ptr<EditorWindow>> windows;
 
 	void resetContext();
 	void setupViewerScene();
@@ -113,15 +120,6 @@ private:
 
 	void handleCameraMovement(Yngin::Camera* camera);
 
-	void showGameProps();
-	void showScriptProps(uint32_t id);
-	void showGameObjectProps(uint32_t id);
-	void showUIElementProps(uint32_t id, bool global = false);
-	void showModelProps(uint32_t id);
-	void showMaterialProps(uint32_t id);
-	void showTextureProps(uint32_t id);
-	void showSceneProps(uint32_t id);
-
 	void showGameExplorer();
 	void showSceneExplorer();
 	void showResourceExplorer();
@@ -132,9 +130,6 @@ private:
 
 	void setupPreviousGameState();
 	void loadPreviousGameState();
-
-	uint32_t nextScriptId = 0;
-	std::map<uint32_t, EditorScript> scripts;
 
 	void loadScripts();
 

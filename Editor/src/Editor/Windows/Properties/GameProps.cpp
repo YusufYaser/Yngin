@@ -1,10 +1,11 @@
 #include <ImGui/imgui.h>
-#include "../Editor.h"
+#include "../../Editor.h"
 #include <string>
+#include "PropertiesWindow.h"
 
 using namespace Yngin;
 
-void Editor::showGameProps() {
+void PropertiesWindow::showGameProps() {
 	ImGui::Text("Game Settings");
 	ImGui::Separator();
 
@@ -13,9 +14,9 @@ void Editor::showGameProps() {
 		ImGui::Text("Game Name");
 		ImGui::SameLine(100);
 		if (ImGui::InputText("##GameName", v, 32)) {
-			gameSettings.name = v;
+			editor->gameSettings.name = v;
 		} else {
-			strcpy_s(v, 32, gameSettings.name.c_str());
+			strcpy_s(v, 32, editor->gameSettings.name.c_str());
 		}
 	}
 
@@ -24,13 +25,13 @@ void Editor::showGameProps() {
 		ImGui::Text("Full Screen");
 		ImGui::SameLine(100);
 		if (ImGui::Checkbox("##GameFullscreen", &v)) {
-			gameSettings.fullscreen = v;
+			editor->gameSettings.fullscreen = v;
 		} else {
-			v = gameSettings.fullscreen;
+			v = editor->gameSettings.fullscreen;
 		}
 	}
 
-	if (!gameSettings.fullscreen) {
+	if (!editor->gameSettings.fullscreen) {
 		ImGui::Text("Window Size");
 		ImGui::SameLine(100);
 
@@ -38,9 +39,9 @@ void Editor::showGameProps() {
 		{
 			static int v = 0;
 			if (ImGui::InputInt("##GameWindowWidth", &v, 0, 0)) {
-				gameSettings.windowWidth = v;
+				editor->gameSettings.windowWidth = v;
 			} else {
-				v = gameSettings.windowWidth;
+				v = editor->gameSettings.windowWidth;
 			}
 		}
 
@@ -49,9 +50,9 @@ void Editor::showGameProps() {
 		{
 			static int v = 0;
 			if (ImGui::InputInt("##GameWindowHeight", &v, 0, 0)) {
-				gameSettings.windowHeight = v;
+				editor->gameSettings.windowHeight = v;
 			} else {
-				v = gameSettings.windowHeight;
+				v = editor->gameSettings.windowHeight;
 			}
 		}
 	}

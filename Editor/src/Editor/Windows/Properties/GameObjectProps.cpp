@@ -2,29 +2,30 @@
 #include <Yngin/Components/Components.h>
 #include <Yngin/Rendering/Cameras.h>
 #include <ImGui/imgui.h>
-#include "../Editor.h"
+#include "../../Editor.h"
 #include <string>
-#include "../UI/UI.h"
+#include "../../UI/UI.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/component_wise.hpp>
+#include "PropertiesWindow.h"
 
 using namespace Yngin;
 
-void Editor::showGameObjectProps(uint32_t id) {
+void PropertiesWindow::showGameObjectProps(uint32_t id) {
 	if (id == -1) {
 		ImGui::Text("Game Objects");
 		if (ImGui::Button("Create GameObject", ImVec2(-1, 40))) {
-			GameObject* child = activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
+			GameObject* child = editor->activeScene->getGameObjectsManager()->getRootGameObject()->createChild();
 			/*Components::Mesh* mesh = child->createComponent<Components::Mesh>();
 			mesh->setModel(cubeModel);
 			mesh->setTexture(gridTexture);*/
-			if (child) explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, child->getId() };
+			if (child) editor->explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, child->getId() };
 		}
 		return;
 	}
 
-	GameObject* obj = activeScene->getGameObjectsManager()->getGameObject(id);
+	GameObject* obj = editor->activeScene->getGameObjectsManager()->getGameObject(id);
 
 	if (obj == nullptr) {
 		ImGui::Text("Invalid GameObject");
@@ -80,7 +81,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 		obj->setPosition(pos);
 	}
 	if (ImGui::SmallButton("Move to Camera")) {
-		obj->setPosition(editorCamera->getPosition());
+		obj->setPosition(editor->editorCamera->getPosition());
 	}
 
 	ImGui::SeparatorText("Rotation");
@@ -155,7 +156,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 		ImGui::SameLine(100);
 		{
 			static uint32_t v = 0;
-			if (ui->modelSelector("##MeshModelID", &v)) {
+			if (editor->ui->modelSelector("##MeshModelID", &v)) {
 				mesh->setModel(v);
 			} else {
 				v = mesh->getModel();
@@ -166,7 +167,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 			ImGui::Text("Texture");
 			ImGui::SameLine(100);
 			static uint32_t v = 0;
-			if (ui->textureSelector("##MeshTextureID", &v)) {
+			if (editor->ui->textureSelector("##MeshTextureID", &v)) {
 				mesh->setTexture(v);
 			} else {
 				v = mesh->getTexture();
@@ -199,7 +200,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 			ImGui::SameLine(100);
 			{
 				static uint32_t v[256] = {};
-				if (ui->materialSelector(("##MeshMaterial" + std::to_string(i)).c_str(), &v[i])) {
+				if (editor->ui->materialSelector(("##MeshMaterial" + std::to_string(i)).c_str(), &v[i])) {
 					mesh->setMaterial(i, v[i]);
 				} else {
 					v[i] = mesh->getMaterial(i);
@@ -455,10 +456,10 @@ void Editor::showGameObjectProps(uint32_t id) {
 		settings.function = Services::TWEEN_FUNCTION::EASE_INOUT;
 
 		glm::vec3 pos = obj->getPosition();
-		glm::vec3 newOrientation = glm::normalize(pos - editorCamera->getPosition());
+		glm::vec3 newOrientation = glm::normalize(pos - editor->editorCamera->getPosition());
 
 		if (Components::Mesh* mesh = obj->getComponent<Components::Mesh>()) {
-			Model* model = ctx->getModelsManager()->getModel(mesh->getModel());
+			Model* model = editor->ctx->getModelsManager()->getModel(mesh->getModel());
 			if (model) {
 				glm::vec3 rot = obj->getRotation();
 				glm::vec3 scale = obj->getScale();
@@ -472,7 +473,7 @@ void Editor::showGameObjectProps(uint32_t id) {
 
 				pos += glm::vec3(modelMatrix * glm::vec4(model->getCenter(), 1.0f));
 
-				newOrientation = glm::normalize(pos - editorCamera->getPosition());
+				newOrientation = glm::normalize(pos - editor->editorCamera->getPosition());
 
 				float radius = model->getRadius() * glm::compMax(obj->getScale());
 
@@ -481,28 +482,28 @@ void Editor::showGameObjectProps(uint32_t id) {
 		}
 
 		// TODO: replace these when I add tween rotation
-		ctx->getService<Services::Tween>()->tweenFloat(editorCamera->getOrientation().x, newOrientation.x, settings, [this](float v) {
-			glm::vec3 o = editorCamera->getOrientation();
+		editor->ctx->getService<Services::Tween>()->tweenFloat(editor->editorCamera->getOrientation().x, newOrientation.x, settings, [this](float v) {
+			glm::vec3 o = editor->editorCamera->getOrientation();
 			o.x = v;
-			editorCamera->setOrientation(o);
+			editor->editorCamera->setOrientation(o);
 			});
 
-		ctx->getService<Services::Tween>()->tweenFloat(editorCamera->getOrientation().y, newOrientation.y, settings, [this](float v) {
-			glm::vec3 o = editorCamera->getOrientation();
+		editor->ctx->getService<Services::Tween>()->tweenFloat(editor->editorCamera->getOrientation().y, newOrientation.y, settings, [this](float v) {
+			glm::vec3 o = editor->editorCamera->getOrientation();
 			o.y = v;
-			editorCamera->setOrientation(o);
+			editor->editorCamera->setOrientation(o);
 			});
 
-		ctx->getService<Services::Tween>()->tweenFloat(editorCamera->getOrientation().z, newOrientation.z, settings, [this](float v) {
-			glm::vec3 o = editorCamera->getOrientation();
+		editor->ctx->getService<Services::Tween>()->tweenFloat(editor->editorCamera->getOrientation().z, newOrientation.z, settings, [this](float v) {
+			glm::vec3 o = editor->editorCamera->getOrientation();
 			o.z = v;
-			editorCamera->setOrientation(o);
+			editor->editorCamera->setOrientation(o);
 			});
 
 		if (gotoClicked) {
 			settings.duration = 0.5f;
 
-			ctx->getService<Services::Tween>()->tweenPos(editorCamera, pos, settings);
+			editor->ctx->getService<Services::Tween>()->tweenPos(editor->editorCamera, pos, settings);
 		}
 	}
 
@@ -512,15 +513,15 @@ void Editor::showGameObjectProps(uint32_t id) {
 		/*Components::Mesh* mesh = child->createComponent<Components::Mesh>();
 		mesh->setModel(cubeModel);
 		mesh->setTexture(gridTexture);*/
-		if (child) explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, child->getId() };
+		if (child) editor->explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, child->getId() };
 	}
 
 	ImGui::Separator();
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0, 0, 1));
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
 	if (ImGui::Button("Delete", ImVec2(-1, 40))) {
-		activeScene->getGameObjectsManager()->deleteGameObject(obj);
-		explorerSelection = {};
+		editor->activeScene->getGameObjectsManager()->deleteGameObject(obj);
+		editor->explorerSelection = {};
 	}
 	ImGui::PopStyleColor(2);
 }

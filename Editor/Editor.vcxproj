@@ -151,19 +151,21 @@
     <ClCompile Include="deps\vendor\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="deps\vendor\ImPlot\implot.cpp" />
     <ClCompile Include="deps\vendor\ImPlot\implot_items.cpp" />
+    <ClCompile Include="src\Editor\Windows\Properties\PropertiesWindow.cpp" />
     <ClCompile Include="src\Editor\Camera.cpp" />
     <ClCompile Include="src\Editor\Editor.cpp" />
     <ClCompile Include="src\Editor\Explorer\GameExplorer.cpp" />
     <ClCompile Include="src\Editor\ProjectGen.cpp" />
-    <ClCompile Include="src\Editor\Properties\GameProps.cpp" />
-    <ClCompile Include="src\Editor\Properties\ModelTextureProps.cpp" />
-    <ClCompile Include="src\Editor\Properties\SceneProps.cpp" />
+    <ClCompile Include="src\Editor\Windows\Properties\GameProps.cpp" />
+    <ClCompile Include="src\Editor\Windows\Properties\ModelTextureProps.cpp" />
+    <ClCompile Include="src\Editor\Windows\Properties\SceneProps.cpp" />
     <ClCompile Include="src\Editor\Explorer\ResourceExplorer.cpp" />
     <ClCompile Include="src\Editor\Explorer\SceneExplorer.cpp" />
-    <ClCompile Include="src\Editor\Properties\GameObjectProps.cpp" />
-    <ClCompile Include="src\Editor\Properties\ScriptProps.cpp" />
-    <ClCompile Include="src\Editor\Properties\UIProps.cpp" />
+    <ClCompile Include="src\Editor\Windows\Properties\GameObjectProps.cpp" />
+    <ClCompile Include="src\Editor\Windows\Properties\ScriptProps.cpp" />
+    <ClCompile Include="src\Editor\Windows\Properties\UIProps.cpp" />
     <ClCompile Include="src\Editor\UI\UI.cpp" />
+    <ClCompile Include="src\Editor\Windows\EditorWindow.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\StartWindow\StartWindow.cpp" />
   </ItemGroup>
@@ -188,12 +190,14 @@
     <ClInclude Include="deps\vendor\ImGui\imstb_truetype.h" />
     <ClInclude Include="deps\vendor\ImPlot\implot.h" />
     <ClInclude Include="deps\vendor\ImPlot\implot_internal.h" />
+    <ClInclude Include="src\Editor\Windows\Properties\PropertiesWindow.h" />
     <ClInclude Include="src\Editor\Cube_Model.h" />
     <ClInclude Include="src\Editor\DefaultScripts.h" />
     <ClInclude Include="src\Editor\Editor.h" />
     <ClInclude Include="src\Editor\UI\UI.h" />
     <ClInclude Include="src\main.h" />
     <ClInclude Include="src\StartWindow\StartWindow.h" />
+    <ClInclude Include="src\Editor\Windows\EditorWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,14 +1,15 @@
 #include <Yngin/UI/UI.h>
 #include <ImGui/imgui.h>
-#include "../Editor.h"
+#include "../../Editor.h"
 #include <string>
-#include "../UI/UI.h"
+#include "../../UI/UI.h"
+#include "PropertiesWindow.h"
 
 using namespace Yngin;
 
-void Editor::showUIElementProps(uint32_t id, bool global) {
-	UI::UIManager* mgr = activeScene->getUIManager();
-	if (global) mgr = ctx->getGlobalUIManager();
+void PropertiesWindow::showUIElementProps(uint32_t id, bool global) {
+	UI::UIManager* mgr = editor->activeScene->getUIManager();
+	if (global) mgr = editor->ctx->getGlobalUIManager();
 
 	static std::vector<const char*> elementTypes = {
 		"Element",
@@ -44,7 +45,7 @@ void Editor::showUIElementProps(uint32_t id, bool global) {
 			}
 			child->meta.setMeta("Editor.Name", std::string(elementTypes[selectedElementType]).append(" #" + std::to_string(child->getId())));
 
-			if (child) explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, child->getId() };
+			if (child) editor->explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, child->getId() };
 		}
 
 		return;
@@ -317,7 +318,7 @@ void Editor::showUIElementProps(uint32_t id, bool global) {
 			ImGui::Text("Texture");
 			ImGui::SameLine(100);
 			static uint32_t v = 0;
-			if (ui->textureSelector("##ImageTextureID", &v)) {
+			if (editor->ui->textureSelector("##ImageTextureID", &v)) {
 				image->setTexture(v);
 			} else {
 				v = image->getTexture();
@@ -336,7 +337,7 @@ void Editor::showUIElementProps(uint32_t id, bool global) {
 			ImGui::Text("Font");
 			ImGui::SameLine(100);
 			static uint32_t v = 0;
-			if (ui->textureSelector("##TextGlyphID", &v)) {
+			if (editor->ui->textureSelector("##TextGlyphID", &v)) {
 				text->setGlyph(v);
 			} else {
 				v = text->getGlyph();
@@ -437,9 +438,12 @@ void Editor::showUIElementProps(uint32_t id, bool global) {
 				child->setPivot({ 1, 1 });
 				break;
 			}
-			child->meta.setMeta("Editor.Name", std::string(elementTypes[selectedElementType]).append(" #" + std::to_string(child->getId())));
 
-			if (child) explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, child->getId() };
+			if (child) {
+				child->meta.setMeta("Editor.Name", std::string(elementTypes[selectedElementType]).append(" #" + std::to_string(child->getId())));
+
+				editor->explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, child->getId() };
+			}
 		}
 	}
 
@@ -448,7 +452,7 @@ void Editor::showUIElementProps(uint32_t id, bool global) {
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0, 0, 1));
 	if (ImGui::Button("Delete", ImVec2(-1, 40))) {
 		mgr->deleteElement(id);
-		explorerSelection = {};
+		editor->explorerSelection = {};
 	}
 	ImGui::PopStyleColor(2);
 }
