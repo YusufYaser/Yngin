@@ -4,7 +4,10 @@
 void ContextInfoWindow::draw() {
 	if (shouldClose()) return;
 
-	ImGui::Begin(getGuiId("Context Info#").c_str(), &isWindowOpen);
+	if (!ImGui::Begin(("Context Info###" + getWindowImGuiId()).c_str(), &isWindowOpen)) {
+		ImGui::End();
+		return;
+	}
 
 	if (ImGui::BeginTable("Context Info", 3, ImGuiTableFlags_Borders, ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, 0))) {
 		ImGui::TableSetupColumn("Name");

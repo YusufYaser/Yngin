@@ -3,7 +3,10 @@
 void PropertiesWindow::draw() {
 	if (shouldClose()) return;
 
-	ImGui::Begin(getGuiId("Properties#").c_str(), &isWindowOpen);
+	if (!ImGui::Begin(("Properties###" + getWindowImGuiId()).c_str(), &isWindowOpen)) {
+		ImGui::End();
+		return;
+	}
 
 	switch (editor->explorerSelection.first) {
 	case EXPLORER_SELECTION_TYPE::GAME:

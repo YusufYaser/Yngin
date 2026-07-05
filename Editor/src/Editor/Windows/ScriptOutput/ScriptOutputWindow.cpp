@@ -6,7 +6,10 @@
 void ScriptOutputWindow::draw() {
 	if (shouldClose()) return;
 
-	ImGui::Begin(getGuiId("Output#").c_str(), &isWindowOpen);
+	if (!ImGui::Begin(("Output###" + getWindowImGuiId()).c_str(), &isWindowOpen)) {
+		ImGui::End();
+		return;
+	}
 
 	int frameHeight = ImGui::GetFrameHeight();
 

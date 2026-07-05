@@ -3,7 +3,10 @@
 void PerformanceWindow::draw() {
 	if (shouldClose()) return;
 
-	ImGui::Begin(getGuiId("Performance#").c_str(), &isWindowOpen);
+	if (!ImGui::Begin(("Performance###" + getWindowImGuiId()).c_str(), &isWindowOpen)) {
+		ImGui::End();
+		return;
+	}
 
 	if (!editor->graphsTimes.empty()) {
 		ImVec2 contentSize = ImGui::GetContentRegionAvail();

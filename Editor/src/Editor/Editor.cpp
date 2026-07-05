@@ -914,6 +914,8 @@ void Editor::update() {
 
 	std::vector<EditorWindow*> windowsToRemove;
 
+	viewingObject = false;
+
 	for (auto& window : windows) {
 		if (window->shouldClose()) {
 			windowsToRemove.push_back(window.get());
@@ -1038,8 +1040,6 @@ void Editor::update() {
 		ImGui::EndTabBar();
 		ImGui::End();
 	}
-
-	viewingObject = false;
 
 	if (viewingObject && !running) {
 		viewerScene->activate();

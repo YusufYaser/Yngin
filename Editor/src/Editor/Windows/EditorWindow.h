@@ -19,7 +19,5 @@ protected:
 	uint32_t uid;
 	Editor* editor;
 
-	std::string getGuiId(const char* name) const;
-
 	bool isWindowOpen = true;
 };

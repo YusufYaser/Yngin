@@ -19,7 +19,3 @@ uint32_t EditorWindow::getUid() const {
 std::string EditorWindow::getWindowImGuiId() const {
 	return "Window" + std::to_string(uid);
 }
-
-std::string EditorWindow::getGuiId(const char* name) const {
-	return std::string(name) + "##Window" + std::to_string(uid);
-}
