@@ -8,6 +8,8 @@ public:
 
 	void draw() override;
 
+	std::pair<EXPLORER_SELECTION_TYPE, int> forcedSelection = {};
+
 private:
 	void showGameProps();
 	void showScriptProps(uint32_t id);

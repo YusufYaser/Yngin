@@ -4,11 +4,12 @@
 #include <Yngin/UI/UI.h>
 #include <Yngin/Core/Scenes.h>
 #include "../Editor.h"
+#include "../Windows/Properties/PropertiesWindow.h"
 
 using namespace Yngin;
 
 namespace {
-	GameObject* drawChildrenTree(GameObject* obj) {
+	GameObject* drawChildrenTree(Editor* editor, GameObject* obj) {
 		GameObject* clicked = nullptr;
 
 		std::string name = "Game Object";
@@ -23,16 +24,45 @@ namespace {
 
 		bool open = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | (obj->getId() == 0 ? ImGuiTreeNodeFlags_DefaultOpen : 0));
 
+		bool deleteClicked = false;
+
+		if (obj->getId() != 0 && ImGui::BeginPopupContextItem()) {
+			if (ImGui::MenuItem("Open Properties")) {
+				PropertiesWindow* window = new PropertiesWindow(editor);
+				window->forcedSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, obj->getId() };
+				editor->windows.push_back(std::unique_ptr<EditorWindow>(window));
+			}
+
+			ImGui::Separator();
+
+			ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.8f, 0.1f, 0.1f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.6f, 0.0f, 0.0f, 1.0f));
+
+			if (ImGui::MenuItem("Delete")) {
+				deleteClicked = true;
+			}
+
+			ImGui::PopStyleColor(2);
+
+			ImGui::EndPopup();
+		}
+
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
 			clicked = obj;
 		}
 
 		if (open) {
-			for (auto& child : obj->getChildren()) {
-				GameObject* res = drawChildrenTree(child);
-				if (res) clicked = res;
+			if (!deleteClicked) {
+				for (auto& child : obj->getChildren()) {
+					GameObject* res = drawChildrenTree(editor, child);
+					if (res) clicked = res;
+				}
 			}
 			ImGui::TreePop();
+		}
+
+		if (obj->getId() != 0 && deleteClicked) {
+			obj->getParent()->deleteChild(obj);
 		}
 
 		return clicked;
@@ -79,7 +109,7 @@ void Editor::showSceneExplorer() {
 	}
 
 	if (open) {
-		GameObject* gameObject = drawChildrenTree(scene->getGameObjectsManager()->getRootGameObject());
+		GameObject* gameObject = drawChildrenTree(this, scene->getGameObjectsManager()->getRootGameObject());
 		UI::UIElement* uiElement = drawChildrenTree(scene->getUIManager()->getRootElement());
 
 		if (gameObject) {

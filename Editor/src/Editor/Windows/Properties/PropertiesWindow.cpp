@@ -8,46 +8,48 @@ void PropertiesWindow::draw() {
 		return;
 	}
 
-	switch (editor->explorerSelection.first) {
+	auto selection = forcedSelection.first != EXPLORER_SELECTION_TYPE::NONE ? forcedSelection : editor->explorerSelection;
+
+	switch (selection.first) {
 	case EXPLORER_SELECTION_TYPE::GAME:
 		showGameProps();
 		break;
 
 	case EXPLORER_SELECTION_TYPE::SCRIPT:
-		showScriptProps(editor->explorerSelection.second);
+		showScriptProps(selection.second);
 		break;
 
 	case EXPLORER_SELECTION_TYPE::GAMEOBJECT:
-		showGameObjectProps(editor->explorerSelection.second);
+		showGameObjectProps(selection.second);
 		break;
 
 	case EXPLORER_SELECTION_TYPE::UIELEMENT:
 	{
-		showUIElementProps(editor->explorerSelection.second, false);
+		showUIElementProps(selection.second, false);
 		break;
 	}
 
 	case EXPLORER_SELECTION_TYPE::MODEL:
 	{
-		showModelProps(editor->explorerSelection.second);
+		showModelProps(selection.second);
 		break;
 	}
 
 	case EXPLORER_SELECTION_TYPE::MATERIAL:
 	{
-		showMaterialProps(editor->explorerSelection.second);
+		showMaterialProps(selection.second);
 		break;
 	}
 
 	case EXPLORER_SELECTION_TYPE::TEXTURE:
 	{
-		showTextureProps(editor->explorerSelection.second);
+		showTextureProps(selection.second);
 		break;
 	}
 
 	case EXPLORER_SELECTION_TYPE::SCENE:
 	{
-		showSceneProps(editor->explorerSelection.second);
+		showSceneProps(selection.second);
 		break;
 	}
 	}
