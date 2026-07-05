@@ -1,6 +1,7 @@
 #include "ScriptOutputWindow.h"
 #include <Yngin/Core/Scripting.h>
 #include <format>
+#include <ImGui/imgui_stdlib.h>
 
 void ScriptOutputWindow::draw() {
 	if (shouldClose()) return;
@@ -11,8 +12,6 @@ void ScriptOutputWindow::draw() {
 
 	std::string logs = "";
 	int i = 0;
-
-	static char filter[512] = {};
 
 	for (auto& [id, log] : editor->ctx->getScriptsManager()->getGlobalOutput()) {
 		if (i++ < logsStart) {
@@ -34,7 +33,7 @@ void ScriptOutputWindow::draw() {
 	ImGui::Text("Filter");
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 113.0f);
-	ImGui::InputText("##Filter", filter, sizeof(filter));
+	ImGui::InputText("##Filter", &filter);
 
 	ImGui::SameLine(ImGui::GetWindowWidth() - 50.0f);
 
@@ -51,13 +50,11 @@ void ScriptOutputWindow::draw() {
 	delete[] temp;
 
 	{
-		static char v[1024] = {};
-
 		ImGui::PushItemWidth(-1);
-		if (ImGui::InputText("##Global Execute", v, IM_ARRAYSIZE(v), ImGuiInputTextFlags_EnterReturnsTrue)) {
+		if (ImGui::InputText("##Global Execute", &execute, ImGuiInputTextFlags_EnterReturnsTrue)) {
 			ImGui::SetKeyboardFocusHere(-1);
-			editor->ctx->getScriptsManager()->execute(v);
-			v[0] = '\0';
+			editor->ctx->getScriptsManager()->execute(execute.c_str());
+			execute = "";
 		}
 		ImGui::PopItemWidth();
 	}

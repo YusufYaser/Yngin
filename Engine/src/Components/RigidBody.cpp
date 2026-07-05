@@ -42,6 +42,12 @@ namespace Yngin::Components {
 
 	void RigidBody::setElasticity(float elasticity) {
 		impl->elasticity = elasticity;
+
+		if (impl->elasticity < 0) {
+			impl->elasticity = 0;
+		} else if (impl->elasticity > 1) {
+			impl->elasticity = 1;
+		}
 	}
 
 	float RigidBody::getElasticity() {

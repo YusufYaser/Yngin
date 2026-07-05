@@ -9,6 +9,8 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/component_wise.hpp>
 #include "PropertiesWindow.h"
+#include <ImGui/imgui_stdlib.h>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace Yngin;
 
@@ -43,42 +45,25 @@ void PropertiesWindow::showGameObjectProps(uint32_t id) {
 	ImGui::Text("Properties (%s) (%i)", name.c_str(), obj->getId());
 	ImGui::Separator();
 	{
-		static char v[32] = {};
 		ImGui::Text("Name");
 		ImGui::SameLine(100);
-		if (ImGui::InputText("##GameObjectName", v, 32)) {
-			name = v;
-			obj->meta.setMeta("Editor.Name", name);
-		} else {
-			strcpy_s(v, 32, name.c_str());
-		}
+		ImGui::InputText("##GameObjectName", &name, ImGuiInputTextFlags_EnterReturnsTrue);
+
+		obj->meta.setMeta("Editor.Name", name);
 	}
 	ImGui::SeparatorText("Position");
 	{
-		glm::vec3 pos = obj->getPosition();
-		static glm::vec3 v = {};
+		glm::vec3 v = obj->getPosition();
 
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##PosX", &v.x, 1.0f, 1.0f, "%.2f")) {
-			pos.x = v.x;
-		} else {
-			v.x = pos.x;
-		}
+		ImGui::InputFloat("##PosX", &v.x, 1.0f, 1.0f, "%.2f");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##PosY", &v.y, 1.0f, 1.0f, "%.2f")) {
-			pos.y = v.y;
-		} else {
-			v.y = pos.y;
-		}
+		ImGui::InputFloat("##PosY", &v.y, 1.0f, 1.0f, "%.2f");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##PosZ", &v.z, 1.0f, 1.0f, "%.2f")) {
-			pos.z = v.z;
-		} else {
-			v.z = pos.z;
-		}
-		obj->setPosition(pos);
+		ImGui::InputFloat("##PosZ", &v.z, 1.0f, 1.0f, "%.2f");
+		obj->setPosition(v);
 	}
 	if (ImGui::SmallButton("Move to Camera")) {
 		obj->setPosition(editor->editorCamera->getPosition());
@@ -86,60 +71,34 @@ void PropertiesWindow::showGameObjectProps(uint32_t id) {
 
 	ImGui::SeparatorText("Rotation");
 	{
-		glm::vec3 rot = obj->getRotation();
-		static glm::vec3 v = {};
+		glm::vec3 v = obj->getRotation();
 
 		const float degToRad = (3.14159265359f / 180);
 
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##RotationX", &v.x, 1.0f, 22.5f, "%.1f")) {
-			rot.x = v.x * degToRad;
-		} else {
-			v.x = rot.x / degToRad;
-		}
+		ImGui::InputFloat("##RotationX", &v.x, 1.0f, 22.5f, "%.1f");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##RotationY", &v.y, 1.0f, 22.5f, "%.1f")) {
-			rot.y = v.y * degToRad;
-		} else {
-			v.y = rot.y / degToRad;
-		}
+		ImGui::InputFloat("##RotationY", &v.y, 1.0f, 22.5f, "%.1f");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##RotationZ", &v.z, 1.0f, 22.5f, "%.1f")) {
-			rot.z = v.z * degToRad;
-		} else {
-			v.z = rot.z / degToRad;
-		}
-		obj->setRotation(rot);
+		ImGui::InputFloat("##RotationZ", &v.z, 1.0f, 22.5f, "%.1f");
+		obj->setRotation(v);
 	}
 
 	ImGui::SeparatorText("Scale");
 	{
-		glm::vec3 scale = obj->getScale();
-		static glm::vec3 v = {};
+		glm::vec3 v = obj->getScale();
 
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##ScaleX", &v.x, 0.1f, 1.0f, "%.2f")) {
-			scale.x = v.x;
-		} else {
-			v.x = scale.x;
-		}
+		ImGui::InputFloat("##ScaleX", &v.x, 0.1f, 1.0f, "%.2f");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##ScaleY", &v.y, 0.1f, 1.0f, "%.2f")) {
-			scale.y = v.y;
-		} else {
-			v.y = scale.y;
-		}
+		ImGui::InputFloat("##ScaleY", &v.y, 0.1f, 1.0f, "%.2f");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##ScaleZ", &v.z, 0.1f, 1.0f, "%.2f")) {
-			scale.z = v.z;
-		} else {
-			v.z = scale.z;
-		}
-		obj->setScale(scale);
+		ImGui::InputFloat("##ScaleZ", &v.z, 0.1f, 1.0f, "%.2f");
+		obj->setScale(v);
 	}
 
 
@@ -155,26 +114,26 @@ void PropertiesWindow::showGameObjectProps(uint32_t id) {
 		ImGui::Text("Model");
 		ImGui::SameLine(100);
 		{
-			static uint32_t v = 0;
-			if (editor->ui->modelSelector("##MeshModelID", &v)) {
-				mesh->setModel(v);
-			} else {
-				v = mesh->getModel();
-			}
+			uint32_t v = mesh->getModel();
+
+			editor->ui->modelSelector("##MeshModelID", &v);
+
+			mesh->setModel(v);
 		}
 
 		{
 			ImGui::Text("Texture");
 			ImGui::SameLine(100);
-			static uint32_t v = 0;
-			if (editor->ui->textureSelector("##MeshTextureID", &v)) {
-				mesh->setTexture(v);
-			} else {
-				v = mesh->getTexture();
-			}
+
+			uint32_t v = mesh->getTexture();
+
+			editor->ui->textureSelector("##MeshTextureID", &v);
+
+			mesh->setTexture(v);
 		}
 		{
-			static float v[3] = {};
+			glm::vec3 v = mesh->getColor();
+
 			ImGui::Text("Color");
 			ImGui::SameLine();
 			ImGui::ColorButton("MeshColorPreview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
@@ -184,27 +143,20 @@ void PropertiesWindow::showGameObjectProps(uint32_t id) {
 			}
 
 			if (ImGui::BeginPopup("Mesh Color Picker")) {
-				if (ImGui::ColorPicker3("Color##MeshColor", v)) {
-					mesh->setColor(glm::vec3(v[0], v[1], v[2]));
-				}
+				ImGui::ColorPicker3("Color##MeshColor", glm::value_ptr(v));
 				ImGui::EndPopup();
-			} else {
-				v[0] = mesh->getColor()[0];
-				v[1] = mesh->getColor()[1];
-				v[2] = mesh->getColor()[2];
 			}
+			mesh->setColor(v);
 		}
 
 		for (int i = 0; i < mesh->getMaterialsCount(); i++) {
 			ImGui::Text("Material %i", i);
 			ImGui::SameLine(100);
 			{
-				static uint32_t v[256] = {};
-				if (editor->ui->materialSelector(("##MeshMaterial" + std::to_string(i)).c_str(), &v[i])) {
-					mesh->setMaterial(i, v[i]);
-				} else {
-					v[i] = mesh->getMaterial(i);
-				}
+				uint32_t v = mesh->getMaterial(i);
+
+				editor->ui->materialSelector(("##MeshMaterial" + std::to_string(i)).c_str(), &v);
+				mesh->setMaterial(i, v);
 			}
 		}
 
@@ -227,26 +179,23 @@ void PropertiesWindow::showGameObjectProps(uint32_t id) {
 			ImGui::Text("Intensity");
 			ImGui::SameLine(100);
 			{
-				static float v = 0;
-				if (ImGui::InputFloat("##LightIntensity", &v, 0.05f, 0.1f)) {
-					light->setIntensity(v);
-				} else {
-					v = light->getIntensity();
-				}
+				float v = light->getIntensity();
+
+				ImGui::InputFloat("##LightIntensity", &v, 0.05f, 0.1f);
+				light->setIntensity(v);
 			}
 			ImGui::Text("Distance");
 			ImGui::SameLine(100);
 			{
-				static float v = 0;
-				if (ImGui::InputFloat("##LightDistance", &v, 1.0f, 2.0f)) {
-					if (v < 0) v = 0;
-					light->setDistance(v);
-				} else {
-					v = light->getDistance();
-				}
+				float v = light->getDistance();
+
+				ImGui::InputFloat("##LightDistance", &v, 1.0f, 2.0f);
+
+				light->setDistance(v);
 			}
 			{
-				static float v[3] = {};
+				glm::vec3 v = light->getColor();
+
 				ImGui::Text("Color");
 				ImGui::SameLine();
 				ImGui::ColorButton("LightColorPreview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
@@ -256,15 +205,11 @@ void PropertiesWindow::showGameObjectProps(uint32_t id) {
 				}
 
 				if (ImGui::BeginPopup("Light Color Picker")) {
-					if (ImGui::ColorPicker3("Color##LightColor", v)) {
-						light->setColor(glm::vec3(v[0], v[1], v[2]));
-					}
+					ImGui::ColorPicker3("Color##LightColor", glm::value_ptr(v));
 					ImGui::EndPopup();
-				} else {
-					v[0] = light->getColor()[0];
-					v[1] = light->getColor()[1];
-					v[2] = light->getColor()[2];
 				}
+
+				light->setColor(v);
 			}
 
 			if (deleted) {
@@ -287,16 +232,16 @@ void PropertiesWindow::showGameObjectProps(uint32_t id) {
 			ImGui::Text("Intensity");
 			ImGui::SameLine(100);
 			{
-				static float v = 0;
-				if (ImGui::InputFloat("##DirLightIntensity", &v, 0.05f, 0.1f)) {
-					light->setIntensity(v);
-				} else {
-					v = light->getIntensity();
-				}
+				float v = light->getIntensity();
+
+				ImGui::InputFloat("##DirLightIntensity", &v, 0.05f, 0.1f);
+
+				light->setIntensity(v);
 			}
 
 			{
-				static float v[3] = {};
+				glm::vec3 v = light->getColor();
+
 				ImGui::Text("Color");
 				ImGui::SameLine();
 				ImGui::ColorButton("##DirLightColorPreview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
@@ -306,15 +251,11 @@ void PropertiesWindow::showGameObjectProps(uint32_t id) {
 				}
 
 				if (ImGui::BeginPopup("Directional Light Color Picker")) {
-					if (ImGui::ColorPicker3("Color##DirLightColor", v)) {
-						light->setColor(glm::vec3(v[0], v[1], v[2]));
-					}
+					ImGui::ColorPicker3("Color##DirLightColor", glm::value_ptr(v));
 					ImGui::EndPopup();
-				} else {
-					v[0] = light->getColor()[0];
-					v[1] = light->getColor()[1];
-					v[2] = light->getColor()[2];
 				}
+
+				light->setColor(v);
 			}
 
 			if (deleted) {
@@ -336,62 +277,47 @@ void PropertiesWindow::showGameObjectProps(uint32_t id) {
 		ImGui::Text("Mass");
 		ImGui::SameLine(100);
 		{
-			static float v = 0;
-			if (ImGui::InputFloat("##RigidBodyMass", &v)) {
-				rigidBody->setMass(v);
-			} else {
-				v = rigidBody->getMass();
-			}
+			float v = rigidBody->getMass();
+
+			ImGui::InputFloat("##RigidBodyMass", &v);
+
+			rigidBody->setMass(v);
 		}
 		ImGui::Text("Elasticity");
 		ImGui::SameLine(100);
 		{
-			static float v = 0;
-			if (ImGui::InputFloat("##RigidBodyElasticity", &v)) {
-				if (v > 1) v = 1;
-				if (v < 0) v = 0;
-				rigidBody->setElasticity(v);
-			} else {
-				v = rigidBody->getElasticity();
-			}
+			float v = rigidBody->getElasticity();
+
+			ImGui::InputFloat("##RigidBodyElasticity", &v);
+
+			rigidBody->setElasticity(v);
 		}
 		ImGui::Text("Can Bounce?");
 		ImGui::SameLine(100);
 		{
-			static bool v = 0;
-			if (ImGui::Checkbox("##RigidBodyCanBounce", &v)) {
-				rigidBody->setCanBounce(v);
-			} else {
-				v = rigidBody->canBounce();
-			}
+			bool v = rigidBody->canBounce();
+
+			ImGui::Checkbox("##RigidBodyCanBounce", &v);
+
+			rigidBody->setCanBounce(v);
 		}
 
 		ImGui::Text("Velocity");
 		{
-			glm::vec3 velocity = rigidBody->getVelocity();
-			static glm::vec3 v = {};
+			glm::vec3 v = rigidBody->getVelocity();
 
 			ImGui::SetNextItemWidth(90.0f);
-			if (ImGui::InputFloat("##VelocityX", &v.x, 1.0f, 1.0f, "%.2f")) {
-				velocity.x = v.x;
-			} else {
-				v.x = velocity.x;
-			}
+			ImGui::InputFloat("##VelocityX", &v.x, 1.0f, 1.0f, "%.2f");
+
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(90.0f);
-			if (ImGui::InputFloat("##VelocityY", &v.y, 1.0f, 1.0f, "%.2f")) {
-				velocity.y = v.y;
-			} else {
-				v.y = velocity.y;
-			}
+			ImGui::InputFloat("##VelocityY", &v.y, 1.0f, 1.0f, "%.2f");
+
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(90.0f);
-			if (ImGui::InputFloat("##VelocityZ", &v.z, 1.0f, 1.0f, "%.2f")) {
-				velocity.z = v.z;
-			} else {
-				v.z = velocity.z;
-			}
-			rigidBody->setVelocity(velocity);
+			ImGui::InputFloat("##VelocityZ", &v.z, 1.0f, 1.0f, "%.2f");
+
+			rigidBody->setVelocity(v);
 		}
 
 		if (deleted) {
@@ -418,14 +344,14 @@ void PropertiesWindow::showGameObjectProps(uint32_t id) {
 
 
 	{
-		static int selected = 0;
+		int selected = 0;
+
 		if (componentsToCreate.size() != 1) {
 			ImGui::SeparatorText("Create Component");
-			ImGui::Combo("##CreateComponentDropdown", &selected, componentsToCreate.data(), (int)componentsToCreate.size());
 
-			ImGui::BeginDisabled(selected == 0);
-			ImGui::SameLine();
-			if (ImGui::Button("Create", ImVec2(-1, 0)) && selected != 0) {
+			ImGui::SetNextItemWidth(-1);
+			if (ImGui::Combo("##CreateComponentDropdown", &selected, componentsToCreate.data(), (int)componentsToCreate.size())) {
+
 				const char* compName = componentsToCreate[selected];
 				if (compName == "Mesh") {
 					Components::Mesh* mesh = obj->createComponent<Components::Mesh>();
@@ -437,7 +363,6 @@ void PropertiesWindow::showGameObjectProps(uint32_t id) {
 
 				selected = 0;
 			}
-			ImGui::EndDisabled();
 		} else {
 			selected = 0;
 		}

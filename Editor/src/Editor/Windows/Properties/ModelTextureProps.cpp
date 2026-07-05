@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <filesystem>
 #include "PropertiesWindow.h"
+#include <ImGui/imgui_stdlib.h>
 
 using namespace Yngin;
 
@@ -21,46 +22,41 @@ void PropertiesWindow::showModelProps(uint32_t id) {
 		{
 			const float degToRad = (3.14159265359f / 180);
 
-			static glm::vec3 offset = {};
 			ImGui::Text("Offset");
 			ImGui::SetNextItemWidth(90.0f);
-			ImGui::InputFloat("##Offset X", &offset.x, 1.0f, 1.0f, "%.1f");
+			ImGui::InputFloat("##Offset X", &newModelOffset.x, 1.0f, 1.0f, "%.1f");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(90.0f);
-			ImGui::InputFloat("##Offset Y", &offset.y, 1.0f, 1.0f, "%.1f");
+			ImGui::InputFloat("##Offset Y", &newModelOffset.y, 1.0f, 1.0f, "%.1f");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(90.0f);
-			ImGui::InputFloat("##Offset Z", &offset.z, 1.0f, 1.0f, "%.1f");
+			ImGui::InputFloat("##Offset Z", &newModelOffset.z, 1.0f, 1.0f, "%.1f");
 
-			static glm::vec3 rot = glm::vec3(90.0f, 0, 0);
 			ImGui::Text("Rotation");
 			ImGui::SetNextItemWidth(90.0f);
-			ImGui::InputFloat("##Rotation X", &rot.x, 1.0f, 22.5f, "%.1f");
+			ImGui::InputFloat("##Rotation X", &newModelRotation.x, 1.0f, 22.5f, "%.1f");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(90.0f);
-			ImGui::InputFloat("##Rotation Y", &rot.y, 1.0f, 22.5f, "%.1f");
+			ImGui::InputFloat("##Rotation Y", &newModelRotation.y, 1.0f, 22.5f, "%.1f");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(90.0f);
-			ImGui::InputFloat("##Rotation Z", &rot.z, 1.0f, 22.5f, "%.1f");
+			ImGui::InputFloat("##Rotation Z", &newModelRotation.z, 1.0f, 22.5f, "%.1f");
 
-			static glm::vec3 scale = glm::vec3(1.0f);
 			ImGui::Text("Scale");
 			ImGui::SetNextItemWidth(90.0f);
-			ImGui::InputFloat("##Scale X", &scale.x, 1.0f, 1.0f, "%.2f");
+			ImGui::InputFloat("##Scale X", &newModelScale.x, 1.0f, 1.0f, "%.2f");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(90.0f);
-			ImGui::InputFloat("##Scale Y", &scale.y, 1.0f, 1.0f, "%.2f");
+			ImGui::InputFloat("##Scale Y", &newModelScale.y, 1.0f, 1.0f, "%.2f");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(90.0f);
-			ImGui::InputFloat("##Scale Z", &scale.z, 1.0f, 1.0f, "%.2f");
+			ImGui::InputFloat("##Scale Z", &newModelScale.z, 1.0f, 1.0f, "%.2f");
 
 			ImGui::SeparatorText("Model File");
 
 			{
-				static char path[256] = {};
-
-				if (editor->ui->fileSelector("New Model", { {"Model", "*.obj"}, {"All Files", "*.*"} }, path, 256)) {
-					std::ifstream modelFile(std::string(path, 256));
+				if (editor->ui->fileSelector("New Model", { {"Model", "*.obj"}, {"All Files", "*.*"} }, &path)) {
+					std::ifstream modelFile(path);
 
 					if (modelFile.is_open()) {
 						std::stringstream modelFileData;
@@ -73,12 +69,11 @@ void PropertiesWindow::showModelProps(uint32_t id) {
 
 						if (loaded) {
 							glm::mat4 modelMat = glm::mat4(1.0f);
-							modelMat = glm::translate(modelMat, offset);
-							modelMat = glm::rotate(modelMat, rot.x * degToRad, glm::vec3(1, 0, 0));
-							modelMat = glm::rotate(modelMat, rot.y * degToRad, glm::vec3(0, 1, 0));
-							modelMat = glm::rotate(modelMat, rot.z * degToRad, glm::vec3(0, 0, 1));
-							modelMat = glm::scale(modelMat, scale);
-
+							modelMat = glm::translate(modelMat, newModelOffset);
+							modelMat = glm::rotate(modelMat, newModelRotation.x * degToRad, glm::vec3(1, 0, 0));
+							modelMat = glm::rotate(modelMat, newModelRotation.y * degToRad, glm::vec3(0, 1, 0));
+							modelMat = glm::rotate(modelMat, newModelRotation.z * degToRad, glm::vec3(0, 0, 1));
+							modelMat = glm::scale(modelMat, newModelScale);
 							for (auto& vertex : data.vertices) {
 								vertex.pos = modelMat * glm::vec4(vertex.pos, 1.0f);
 							}
@@ -94,10 +89,10 @@ void PropertiesWindow::showModelProps(uint32_t id) {
 							}
 						}
 
-						path[0] = '\0';
-						offset = {};
-						rot = glm::vec3(90.0f, 0, 0);
-						scale = glm::vec3(1.0f);
+						path = "";
+						newModelOffset = {};
+						newModelRotation = glm::vec3(90.0f, 0, 0);
+						newModelScale = glm::vec3(1.0f);
 					}
 				}
 			}
@@ -117,15 +112,11 @@ void PropertiesWindow::showModelProps(uint32_t id) {
 	ImGui::Text("Properties (%s) (%i)", name.c_str(), model->getId());
 	ImGui::Separator();
 	{
-		static char v[65] = {};
 		ImGui::Text("Name");
 		ImGui::SameLine(100);
-		if (ImGui::InputText("##ObjectName", v, 65)) {
-			name = v;
-			model->meta.setMeta("Editor.Name", name);
-		} else {
-			strcpy_s(v, 65, name.c_str());
-		}
+		ImGui::InputText("##ObjectName", &name);
+
+		model->meta.setMeta("Editor.Name", name);
 	}
 	ImGui::Separator();
 
@@ -171,11 +162,7 @@ void PropertiesWindow::showMaterialProps(uint32_t id) {
 		ImGui::SeparatorText("Load Material File");
 
 		{
-			static char v[256] = {};
-
-			if (editor->ui->fileSelector("New Material", { {"Material", "*.mtl"}, {"All Files", "*.*"} }, v, 256)) {
-				std::string path = v;
-
+			if (editor->ui->fileSelector("New Material", { {"Material", "*.mtl"}, {"All Files", "*.*"} }, &path)) {
 				std::ifstream file(path);
 
 				if (file.is_open()) {
@@ -200,7 +187,7 @@ void PropertiesWindow::showMaterialProps(uint32_t id) {
 						editor->explorerSelection = { EXPLORER_SELECTION_TYPE::MATERIAL, created.begin()->second };
 					}
 
-					v[0] = '\0';
+					path = "";
 				}
 			}
 		}
@@ -220,20 +207,17 @@ void PropertiesWindow::showMaterialProps(uint32_t id) {
 	ImGui::Text("Properties (%s) (%i)", name.c_str(), mat->getId());
 	ImGui::Separator();
 	{
-		static char v[65] = {};
 		ImGui::Text("Name");
 		ImGui::SameLine(100);
-		if (ImGui::InputText("##ObjectName", v, 65)) {
-			name = v;
-			mat->meta.setMeta("Editor.Name", name);
-		} else {
-			strcpy_s(v, 65, name.c_str());
-		}
+		ImGui::InputText("##ObjectName", &name);
+
+		mat->meta.setMeta("Editor.Name", name);
 	}
 	ImGui::Separator();
 
 	{
-		static glm::vec3 v = {};
+		auto v = mat->getAmbientColor();
+
 		ImGui::Text("Ambient Color");
 		ImGui::SameLine();
 		ImGui::ColorButton("Ambient Color Preview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
@@ -243,17 +227,16 @@ void PropertiesWindow::showMaterialProps(uint32_t id) {
 		}
 
 		if (ImGui::BeginPopup("Ambient Color Picker")) {
-			if (ImGui::ColorPicker3("Color##AmbientColor", glm::value_ptr(v))) {
-				mat->setAmbientColor(v);
-			}
+			ImGui::ColorPicker3("Color##AmbientColor", glm::value_ptr(v));
 			ImGui::EndPopup();
-		} else {
-			v = mat->getAmbientColor();
 		}
+
+		mat->setAmbientColor(v);
 	}
 
 	{
-		static glm::vec3 v = {};
+		auto v = mat->getDiffuseColor();
+
 		ImGui::Text("Diffuse Color");
 		ImGui::SameLine();
 		ImGui::ColorButton("Diffuse Color Preview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
@@ -263,17 +246,16 @@ void PropertiesWindow::showMaterialProps(uint32_t id) {
 		}
 
 		if (ImGui::BeginPopup("Diffuse Color Picker")) {
-			if (ImGui::ColorPicker3("Color##Diffuse Color", glm::value_ptr(v))) {
-				mat->setDiffuseColor(v);
-			}
+			ImGui::ColorPicker3("Color##Diffuse Color", glm::value_ptr(v));
 			ImGui::EndPopup();
-		} else {
-			v = mat->getDiffuseColor();
 		}
+
+		mat->setDiffuseColor(v);
 	}
 
 	{
-		static glm::vec3 v = {};
+		auto v = mat->getSpecularColor();
+
 		ImGui::Text("Specular Color");
 		ImGui::SameLine();
 		ImGui::ColorButton("Specular Color Preview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
@@ -283,24 +265,21 @@ void PropertiesWindow::showMaterialProps(uint32_t id) {
 		}
 
 		if (ImGui::BeginPopup("Specular Color Picker")) {
-			if (ImGui::ColorPicker3("Color##Specular Color", glm::value_ptr(v))) {
-				mat->setSpecularColor(v);
-			}
+			ImGui::ColorPicker3("Color##Specular Color", glm::value_ptr(v));
 			ImGui::EndPopup();
-		} else {
-			v = mat->getSpecularColor();
 		}
+
+		mat->setSpecularColor(v);
 	}
 
 	{
-		static float v = 0.0f;
+		auto v = mat->getSpecularComponent();
+
 		ImGui::Text("Specular Component");
 		ImGui::SameLine(150);
-		if (ImGui::InputFloat("##SpecularComponent", &v)) {
-			mat->setSpecularComponent(v);
-		} else {
-			v = mat->getSpecularComponent();
-		}
+		ImGui::InputFloat("##SpecularComponent", &v);
+
+		mat->setSpecularComponent(v);
 	}
 
 	ImGui::Separator();
@@ -334,11 +313,7 @@ void PropertiesWindow::showTextureProps(uint32_t id) {
 		ImGui::Text("Textures");
 		ImGui::Separator();
 		{
-			static char v[256] = {};
-
-			if (editor->ui->fileSelector("New Texture", { {"All Images", "*.jpg;*.jpeg;*.png;*.tga;*.dds"}, {"All Files", "*.*"} }, v, 256)) {
-				std::string path = v;
-
+			if (editor->ui->fileSelector("New Texture", { {"All Images", "*.jpg;*.jpeg;*.png;*.tga;*.dds"}, {"All Files", "*.*"} }, &path)) {
 				Texture* texture = editor->ctx->getTexturesManager()->createTexture(path.c_str());
 
 				if (texture) {
@@ -347,7 +322,7 @@ void PropertiesWindow::showTextureProps(uint32_t id) {
 					texture->meta.setMeta("Editor.Name", filename.substr(0, 64));
 
 					editor->explorerSelection = { EXPLORER_SELECTION_TYPE::TEXTURE, texture->getId() };
-					v[0] = '\0';
+					path = "";
 				}
 			}
 		}
@@ -366,15 +341,11 @@ void PropertiesWindow::showTextureProps(uint32_t id) {
 	ImGui::Text("Properties (%s) (%i)", name.c_str(), texture->getId());
 	ImGui::Separator();
 	{
-		static char v[65] = {};
 		ImGui::Text("Name");
 		ImGui::SameLine(100);
-		if (ImGui::InputText("##ObjectName", v, 65)) {
-			name = v;
-			texture->meta.setMeta("Editor.Name", name);
-		} else {
-			strcpy_s(v, 65, name.c_str());
-		}
+		ImGui::InputText("##ObjectName", &name);
+
+		texture->meta.setMeta("Editor.Name", name);
 	}
 
 	if (!editor->running) {
@@ -396,12 +367,10 @@ void PropertiesWindow::showTextureProps(uint32_t id) {
 
 	ImGui::SeparatorText("Change Texture");
 	{
-		static char v[256] = {};
+		if (editor->ui->fileSelector("Change Texture##" + std::to_string(texture->getId()), { {"All Images", "*.jpg;*.jpeg;*.png;*.tga;*.dds"}, {"All Files", "*.*"} }, &path)) {
 
-		if (editor->ui->fileSelector("Change Texture##" + std::to_string(texture->getId()), { {"All Images", "*.jpg;*.jpeg;*.png;*.tga;*.dds"}, {"All Files", "*.*"} }, v, 256)) {
-			std::string path = v;
 			texture->setData(path.c_str());
-			v[0] = '\0';
+			path = "";
 		}
 	}
 
@@ -412,15 +381,15 @@ void PropertiesWindow::showTextureProps(uint32_t id) {
 	TextureSettings settings = texture->getTextureSettings();
 
 	{
-		static bool v = false;
+		bool v = settings.wrap == TEXTURE_WRAP::REPEAT;
+
 		ImGui::Text("Repeat");
 		ImGui::SameLine(100);
 		if (ImGui::Checkbox("##TextureRepeat", &v)) {
-			settings.wrap = v ? TEXTURE_WRAP::REPEAT : TEXTURE_WRAP::CLAMP;
 			settingsChanged = true;
-		} else {
-			v = settings.wrap == TEXTURE_WRAP::REPEAT;
 		}
+
+		settings.wrap = v ? TEXTURE_WRAP::REPEAT : TEXTURE_WRAP::CLAMP;
 	}
 
 	{
@@ -429,26 +398,26 @@ void PropertiesWindow::showTextureProps(uint32_t id) {
 			"Linear"
 		};
 
-		static int v = 0;
+		int v = 0;
+
+		if (settings.filterMin == TEXTURE_FILTER::NEAREST) {
+			v = 0;
+		} else {
+			v = 1;
+		}
 
 		ImGui::Text("Filter");
 		ImGui::SameLine(100);
 		if (ImGui::Combo("##TextureFilter", &v, componentsToCreate, IM_ARRAYSIZE(componentsToCreate))) {
-			if (v == 0) {
-				settings.filterMin = TEXTURE_FILTER::NEAREST;
-				settings.filterMag = TEXTURE_FILTER::NEAREST;
-			} else {
-				settings.filterMin = TEXTURE_FILTER::LINEAR_MIPMAP_LINEAR;
-				settings.filterMag = TEXTURE_FILTER::LINEAR;
-			}
 			settingsChanged = true;
+		}
+
+		if (v == 0) {
+			settings.filterMin = TEXTURE_FILTER::NEAREST;
+			settings.filterMag = TEXTURE_FILTER::NEAREST;
 		} else {
-			TEXTURE_FILTER filter = settings.filterMin;
-			if (filter == TEXTURE_FILTER::NEAREST) {
-				v = 0;
-			} else {
-				v = 1;
-			}
+			settings.filterMin = TEXTURE_FILTER::LINEAR_MIPMAP_LINEAR;
+			settings.filterMag = TEXTURE_FILTER::LINEAR;
 		}
 	}
 

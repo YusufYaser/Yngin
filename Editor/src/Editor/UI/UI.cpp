@@ -179,7 +179,7 @@ bool EditorUI::materialSelector(std::string id, uint32_t* v) {
 	return changed;
 }
 
-bool EditorUI::fileSelector(std::string id, std::map<std::string, std::string> filters, char* path, size_t pathSize) {
+bool EditorUI::fileSelector(std::string id, std::map<std::string, std::string> filters, std::string* path) {
 #ifdef _WIN32
 	{
 		if (ImGui::Button(("Select File##" + id).c_str(), ImVec2(-1, 40))) {
@@ -190,8 +190,15 @@ bool EditorUI::fileSelector(std::string id, std::map<std::string, std::string> f
 
 			ofn.lStructSize = sizeof(ofn);
 			ofn.hwndOwner = hwnd;
-			ofn.lpstrFile = path;
-			ofn.nMaxFile = pathSize;
+
+			const static size_t pathSize = 1024;
+			std::vector<char> pathBuffer(pathSize, '\0');
+			if (path && !path->empty()) {
+				strncpy_s(pathBuffer.data(), pathSize, path->c_str(), pathSize - 1);
+			}
+
+			ofn.lpstrFile = pathBuffer.data();
+			ofn.nMaxFile = static_cast<DWORD>(pathSize);
 			ofn.lpstrTitle = "Select File";
 			ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
 			ofn.lpstrInitialDir = ".";
@@ -209,6 +216,9 @@ bool EditorUI::fileSelector(std::string id, std::map<std::string, std::string> f
 			ofn.nFilterIndex = 1;
 
 			if (GetOpenFileNameA(&ofn)) {
+				if (path) {
+					*path = std::string(pathBuffer.data());
+				}
 				return true;
 			}
 		}
@@ -218,7 +228,7 @@ bool EditorUI::fileSelector(std::string id, std::map<std::string, std::string> f
 		ImGui::Text("Path");
 		ImGui::SameLine(50);
 		ImGui::PushItemWidth(-1);
-		ImGui::InputText(("##New " + id + " Path").c_str(), path, pathSize);
+		ImGui::InputText(("##New " + id + " Path").c_str(), &path);
 		ImGui::PopItemWidth();
 
 		if (ImGui::Button("Open File", ImVec2(-1, 0))) {

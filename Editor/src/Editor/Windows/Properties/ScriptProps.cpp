@@ -2,6 +2,7 @@
 #include "../../Editor.h"
 #include <string>
 #include "PropertiesWindow.h"
+#include <ImGui/imgui_stdlib.h>
 
 using namespace Yngin;
 
@@ -32,14 +33,9 @@ void PropertiesWindow::showScriptProps(uint32_t id) {
 	ImGui::Separator();
 
 	{
-		static char v[32] = {};
 		ImGui::Text("Name");
 		ImGui::SameLine(100);
-		if (ImGui::InputText("##ScriptName", v, 32)) {
-			script.name = v;
-		} else {
-			strcpy_s(v, 32, script.name.c_str());
-		}
+		ImGui::InputText("##ScriptName", &script.name);
 	}
 
 	ImGui::Separator();

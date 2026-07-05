@@ -4,6 +4,8 @@
 #include <string>
 #include "../../UI/UI.h"
 #include "PropertiesWindow.h"
+#include <ImGui/imgui_stdlib.h>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace Yngin;
 
@@ -11,7 +13,8 @@ void PropertiesWindow::showUIElementProps(uint32_t id, bool global) {
 	UI::UIManager* mgr = editor->activeScene->getUIManager();
 	if (global) mgr = editor->ctx->getGlobalUIManager();
 
-	static std::vector<const char*> elementTypes = {
+	static const std::vector<const char*> elementTypes = {
+		"Select Element Type",
 		"Element",
 		"Image",
 		"Text",
@@ -21,24 +24,23 @@ void PropertiesWindow::showUIElementProps(uint32_t id, bool global) {
 	if (id == -1) {
 		ImGui::Text("Scene UI Elements");
 
-		static int selectedElementType = 0;
-		ImGui::SetNextItemWidth(-1);
-		ImGui::Combo("##UIElementType", &selectedElementType, elementTypes.data(), (int)elementTypes.size());
+		int selectedElementType = 0;
 
-		if (ImGui::Button("Create UI Element", ImVec2(-1, 40))) {
+		ImGui::SetNextItemWidth(-1);
+		if (ImGui::Combo("##UIElementType", &selectedElementType, elementTypes.data(), (int)elementTypes.size())) {
 			UI::UIElement* child = nullptr;
 
 			switch (selectedElementType) {
-			case 0:
+			case 1:
 				child = mgr->getRootElement()->createChild();
 				break;
-			case 1:
+			case 2:
 				child = mgr->getRootElement()->createChild<UI::Image>();
 				break;
-			case 2:
+			case 3:
 				child = mgr->getRootElement()->createChild<UI::Text>();
 				break;
-			case 3:
+			case 4:
 				child = mgr->getRootElement()->createChild<UI::Button>();
 				child->setPivot({ 1, 1 });
 				break;
@@ -64,132 +66,87 @@ void PropertiesWindow::showUIElementProps(uint32_t id, bool global) {
 	ImGui::Text("Properties (%s) (%i)", name.c_str(), element->getId());
 	ImGui::Separator();
 	{
-		static char v[32] = {};
 		ImGui::Text("Name");
 		ImGui::SameLine(100);
-		if (ImGui::InputText("##UIName", v, 32)) {
-			name = v;
-			element->meta.setMeta("Editor.Name", name);
-		} else {
-			strcpy_s(v, 32, name.c_str());
-		}
+		ImGui::InputText("##UIName", &name);
+
+		element->meta.setMeta("Editor.Name", name);
 	}
 
 	ImGui::SeparatorText("Position");
 	{
-		UI::UITransform pos = element->getPosition();
-		static UI::UITransform v = {};
+		UI::UITransform v = element->getPosition();
 
 		ImGui::Text("Scale");
 		ImGui::SameLine(100);
 
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##PosXScale", &v.xScale, 0.05f, 0.05f, "%.2f")) {
-			pos.xScale = v.xScale;
-		} else {
-			v.xScale = pos.xScale;
-		}
+		ImGui::InputFloat("##PosXScale", &v.xScale, 0.05f, 0.05f, "%.2f");
+
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##PosYScale", &v.yScale, 0.05f, 0.05f, "%.2f")) {
-			pos.yScale = v.yScale;
-		} else {
-			v.yScale = pos.yScale;
-		}
+		ImGui::InputFloat("##PosYScale", &v.yScale, 0.05f, 0.05f, "%.2f");
 
 
 		ImGui::Text("Offset");
 		ImGui::SameLine(100);
 
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputInt("##PosXOffset", &v.xOffset)) {
-			pos.xOffset = v.xOffset;
-		} else {
-			v.xOffset = pos.xOffset;
-		}
+		ImGui::InputInt("##PosXOffset", &v.xOffset);
+
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputInt("##PosYOffset", &v.yOffset)) {
-			pos.yOffset = v.yOffset;
-		} else {
-			v.yOffset = pos.yOffset;
-		}
+		ImGui::InputInt("##PosYOffset", &v.yOffset);
 
-
-
-		element->setPosition(pos);
+		element->setPosition(v);
 	}
 
 	ImGui::SeparatorText("Pivot");
 	{
-		glm::vec2 pivot = element->getPivot();
-		static glm::vec2 v = {};
+		glm::vec2 v = element->getPivot();
 
 		ImGui::SetNextItemWidth(136.0f);
-		if (ImGui::InputFloat("##PivotX", &v.x, 0.05f, 0.05f, "%.2f")) {
-			pivot.x = v.x;
-		} else {
-			v.x = pivot.x;
-		}
+		ImGui::InputFloat("##PivotX", &v.x, 0.05f, 0.05f, "%.2f");
+
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(136.0f);
-		if (ImGui::InputFloat("##PivotY", &v.y, 0.05f, 0.05f, "%.2f")) {
-			pivot.y = v.y;
-		} else {
-			v.y = pivot.y;
-		}
+		ImGui::InputFloat("##PivotY", &v.y, 0.05f, 0.05f, "%.2f");
 
-		element->setPivot(pivot);
+		element->setPivot(v);
 	}
 
 	ImGui::SeparatorText("Size");
 	{
-		UI::UITransform size = element->getSize();
-		static UI::UITransform v = {};
+		UI::UITransform v = element->getSize();
 
 		ImGui::Text("Scale");
 		ImGui::SameLine(100);
 
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##SizeXScale", &v.xScale, 0.05f, 0.05f, "%.2f")) {
-			size.xScale = v.xScale;
-		} else {
-			v.xScale = size.xScale;
-		}
+		ImGui::InputFloat("##SizeXScale", &v.xScale, 0.05f, 0.05f, "%.2f");
+
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputFloat("##SizeYScale", &v.yScale, 0.05f, 0.05f, "%.2f")) {
-			size.yScale = v.yScale;
-		} else {
-			v.yScale = size.yScale;
-		}
+		ImGui::InputFloat("##SizeYScale", &v.yScale, 0.05f, 0.05f, "%.2f");
 
 
 		ImGui::Text("Offset");
 		ImGui::SameLine(100);
 
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputInt("##SizeXOffset", &v.xOffset)) {
-			size.xOffset = v.xOffset;
-		} else {
-			v.xOffset = size.xOffset;
-		}
+		ImGui::InputInt("##SizeXOffset", &v.xOffset);
+
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(90.0f);
-		if (ImGui::InputInt("##SizeYOffset", &v.yOffset)) {
-			size.yOffset = v.yOffset;
-		} else {
-			v.yOffset = size.yOffset;
-		}
+		ImGui::InputInt("##SizeYOffset", &v.yOffset);
 
-
-
-		element->setSize(size);
+		element->setSize(v);
 	}
 
 	ImGui::SeparatorText("Color");
 	{
-		static float v[3] = {};
+		auto v = element->getColor();
+
 		ImGui::Text("Color");
 		ImGui::SameLine();
 		ImGui::ColorButton("UI Element Color Preview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
@@ -199,60 +156,41 @@ void PropertiesWindow::showUIElementProps(uint32_t id, bool global) {
 		}
 
 		if (ImGui::BeginPopup("UI Element Color Picker")) {
-			if (ImGui::ColorPicker3("Color##UIColor", v)) {
-				element->setColor(glm::vec4(v[0], v[1], v[2], 1.0f));
-			}
+			ImGui::ColorPicker3("Color##UIColor", glm::value_ptr(v));
 			ImGui::EndPopup();
-		} else {
-			v[0] = element->getColor()[0];
-			v[1] = element->getColor()[1];
-			v[2] = element->getColor()[2];
 		}
+
+		element->setColor(glm::vec4(v.x, v.y, v.z, 1.0f));
 	}
 
 
 	if (element->getType() != UI_TYPE::TEXT) {
 		ImGui::SeparatorText("Crop");
 		{
-			UI::UICrop crop = element->getCrop();
-			static UI::UICrop v = {};
+			UI::UICrop v = element->getCrop();
 
 			ImGui::Text("Start");
 			ImGui::SameLine(100);
 
 			ImGui::SetNextItemWidth(90.0f);
-			if (ImGui::InputFloat("##CropStartX", &v.start.x, 0.05f, 0.05f)) {
-				crop.start.x = v.start.x;
-			} else {
-				v.start.x = crop.start.x;
-			}
+			ImGui::InputFloat("##CropStartX", &v.start.x, 0.05f, 0.05f);
+
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(90.0f);
-			if (ImGui::InputFloat("##CropStartY", &v.start.y, 0.05f, 0.05f)) {
-				crop.start.y = v.start.y;
-			} else {
-				v.start.y = crop.start.y;
-			}
+			ImGui::InputFloat("##CropStartY", &v.start.y, 0.05f, 0.05f);
 
 
 			ImGui::Text("End");
 			ImGui::SameLine(100);
 
 			ImGui::SetNextItemWidth(90.0f);
-			if (ImGui::InputFloat("##CropEndX", &v.end.x, 0.05f, 0.05f)) {
-				crop.end.x = v.end.x;
-			} else {
-				v.end.x = crop.end.x;
-			}
+			ImGui::InputFloat("##CropEndX", &v.end.x, 0.05f, 0.05f);
+
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(90.0f);
-			if (ImGui::InputFloat("##CropEndY", &v.end.y, 0.05f, 0.05f)) {
-				crop.end.y = v.end.y;
-			} else {
-				v.end.y = crop.end.y;
-			}
+			ImGui::InputFloat("##CropEndY", &v.end.y, 0.05f, 0.05f);
 
-			element->setCrop(crop);
+			element->setCrop(v);
 		}
 	}
 
@@ -265,7 +203,8 @@ void PropertiesWindow::showUIElementProps(uint32_t id, bool global) {
 
 		ImGui::SeparatorText("Button");
 		{
-			static float v[3] = {};
+			auto v = button->getHoverColor();
+
 			ImGui::Text("Hover Color");
 			ImGui::SameLine();
 			ImGui::ColorButton("Hover Color Preview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
@@ -275,19 +214,16 @@ void PropertiesWindow::showUIElementProps(uint32_t id, bool global) {
 			}
 
 			if (ImGui::BeginPopup("Hover Color Picker")) {
-				if (ImGui::ColorPicker3("Hover Color##HoverColor", v)) {
-					button->setHoverColor(glm::vec4(v[0], v[1], v[2], 1.0f));
-				}
+				ImGui::ColorPicker3("Hover Color##HoverColor", glm::value_ptr(v));
 				ImGui::EndPopup();
-			} else {
-				v[0] = button->getHoverColor()[0];
-				v[1] = button->getHoverColor()[1];
-				v[2] = button->getHoverColor()[2];
 			}
+
+			button->setHoverColor(glm::vec4(v[0], v[1], v[2], 1.0f));
 		}
 
 		{
-			static float v[3] = {};
+			auto v = button->getClickColor();
+
 			ImGui::Text("Click Color");
 			ImGui::SameLine();
 			ImGui::ColorButton("Click Color Preview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
@@ -297,15 +233,11 @@ void PropertiesWindow::showUIElementProps(uint32_t id, bool global) {
 			}
 
 			if (ImGui::BeginPopup("Click Color Picker")) {
-				if (ImGui::ColorPicker3("Click Color##ClickColor", v)) {
-					button->setClickColor(glm::vec4(v[0], v[1], v[2], 1.0f));
-				}
+				ImGui::ColorPicker3("Click Color##ClickColor", glm::value_ptr(v));
 				ImGui::EndPopup();
-			} else {
-				v[0] = button->getClickColor()[0];
-				v[1] = button->getClickColor()[1];
-				v[2] = button->getClickColor()[2];
 			}
+
+			button->setClickColor(glm::vec4(v[0], v[1], v[2], 1.0f));
 		}
 	}
 
@@ -317,12 +249,11 @@ void PropertiesWindow::showUIElementProps(uint32_t id, bool global) {
 		{
 			ImGui::Text("Texture");
 			ImGui::SameLine(100);
-			static uint32_t v = 0;
-			if (editor->ui->textureSelector("##ImageTextureID", &v)) {
-				image->setTexture(v);
-			} else {
-				v = image->getTexture();
-			}
+			auto v = image->getTexture();
+
+			editor->ui->textureSelector("##ImageTextureID", &v);
+
+			image->setTexture(v);
 		}
 
 		if (element->getType() != UI_TYPE::BUTTON) break;
@@ -336,78 +267,57 @@ void PropertiesWindow::showUIElementProps(uint32_t id, bool global) {
 		{
 			ImGui::Text("Font");
 			ImGui::SameLine(100);
-			static uint32_t v = 0;
-			if (editor->ui->textureSelector("##TextGlyphID", &v)) {
-				text->setGlyph(v);
-			} else {
-				v = text->getGlyph();
-			}
+			auto v = text->getGlyph();
+			editor->ui->textureSelector("##TextGlyphID", &v);
+
+			text->setGlyph(v);
 		}
 
 		ImGui::Text("Size");
 		ImGui::SameLine(100);
 		{
-			static int v = 0;
-			if (ImGui::InputInt("##UITextSize", &v)) {
-				text->setTextSize(v);
-			} else {
-				v = text->getTextSize();
-			}
+			auto v = text->getTextSize();
+			ImGui::InputInt("##UITextSize", &v);
+
+			text->setTextSize(v);
 		}
 
 		ImGui::Text("Spacing");
 		ImGui::SameLine(100);
 		{
-			glm::ivec2 spacing = text->getSpacing();
-			static glm::ivec2 v = {};
+			glm::ivec2 v = text->getSpacing();
 
 			ImGui::SetNextItemWidth(90.0f);
-			if (ImGui::InputInt("##TextSpacingX", &v.x)) {
-				spacing.x = v.x;
-			} else {
-				v.x = spacing.x;
-			}
+			ImGui::InputInt("##TextSpacingX", &v.x);
+
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(90.0f);
-			if (ImGui::InputInt("##TextSpacingY", &v.y)) {
-				spacing.y = v.y;
-			} else {
-				v.y = spacing.y;
-			}
+			ImGui::InputInt("##TextSpacingY", &v.y);
 
-			text->setSpacing(spacing);
+			text->setSpacing(v);
 		}
 
 		ImGui::Text("Centering");
 		ImGui::SameLine(100);
 		{
-			glm::ivec2 center = text->isTextCentered();
-			static glm::ivec2 v = {};
+			glm::ivec2 v = text->isTextCentered();
 
 			ImGui::SetNextItemWidth(90.0f);
-			if (ImGui::Checkbox("X##TextCenterX", (bool*)&v.x)) {
-				center.x = v.x;
-			} else {
-				v.x = center.x;
-			}
+			ImGui::Checkbox("X##TextCenterX", (bool*)&v.x);
+
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(90.0f);
-			if (ImGui::Checkbox("Y##TextCenterY", (bool*)&v.y)) {
-				center.y = v.y;
-			} else {
-				v.y = center.y;
-			}
+			ImGui::Checkbox("Y##TextCenterY", (bool*)&v.y);
 
-			text->setTextCentered(center);
+			text->setTextCentered(v);
 		}
 
 		{
-			static char v[1024] = {};
-			if (ImGui::InputTextMultiline("##UITextContent", v, 1024, ImVec2(-1, !button ? 100.0f : 20.0f))) {
-				text->setText(v);
-			} else {
-				strcpy_s(v, 1024, text->getText().c_str());
-			}
+			auto v = text->getText();
+
+			ImGui::InputTextMultiline("##UITextContent", &v, ImVec2(-1, !button ? 100.0f : 20.0f));
+
+			text->setText(v);
 		}
 		break;
 	}
@@ -416,24 +326,23 @@ void PropertiesWindow::showUIElementProps(uint32_t id, bool global) {
 	ImGui::SeparatorText("Other");
 
 	{
-		static int selectedElementType = 0;
-		ImGui::Combo("##UIElementType", &selectedElementType, elementTypes.data(), (int)elementTypes.size());
+		int selectedElementType = 0;
 
-		ImGui::SameLine();
-		if (ImGui::Button("New Child", ImVec2(-1, 0))) {
+		ImGui::SetNextItemWidth(-1);
+		if (ImGui::Combo("##UIElementType", &selectedElementType, elementTypes.data(), (int)elementTypes.size())) {
 			UI::UIElement* child = nullptr;
 
 			switch (selectedElementType) {
-			case 0:
+			case 1:
 				child = element->createChild();
 				break;
-			case 1:
+			case 2:
 				child = element->createChild<UI::Image>();
 				break;
-			case 2:
+			case 3:
 				child = element->createChild<UI::Text>();
 				break;
-			case 3:
+			case 4:
 				child = element->createChild<UI::Button>();
 				child->setPivot({ 1, 1 });
 				break;

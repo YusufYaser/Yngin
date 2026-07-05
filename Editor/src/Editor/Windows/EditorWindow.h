@@ -1,5 +1,7 @@
 #pragma once
 #include "../Editor.h"
+#include <Yngin/Forward.h>
+#include <glm/glm.hpp>
 
 class EditorWindow {
 public:

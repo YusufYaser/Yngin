@@ -51,6 +51,8 @@ namespace Yngin::Components {
 
 	void PointLight::setDistance(float distance) {
 		impl->distance = distance;
+
+		if (impl->distance < 0) impl->distance = 0;
 	}
 
 

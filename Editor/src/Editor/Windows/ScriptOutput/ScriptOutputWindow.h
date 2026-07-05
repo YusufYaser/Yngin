@@ -10,4 +10,6 @@ public:
 
 private:
 	int logsStart = 0;
+	std::string filter = "";
+	std::string execute = "";
 };

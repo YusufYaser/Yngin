@@ -17,4 +17,9 @@ private:
 	void showMaterialProps(uint32_t id);
 	void showTextureProps(uint32_t id);
 	void showSceneProps(uint32_t id);
+
+	std::string path = "";
+	glm::vec3 newModelOffset = {};
+	glm::vec3 newModelRotation = {};
+	glm::vec3 newModelScale = {};
 };

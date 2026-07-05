@@ -3,6 +3,8 @@
 #include <ImGui/imgui.h>
 #include "../../UI/UI.h"
 #include "PropertiesWindow.h"
+#include <ImGui/imgui_stdlib.h>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace Yngin;
 
@@ -16,18 +18,18 @@ void PropertiesWindow::showSceneProps(uint32_t id) {
 	{
 		ImGui::Text("Skybox Texture");
 		ImGui::SameLine(150);
-		static uint32_t v = 0;
+		auto v = scene->getSkyboxTextureId();
 		ImGui::PushItemWidth(-1);
-		if (editor->ui->textureSelector("##SkyboxTextureID", &v)) {
-			scene->setSkyboxTexture(v);
-		} else {
-			v = scene->getSkyboxTextureId();
-		}
+		editor->ui->textureSelector("##SkyboxTextureID", &v);
+
+		scene->setSkyboxTexture(v);
 		ImGui::PopItemWidth();
 	}
 
 	{
-		static float v[3] = {};
+		LightSettings light = scene->getLightSettings();
+		auto v = light.ambientLight;
+
 		ImGui::Text("Ambient Light Color");
 		ImGui::SameLine();
 		ImGui::ColorButton("Ambient Light Color Preview", ImVec4(v[0], v[1], v[2], 1), ImGuiColorEditFlags_NoDragDrop, ImVec2(50, ImGui::GetFrameHeight()));
@@ -36,17 +38,11 @@ void PropertiesWindow::showSceneProps(uint32_t id) {
 			ImGui::OpenPopup("Ambient Light Color Picker");
 		}
 
-		LightSettings light = scene->getLightSettings();
-
 		if (ImGui::BeginPopup("Ambient Light Color Picker")) {
-			if (ImGui::ColorPicker3("Color##AmbientLightColor", v)) {
+			if (ImGui::ColorPicker3("Color##AmbientLightColor", glm::value_ptr(v))) {
 				light.ambientLight = glm::vec3(v[0], v[1], v[2]);
 			}
 			ImGui::EndPopup();
-		} else {
-			v[0] = light.ambientLight[0];
-			v[1] = light.ambientLight[1];
-			v[2] = light.ambientLight[2];
 		}
 
 		scene->setLightSettings(light);
@@ -55,11 +51,10 @@ void PropertiesWindow::showSceneProps(uint32_t id) {
 	ImGui::Text("Gravity");
 	ImGui::SameLine(100);
 	{
-		static float v = 0;
-		if (ImGui::InputFloat("##SceneGravity", &v, 1.0f, 2.0f)) {
-			scene->setGravity(v);
-		} else {
-			v = scene->getGravity();
-		}
+		float v = scene->getGravity();
+
+		ImGui::InputFloat("##SceneGravity", &v, 1.0f, 2.0f);
+
+		scene->setGravity(v);
 	}
 }

@@ -15,5 +15,5 @@ public:
 	bool modelSelector(std::string id, uint32_t* v);
 	bool materialSelector(std::string id, uint32_t* v);
 
-	bool fileSelector(std::string name, std::map<std::string, std::string> filters, char* path, size_t pathSize);
+	bool fileSelector(std::string name, std::map<std::string, std::string> filters, std::string* path);
 };
