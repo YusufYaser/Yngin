@@ -11,9 +11,16 @@ namespace Yngin {
 
 		auto& m = *impl;
 
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_DECORATED, settings.hasTitleBar ? GLFW_TRUE : GLFW_FALSE);
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+
 		m.glfwWindow = glfwCreateWindow(settings.size.x, settings.size.y, settings.title, nullptr, nullptr);
+
+		glfwDefaultWindowHints();
+
 		impl->makeCurrent();
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		glfwSetWindowUserPointer(m.glfwWindow, ctx);
