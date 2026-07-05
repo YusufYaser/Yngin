@@ -147,6 +147,7 @@
     <ClCompile Include="deps\vendor\ImGui\imgui_draw.cpp" />
     <ClCompile Include="deps\vendor\ImGui\imgui_impl_glfw.cpp" />
     <ClCompile Include="deps\vendor\ImGui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="deps\vendor\ImGui\imgui_stdlib.cpp" />
     <ClCompile Include="deps\vendor\ImGui\imgui_tables.cpp" />
     <ClCompile Include="deps\vendor\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="deps\vendor\ImPlot\implot.cpp" />
@@ -188,6 +189,7 @@
     <ClInclude Include="deps\vendor\ImGui\imgui_impl_opengl3.h" />
     <ClInclude Include="deps\vendor\ImGui\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="deps\vendor\ImGui\imgui_internal.h" />
+    <ClInclude Include="deps\vendor\ImGui\imgui_stdlib.h" />
     <ClInclude Include="deps\vendor\ImGui\imstb_rectpack.h" />
     <ClInclude Include="deps\vendor\ImGui\imstb_textedit.h" />
     <ClInclude Include="deps\vendor\ImGui\imstb_truetype.h" />
