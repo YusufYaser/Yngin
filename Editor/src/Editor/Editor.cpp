@@ -203,9 +203,11 @@ Editor::Editor(std::string path) {
 	ui = std::make_unique<EditorUI>(this);
 
 	// initialize ImGui
+	GLFWwindow* glfwWindow = ctx->getWindow()->getGLFWwindow();
+
 	imguiCtx = ImGui::CreateContext();
 	ImGui::SetCurrentContext(imguiCtx);
-	ImGui_ImplGlfw_InitForOpenGL(ctx->getWindow()->getGLFWwindow(), true);
+	ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -216,6 +218,9 @@ Editor::Editor(std::string path) {
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+#ifdef _WIN32
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+#endif
 
 	implotCtx = ImPlot::CreateContext();
 
@@ -669,6 +674,7 @@ void Editor::update() {
 	}
 
 	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
 	float menubarHeight = 0;
@@ -871,6 +877,9 @@ void Editor::update() {
 
 	ctx->forceViewport(viewPos, viewSize);
 
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImVec2 mainViewportPos = viewport->Pos;
+
 	static const ImGuiWindowFlags dockspaceWindowFlags =
 		ImGuiWindowFlags_NoDocking |
 		ImGuiWindowFlags_NoTitleBar |
@@ -882,13 +891,15 @@ void Editor::update() {
 	ImGui::PushStyleColor(ImGuiCol_DockingEmptyBg, ImVec4(0.05f, 0.05f, 0.05f, 1.0f));
 
 	ImGui::SetNextWindowPos({
-		viewPos.x + viewSize.x,
-		frameHeight
+		mainViewportPos.x + viewPos.x + viewSize.x,
+		mainViewportPos.y + frameHeight
 		});
 	ImGui::SetNextWindowSize({
 		windowSize.x - viewPos.x - viewSize.x,
 		windowSize.y - frameHeight
 		});
+
+	ImGui::SetNextWindowViewport(viewport->ID);
 
 	ImGui::Begin("RightDockSpaceWindow", nullptr, dockspaceWindowFlags);
 	ImGuiID dockRight = ImGui::GetID("RightDockSpace");
@@ -896,13 +907,15 @@ void Editor::update() {
 	ImGui::End();
 
 	ImGui::SetNextWindowPos({
-		viewPos.x,
-		frameHeight * 3 + viewSize.y
+		mainViewportPos.x + viewPos.x,
+		mainViewportPos.y + frameHeight * 3 + viewSize.y
 		});
 	ImGui::SetNextWindowSize({
 		viewSize.x,
 		windowSize.y - frameHeight * 3 - viewSize.y
 		});
+
+	ImGui::SetNextWindowViewport(viewport->ID);
 
 	ImGui::Begin("BottomDockSpaceWindow", nullptr, dockspaceWindowFlags);
 	ImGuiID dockBottom = ImGui::GetID("BottomDockSpace");
@@ -962,7 +975,8 @@ void Editor::update() {
 		if (running) title = gameSettings.name;
 		if (viewingObject) title = "Resource Viewer";
 
-		ImGui::SetNextWindowPos(ImVec2(250.0f, menubarHeight));
+		ImGui::SetNextWindowViewport(viewport->ID);
+		ImGui::SetNextWindowPos(ImVec2(mainViewportPos.x + 250.0f, mainViewportPos.y + menubarHeight));
 		ImGui::SetNextWindowSize(ImVec2(windowSize.x - 250.0f - 300.0f, 0));
 
 		ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive]);
@@ -1018,8 +1032,6 @@ void Editor::update() {
 
 		ImGui::PopStyleColor();
 	}
-
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
 
 	if (ImGui::BeginViewportSideBar("##Explorer", viewport, ImGuiDir_Left, 250.0f, 0)) {
 		ImGui::Text("Project Explorer");
@@ -1092,6 +1104,14 @@ void Editor::update() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+#ifdef _WIN32
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		ctx->makeCurrent();
+	}
+#endif
 
 	ctx->swapBuffers();
 
