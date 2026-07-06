@@ -6,6 +6,7 @@
 #include "../../Editor.h"
 #include "SceneExplorerWindow.h"
 #include "../Properties/PropertiesWindow.h"
+#include <IconFontCppHeaders/IconsFontAwesome7.h>
 
 using namespace Yngin;
 
@@ -23,11 +24,32 @@ namespace {
 
 		name += "##ExplorerGameObject" + std::to_string(obj->getId());
 
-		bool open = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | (obj->getId() == 0 ? ImGuiTreeNodeFlags_DefaultOpen : 0));
+		const char* icon = ICON_FA_CUBE;
+
+		if (obj->hasComponent<Components::DirectionalLight>()) icon = ICON_FA_SUN;
+		else if (obj->hasComponent<Components::PointLight>()) icon = ICON_FA_LIGHTBULB;
+		else if (obj->hasComponent<Components::RigidBody>()) icon = ICON_FA_WEIGHT_HANGING;
+		else if (obj->hasComponent<Components::BoxCollider>()) icon = ICON_FA_BORDER_ALL;
+		else if (obj->hasComponent<Components::Mesh>()) icon = ICON_FA_CIRCLE_NODES;
+
+		if (obj->getId() == 0) icon = ICON_FA_CUBES;
+
+		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
+
+		if (obj->getId() == 0) flags |= ImGuiTreeNodeFlags_DefaultOpen;
+		if (obj->getChildrenCount() == 0) flags |= ImGuiTreeNodeFlags_Leaf;
+
+		bool open = ImGui::TreeNodeEx((std::string(icon) + " " + name).c_str(), flags);
 
 		bool deleteClicked = false;
 
 		if (obj->getId() != 0 && ImGui::BeginPopupContextItem()) {
+			ImGui::MenuItem(name.c_str(), 0, false, false);
+			ImGui::MenuItem(std::string("ID: " + std::to_string(obj->getId())).c_str(), 0, false, false);
+			ImGui::MenuItem(std::string("Children Count: " + std::to_string(obj->getChildrenCount())).c_str(), 0, false, false);
+
+			ImGui::Separator();
+
 			if (ImGui::MenuItem("Open Properties")) {
 				PropertiesWindow* window = new PropertiesWindow(editor);
 				window->forcedSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, obj->getId() };
@@ -82,7 +104,15 @@ namespace {
 
 		name += "##ExplorerUIElement" + std::to_string(obj->getId());
 
-		bool open = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | (obj->getId() == 0 ? ImGuiTreeNodeFlags_DefaultOpen : 0));
+		const char* icon = ICON_FA_CUBE;
+
+		if (obj->getType() == UI_TYPE::BUTTON) icon = ICON_FA_CIRCLE_DOT;
+		else if (obj->getType() == UI_TYPE::IMAGE) icon = ICON_FA_IMAGE;
+		else if (obj->getType() == UI_TYPE::TEXT) icon = ICON_FA_FONT;
+
+		if (obj->getId() == 0) icon = ICON_FA_DISPLAY;
+
+		bool open = ImGui::TreeNodeEx((std::string(icon) + " " + name).c_str(), ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding | (obj->getId() == 0 ? ImGuiTreeNodeFlags_DefaultOpen : 0));
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
 			clicked = obj;
@@ -103,7 +133,9 @@ namespace {
 void SceneExplorerWindow::showSceneExplorer() {
 	Scene* scene = editor->activeScene;
 
-	bool open = ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen);
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8.0f, 4.0f));
+
+	bool open = ImGui::TreeNodeEx(ICON_FA_EARTH_AMERICAS " Scene", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_DefaultOpen);
 
 	if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
 		editor->explorerSelection = { EXPLORER_SELECTION_TYPE::SCENE, scene->getId() };
@@ -123,4 +155,6 @@ void SceneExplorerWindow::showSceneExplorer() {
 		}
 		ImGui::TreePop();
 	}
+
+	ImGui::PopStyleVar();
 }

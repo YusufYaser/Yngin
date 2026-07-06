@@ -81,7 +81,7 @@ Editor::Editor(std::string path) {
 	ctx = Context::createContext({
 		.windowSettings = {
 			.size = glm::ivec2(1280, 720),
-			.title = "Yngin Editor",
+			.title = "Yngin Editor"
 		}
 		});
 
@@ -832,13 +832,13 @@ void Editor::update() {
 		}
 
 		if (window->isFullscreen() || !window->hasTitleBar()) {
-			ImGui::SameLine(window->getSize().x - 65.0f * (window->isFullscreen() ? 1.0f : 1.5f));
+			ImGui::SameLine(window->getSize().x - 75.0f * (window->isFullscreen() ? 1.0f : 1.5f));
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.3f, 0.4f, 1.0f));
 			ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(7.5f, 2.5f));
 
-			if (ImGui::Button("-")) {
+			if (ImGui::Button(ICON_FA_WINDOW_MINIMIZE)) {
 				if (window->isFullscreen()) {
 					window->setFullscreen(false);
 				} else {
@@ -847,7 +847,7 @@ void Editor::update() {
 			}
 
 			if (!window->isFullscreen()) {
-				if (ImGui::Button("O")) {
+				if (ImGui::Button(window->isMaximized() ? ICON_FA_WINDOW_RESTORE : ICON_FA_WINDOW_MAXIMIZE)) {
 					if (!window->isMaximized()) {
 						window->maximize();
 					} else {
@@ -857,7 +857,7 @@ void Editor::update() {
 			}
 
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1, 0, 0, 1));
-			if (ImGui::Button("X")) {
+			if (ImGui::Button(ICON_FA_XMARK)) {
 				ctx->close();
 			}
 			ImGui::PopStyleColor();
