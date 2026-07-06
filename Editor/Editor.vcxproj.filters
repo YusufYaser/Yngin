@@ -39,7 +39,7 @@
     <ClCompile Include="src\Editor\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Editor\Explorer\SceneExplorer.cpp">
+    <ClCompile Include="src\Editor\Windows\SceneExplorer\SceneExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Editor\Windows\Properties\GameObjectProps.cpp">
@@ -48,7 +48,7 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Editor\Explorer\ResourceExplorer.cpp">
+    <ClCompile Include="src\Editor\Windows\SceneExplorer\ResourceExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Editor\Windows\Properties\ModelTextureProps.cpp">
@@ -57,7 +57,7 @@
     <ClCompile Include="src\Editor\Windows\Properties\SceneProps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Editor\Explorer\GameExplorer.cpp">
+    <ClCompile Include="src\Editor\Windows\SceneExplorer\GameExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Editor\Windows\Properties\GameProps.cpp">
@@ -103,6 +103,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="deps\vendor\ImGui\imgui_stdlib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\Windows\SceneExplorer\SceneExplorerWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -177,6 +180,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="deps\vendor\ImGui\imgui_stdlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\Windows\SceneExplorer\SceneExplorerWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

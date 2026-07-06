@@ -15,6 +15,7 @@
 #include "Windows/ScriptOutput/ScriptOutputWindow.h"
 #include "Windows/Performance/PerformanceWindow.h"
 #include "Windows/ContextInfo/ContextInfoWindow.h"
+#include "Windows/SceneExplorer/SceneExplorerWindow.h"
 
 #ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -886,28 +887,11 @@ void Editor::update() {
 		ImGui::End();
 	}
 
-
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 8.0f));
-	if (ImGui::BeginViewportSideBar("##Explorer", viewport, ImGuiDir_Left, 250.0f, dockspaceWindowFlags)) {
-		ImGui::Text("Project Explorer");
-		ImGui::Separator();
-		ImGui::BeginTabBar("Explorer Tabs");
-		if (ImGui::BeginTabItem("Scene")) {
-			showSceneExplorer();
-			ImGui::EndTabItem();
-		}
-		if (ImGui::BeginTabItem("Game")) {
-			showGameExplorer();
-			ImGui::EndTabItem();
-		}
-		if (ImGui::BeginTabItem("Resources")) {
-			showResourceExplorer();
-			ImGui::EndTabItem();
-		}
-		ImGui::EndTabBar();
+	ImGuiID dockLeft = ImGui::GetID("LeftDockSpace");
+	if (ImGui::BeginViewportSideBar("##LeftDockSpaceWindow", viewport, ImGuiDir_Left, 250.0f, dockspaceWindowFlags)) {
+		ImGui::DockSpace(dockLeft);
 		ImGui::End();
 	}
-	ImGui::PopStyleVar(1);
 
 	ImGuiID dockBottom = ImGui::GetID("BottomDockSpace");
 	if (ImGui::BeginViewportSideBar("##BottomDockSpaceWindow", viewport, ImGuiDir_Down, 260.0f, dockspaceWindowFlags)) {
@@ -953,6 +937,12 @@ void Editor::update() {
 		ImGui::DockBuilderDockWindow(properties->getWindowImGuiId().c_str(), dockRight);
 		windows.push_back(std::unique_ptr<PropertiesWindow>(properties));
 
+		// Left
+
+		SceneExplorerWindow* sceneExplorer = new SceneExplorerWindow(this);
+		ImGui::DockBuilderDockWindow(sceneExplorer->getWindowImGuiId().c_str(), dockLeft);
+		windows.push_back(std::unique_ptr<SceneExplorerWindow>(sceneExplorer));
+
 		// Bottom
 
 		ScriptOutputWindow* scriptOutput = new ScriptOutputWindow(this);
@@ -989,7 +979,7 @@ void Editor::update() {
 
 		ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive]);
 
-		if (ImGui::Begin(title.c_str(), 0, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar)) {
+		if (ImGui::Begin(title.c_str(), 0, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking)) {
 
 			if (ImGui::BeginMenuBar()) {
 				if (!viewingObject) {

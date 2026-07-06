@@ -3,8 +3,9 @@
 #include <Yngin/Core/GameObject.h>
 #include <Yngin/UI/UI.h>
 #include <Yngin/Core/Scenes.h>
-#include "../Editor.h"
-#include "../Windows/Properties/PropertiesWindow.h"
+#include "../../Editor.h"
+#include "SceneExplorerWindow.h"
+#include "../Properties/PropertiesWindow.h"
 
 using namespace Yngin;
 
@@ -99,26 +100,26 @@ namespace {
 	}
 }
 
-void Editor::showSceneExplorer() {
-	Scene* scene = activeScene;
+void SceneExplorerWindow::showSceneExplorer() {
+	Scene* scene = editor->activeScene;
 
 	bool open = ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen);
 
 	if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
-		explorerSelection = { EXPLORER_SELECTION_TYPE::SCENE, scene->getId() };
+		editor->explorerSelection = { EXPLORER_SELECTION_TYPE::SCENE, scene->getId() };
 	}
 
 	if (open) {
-		GameObject* gameObject = drawChildrenTree(this, scene->getGameObjectsManager()->getRootGameObject());
+		GameObject* gameObject = drawChildrenTree(editor, scene->getGameObjectsManager()->getRootGameObject());
 		UI::UIElement* uiElement = drawChildrenTree(scene->getUIManager()->getRootElement());
 
 		if (gameObject) {
-			explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, gameObject->getId() };
-			if (explorerSelection.second == 0) explorerSelection.second = -1;
+			editor->explorerSelection = { EXPLORER_SELECTION_TYPE::GAMEOBJECT, gameObject->getId() };
+			if (editor->explorerSelection.second == 0) editor->explorerSelection.second = -1;
 		}
 		if (uiElement) {
-			explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, uiElement->getId() };
-			if (explorerSelection.second == 0) explorerSelection.second = -1;
+			editor->explorerSelection = { EXPLORER_SELECTION_TYPE::UIELEMENT, uiElement->getId() };
+			if (editor->explorerSelection.second == 0) editor->explorerSelection.second = -1;
 		}
 		ImGui::TreePop();
 	}

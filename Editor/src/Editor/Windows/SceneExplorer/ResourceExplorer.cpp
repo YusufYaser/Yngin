@@ -4,7 +4,8 @@
 #include <Yngin/Core/Materials.h>
 #include <Yngin/Core/Scripting.h>
 #include <Yngin/Rendering/Textures.h>
-#include "../Editor.h"
+#include "../../Editor.h"
+#include "SceneExplorerWindow.h"
 
 using namespace Yngin;
 
@@ -106,21 +107,21 @@ namespace {
 	}
 }
 
-void Editor::showResourceExplorer() {
-	uint32_t model = drawModelsTree(ctx->getModelsManager()->getModels());
+void SceneExplorerWindow::showResourceExplorer() {
+	uint32_t model = drawModelsTree(editor->ctx->getModelsManager()->getModels());
 	if (model != -2) {
-		explorerSelection = { EXPLORER_SELECTION_TYPE::MODEL, model };
+		editor->explorerSelection = { EXPLORER_SELECTION_TYPE::MODEL, model };
 	}
-	uint32_t material = drawMaterialsTree(ctx->getMaterialsManager()->getMaterials());
+	uint32_t material = drawMaterialsTree(editor->ctx->getMaterialsManager()->getMaterials());
 	if (material != -2) {
-		explorerSelection = { EXPLORER_SELECTION_TYPE::MATERIAL, material };
+		editor->explorerSelection = { EXPLORER_SELECTION_TYPE::MATERIAL, material };
 	}
-	uint32_t texture = drawTexturesTree(ctx->getTexturesManager()->getTextures());
+	uint32_t texture = drawTexturesTree(editor->ctx->getTexturesManager()->getTextures());
 	if (texture != -2) {
-		explorerSelection = { EXPLORER_SELECTION_TYPE::TEXTURE, texture };
+		editor->explorerSelection = { EXPLORER_SELECTION_TYPE::TEXTURE, texture };
 	}
-	uint32_t script = drawScriptsTree(scripts);
+	uint32_t script = drawScriptsTree(editor->scripts);
 	if (script != -2) {
-		explorerSelection = { EXPLORER_SELECTION_TYPE::SCRIPT, script };
+		editor->explorerSelection = { EXPLORER_SELECTION_TYPE::SCRIPT, script };
 	}
 }

@@ -120,10 +120,6 @@ public:
 
 	void handleCameraMovement(Yngin::Camera* camera);
 
-	void showGameExplorer();
-	void showSceneExplorer();
-	void showResourceExplorer();
-
 	Yngin::GameObject* viewerObject;
 	Yngin::UI::Image* viewerImage;
 	Yngin::GameObject* viewerLightObject;
