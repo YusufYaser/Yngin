@@ -681,23 +681,25 @@ void Editor::update() {
 
 	if (ImGui::BeginMainMenuBar()) {
 		{
-			static ImVec2 startPos = { -1, -1 };
+			static ImVec2 prevPos = { -1, -1 };
 
 			if (ImGui::IsItemActive()) {
-				if (startPos.x == -1) {
-					startPos = io.MousePos;
+				if (prevPos.x == -1) {
+					prevPos = io.MousePos;
 				}
 
 				glm::ivec2 delta = {
-					io.MousePos.x - startPos.x,
-					io.MousePos.y - startPos.y
+					io.MousePos.x - prevPos.x,
+					io.MousePos.y - prevPos.y
 				};
 
 				if (delta.x != 0 || delta.y != 0) window->restore();
 
 				window->setPosition(window->getPosition() + delta);
+
+				prevPos = io.MousePos;
 			} else {
-				startPos = { -1, -1 };
+				prevPos = { -1, -1 };
 			}
 		}
 
@@ -865,18 +867,6 @@ void Editor::update() {
 
 	float frameHeight = ImGui::GetFrameHeight();
 
-	glm::vec2 viewPos = {
-		250.0f,
-		menubarHeight + frameHeight * 2
-	};
-
-	glm::vec2 viewSize = {
-		windowSize.x - 250.0f - 300.0f,
-		windowSize.y - menubarHeight - 260.0f - frameHeight * 2
-	};
-
-	ctx->forceViewport(viewPos, viewSize);
-
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImVec2 mainViewportPos = viewport->Pos;
 
@@ -890,37 +880,55 @@ void Editor::update() {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	ImGui::PushStyleColor(ImGuiCol_DockingEmptyBg, ImVec4(0.05f, 0.05f, 0.05f, 1.0f));
 
-	ImGui::SetNextWindowPos({
-		mainViewportPos.x + viewPos.x + viewSize.x,
-		mainViewportPos.y + frameHeight
-		});
-	ImGui::SetNextWindowSize({
-		windowSize.x - viewPos.x - viewSize.x,
-		windowSize.y - frameHeight
-		});
-
-	ImGui::SetNextWindowViewport(viewport->ID);
-
-	ImGui::Begin("RightDockSpaceWindow", nullptr, dockspaceWindowFlags);
 	ImGuiID dockRight = ImGui::GetID("RightDockSpace");
-	ImGui::DockSpace(dockRight);
-	ImGui::End();
+	if (ImGui::BeginViewportSideBar("##RightDockSpaceWindow", viewport, ImGuiDir_Right, 300.0f, dockspaceWindowFlags)) {
+		ImGui::DockSpace(dockRight);
+		ImGui::End();
+	}
 
-	ImGui::SetNextWindowPos({
-		mainViewportPos.x + viewPos.x,
-		mainViewportPos.y + frameHeight * 3 + viewSize.y
-		});
-	ImGui::SetNextWindowSize({
-		viewSize.x,
-		windowSize.y - frameHeight * 3 - viewSize.y
-		});
 
-	ImGui::SetNextWindowViewport(viewport->ID);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 8.0f));
+	if (ImGui::BeginViewportSideBar("##Explorer", viewport, ImGuiDir_Left, 250.0f, dockspaceWindowFlags)) {
+		ImGui::Text("Project Explorer");
+		ImGui::Separator();
+		ImGui::BeginTabBar("Explorer Tabs");
+		if (ImGui::BeginTabItem("Scene")) {
+			showSceneExplorer();
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Game")) {
+			showGameExplorer();
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Resources")) {
+			showResourceExplorer();
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+		ImGui::End();
+	}
+	ImGui::PopStyleVar(1);
 
-	ImGui::Begin("BottomDockSpaceWindow", nullptr, dockspaceWindowFlags);
 	ImGuiID dockBottom = ImGui::GetID("BottomDockSpace");
-	ImGui::DockSpace(dockBottom);
-	ImGui::End();
+	if (ImGui::BeginViewportSideBar("##BottomDockSpaceWindow", viewport, ImGuiDir_Down, 260.0f, dockspaceWindowFlags)) {
+		ImGui::DockSpace(dockBottom);
+		ImGui::End();
+	}
+
+	{
+		float scaleX = io.DisplayFramebufferScale.x;
+		float scaleY = io.DisplayFramebufferScale.y;
+
+		int physicalX = static_cast<int>((viewport->WorkPos.x - viewport->Pos.x) * scaleX);
+		int physicalY = static_cast<int>((viewport->WorkPos.y - viewport->Pos.y + frameHeight * 2) * scaleY);
+		int physicalWidth = static_cast<int>(viewport->WorkSize.x * scaleX);
+		int physicalHeight = static_cast<int>((viewport->WorkSize.y - frameHeight * 2) * scaleY);
+
+		ctx->forceViewport(
+			glm::ivec2(physicalX, physicalY),
+			glm::ivec2(physicalWidth, physicalHeight)
+		);
+	}
 
 	ImGui::PopStyleColor(1);
 	ImGui::PopStyleVar(1);
@@ -1033,26 +1041,6 @@ void Editor::update() {
 		ImGui::PopStyleColor();
 	}
 
-	if (ImGui::BeginViewportSideBar("##Explorer", viewport, ImGuiDir_Left, 250.0f, 0)) {
-		ImGui::Text("Project Explorer");
-		ImGui::Separator();
-		ImGui::BeginTabBar("Explorer Tabs");
-		if (ImGui::BeginTabItem("Scene")) {
-			showSceneExplorer();
-			ImGui::EndTabItem();
-		}
-		if (ImGui::BeginTabItem("Game")) {
-			showGameExplorer();
-			ImGui::EndTabItem();
-		}
-		if (ImGui::BeginTabItem("Resources")) {
-			showResourceExplorer();
-			ImGui::EndTabItem();
-		}
-		ImGui::EndTabBar();
-		ImGui::End();
-	}
-
 	if (viewingObject && !running) {
 		viewerScene->activate();
 	} else {
@@ -1062,8 +1050,8 @@ void Editor::update() {
 	if (explorerSelection.first == EXPLORER_SELECTION_TYPE::SCRIPT && explorerSelection.second != -1) {
 		ctx->forceViewport({ -1, -1 }, { 1, 1 });
 
-		ImGui::SetNextWindowPos({ viewPos.x, viewPos.y });
-		ImGui::SetNextWindowSize({ viewSize.x, viewSize.y });
+		ImGui::SetNextWindowPos(viewport->WorkPos);
+		ImGui::SetNextWindowSize(viewport->WorkSize);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
 		static int prevScriptId = -1;
