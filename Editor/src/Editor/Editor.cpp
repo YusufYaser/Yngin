@@ -16,6 +16,7 @@
 #include "Windows/Performance/PerformanceWindow.h"
 #include "Windows/ContextInfo/ContextInfoWindow.h"
 #include "Windows/SceneExplorer/SceneExplorerWindow.h"
+#include <IconFontCppHeaders/IconsFontAwesome7.h>
 
 #ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -228,6 +229,18 @@ Editor::Editor(std::string path) {
 	saveProject();
 
 	fs::current_path(oldCwd);
+
+	io.Fonts->AddFontDefault();
+
+	{
+		ImFontConfig cfg;
+		cfg.MergeMode = true;
+		cfg.PixelSnapH = true;
+
+		static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+
+		io.Fonts->AddFontFromFileTTF("assets/fa-solid-900.otf", 0.0f, &cfg, icon_ranges);
+	}
 }
 
 Editor::~Editor() {
