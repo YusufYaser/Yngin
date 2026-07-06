@@ -46,6 +46,7 @@ namespace Yngin {
 			void setParent(uint32_t newParentId);
 			void setParent(UIElement* newParent);
 
+			size_t getChildrenCount() const;
 			std::vector<UIElement*> getChildren() const;
 
 			UIElement* getChild(uint32_t childId) const;

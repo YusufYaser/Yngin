@@ -242,6 +242,10 @@ namespace Yngin::UI {
 		if (newParent) moveChild(childId, newParent);
 	}
 
+	size_t UIElement::getChildrenCount() const {
+		return impl->childs.size();
+	}
+
 	std::vector<UIElement*> UIElement::getChildren() const {
 		std::vector<UIElement*> children;
 		for (auto& kvp : impl->childs) {

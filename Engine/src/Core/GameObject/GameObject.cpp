@@ -53,6 +53,10 @@ namespace Yngin {
 		impl->parent->moveChild(impl->id, newParent);
 	}
 
+	size_t GameObject::getChildrenCount() const {
+		return impl->childs.size();
+	}
+
 	std::vector<GameObject*> GameObject::getChildren() const {
 		std::vector<GameObject*> children;
 		for (auto& kvp : impl->childs) {

@@ -23,6 +23,7 @@ namespace Yngin {
 		void setParent(uint32_t newParentId);
 		void setParent(GameObject* newParent);
 
+		size_t getChildrenCount() const;
 		std::vector<GameObject*> getChildren() const;
 
 		GameObject* getChild(uint32_t childId) const;

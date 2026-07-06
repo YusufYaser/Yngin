@@ -98,6 +98,7 @@ namespace Yngin {
 
 		class Light;
 		class PointLight;
+		class DirectionalLight;
 
 		class Mesh;
 		class RigidBody;
