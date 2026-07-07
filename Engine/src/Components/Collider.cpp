@@ -4,22 +4,18 @@
 #include "Components_Internal.h"
 #include <glm/vec2.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "../Core/GameObject/GameObject_Internal.h"
+#include "../Physics/Physics_Internal.h"
 
 namespace Yngin::Components {
 	Collider::Collider(GameObject* gameObject) : Component(gameObject) {}
 
-	Collider::~Collider() = default;
+	Collider::~Collider() {
+		impl->gameObject->impl->ctx->getPhysicsEngine()->impl->deleteObject(impl->gameObject);
+	}
 
 	COLLIDER_TYPE Collider::getColliderType() const {
 		return COLLIDER_TYPE::NONE;
-	}
-
-	bool Collider::checkCollision(Collider* collider, bool fast) const {
-		return Component::impl->gameObject->getContext()->getPhysicsEngine()->checkCollision(this, collider, fast);
-	}
-
-	bool Collider::isPointInCollider(glm::vec3 point) const {
-		return Component::impl->gameObject->getContext()->getPhysicsEngine()->isPointInCollider(this, point);
 	}
 
 	BoxCollider::BoxCollider(GameObject* gameObject) : Collider(gameObject) {
@@ -39,7 +35,7 @@ namespace Yngin::Components {
 	}
 
 	void BoxCollider::setSize(glm::vec3 size) {
-		impl->size = glm::max(size, glm::vec3(Physics::SMALLEST_UNIT));
+		impl->size = glm::max(size, glm::vec3(0.01f));
 	}
 
 	glm::vec3 BoxCollider::getSize() {

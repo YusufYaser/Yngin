@@ -7,6 +7,9 @@
 #include <windows.h>
 #pragma comment(lib, "winmm.lib")
 #endif
+#include <Jolt/Jolt.h>
+#include <Jolt/RegisterTypes.h>
+#include <Jolt/Core/Factory.h>
 
 #define LOGGER_NAME Initializer
 #include "../../Internal/Logger.h"
@@ -26,6 +29,10 @@ namespace Yngin {
 			terminate();
 			return false;
 		}
+
+		JPH::RegisterDefaultAllocator();
+		JPH::Factory::sInstance = new JPH::Factory();
+		JPH::RegisterTypes();
 
 #ifdef _WIN32
 		timeBeginPeriod(1);
@@ -47,6 +54,11 @@ namespace Yngin {
 		DEBUG("Terminating Yngin");
 		Context::deleteAllContexts();
 		glfwTerminate();
+
+		JPH::UnregisterTypes();
+		delete JPH::Factory::sInstance;
+		JPH::Factory::sInstance = nullptr;
+
 #ifdef _WIN32
 		timeEndPeriod(1);
 #endif

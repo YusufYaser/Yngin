@@ -171,6 +171,8 @@ namespace Yngin {
 
 		makeCurrent();
 
+		m.scenesManager.reset();
+
 		contexts.erase(std::find(contexts.begin(), contexts.end(), this));
 	}
 

@@ -21,11 +21,14 @@ namespace Yngin {
 			void setMomentum(glm::vec3 momentum);
 			glm::vec3 getMomentum();
 
+			// DEPRECATED: This function now does nothing and will be removed soon
 			void setElasticity(float elasticity);
+			// DEPRECATED: This function now does nothing and will be removed soon
 			float getElasticity();
 
-			// control bouncing when hitting a collider with no RigidBody
+			// DEPRECATED: This function now does nothing and will be removed soon
 			void setCanBounce(bool canBounce);
+			// DEPRECATED: This function now does nothing and will be removed soon
 			bool canBounce();
 
 			void applyImpulseForce(glm::vec3 force);

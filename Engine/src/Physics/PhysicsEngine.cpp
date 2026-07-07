@@ -1,6 +1,6 @@
 #include <Yngin/Physics/PhysicsEngine.h>
 #include "Physics_Internal.h"
-#include <Yngin/Components/Collider.h>
+#include <Yngin/Components/Components.h>
 #include "../Components/Components_Internal.h"
 #include <Yngin/Core/Scenes.h>
 #include <Yngin/Core/GameObject.h>
@@ -8,19 +8,63 @@
 #include "../Core/GameObject/GameObject_Internal.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <Yngin/Rendering/Cameras.h>
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyInterface.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Body/BodyLockMulti.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
+
+#define LOGGER_NAME PhysicsEngine
+#include "../Internal/Logger.h"
+#include <glm/gtc/quaternion.hpp>
+
+using namespace Yngin::Components;
 
 namespace Yngin {
 	namespace Physics {
-		constexpr float SMALLEST_UNIT = 0.0001f;
-
 		PhysicsEngine::PhysicsEngine(Context* ctx) {
-			impl = std::make_unique<Impl>();
+			auto& m = impl;
 
-			impl->ctx = ctx;
-			impl->owner = this;
+			m = std::make_unique<Impl>();
+
+			m->ctx = ctx;
+			m->owner = this;
+
+			// Setup JoltPhysics
+			m->jphTempAllocator = new JPH::TempAllocatorImpl(128 * 1024 * 1024);
+
+			m->jphJobSystem = new JPH::JobSystemThreadPool(
+				JPH::cMaxPhysicsJobs,
+				JPH::cMaxPhysicsBarriers,
+				std::thread::hardware_concurrency() - 1
+			);
+
+			m->jphPhysicsSystem = new JPH::PhysicsSystem();
+			m->jphPhysicsSystem->Init(
+				10240,
+				0,
+				10240,
+				10240,
+				m->jphBroadPhaseInterface,
+				m->jphObjectVsBPFilter,
+				m->jphObjectLayerFilter
+			);
 		}
 
-		PhysicsEngine::~PhysicsEngine() = default;
+		PhysicsEngine::~PhysicsEngine() {
+			auto& m = impl;
+
+			delete m->jphPhysicsSystem;
+			m->jphPhysicsSystem = nullptr;
+
+			delete m->jphJobSystem;
+			m->jphJobSystem = nullptr;
+
+			delete m->jphTempAllocator;
+			m->jphTempAllocator = nullptr;
+		}
 
 		Context* PhysicsEngine::getContext() const {
 			return impl->ctx;
@@ -42,230 +86,232 @@ namespace Yngin {
 			impl->simulationDistance = distance;
 		}
 
-		Components::Collider* PhysicsEngine::raycast(Scene* scene, const Ray& ray, float maxDistance) const {
-			if (scene->getContext() != impl->ctx) return nullptr;
+		Components::Collider* PhysicsEngine::raycast(Scene* scene, const Ray& rayData, float maxDistance) const {
+			JPH::RRayCast ray;
 
-			float closestDist = std::numeric_limits<float>::infinity();
-			Components::Collider* closestCollider = nullptr;
+			ray.mOrigin = JPH::RVec3(rayData.origin.x, rayData.origin.y, rayData.origin.z);
+			ray.mDirection = JPH::Vec3(rayData.direction.x, rayData.direction.y, rayData.direction.z) * maxDistance;
 
-			for (auto& kvp : scene->impl->gameObjectsManager->impl->gameObjects) {
-				GameObject* obj = kvp.second;
+			JPH::RayCastResult result;
 
-				// TODO: use getComponent<Components::Collider>() when implemented
-				Components::Collider* collider = obj->getComponent<Components::BoxCollider>();
-				if (collider) {
-					float dist = getRayIntersection(collider, ray);
-					if (dist < maxDistance && dist < closestDist) {
-						closestCollider = collider;
-						closestDist = dist;
-					}
+			bool hasHit = impl->jphPhysicsSystem->GetNarrowPhaseQuery().CastRay(ray, result);
+
+			if (!hasHit) return nullptr;
+
+			Components::Collider* coll = nullptr;
+
+			JPH::BodyID bodyId = result.mBodyID;
+
+			JPH::BodyInterface& bodyInterface = impl->jphPhysicsSystem->GetBodyInterface();
+
+			auto& lockInterface = impl->jphPhysicsSystem->GetBodyLockInterface();
+
+			{
+				JPH::BodyLockRead lock(lockInterface, bodyId);
+				if (lock.Succeeded()) {
+					const JPH::Body& body = lock.GetBody();
+
+					GameObject* gameObject = reinterpret_cast<GameObject*>(body.GetUserData());
+					if (gameObject == nullptr) return nullptr;
+
+					coll = gameObject->getComponent<Components::BoxCollider>();
 				}
 			}
 
-			return closestCollider;
+			return coll;
 		}
 
-		bool PhysicsEngine::checkCollision(const Components::Collider* a, const Components::Collider* b, bool fast) const {
-			if (dynamic_cast<const Components::Component*>(a)->impl->gameObject->getScene() != dynamic_cast<const Components::Component*>(b)->impl->gameObject->getScene()) {
-				return false;
-			}
+		void PhysicsEngine::Impl::reset() {
+			JPH::BodyInterface& bodyInterface = jphPhysicsSystem->GetBodyInterface();
 
-			const Components::Component* componentA = dynamic_cast<const Components::Component*>(a);
-			const Components::Component* componentB = dynamic_cast<const Components::Component*>(b);
-			if (componentA->impl->ctx != componentB->impl->ctx) {
-				return false;
-			}
+			JPH::BodyIDVector bodiesIds;
+			jphPhysicsSystem->GetBodies(bodiesIds);
 
-			if (a->getColliderType() == Components::COLLIDER_TYPE::NONE || b->getColliderType() == Components::COLLIDER_TYPE::NONE) return false;
+			std::vector<JPH::BodyID> safeToRemove;
 
-			if (a->getColliderType() == Components::COLLIDER_TYPE::BOX && b->getColliderType() == Components::COLLIDER_TYPE::BOX) {
-				const Components::BoxCollider* boxA = dynamic_cast<const Components::BoxCollider*>(a);
-				const Components::BoxCollider* boxB = dynamic_cast<const Components::BoxCollider*>(b);
-
-				AABBBounds ab = boxA->impl->getBounds();
-				AABBBounds bb = boxB->impl->getBounds();
-
-				bool aabb =
-					(ab.min.x <= bb.max.x && ab.max.x >= bb.min.x) &&
-					(ab.min.y <= bb.max.y && ab.max.y >= bb.min.y) &&
-					(ab.min.z <= bb.max.z && ab.max.z >= bb.min.z);
-
-				if (!aabb) return false;
-
-				if (fast) return true;
-
-				// TODO: do SAT test
-				return true;
-			}
-
-			return false;
-		}
-
-		bool PhysicsEngine::isPointInCollider(const Components::Collider* coll, glm::vec3 point) const {
-			switch (coll->getColliderType()) {
-			case Components::COLLIDER_TYPE::BOX:
 			{
-				const Components::BoxCollider* box = dynamic_cast<const Components::BoxCollider*>(coll);
-				AABBBounds aabbBounds = box->impl->getBounds();
+				auto& lockInterface = jphPhysicsSystem->GetBodyLockInterface();
+				JPH::BodyLockMultiRead lock(lockInterface, bodiesIds.data(), static_cast<int>(bodiesIds.size()));
 
-				return
-					(point.x >= aabbBounds.min.x && point.x <= aabbBounds.max.x) &&
-					(point.y >= aabbBounds.min.y && point.y <= aabbBounds.max.y) &&
-					(point.z >= aabbBounds.min.z && point.z <= aabbBounds.max.z);
-			}
-			}
-			return false;
-		}
+				for (int i = 0; i < bodiesIds.size(); i++) {
+					const JPH::Body* body = lock.GetBody(i);
 
-		float PhysicsEngine::getRayIntersection(const Components::Collider* coll, const Ray& ray) const {
-			switch (coll->getColliderType()) {
-			case Components::COLLIDER_TYPE::BOX:
-			{
-				const Components::BoxCollider* box = dynamic_cast<const Components::BoxCollider*>(coll);
-				AABBBounds aabb = box->impl->getBounds();
+					if (body == nullptr) continue;
 
-				glm::vec3 min = (aabb.min - ray.origin) / ray.direction;
-				glm::vec3 max = (aabb.max - ray.origin) / ray.direction;
+					if (!body->IsInBroadPhase()) continue;
 
-				float near = std::max({ std::min(min.x, max.x), std::min(min.y, max.y), std::min(min.z, max.z) });
-				float far = std::min({ std::max(min.x, max.x), std::max(min.y, max.y), std::max(min.z, max.z) });
-
-				if (near <= far && far >= 0) {
-					return near;
+					safeToRemove.push_back(body->GetID());
 				}
+			}
 
-				return std::numeric_limits<float>::infinity();
+			bodyInterface.RemoveBodies(safeToRemove.data(), static_cast<int>(safeToRemove.size()));
+		}
+
+		void PhysicsEngine::Impl::setScene(Scene* scene) {
+			if (scene == nullptr) {
+				currentScene = nullptr;
+				return;
 			}
+
+			if (scene->getContext() != ctx) return;
+
+			currentScene = scene;
+
+			jphPhysicsSystem->SetGravity(JPH::Vec3(0.0f, 0.0f, -scene->getGravity()));
+
+			for (auto& [id, gameObject] : scene->getGameObjectsManager()->impl->gameObjects) {
+				sync(gameObject);
 			}
-			return std::numeric_limits<float>::infinity();
+		}
+
+		void PhysicsEngine::Impl::sync(GameObject* gameObject) {
+			if (currentScene == nullptr) return;
+			if (gameObject->getContext() != ctx) return;
+			if (gameObject->getScene() != currentScene) return;
+
+			JPH::BodyInterface& bodyInterface = jphPhysicsSystem->GetBodyInterface();
+
+			JPH::Body*& body = gameObject->impl->joltBody;
+			JPH::BodyID bodyId;
+			if (body) bodyId = body->GetID();
+
+			BoxCollider* coll = gameObject->getComponent<BoxCollider>();
+			RigidBody* rb = gameObject->getComponent<RigidBody>();
+
+			bool hasJoltBody = coll != nullptr;
+			bool dynamic = rb != nullptr;
+
+			if (!hasJoltBody && body != nullptr) {
+				if (bodyInterface.IsAdded(bodyId)) bodyInterface.RemoveBody(bodyId);
+				bodyInterface.DestroyBody(bodyId);
+				body = nullptr;
+			}
+
+			if (hasJoltBody && body == nullptr) {
+				JPH::BoxShapeSettings boxSettings(JPH::Vec3(1.0f, 1.0f, 1.0f));
+				JPH::ShapeRefC boxShape = boxSettings.Create().Get();
+
+				JPH::BodyCreationSettings bodySettings{
+					boxShape,
+					JPH::RVec3(0.0f, 0.0f, 0.0f),
+					JPH::Quat::sIdentity(),
+					JPH::EMotionType::Dynamic,
+					JoltLayers::Layers::STATIC
+				};
+
+				bodySettings.mMotionQuality = JPH::EMotionQuality::LinearCast;
+
+				body = bodyInterface.CreateBody(bodySettings);
+				if (body == nullptr) return;
+
+				bodyId = body->GetID();
+
+				body->SetMotionType(JPH::EMotionType::Static);
+				body->SetUserData(reinterpret_cast<uint64_t>(gameObject));
+
+				bodyInterface.AddBody(bodyId, JPH::EActivation::Activate);
+			}
+
+			if (body == nullptr) return;
+
+			glm::vec3 boxSize = coll->getSize() * gameObject->getScale();
+
+			boxSize /= 2.0f;
+
+			JPH::BoxShapeSettings boxSettings(JPH::Vec3(
+				boxSize.x,
+				boxSize.y,
+				boxSize.z
+			));
+
+			JPH::ShapeRefC boxShape = boxSettings.Create().Get();
+
+			bodyInterface.SetShape(bodyId, boxShape, true, JPH::EActivation::Activate);
+
+			bodyInterface.SetMotionType(bodyId, dynamic ? JPH::EMotionType::Dynamic : JPH::EMotionType::Static, JPH::EActivation::Activate);
+
+			bodyInterface.SetObjectLayer(bodyId, dynamic ? JoltLayers::Layers::DYNAMIC : JoltLayers::Layers::STATIC);
+
+			bodyInterface.SetPositionAndRotation(
+				bodyId,
+				JPH::RVec3(
+					gameObject->getPosition().x,
+					gameObject->getPosition().y,
+					gameObject->getPosition().z
+				),
+				JPH::Quat::sEulerAngles(
+					JPH::Vec3(
+						gameObject->getRotation().x,
+						gameObject->getRotation().y,
+						gameObject->getRotation().z
+					)
+				),
+				JPH::EActivation::Activate
+			);
+
+			bodyInterface.SetLinearVelocity(
+				bodyId,
+				dynamic ?
+				JPH::Vec3(
+					rb->impl->velocity.x,
+					rb->impl->velocity.y,
+					rb->impl->velocity.z
+				)
+				:
+				JPH::Vec3(0.0f, 0.0f, 0.0f)
+			);
+		}
+
+		void PhysicsEngine::Impl::deleteObject(GameObject* gameObject) {
+			if (gameObject->getContext() != ctx) return;
+
+			JPH::Body*& body = gameObject->impl->joltBody;
+			if (body == nullptr) return;
+
+			JPH::BodyInterface& bodyInterface = jphPhysicsSystem->GetBodyInterface();
+
+			if (gameObject->getScene() == currentScene) bodyInterface.RemoveBody(body->GetID());
+			bodyInterface.DestroyBody(body->GetID());
+			body = nullptr;
 		}
 
 		void PhysicsEngine::Impl::updatePhysics(Scene* scene) {
+			if (currentScene == nullptr) return;
 			if (!simulationEnabled) return;
 			if (scene->getContext() != ctx) return;
 
-			float t = std::min((float)ctx->getDeltaTime(), 1.0f / 15);
+			jphPhysicsSystem->Update(ctx->getDeltaTime(), 1, jphTempAllocator, jphJobSystem);
 
-			std::vector<Components::RigidBody*> rigidBodies;
-			std::vector<Components::Collider*> colliders;
+			JPH::BodyInterface& bodyInterface = jphPhysicsSystem->GetBodyInterface();
 
-			glm::vec3 pos = scene->getCamerasManager()->getBlendedCamera()->getPosition();
+			JPH::BodyIDVector bodiesIds;
+			jphPhysicsSystem->GetBodies(bodiesIds);
 
-			for (auto& kvp : scene->impl->gameObjectsManager->impl->gameObjects) {
-				GameObject* obj = kvp.second;
+			{
+				auto& lockInterface = jphPhysicsSystem->GetBodyLockInterface();
+				JPH::BodyLockMultiRead lock(lockInterface, bodiesIds.data(), static_cast<int>(bodiesIds.size()));
 
-				glm::vec3 delta = obj->impl->pos - pos;
-				float distSq = glm::dot(delta, delta);
+				for (int i = 0; i < bodiesIds.size(); i++) {
+					const JPH::Body* body = lock.GetBody(i);
 
-				if (distSq > simulationDistance * simulationDistance) continue;
+					if (body == nullptr || body->IsStatic()) continue;
 
-				Components::RigidBody* rigidBody = obj->getComponent<Components::RigidBody>();
-				if (rigidBody) rigidBodies.push_back(rigidBody);
+					GameObject* gameObject = reinterpret_cast<GameObject*>(body->GetUserData());
 
-				// TODO: use getComponent<Components::Collider>() when implemented
-				Components::Collider* collider = obj->getComponent<Components::BoxCollider>();
-				if (collider) colliders.push_back(collider);
-			}
+					if (gameObject == nullptr) continue;
 
-			// TOOD: add rotation when hit from the side
-			for (auto& rigidBody : rigidBodies) {
-				GameObject* obj = rigidBody->getGameObject();
+					JPH::RVec3 pos = body->GetPosition();
+					JPH::Quat rot = body->GetRotation();
 
-				float mass = rigidBody->impl->mass;
+					gameObject->impl->pos = glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());
+					gameObject->impl->rotation = glm::eulerAngles(glm::quat(rot.GetW(), rot.GetX(), rot.GetY(), rot.GetZ()));
+					gameObject->impl->updateMatrices = true;
 
-				rigidBody->impl->velocity.z -= scene->impl->gravity * t;
+					RigidBody* rb = gameObject->getComponent<RigidBody>();
 
-				rigidBody->impl->velocity += rigidBody->impl->impulseForceAccumulation / mass;
-				rigidBody->impl->impulseForceAccumulation = glm::vec3();
-
-				for (auto& force : rigidBody->impl->forces) {
-					float time = std::min(t, force.w);
-					if (force.w <= 1e-6) continue;
-
-					rigidBody->impl->velocity += (force / mass) * time;
-
-					force.w -= time;
+					JPH::Vec3 velocity = body->GetLinearVelocity();
+					rb->impl->velocity = glm::vec3(velocity.GetX(), velocity.GetY(), velocity.GetZ());
 				}
-
-				glm::vec3 velocityDir = {
-					rigidBody->impl->velocity.x == 0 ? 0 : rigidBody->impl->velocity.x / abs(rigidBody->impl->velocity.x),
-					rigidBody->impl->velocity.y == 0 ? 0 : rigidBody->impl->velocity.y / abs(rigidBody->impl->velocity.y),
-					rigidBody->impl->velocity.z == 0 ? 0 : rigidBody->impl->velocity.z / abs(rigidBody->impl->velocity.z),
-				};
-
-				obj->setPosition(obj->getPosition() + velocityDir * SMALLEST_UNIT);
-
-				// TODO: use getComponent<Components::Collider>() when implemented
-				Components::BoxCollider* a = obj->getComponent<Components::BoxCollider>();
-				if (a) {
-					for (auto& b : colliders) {
-						if (a == b) continue;
-						if (!owner->checkCollision(a, b)) continue;
-
-						// not the physical weight
-						float weight = 1.0f;
-
-						GameObject* otherObj = b->getGameObject();
-						Components::RigidBody* otherRigidBody = otherObj->getComponent<Components::RigidBody>();
-						if (otherRigidBody) {
-							weight = rigidBody->impl->mass / (rigidBody->impl->mass + otherRigidBody->impl->mass);
-						}
-
-						AABBBounds ab = a->impl->getBounds();
-						AABBBounds bb = dynamic_cast<Components::BoxCollider*>(b)->impl->getBounds();
-
-						glm::vec3 positive = {
-							bb.max.x - ab.min.x,
-							bb.max.y - ab.min.y,
-							bb.max.z - ab.min.z,
-						};
-
-						glm::vec3 negative = {
-							ab.max.x - bb.min.x,
-							ab.max.y - bb.min.y,
-							ab.max.z - bb.min.z,
-						};
-
-						glm::vec3 direction = positive;
-
-						glm::vec3 transferedMomentum = glm::vec3();
-
-						for (int i = 0; i < 3; i++) {
-							if (negative[i] < positive[i]) direction[i] = -negative[i];
-						}
-
-						for (int i = 0; i < 3; i++) {
-							int a = i;
-							int b = (i + 1) % 3;
-							int c = (i + 2) % 3;
-
-							if (abs(direction[a]) < abs(direction[b]) && abs(direction[a]) < abs(direction[c])) {
-								transferedMomentum[a] = rigidBody->getMomentum()[a];
-								direction[b] = 0;
-								direction[c] = 0;
-								break;
-							}
-						}
-
-						float elasticity = rigidBody->impl->elasticity;
-
-						if (otherRigidBody) {
-							elasticity = std::min(elasticity, otherRigidBody->impl->elasticity);
-
-							rigidBody->setMomentum(rigidBody->getMomentum() - transferedMomentum * elasticity);
-							otherRigidBody->setMomentum(otherRigidBody->getMomentum() + transferedMomentum * elasticity);
-						} else {
-							rigidBody->setMomentum(rigidBody->getMomentum() - transferedMomentum * ((rigidBody->impl->canBounce ? 1 : 0) + elasticity));
-						}
-
-						obj->impl->pos += direction * weight;
-						if (otherRigidBody) {
-							otherObj->impl->pos -= direction * (1 - weight);
-						}
-					}
-				}
-
-				obj->setPosition(obj->getPosition() + rigidBody->impl->velocity * t - velocityDir * SMALLEST_UNIT);
 			}
 		}
 	}

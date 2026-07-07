@@ -7,6 +7,8 @@
 #include <assert.h>
 #include <Yngin/Core/Scenes.h>
 #include <Yngin/Services/Tween.h>
+#include <Yngin/Physics/PhysicsEngine.h>
+#include "../../Physics/Physics_Internal.h"
 
 #define DEFINE_FOR_COMPONENT(T) \
 template void GameObject::deleteComponent<T>(); \
@@ -19,6 +21,8 @@ namespace Yngin {
 
 	GameObject::GameObject(Context* ctx, Scene* scene, GameObject* parent) {
 		impl = std::make_unique<Impl>();
+
+		impl->owner = this;
 
 		impl->ctx = ctx;
 		impl->scene = scene;
@@ -155,6 +159,7 @@ namespace Yngin {
 		if (newPos == impl->pos) return;
 		impl->pos = newPos;
 		impl->updateMatrices = true;
+		impl->physicsSync();
 	}
 
 	glm::vec3 GameObject::getRotation() const {
@@ -165,16 +170,22 @@ namespace Yngin {
 		if (newRotation == impl->rotation) return;
 		impl->rotation = newRotation;
 		impl->updateMatrices = true;
+		impl->physicsSync();
 	}
 
 	void GameObject::setScale(glm::vec3 newScale) {
 		if (newScale == impl->scale) return;
 		impl->scale = newScale;
 		impl->updateMatrices = true;
+		impl->physicsSync();
 	}
 
 	glm::vec3 GameObject::getScale() const {
 		return impl->scale;
+	}
+
+	void GameObject::Impl::physicsSync() {
+		ctx->getPhysicsEngine()->impl->sync(owner);
 	}
 
 	template<typename T>
@@ -200,12 +211,15 @@ namespace Yngin {
 
 		impl->components[static_cast<int>(T::staticType)] = std::move(component);
 
+		impl->physicsSync();
+
 		return getComponent<T>();
 	}
 
 	template<typename T>
 	void GameObject::deleteComponent() {
 		impl->components[static_cast<int>(T::staticType)].reset();
+		impl->physicsSync();
 	}
 
 	DEFINE_FOR_COMPONENT(Components::Component);

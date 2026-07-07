@@ -349,6 +349,7 @@
     <ClInclude Include="src\Core\Models\DefaultModels\Skybox_Model.h" />
     <ClInclude Include="src\Core\Models\DefaultModels\Square_Model.h" />
     <ClInclude Include="src\Internal\Logger.h" />
+    <ClInclude Include="src\Physics\JoltLayers.h" />
     <ClInclude Include="src\Physics\Physics_Internal.h" />
     <ClInclude Include="src\Rendering\Renderer\Renderer_Internal.h" />
     <ClInclude Include="src\Rendering\Shaders\Shaders_Internal.h" />
@@ -611,7 +612,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>JPH_DOUBLE_PRECISION;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>include;deps\vendor;deps\include;..\deps\include</AdditionalIncludeDirectories>
@@ -643,7 +644,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>JPH_DOUBLE_PRECISION;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>include;deps\vendor;deps\include;..\deps\include</AdditionalIncludeDirectories>

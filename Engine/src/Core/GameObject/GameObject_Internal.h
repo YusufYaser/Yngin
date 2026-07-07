@@ -5,10 +5,13 @@
 #include <map>
 #include <glm/matrix.hpp>
 #include "../../Components/Components_Internal.h"
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
 
 namespace Yngin {
 	struct GameObject::Impl {
 		uint32_t id;
+		GameObject* owner;
 
 		Context* ctx;
 		Scene* scene;
@@ -24,6 +27,9 @@ namespace Yngin {
 		bool updateMatrices = true;
 		glm::mat4 modelMatrix;
 		glm::mat3 normalMatrix;
+
+		JPH::Body* joltBody = nullptr;
+		void physicsSync();
 	};
 
 	struct GameObjectsManager::Impl {

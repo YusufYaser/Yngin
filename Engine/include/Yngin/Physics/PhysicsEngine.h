@@ -19,19 +19,18 @@ namespace Yngin {
 			void setSimulationEnabled(bool enabled);
 
 			float getSimulationDistance();
+			// This (for now) does nothing
 			void setSimulationDistance(float distance);
 
-			// fast = true -> use AABB only
-			// fast = false -> use SAT if AABB is true (yet to be implemented)
-			bool checkCollision(const Components::Collider* a, const Components::Collider* b, bool fast = false) const;
-			bool isPointInCollider(const Components::Collider* coll, glm::vec3 point) const;
-			float getRayIntersection(const Components::Collider* coll, const Ray& ray) const;
-
-			Components::Collider* raycast(Scene* scene, const Ray& ray, float maxDistance = std::numeric_limits<float>::infinity()) const;
+			Components::Collider* raycast(Scene* scene, const Ray& ray, float maxDistance = 1000.0f) const;
 
 		private:
 			friend class Context;
 			friend struct std::default_delete<PhysicsEngine>;
+			friend class Components::Collider;
+			friend class Components::RigidBody;
+			friend class GameObject;
+			friend class ScenesManager;
 
 			PhysicsEngine(Context* ctx);
 			~PhysicsEngine();

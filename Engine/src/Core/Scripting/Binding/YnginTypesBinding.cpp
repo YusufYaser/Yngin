@@ -494,17 +494,6 @@ namespace Yngin {
 			BIND(Physics::PhysicsEngine, getSimulationDistance),
 			BIND(Physics::PhysicsEngine, setSimulationDistance),
 
-			BIND(Physics::PhysicsEngine, isPointInCollider),
-			BIND(Physics::PhysicsEngine, getRayIntersection),
-
-			"checkCollision", sol::overload(
-				[](const Physics::PhysicsEngine& self, Components::Collider* a, Components::Collider* b) {
-					return self.checkCollision(a, b);
-				},
-
-				static_cast<bool(Physics::PhysicsEngine::*)(const Components::Collider*, const Components::Collider*, bool) const>(&Physics::PhysicsEngine::checkCollision)
-			),
-
 			"raycast", sol::overload(
 				[](const Physics::PhysicsEngine& self, Scene* scene, const Physics::Ray& ray) {
 					return self.raycast(scene, ray);
@@ -958,17 +947,7 @@ namespace Yngin {
 			sol::no_constructor,
 			sol::base_classes, sol::bases<Components::Component>(),
 
-			BIND(Components::Collider, getColliderType),
-
-			BIND(Components::Collider, isPointInCollider),
-
-			"checkCollision", sol::overload(
-				[](const Components::Collider& self, Components::Collider* collider) {
-					return self.checkCollision(collider);
-				},
-
-				static_cast<bool(Components::Collider::*)(Components::Collider*, bool) const>(&Components::Collider::checkCollision)
-			)
+			BIND(Components::Collider, getColliderType)
 		);
 
 		lua.new_usertype<Components::BoxCollider>("BoxCollider",

@@ -1,5 +1,7 @@
 #include <Yngin/Components/RigidBody.h>
 #include "Components_Internal.h"
+#include "../Core/GameObject/GameObject_Internal.h"
+#include "../Physics/Physics_Internal.h"
 
 namespace Yngin::Components {
 	RigidBody::RigidBody(GameObject* gameObject) : Component(gameObject) {
@@ -15,9 +17,11 @@ namespace Yngin::Components {
 	void RigidBody::setMass(float mass) {
 		impl->mass = mass;
 
-		if (impl->mass < Physics::SMALLEST_UNIT) {
-			impl->mass = Physics::SMALLEST_UNIT;
+		if (impl->mass < 0.01f) {
+			impl->mass = 0.01f;
 		}
+
+		Component::impl->gameObject->impl->physicsSync();
 	}
 
 	float RigidBody::getMass() {
@@ -26,6 +30,7 @@ namespace Yngin::Components {
 
 	void RigidBody::setVelocity(glm::vec3 velocity) {
 		impl->velocity = velocity;
+		Component::impl->gameObject->impl->physicsSync();
 	}
 
 	glm::vec3 RigidBody::getVelocity() {
@@ -34,6 +39,7 @@ namespace Yngin::Components {
 
 	void RigidBody::setMomentum(glm::vec3 momentum) {
 		impl->velocity = momentum / impl->mass;
+		Component::impl->gameObject->impl->physicsSync();
 	}
 
 	glm::vec3 RigidBody::getMomentum() {
@@ -41,13 +47,6 @@ namespace Yngin::Components {
 	}
 
 	void RigidBody::setElasticity(float elasticity) {
-		impl->elasticity = elasticity;
-
-		if (impl->elasticity < 0) {
-			impl->elasticity = 0;
-		} else if (impl->elasticity > 1) {
-			impl->elasticity = 1;
-		}
 	}
 
 	float RigidBody::getElasticity() {
@@ -55,7 +54,6 @@ namespace Yngin::Components {
 	}
 
 	void RigidBody::setCanBounce(bool canBounce) {
-		impl->canBounce = canBounce;
 	}
 
 	bool RigidBody::canBounce() {
@@ -63,11 +61,9 @@ namespace Yngin::Components {
 	}
 
 	void RigidBody::applyImpulseForce(glm::vec3 force) {
-		impl->impulseForceAccumulation += force;
 	}
 
 	void RigidBody::applyForce(glm::vec3 force, float time) {
-		impl->forces.push_back(glm::vec4(force, time));
 	}
 
 	std::vector<glm::vec4> RigidBody::getForces() {

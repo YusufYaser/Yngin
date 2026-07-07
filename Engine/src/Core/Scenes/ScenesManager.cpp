@@ -4,6 +4,8 @@
 #include "Scenes_Internal.h"
 #include <Yngin/Core/Scripting.h>
 #include "../Scripting/Scripting_Internal.h"
+#include <Yngin/Physics/PhysicsEngine.h>
+#include "../../Physics/Physics_Internal.h"
 
 #define LOGGER_NAME Scenes
 #include "../../Internal/Logger.h"
@@ -80,7 +82,7 @@ namespace Yngin {
 
 	void ScenesManager::deleteScene(uint32_t sceneId) {
 		if (impl->activeScene && impl->activeScene->getId() == sceneId) {
-			impl->activeScene = nullptr;
+			setActive(nullptr);
 		}
 
 		impl->scenes.erase(sceneId);
@@ -100,16 +102,21 @@ namespace Yngin {
 
 	void ScenesManager::setActive(uint32_t sceneId) {
 		Scene* scene = getScene(sceneId);
-		if (scene == impl->activeScene) return;
-
-		impl->ctx->getScriptsManager()->impl->onSceneInactive();
-		impl->activeScene = scene;
-		impl->ctx->getScriptsManager()->impl->onSceneActive();
+		if (scene) setActive(scene);
 	}
 
 	void ScenesManager::setActive(Scene* scene) {
-		if (scene->impl->ctx == impl->ctx) {
-			setActive(scene->impl->id);
+		if (scene == impl->activeScene) return;
+		if (scene != nullptr && scene->impl->ctx != impl->ctx) return;
+
+		impl->ctx->getScriptsManager()->impl->onSceneInactive();
+		impl->ctx->getPhysicsEngine()->impl->reset();
+
+		impl->activeScene = scene;
+
+		impl->ctx->getPhysicsEngine()->impl->setScene(scene);
+		if (scene) {
+			impl->ctx->getScriptsManager()->impl->onSceneActive();
 		}
 	}
 }

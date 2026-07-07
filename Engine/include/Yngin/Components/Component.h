@@ -30,7 +30,7 @@ namespace Yngin {
 
 		protected:
 			Component(GameObject* gameObject);
-			~Component();
+			virtual ~Component();
 
 			friend class Collider;
 			friend class BoxCollider;

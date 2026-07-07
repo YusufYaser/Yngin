@@ -80,8 +80,6 @@ namespace Yngin {
 	}
 
 	namespace Physics {
-		extern const float SMALLEST_UNIT;
-
 		struct Ray;
 
 		class PhysicsEngine;
