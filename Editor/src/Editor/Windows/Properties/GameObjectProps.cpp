@@ -71,9 +71,9 @@ void PropertiesWindow::showGameObjectProps(uint32_t id) {
 
 	ImGui::SeparatorText("Rotation");
 	{
-		glm::vec3 v = obj->getRotation();
-
 		const float degToRad = (3.14159265359f / 180);
+
+		glm::vec3 v = obj->getRotation() / degToRad;
 
 		ImGui::SetNextItemWidth(90.0f);
 		ImGui::InputFloat("##RotationX", &v.x, 1.0f, 22.5f, "%.1f");
@@ -83,7 +83,7 @@ void PropertiesWindow::showGameObjectProps(uint32_t id) {
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(90.0f);
 		ImGui::InputFloat("##RotationZ", &v.z, 1.0f, 22.5f, "%.1f");
-		obj->setRotation(v);
+		obj->setRotation(v * degToRad);
 	}
 
 	ImGui::SeparatorText("Scale");
