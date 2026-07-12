@@ -74,6 +74,7 @@ public:
 	std::pair<EXPLORER_SELECTION_TYPE, int> explorerSelection = {};
 
 	bool running = false;
+	uint64_t runningStartFrame = 0;
 	double runningStartTime = 0;
 
 	bool editorLighting = true;

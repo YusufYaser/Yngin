@@ -484,6 +484,7 @@ void Editor::togglePlayMode() {
 		ctx->notReady();
 		loadScripts();
 
+		runningStartFrame = ctx->getFrame();
 		runningStartTime = ctx->getFrameStartTime();
 
 		ctx->ready();
@@ -661,7 +662,7 @@ void Editor::update() {
 		}
 	}
 
-	ctx->getPhysicsEngine()->setSimulationEnabled(running);
+	ctx->getPhysicsEngine()->setSimulationEnabled(running && runningStartFrame <= ctx->getFrame() - 2);
 	ctx->getRenderer()->setLightingEnabled(running || (explorerSelection.first == EXPLORER_SELECTION_TYPE::MATERIAL && explorerSelection.second != -1) || editorLighting);
 	ctx->update(false);
 
