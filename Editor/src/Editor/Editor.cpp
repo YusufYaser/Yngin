@@ -26,6 +26,7 @@
 #include <Windows.h>
 #include <psapi.h>
 #include <dwmapi.h>
+#include <shobjidl.h>
 #pragma comment(lib, "dwmapi.lib")
 #undef min
 #undef max
@@ -34,6 +35,64 @@
 using namespace Yngin;
 
 namespace fs = std::filesystem;
+
+namespace {
+	std::string openDirectory(GLFWwindow* window) {
+#ifdef _WIN32
+		HWND hwnd = glfwGetWin32Window(window);
+		char path[256] = { 0 };
+
+		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+		if (!SUCCEEDED(hr)) return "";
+
+		IFileOpenDialog* fileOpen;
+
+		hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&fileOpen));
+		if (!SUCCEEDED(hr)) {
+			CoUninitialize();
+			return "";
+		}
+
+		DWORD dwOptions;
+		fileOpen->GetOptions(&dwOptions);
+		fileOpen->SetOptions(dwOptions | FOS_PICKFOLDERS);
+
+		hr = fileOpen->Show(hwnd);
+
+		if (!SUCCEEDED(hr)) {
+			fileOpen->Release();
+			CoUninitialize();
+			return "";
+		}
+
+		IShellItem* item;
+
+		hr = fileOpen->GetResult(&item);
+		if (!SUCCEEDED(hr)) {
+			item->Release();
+			fileOpen->Release();
+			CoUninitialize();
+			return "";
+		}
+
+		PWSTR filePath;
+		hr = item->GetDisplayName(SIGDN_FILESYSPATH, &filePath);
+
+		if (SUCCEEDED(hr)) {
+			wcstombs_s(0, path, filePath, 256);
+			CoTaskMemFree(filePath);
+		}
+
+		item->Release();
+		fileOpen->Release();
+		CoUninitialize();
+
+		return std::string(path);
+#else
+		return "";
+#endif
+	}
+}
 
 Editor::Editor(std::string path) {
 	this->path = path;
@@ -64,7 +123,8 @@ Editor::Editor(std::string path) {
 	}
 #endif
 
-	fs::path oldCwd = fs::current_path();
+	editorFilesPath = fs::current_path().string();
+
 	fs::current_path(path);
 
 	fs::create_directory("temp");
@@ -87,7 +147,7 @@ Editor::Editor(std::string path) {
 
 	if (ctx == nullptr || ctx->getStatus() != CONTEXT_STATUS::WAITING_FOR_READY) {
 		printf("Failed to create context\n");
-		fs::current_path(oldCwd);
+		fs::current_path(editorFilesPath);
 		return;
 	}
 
@@ -228,7 +288,7 @@ Editor::Editor(std::string path) {
 
 	saveProject();
 
-	fs::current_path(oldCwd);
+	fs::current_path(editorFilesPath);
 
 	io.Fonts->AddFontDefault();
 
@@ -245,12 +305,11 @@ Editor::Editor(std::string path) {
 
 Editor::~Editor() {
 	if (filesLoaded) {
-		fs::path oldCwd = fs::current_path();
 		fs::current_path(path);
 
 		saveProject();
 
-		fs::current_path(oldCwd);
+		fs::current_path(editorFilesPath);
 	}
 
 	if (mutex != 0) CloseHandle(mutex);
@@ -421,12 +480,27 @@ bool Editor::saveContext(Yngin::Context* ctx, std::map<uint32_t, EditorScript> s
 	return true;
 }
 
-void Editor::exportGame() {
+bool Editor::exportGame(std::string exportPath) {
 	if (running) {
 		printf("[Yngin Editor] Cannot export while the game is running!\n");
-		return;
+		return false;
 	}
+
+	if (exportPath.empty()) return false;
+
+	if (!fs::exists(exportPath) || !fs::is_directory(exportPath) || !fs::is_empty(exportPath)) return false;
+
+	try {
+		fs::copy(editorFilesPath + "/Runtime", exportPath, fs::copy_options::recursive | fs::copy_options::overwrite_existing);
+		fs::rename(exportPath + "/Runtime.exe", exportPath + "/" + projectName + ".exe");
+	} catch (const fs::filesystem_error& e) {
+		printf("[Yngin Editor] Error while copying Runtime files: %s\n", e.what());
+		return false;
+	}
+
 	setupPreviousGameState();
+
+	fs::current_path(exportPath);
 
 	loadScripts();
 
@@ -443,7 +517,7 @@ end
 )LUA", 0).c_str());
 
 	{
-		std::ofstream file("bin/game.pak", std::ios::binary);
+		std::ofstream file("game.pak", std::ios::binary);
 		if (file) {
 			PakGenSettings settings{};
 
@@ -463,11 +537,18 @@ end
 
 			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
 			file.close();
+		} else {
+			printf("[Yngin Editor] Error while creating game.pak file\n");
+			fs::current_path(path);
+			loadPreviousGameState();
+			return false;
 		}
 	}
 
-
+	fs::current_path(path);
 	loadPreviousGameState();
+
+	return true;
 }
 
 void Editor::togglePlayMode() {
@@ -557,7 +638,6 @@ void Editor::loadScripts() {
 }
 
 void Editor::update() {
-	fs::path oldCwd = fs::current_path();
 	fs::current_path(path);
 
 	ImGui::SetCurrentContext(imguiCtx);
@@ -787,15 +867,72 @@ void Editor::update() {
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Game")) {
-			if (ImGui::MenuItem("Export game.pak", 0, false, !running)) {
-				exportGame();
+		{
+			bool openExported = false;
+			bool openExportError = false;
+			bool openInvalidPath = false;
+
+			if (ImGui::BeginMenu("Game")) {
+				if (ImGui::MenuItem("Export Game", 0, false, !running)) {
+					std::string path = openDirectory(window->getGLFWwindow());
+					if (!path.empty()) {
+						if (fs::exists(path) && fs::is_directory(path) && fs::is_empty(path)) {
+							bool success = exportGame(path);
+							lastExportPath = path;
+							openExported = success;
+							openExportError = !success;
+						} else {
+							openInvalidPath = true;
+						}
+					}
+				}
+
+				ImGui::Separator();
+				if (ImGui::MenuItem(running ? "Stop Play Mode" : "Start Play Mode", "F5")) {
+					togglePlayMode();
+				}
+				ImGui::EndMenu();
 			}
-			ImGui::Separator();
-			if (ImGui::MenuItem(running ? "Stop Play Mode" : "Start Play Mode", "F5")) {
-				togglePlayMode();
+
+			if (openExported) {
+				ImGui::OpenPopup("Exported");
 			}
-			ImGui::EndMenu();
+
+			if (openExportError) {
+				ImGui::OpenPopup("Failed to export game");
+			}
+
+			if (openInvalidPath) {
+				ImGui::OpenPopup("Invalid Directory");
+			}
+
+			if (ImGui::BeginPopupModal("Exported", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+				ImGui::Text(("Your game files have been exported successfully at\n" + lastExportPath).c_str());
+				if (ImGui::Button("View Files", ImVec2(80, 30))) {
+					system(("explorer \"" + lastExportPath + "\"").c_str());
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Close", ImVec2(80, 30))) {
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+
+			if (ImGui::BeginPopupModal("Failed to export game", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+				ImGui::Text("Failed to export the game files");
+				if (ImGui::Button("Close", ImVec2(80, 30))) {
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+
+			if (ImGui::BeginPopupModal("Invalid Directory", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+				ImGui::Text("Please choose an empty directory to export your game");
+				if (ImGui::Button("Close", ImVec2(80, 30))) {
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
 		}
 
 		{
@@ -1107,5 +1244,5 @@ void Editor::update() {
 
 	ctx->swapBuffers();
 
-	fs::current_path(oldCwd);
+	fs::current_path(editorFilesPath);
 }

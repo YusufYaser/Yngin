@@ -95,7 +95,21 @@ public:
 	uint32_t nextScriptId = 0;
 	std::map<uint32_t, EditorScript> scripts;
 
-	//private:
+	Yngin::GameObject* viewerObject;
+	Yngin::GameObject* viewerLightObject;
+	Yngin::UI::Image* viewerImage;
+
+	float lastGraphTime = -5.0f;
+	std::vector<float> graphsTimes;
+	std::vector<float> graphsFPSValues;
+	std::vector<float> graphsMemoryValues;
+
+	uint32_t nextWindowUid = 0;
+	std::vector<std::unique_ptr<EditorWindow>> windows;
+
+private:
+	std::string editorFilesPath;
+
 	ImGuiContext* imguiCtx;
 	ImPlotContext* implotCtx;
 
@@ -105,33 +119,24 @@ public:
 	HANDLE mutex;
 #endif
 
-	uint32_t nextWindowUid = 0;
-	std::vector<std::unique_ptr<EditorWindow>> windows;
-
 	void resetContext();
 	void setupViewerScene();
 
 	void saveProject();
 	static bool saveContext(Yngin::Context* ctx, std::map<uint32_t, EditorScript> scripts = {});
 
-	void exportGame();
+	bool exportGame(std::string path);
+
 	void togglePlayMode();
 
 	std::pair<EXPLORER_SELECTION_TYPE, int> explorerSelectionBeforePlaying = {};
 
 	void handleCameraMovement(Yngin::Camera* camera);
 
-	Yngin::GameObject* viewerObject;
-	Yngin::UI::Image* viewerImage;
-	Yngin::GameObject* viewerLightObject;
-
 	void setupPreviousGameState();
 	void loadPreviousGameState();
 
 	void loadScripts();
 
-	float lastGraphTime = -5.0f;
-	std::vector<float> graphsTimes;
-	std::vector<float> graphsFPSValues;
-	std::vector<float> graphsMemoryValues;
+	std::string lastExportPath;
 };

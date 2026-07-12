@@ -15,7 +15,7 @@
 
 #ifdef _WIN32
 #include <Windows.h>
-#include <shobjidl.h> 
+#include <shobjidl.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 #include <dwmapi.h>
