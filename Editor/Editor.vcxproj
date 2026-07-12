@@ -75,10 +75,10 @@
       <Message>Remove all files in output directory</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>xcopy assets "$(OutDir)assets\"</Command>
+      <Command>xcopy assets "$(OutDir)assets\" &amp;&amp; xcopy "$(SolutionDir)bin\$(Configuration)\Runtime\*" "$(OutDir)Runtime\" /E /I /Y &amp;&amp; del /q "$(OutDir)Runtime\*.pdb"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy the assets folder to build directory</Message>
+      <Message>Copy the assets folder and Runtime files to build directory</Message>
     </PostBuildEvent>
     <CustomBuildStep>
       <Command>
@@ -120,10 +120,10 @@
       <Message>Remove all files in output directory</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>xcopy assets "$(OutDir)assets\"</Command>
+      <Command>xcopy assets "$(OutDir)assets\" &amp;&amp; xcopy "$(SolutionDir)bin\$(Configuration)\Runtime\*" "$(OutDir)Runtime\" /E /I /Y &amp;&amp; del /q "$(OutDir)Runtime\*.pdb"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy the assets folder to build directory</Message>
+      <Message>Copy the assets folder and Runtime files to build directory</Message>
     </PostBuildEvent>
     <CustomBuildStep>
       <Command>
