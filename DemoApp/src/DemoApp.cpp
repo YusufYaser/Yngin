@@ -412,11 +412,11 @@ int main() {
 			}
 		}
 
-		if (testCollider->checkCollision(obj->getComponent<Components::BoxCollider>())) {
+		/*if (testCollider->checkCollision(obj->getComponent<Components::BoxCollider>())) {
 			testMesh->setColor(glm::vec3(1, 0, 0));
 		} else {
 			testMesh->setColor(glm::vec3(1, 1, 1));
-		}
+		}*/
 
 		defaultCamera = ctx->getScenesManager()->getActive()->getCamerasManager()->getCamera(0);
 
