@@ -85,12 +85,15 @@ namespace Yngin {
 
 		glm::ivec2 viewportSize = ctx->getViewportSize();
 		float aspectRatio = viewportSize.x * 1.0f / viewportSize.y;
+		if (viewportSize.y == 0) aspectRatio = 1.0f;
+
 		return glm::perspective(glm::radians(fov), aspectRatio, 0.1f, 1000.0f);
 	}
 
 	glm::mat4 Camera::Impl::getOrthographicProjection() {
 		glm::ivec2 viewportSize = ctx->getViewportSize();
 		float aspectRatio = viewportSize.x * 1.0f / viewportSize.y;
+		if (viewportSize.y == 0) aspectRatio = 1.0f;
 
 		float halfWidth = orthographicSize * aspectRatio;
 

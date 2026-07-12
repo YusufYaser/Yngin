@@ -225,6 +225,13 @@ namespace Yngin::Rendering {
 	void Renderer::Impl::render(Scene* scene) {
 		ctx->makeCurrent();
 
+		glm::ivec2 viewportPos = ctx->getViewportPos();
+		glm::ivec2 viewportSize = ctx->getViewportSize();
+
+		if (viewportSize.x <= 0 || viewportSize.y <= 0) {
+			return;
+		}
+
 		glm::vec3 camPos = scene->impl->camerasManager->getBlendedCamera()->getPosition();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -239,8 +246,6 @@ namespace Yngin::Rendering {
 			setFrustumPlanes(viewProjection);
 		}
 
-		glm::ivec2 viewportPos = ctx->getViewportPos();
-		glm::ivec2 viewportSize = ctx->getViewportSize();
 		renderedViewportSize = viewportSize;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
