@@ -12,10 +12,6 @@
 
 namespace Yngin {
 	ScenesManager::ScenesManager(Context* ctx) {
-		if (ctx->getScenesManager()) {
-			throw std::invalid_argument("Context already has a scene manager!");
-		}
-
 		impl = std::make_unique<Impl>();
 
 		impl->ctx = ctx;

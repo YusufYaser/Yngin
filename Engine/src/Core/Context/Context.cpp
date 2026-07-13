@@ -46,7 +46,7 @@ namespace Yngin {
 	Context::Context(const ContextSettings& settings) {
 		if (!initializeYngin()) {
 			impl->status = CONTEXT_STATUS::FAILED_TO_INIT;
-			throw std::exception("Failed to initialize Yngin");
+			DEBUG("Failed to initialize Yngin");
 			return;
 		}
 		contexts.push_back(this);
@@ -131,7 +131,7 @@ namespace Yngin {
 
 		if (!shadersBuilt) {
 			impl->status = CONTEXT_STATUS::FAILED_TO_INIT;
-			throw std::exception("Failed to initialize shaders");
+			DEBUG("Failed to initialize shaders");
 			return;
 		}
 

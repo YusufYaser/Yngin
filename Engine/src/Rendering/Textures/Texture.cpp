@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <stb/stb_image.h>
 
+#define LOGGER_NAME Textures
+#include "../../Internal/Logger.h"
 
 namespace Yngin {
 	namespace {
@@ -74,6 +76,11 @@ namespace Yngin {
 		int h = data.height;
 		int n = data.numCh;
 
+		if (n > 4 || n < 1) {
+			DEBUG("Number of channels cannot be more than 4 or less than 1");
+			return;
+		}
+
 		const char* bytes = data.bytes;
 
 		Texture* active = impl->ctx->getTexturesManager()->getActive();
@@ -82,7 +89,7 @@ namespace Yngin {
 		glGenTextures(1, &impl->texId);
 		glBindTexture(GL_TEXTURE_2D, impl->texId);
 
-		char* finalBytes = new char[w * h * 4 + 1];
+		std::vector<unsigned char> finalBytes(w * h * 4 + 1);
 		int cIdx = 0;
 
 		// convert to RGBA
@@ -110,21 +117,12 @@ namespace Yngin {
 				finalBytes[cIdx++] = '\xff';
 			}
 			finalBytes[cIdx] += '\0';
-		} else if (n > 4 || n < 1) {
-			throw std::invalid_argument("Number of channels cannot be more than 4 or less than 1");
 		} else {
-			delete[] finalBytes;
-			finalBytes = (char*)bytes;
+			finalBytes = std::vector<unsigned char>(bytes, bytes + w * h * n);
 		}
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, finalBytes);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, finalBytes.data());
 		glGenerateMipmap(GL_TEXTURE_2D);
-
-		if (n != 4) {
-			delete[] finalBytes;
-		} else {
-			finalBytes = nullptr;
-		}
 
 		if (active) {
 			impl->ctx->getTexturesManager()->setActive(active->getId());

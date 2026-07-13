@@ -6,6 +6,9 @@
 #include "Models_Internal.h"
 #include <Yngin/Core/Materials.h>
 
+#define LOGGER_NAME Models
+#include "../../Internal/Logger.h"
+
 namespace Yngin {
 	Model::Model(Context* ctx) {
 		impl = std::make_unique<Impl>();
@@ -25,10 +28,6 @@ namespace Yngin {
 	}
 
 	void Model::Impl::init(const ModelData& d) {
-		if (d.vertices.size() == 0 || d.indices.size() == 0) {
-			throw std::invalid_argument("Vertices and indices size cannot be zero");
-		}
-
 		ctx->makeCurrent();
 
 		submeshes.clear();

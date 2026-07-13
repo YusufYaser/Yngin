@@ -8,10 +8,6 @@
 
 namespace Yngin {
 	TexturesManager::TexturesManager(Context* ctx) {
-		if (ctx->getTexturesManager()) {
-			throw std::invalid_argument("Context already has a textures manager!");
-		}
-
 		impl = std::make_unique<Impl>();
 
 		impl->ctx = ctx;

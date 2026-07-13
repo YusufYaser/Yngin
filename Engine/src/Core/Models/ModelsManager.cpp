@@ -89,7 +89,8 @@ namespace Yngin {
 			}
 			break;
 		default:
-			throw std::invalid_argument("Invalid model type");
+			DEBUG("Invalid model file type");
+			return nullptr;
 		}
 
 		return createModel(modelData, id, override);

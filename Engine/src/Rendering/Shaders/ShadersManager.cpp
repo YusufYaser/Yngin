@@ -4,10 +4,6 @@
 
 namespace Yngin {
 	ShadersManager::ShadersManager(Context* ctx) {
-		if (ctx->getShadersManager()) {
-			throw std::invalid_argument("Context already has a shaders manager!");
-		}
-
 		impl = std::make_unique<Impl>();
 
 		impl->ctx = ctx;

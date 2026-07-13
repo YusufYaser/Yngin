@@ -5,10 +5,6 @@
 
 namespace Yngin {
 	GameObjectsManager::GameObjectsManager(Context* ctx, Scene* scene) {
-		if (scene->getGameObjectsManager()) {
-			throw std::invalid_argument("Scene already has a gameobjects manager!");
-		}
-
 		impl = std::make_unique<Impl>();
 
 		auto& m = *impl;
