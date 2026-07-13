@@ -36,6 +36,7 @@ namespace Yngin::Components {
 
 	void BoxCollider::setSize(glm::vec3 size) {
 		impl->size = glm::max(size, glm::vec3(0.01f));
+		Component::impl->gameObject->impl->physicsSync();
 	}
 
 	glm::vec3 BoxCollider::getSize() {
@@ -44,6 +45,7 @@ namespace Yngin::Components {
 
 	void BoxCollider::setOffset(glm::vec3 offset) {
 		impl->offset = offset;
+		Component::impl->gameObject->impl->physicsSync();
 	}
 
 	glm::vec3 BoxCollider::getOffset() {

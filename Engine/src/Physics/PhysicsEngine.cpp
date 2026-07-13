@@ -15,6 +15,7 @@
 #include <Jolt/Physics/Body/BodyLockMulti.h>
 #include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 
 #define LOGGER_NAME PhysicsEngine
 #include "../Internal/Logger.h"
@@ -226,7 +227,16 @@ namespace Yngin {
 
 			JPH::ShapeRefC boxShape = boxSettings.Create().Get();
 
-			bodyInterface.SetShape(bodyId, boxShape, true, JPH::EActivation::Activate);
+			JPH::Vec3 localOffset(
+				coll->getOffset().x,
+				coll->getOffset().y,
+				coll->getOffset().z
+			);
+
+			JPH::RotatedTranslatedShapeSettings offsetShapeSettings(localOffset, JPH::Quat::sIdentity(), boxShape);
+			JPH::ShapeRefC finalShape = offsetShapeSettings.Create().Get();
+
+			bodyInterface.SetShape(bodyId, finalShape, true, JPH::EActivation::Activate);
 
 			bodyInterface.SetMotionType(bodyId, dynamic ? JPH::EMotionType::Dynamic : JPH::EMotionType::Static, JPH::EActivation::Activate);
 

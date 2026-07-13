@@ -337,6 +337,39 @@ void PropertiesWindow::showGameObjectProps(uint32_t id) {
 			obj->deleteComponent<Components::BoxCollider>();
 		}
 		ImGui::PopStyleColor(2);
+
+		{
+			glm::vec3 v = boxCollider->getSize();
+
+			ImGui::Text("Size");
+
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##BoxColliderSizeX", &v.x, 0.1f, 1.0f, "%.2f");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##BoxColliderSizeY", &v.y, 0.1f, 1.0f, "%.2f");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##BoxColliderSizeZ", &v.z, 0.1f, 1.0f, "%.2f");
+			boxCollider->setSize(v);
+		}
+
+		{
+			glm::vec3 v = boxCollider->getOffset();
+
+			ImGui::Text("Offset");
+
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##BoxColliderOffsetX", &v.x, 0.1f, 1.0f, "%.2f");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##BoxColliderOffsetY", &v.y, 0.1f, 1.0f, "%.2f");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(90.0f);
+			ImGui::InputFloat("##BoxColliderOffsetZ", &v.z, 0.1f, 1.0f, "%.2f");
+			boxCollider->setOffset(v);
+		}
+
 		ImGui::Separator();
 	} else {
 		componentsToCreate.push_back("BoxCollider");

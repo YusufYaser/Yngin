@@ -68,6 +68,7 @@ namespace Yngin {
 		friend class GameFiles::Generators;
 		friend class Components::Component;
 		friend class Components::Collider;
+		friend class Components::BoxCollider;
 		friend class Components::RigidBody;
 
 		GameObject(Context* ctx, Scene* scene, GameObject* parent);
