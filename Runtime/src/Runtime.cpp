@@ -58,7 +58,17 @@ int main() {
 		return 1;
 	}
 
-	Context* ctx = Context::createContext();
+	std::unique_ptr<Context> ctx(Context::createContext());
+
+	if (ctx == nullptr || ctx->getStatus() != CONTEXT_STATUS::WAITING_FOR_READY) {
+		error("Failed to create a Yngin context");
+		gameBytes.clear();
+
+		ctx.reset();
+
+		Yngin::terminateYngin();
+		return 1;
+	}
 
 	ctx->loadGamePak(gameBytes.str().c_str(), gameBytes.str().size());
 	gameBytes.clear();
@@ -81,6 +91,8 @@ int main() {
 
 		ctx->update();
 	}
+
+	ctx.reset();
 
 	Yngin::terminateYngin();
 
