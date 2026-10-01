@@ -32,6 +32,7 @@ namespace Yngin {
 		friend class Context;
 		friend class GameFiles::Generators;
 		friend class GameFiles::Loaders;
+		friend class Services::SerializationService;
 
 		Script(Context* ctx, Scene* scene);
 		~Script();

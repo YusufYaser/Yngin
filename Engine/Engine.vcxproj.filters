@@ -1086,6 +1086,15 @@
     <ClInclude Include="src\Physics\JoltLayers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Yngin\Services\SerializationService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\SerializationService\SerializationService_Internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\SerializationService\Serializers\SerializationStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c">
@@ -1146,9 +1155,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\InputSystem\InputSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Services\Tween.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Services\Service.cpp">
@@ -1626,6 +1632,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="deps\vendor\Jolt\RegisterTypes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\SerializationService\Serializers\ModelSerializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\SerializationService\SerializationService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\SerializationService\Serializers\TextureSerializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\Tween.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\SerializationService\Serializers\ScriptSerializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\SerializationService\Serializers\MiscSerializers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

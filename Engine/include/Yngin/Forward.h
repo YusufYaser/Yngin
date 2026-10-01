@@ -65,6 +65,7 @@ namespace Yngin {
 
 		class Service;
 		class Tween;
+		class SerializationService;
 	}
 
 	namespace UI {

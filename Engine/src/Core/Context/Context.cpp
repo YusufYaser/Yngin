@@ -85,6 +85,7 @@ namespace Yngin {
 		m.internalModelsManager = std::unique_ptr<ModelsManager>(new ModelsManager(this));
 
 		m.services[std::type_index(typeid(Services::Tween))] = std::unique_ptr<Services::Tween>(new Services::Tween(this));
+		m.services[std::type_index(typeid(Services::SerializationService))] = std::unique_ptr<Services::SerializationService>(new Services::SerializationService(this));
 
 		Texture* black = m.texturesManager->createTexture({
 			.width = 1,
@@ -389,4 +390,5 @@ namespace Yngin {
 	}
 
 	template Services::Tween* Context::getService<Services::Tween>() const;
+	template Services::SerializationService* Context::getService<Services::SerializationService>() const;
 }
