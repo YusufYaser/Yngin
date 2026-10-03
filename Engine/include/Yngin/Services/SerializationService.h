@@ -25,6 +25,14 @@ namespace Yngin {
 			bool serialize(std::ostream& out, ScriptsManager* input);
 			bool serialize(std::ostream& out, Script* input);
 
+			bool serialize(std::ostream& out, CamerasManager* input);
+			bool serialize(std::ostream& out, Camera* input);
+
+			bool serialize(std::ostream& out, GameObjectsManager* input, bool includeComponentDependencies = true);
+			// childrenDepth = -1 for infinity
+			bool serialize(std::ostream& out, GameObject* input, int childrenDepth = -1, bool includeComponentDependencies = true);
+			bool serialize(std::ostream& out, Components::Component* input, bool includeDependencies = true);
+
 		private:
 			friend class Context;
 			friend struct std::default_delete<SerializationService>;

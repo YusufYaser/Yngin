@@ -28,6 +28,7 @@ namespace Yngin::Services {
 		std::stringstream s;
 
 		OperationData op{};
+		op.schemaVersion = schemaVersion;
 		op.op = Operation::MODEL;
 		op.headerSize = sizeof(SerializedModelData);
 
@@ -124,6 +125,7 @@ namespace Yngin::Services {
 		std::stringstream s;
 
 		OperationData op{};
+		op.schemaVersion = schemaVersion;
 		op.op = Operation::MATERIAL;
 		op.headerSize = sizeof(SerializedMaterialData);
 

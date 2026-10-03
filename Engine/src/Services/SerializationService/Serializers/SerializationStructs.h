@@ -5,19 +5,27 @@
 namespace Yngin::Services::Serialization {
 #pragma pack(push, 1)
 
+	constexpr uint16_t schemaVersion = 0;
+
 	enum class Operation : uint8_t {
 		NO_OP = 0,
 		META,
 		MODEL,
 		MATERIAL,
 		TEXTURE,
-		SCRIPT
+		SCRIPT,
+		CAMERA,
+		GAMEOBJECT,
+		COMPONENT
 	};
 
 	struct OperationData {
-		Operation op;
+		// The schema version of the structs used by the SerializationService, including the OperationData struct
 		uint16_t schemaVersion;
+		Operation op;
+		// The size of the initial header
 		uint16_t headerSize;
+		// The size of all the data related to this operation, including the header and other related operations, excluding the main OperationData struct for this data
 		uint64_t dataSize;
 	};
 
@@ -28,7 +36,7 @@ namespace Yngin::Services::Serialization {
 		INT32,
 		FLOAT,
 		STRING,
-		POINTER // pointer metas are not serialized but they are still included here
+		POINTER // pointer metas are ignored by the SerializationService but they are still included here
 	};
 
 	struct SerializedMetasHeader {
@@ -141,6 +149,74 @@ namespace Yngin::Services::Serialization {
 		size_t dataSize;
 
 		// unsigned char bytes[dataSize]
+	};
+
+
+	// Camera
+
+	struct SerializedCameraData {
+		uint32_t id;
+		char slug[33];
+		glm::vec3 position;
+		glm::vec3 orientation;
+		float fov;
+		float weight;
+	};
+
+
+	// GameObject and Components
+
+	struct SerializedGameObjectData {
+		uint32_t id;
+		char slug[33];
+		uint32_t parent;
+		glm::vec3 position;
+		glm::vec3 rotation;
+		glm::vec3 scale;
+		uint32_t childrenCount;
+		uint8_t componentsCount;
+	};
+
+	enum S_COMPONENT_TYPE : uint8_t {
+		INVALID = 0,
+		MESH,
+		POINT_LIGHT,
+		DIRECTIONAL_LIGHT,
+		RIGID_BODY,
+		BOX_COLLIDER
+	};
+
+	struct GenericComponentHeader {
+		S_COMPONENT_TYPE type;
+		size_t headerSize;
+	};
+
+	struct MeshComponentData {
+		uint32_t modelId;
+		uint32_t textureId;
+		glm::vec3 color;
+		uint32_t materials[256];
+	};
+
+	struct PointLightData {
+		float intensity;
+		float distance;
+		glm::vec3 color;
+	};
+
+	struct DirectionalLightData {
+		float intensity;
+		glm::vec3 color;
+	};
+
+	struct RigidBodyData {
+		float mass;
+		glm::vec3 velocity;
+	};
+
+	struct BoxColliderData {
+		glm::vec3 offset;
+		glm::vec3 size;
 	};
 
 #pragma pack(pop)

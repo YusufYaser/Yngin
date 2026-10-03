@@ -29,6 +29,7 @@ namespace Yngin::Services {
 		std::stringstream s;
 
 		OperationData op{};
+		op.schemaVersion = schemaVersion;
 		op.op = Operation::TEXTURE;
 		op.headerSize = sizeof(SerializedTextureData);
 

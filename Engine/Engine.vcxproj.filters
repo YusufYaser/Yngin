@@ -1652,6 +1652,12 @@
     <ClCompile Include="src\Services\SerializationService\Serializers\MiscSerializers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Services\SerializationService\Serializers\CameraSerializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\SerializationService\Serializers\GameObjectSerializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="deps\vendor\Jolt\Core\FixedSizeFreeList.inl">
