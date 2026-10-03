@@ -3,7 +3,6 @@
 #include "../SerializationService_Internal.h"
 #include "SerializationStructs.h"
 #include <sstream>
-#include <Yngin/Core/Scenes.h>
 
 using namespace Yngin::Services::Serialization;
 

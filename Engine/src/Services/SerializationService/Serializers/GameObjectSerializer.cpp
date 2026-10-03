@@ -157,21 +157,21 @@ namespace Yngin::Services {
 		}
 
 		case COMPONENT_TYPE::RIGID_BODY:
+		{
 			generic.type = S_COMPONENT_TYPE::RIGID_BODY;
-			{
-				generic.headerSize = sizeof(RigidBodyData);
+			generic.headerSize = sizeof(RigidBodyData);
 
-				s.write(reinterpret_cast<const char*>(&generic), op.headerSize);
+			s.write(reinterpret_cast<const char*>(&generic), op.headerSize);
 
-				Components::RigidBody* rigidBody = dynamic_cast<Components::RigidBody*>(comp);
-				RigidBodyData rigidBodyData{};
-				rigidBodyData.mass = rigidBody->getMass();
-				rigidBodyData.velocity = rigidBody->getVelocity();
+			Components::RigidBody* rigidBody = dynamic_cast<Components::RigidBody*>(comp);
+			RigidBodyData rigidBodyData{};
+			rigidBodyData.mass = rigidBody->getMass();
+			rigidBodyData.velocity = rigidBody->getVelocity();
 
-				s.write(reinterpret_cast<const char*>(&rigidBodyData), generic.headerSize);
+			s.write(reinterpret_cast<const char*>(&rigidBodyData), generic.headerSize);
 
-				break;
-			}
+			break;
+		}
 
 		case COMPONENT_TYPE::BOX_COLLIDER:
 		{
@@ -194,7 +194,7 @@ namespace Yngin::Services {
 			return false;
 		}
 
-		s << depend.rdbuf();
+		if (!depend.view().empty()) s << depend.rdbuf();
 		op.dataSize = s.view().size();
 
 		out.write(reinterpret_cast<const char*>(&op), sizeof(OperationData));

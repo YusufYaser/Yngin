@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <glm/glm.hpp>
+#include <Yngin/UI/Elements/UIElement.h>
 
 namespace Yngin::Services::Serialization {
 #pragma pack(push, 1)
@@ -16,7 +17,8 @@ namespace Yngin::Services::Serialization {
 		SCRIPT,
 		CAMERA,
 		GAMEOBJECT,
-		COMPONENT
+		COMPONENT,
+		UI_ELEMENT
 	};
 
 	struct OperationData {
@@ -217,6 +219,64 @@ namespace Yngin::Services::Serialization {
 	struct BoxColliderData {
 		glm::vec3 offset;
 		glm::vec3 size;
+	};
+
+
+	// UI
+
+	enum class S_UI_TYPE : uint8_t {
+		NONE,
+		IMAGE,
+		TEXT,
+		BUTTON
+	};
+
+	struct GenericUIElementData {
+		uint32_t id;
+		uint32_t parent;
+
+		UI::UITransform position;
+		UI::UITransform size;
+
+		UI::UICrop crop;
+
+		glm::vec4 color;
+
+		glm::vec2 pivot;
+
+		uint32_t childrenCount;
+
+		S_UI_TYPE type;
+
+		size_t headerSize;
+	};
+
+	struct UIImageData {
+		uint32_t textureId;
+	};
+
+	struct UITextData {
+		int size;
+
+		uint32_t glyphId;
+
+		glm::ivec2 spacing;
+		bool centered[2];
+
+		size_t textLength;
+
+		// char text[textLength]
+	};
+
+	struct UIButtonData {
+		glm::vec4 hoverColor;
+		glm::vec4 clickColor;
+
+		size_t imageDataHeaderSize;
+		size_t textDataHeaderSize;
+
+		// UIImageData imageData;
+		// UITextData textData;
 	};
 
 #pragma pack(pop)
