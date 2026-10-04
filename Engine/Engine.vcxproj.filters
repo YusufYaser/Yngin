@@ -1661,6 +1661,9 @@
     <ClCompile Include="src\Services\SerializationService\Serializers\UISerializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Services\SerializationService\Serializers\MaterialSerializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="deps\vendor\Jolt\Core\FixedSizeFreeList.inl">

@@ -547,6 +547,7 @@
     <ClCompile Include="src\Core\Scripting\Scripting.cpp" />
     <ClCompile Include="src\Services\SerializationService\Serializers\CameraSerializer.cpp" />
     <ClCompile Include="src\Services\SerializationService\Serializers\GameObjectSerializer.cpp" />
+    <ClCompile Include="src\Services\SerializationService\Serializers\MaterialSerializer.cpp" />
     <ClCompile Include="src\Services\SerializationService\Serializers\MiscSerializers.cpp" />
     <ClCompile Include="src\Services\SerializationService\Serializers\ModelSerializer.cpp" />
     <ClCompile Include="src\Services\SerializationService\SerializationService.cpp" />
