@@ -19,7 +19,7 @@ namespace Yngin::Services {
 			if (!serialize(s, item)) return false;
 		}
 
-		out << s.rdbuf();
+		if (!s.view().empty()) out << s.rdbuf();
 		return out.good();
 	}
 
@@ -52,7 +52,7 @@ namespace Yngin::Services {
 		op.dataSize = s.view().size();
 
 		out.write(reinterpret_cast<const char*>(&op), sizeof(OperationData));
-		out << s.rdbuf();
+		if (!s.view().empty()) out << s.rdbuf();
 		return out.good();
 	}
 
