@@ -1,5 +1,9 @@
 #include <Yngin/Services/SerializationService.h>
 #include "SerializationService_Internal.h"
+#include "Serializers/SerializationStructs.h"
+#include <iostream>
+
+using namespace Yngin::Services::Serialization;
 
 namespace Yngin::Services {
 	SerializationService::SerializationService(Context* ctx) : Service(ctx) {
@@ -67,6 +71,100 @@ namespace Yngin::Services {
 				return true;
 			}
 		}
+		return false;
+	}
+
+	bool SerializationService::validate(std::istream& in) {
+		std::streampos originalPos = in.tellg();
+
+		bool valid = true;
+		while (valid) {
+			std::streampos pos = in.tellg();
+			in.seekg(0, std::ios::end);
+			bool atEnd = pos == in.tellg();
+			in.seekg(pos);
+			if (atEnd) break;
+
+			valid = valid && impl->validateOperation(in);
+		}
+
+		in.clear();
+		in.seekg(originalPos);
+
+		return valid;
+	}
+
+	bool SerializationService::Impl::streamCheck(std::istream& in, size_t size) {
+		if (!in.good()) return false;
+
+		std::streampos cur = in.tellg();
+		in.seekg(0, std::ios::end);
+
+		std::streampos end = in.tellg();
+		in.seekg(cur);
+
+		if (end - cur < size) return false;
+
+		return true;
+	}
+
+	bool SerializationService::Impl::validateOperation(std::istream& in, const Operation& checkOp) {
+		OperationData op;
+
+		if (!streamCheck(in, sizeof(uint16_t))) return false;
+		in.read(reinterpret_cast<char*>(&op.schemaVersion), sizeof(uint16_t));
+
+		if (op.schemaVersion > Serialization::schemaVersion) return false;
+
+		in.seekg(-2, std::ios::cur);
+
+		if (!streamCheck(in, sizeof(OperationData))) return false;
+		in.read(reinterpret_cast<char*>(&op), sizeof(OperationData));
+
+		if (op.headerSize > op.dataSize) return false;
+
+		if (!streamCheck(in, op.dataSize)) return false;
+
+		if (checkOp != Operation::NO_OP && op.op != checkOp) return false;
+
+		switch (op.op) {
+		case Operation::NO_OP:
+		{
+			in.seekg(op.dataSize, std::ios::cur);
+			return true;
+		}
+
+		case Operation::META:
+			return validateMeta(in, op);
+
+		case Operation::MODEL:
+			return validateModel(in, op);
+
+		case Operation::MATERIAL:
+			return validateMaterial(in, op);
+
+		case Operation::TEXTURE:
+			return validateTexture(in, op);
+
+		case Operation::SCRIPT:
+			return validateScript(in, op);
+
+		case Operation::CAMERA:
+			return validateCamera(in, op);
+
+		case Operation::GAMEOBJECT:
+			return validateGameObject(in, op);
+
+		case Operation::COMPONENT:
+			return validateComponent(in, op);
+
+		case Operation::UI_ELEMENT:
+			return validateUIElement(in, op);
+
+		default:
+			return false;
+		}
+
 		return false;
 	}
 }

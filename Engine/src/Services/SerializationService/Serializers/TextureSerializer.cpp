@@ -130,7 +130,7 @@ namespace Yngin::Services {
 			texData.dataFormat = S_TEXTURE_FORMAT::PNG;
 			texData.dataSize = context.offset;
 
-			s.write(reinterpret_cast<const char*>(&texData), op.dataSize);
+			s.write(reinterpret_cast<const char*>(&texData), op.headerSize);
 			s.write(context.buf.data(), texData.dataSize);
 		} else {
 			texData.dataFormat = S_TEXTURE_FORMAT::RAW;
@@ -141,7 +141,7 @@ namespace Yngin::Services {
 			rawDataHeader.height = height;
 			rawDataHeader.numCh = 4;
 
-			s.write(reinterpret_cast<const char*>(&texData), op.dataSize);
+			s.write(reinterpret_cast<const char*>(&texData), op.headerSize);
 			s.write(reinterpret_cast<const char*>(&rawDataHeader), texData.rawDataHeaderSize);
 			s.write(reinterpret_cast<const char*>(data.data()), data.size());
 		}
@@ -153,5 +153,64 @@ namespace Yngin::Services {
 		out.write(reinterpret_cast<const char*>(&op), sizeof(OperationData));
 		out << s.rdbuf();
 		return out.good();
+	}
+
+	bool SerializationService::Impl::validateTexture(std::istream& in, const Serialization::OperationData& op) {
+		SerializedTextureData header;
+
+		if (!streamCheck(in, op.headerSize)) return false;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		if (header.id == -1) return false;
+
+		switch (header.wrap) {
+		case S_TEXTURE_WRAP::REPEAT:
+		case S_TEXTURE_WRAP::CLAMP:
+			break;
+
+		default:
+			return false;
+		}
+
+		switch (header.filterMin) {
+		case S_TEXTURE_FILTER::NEAREST:
+		case S_TEXTURE_FILTER::LINEAR:
+		case S_TEXTURE_FILTER::NEAREST_MIPMAP_NEAREST:
+		case S_TEXTURE_FILTER::LINEAR_MIPMAP_NEAREST:
+		case S_TEXTURE_FILTER::NEAREST_MIPMAP_LINEAR:
+		case S_TEXTURE_FILTER::LINEAR_MIPMAP_LINEAR:
+			break;
+
+		default:
+			return false;
+		}
+
+		switch (header.filterMag) {
+		case S_TEXTURE_FILTER::NEAREST:
+		case S_TEXTURE_FILTER::LINEAR:
+			break;
+
+		default:
+			return false;
+		}
+
+		switch (header.dataFormat) {
+		case S_TEXTURE_FORMAT::RAW:
+			if (header.rawDataHeaderSize > header.dataSize) return false;
+
+		case S_TEXTURE_FORMAT::PNG:
+		case S_TEXTURE_FORMAT::PATH:
+			break;
+
+		default:
+			return false;
+		}
+
+		if (!streamCheck(in, header.dataSize)) return false;
+		in.seekg(header.dataSize, std::ios::cur);
+
+		if (!validateOperation(in, Operation::META)) return false;
+
+		return true;
 	}
 }

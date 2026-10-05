@@ -11,6 +11,8 @@ namespace Yngin {
 			void pushIgnoredMetaPrefixes(const std::vector<std::string>& values);
 			std::vector<std::string> popIgnoredMetaPrefixes();
 
+			bool validate(std::istream& in);
+
 			bool serialize(std::ostream& out, const Meta& input);
 
 			bool serialize(std::ostream& out, ModelsManager* input, bool includeDependencies = true);

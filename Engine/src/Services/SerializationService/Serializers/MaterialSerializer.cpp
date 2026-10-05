@@ -49,4 +49,17 @@ namespace Yngin::Services {
 		out << s.rdbuf();
 		return out.good();
 	}
+
+	bool SerializationService::Impl::validateMaterial(std::istream& in, const Serialization::OperationData& op) {
+		SerializedMaterialData header;
+
+		if (!streamCheck(in, op.headerSize)) return false;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		if (header.id == -1) return false;
+
+		if (!validateOperation(in, Operation::META)) return false;
+
+		return true;
+	}
 }

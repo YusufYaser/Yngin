@@ -103,18 +103,18 @@ namespace Yngin::Services::Serialization {
 	// Texture
 
 	enum S_TEXTURE_FORMAT : uint8_t {
-		RAW,
+		RAW = 0,
 		PNG,
 		PATH
 	};
 
 	enum class S_TEXTURE_WRAP : uint8_t {
-		REPEAT,
+		REPEAT = 0,
 		CLAMP
 	};
 
 	enum class S_TEXTURE_FILTER : uint8_t {
-		NEAREST,
+		NEAREST = 0,
 		LINEAR,
 		NEAREST_MIPMAP_NEAREST,
 		LINEAR_MIPMAP_NEAREST,
@@ -225,7 +225,7 @@ namespace Yngin::Services::Serialization {
 	// UI
 
 	enum class S_UI_TYPE : uint8_t {
-		NONE,
+		NONE = 0,
 		IMAGE,
 		TEXT,
 		BUTTON
@@ -233,6 +233,7 @@ namespace Yngin::Services::Serialization {
 
 	struct GenericUIElementData {
 		uint32_t id;
+		char slug[33];
 		uint32_t parent;
 
 		UI::UITransform position;

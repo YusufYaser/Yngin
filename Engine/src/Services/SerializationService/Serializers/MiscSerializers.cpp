@@ -36,7 +36,7 @@ namespace Yngin::Services {
 			metas[key] = val;
 		}
 
-		s.write(reinterpret_cast<const char*>(&header), op.headerSize);
+		s.write(reinterpret_cast<const char*>(&header), sizeof(SerializedMetasHeader));
 
 		for (auto& [key, val] : metas) {
 			if (std::holds_alternative<void*>(val)) continue;
@@ -77,5 +77,38 @@ namespace Yngin::Services {
 		out.write(reinterpret_cast<const char*>(&op), sizeof(OperationData));
 		out << s.rdbuf();
 		return out.good();
+	}
+
+	bool SerializationService::Impl::validateMeta(std::istream& in, const Serialization::OperationData& op) {
+		SerializedMetasHeader header;
+
+		if (!streamCheck(in, op.headerSize)) return false;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		for (int i = 0; i < header.metasCount; i++) {
+			SerializedMetaInfo info;
+
+			if (!streamCheck(in, header.unitInfoDataSize)) return false;
+			in.read(reinterpret_cast<char*>(&info), header.unitInfoDataSize);
+
+			switch (info.type) {
+			case S_META_TYPE::INT32:
+			case S_META_TYPE::FLOAT:
+			case S_META_TYPE::STRING:
+			{
+				if (!streamCheck(in, info.keySize)) return false;
+				in.seekg(info.keySize, std::ios::cur);
+				if (!streamCheck(in, info.dataSize)) return false;
+				in.seekg(info.dataSize, std::ios::cur);
+
+				break;
+			}
+
+			default: // including a pointer meta
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

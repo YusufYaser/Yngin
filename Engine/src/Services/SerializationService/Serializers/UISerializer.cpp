@@ -192,4 +192,64 @@ namespace Yngin::Services {
 		out << s.rdbuf();
 		return out.good();
 	}
+
+	bool SerializationService::Impl::validateUIElement(std::istream& in, const Serialization::OperationData& op) {
+		GenericUIElementData header;
+
+		if (!streamCheck(in, op.headerSize)) return false;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		if (header.id == -1) return false;
+
+		switch (header.type) {
+		case S_UI_TYPE::NONE:
+		{
+			if (!streamCheck(in, header.headerSize)) return false;
+			in.seekg(header.headerSize, std::ios::cur);
+			break;
+		}
+
+		case S_UI_TYPE::BUTTON:
+			UIButtonData buttonData;
+			if (!streamCheck(in, header.headerSize)) return false;
+			in.read(reinterpret_cast<char*>(&buttonData), header.headerSize);
+			[[fallthrough]];
+
+		case S_UI_TYPE::IMAGE:
+		{
+			size_t size = header.headerSize;
+			if (header.type == S_UI_TYPE::BUTTON) {
+				size = buttonData.imageDataHeaderSize;
+			}
+			if (!streamCheck(in, size)) return false;
+			in.seekg(size, std::ios::cur);
+
+			if (header.type != S_UI_TYPE::BUTTON) break;
+			[[fallthrough]];
+		}
+
+		case S_UI_TYPE::TEXT:
+		{
+			size_t size = header.headerSize;
+			if (header.type == S_UI_TYPE::BUTTON) {
+				size = buttonData.textDataHeaderSize;
+			}
+
+			UITextData textData;
+			if (!streamCheck(in, size)) return false;
+			in.read(reinterpret_cast<char*>(&textData), size);
+
+			if (!streamCheck(in, textData.textLength)) return false;
+			in.seekg(textData.textLength, std::ios::cur);
+			break;
+		}
+
+		default:
+			return false;
+		}
+
+		if (!validateOperation(in, Operation::META)) return false;
+
+		return true;
+	}
 }

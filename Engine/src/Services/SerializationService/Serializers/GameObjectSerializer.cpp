@@ -201,4 +201,48 @@ namespace Yngin::Services {
 		out << s.rdbuf();
 		return out.good();
 	}
+
+	bool SerializationService::Impl::validateGameObject(std::istream& in, const Serialization::OperationData& op) {
+		SerializedGameObjectData header;
+
+		if (!streamCheck(in, op.headerSize)) return false;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		if (header.id == -1) return false;
+
+		if (!validateOperation(in, Operation::META)) return false;
+
+		for (int i = 0; i < header.componentsCount; i++) {
+			if (!validateOperation(in, Operation::COMPONENT)) return false;
+		}
+
+		for (int i = 0; i < header.childrenCount; i++) {
+			if (!validateOperation(in, Operation::GAMEOBJECT)) return false;
+		}
+
+		return true;
+	}
+
+	bool SerializationService::Impl::validateComponent(std::istream& in, const Serialization::OperationData& op) {
+		GenericComponentHeader header;
+
+		if (!streamCheck(in, op.headerSize)) return false;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		switch (header.type) {
+		case S_COMPONENT_TYPE::MESH:
+		case S_COMPONENT_TYPE::POINT_LIGHT:
+		case S_COMPONENT_TYPE::DIRECTIONAL_LIGHT:
+		case S_COMPONENT_TYPE::RIGID_BODY:
+		case S_COMPONENT_TYPE::BOX_COLLIDER:
+			if (!streamCheck(in, header.headerSize)) return false;
+			in.seekg(header.headerSize, std::ios::cur);
+			break;
+
+		default:
+			return false;
+		}
+
+		return true;
+	}
 }

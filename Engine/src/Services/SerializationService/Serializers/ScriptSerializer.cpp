@@ -55,4 +55,20 @@ namespace Yngin::Services {
 		out << s.rdbuf();
 		return out.good();
 	}
+
+	bool SerializationService::Impl::validateScript(std::istream& in, const Serialization::OperationData& op) {
+		SerializedScriptData header;
+
+		if (!streamCheck(in, op.headerSize)) return false;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		if (header.id == -1) return false;
+
+		if (!streamCheck(in, header.dataSize)) return false;
+		in.seekg(header.dataSize, std::ios::cur);
+
+		if (!validateOperation(in, Operation::META)) return false;
+
+		return true;
+	}
 }

@@ -86,7 +86,12 @@ namespace Yngin::Services {
 
 		if (!serialize(s, model->meta)) return false;
 
-		if (includeDependencies) {
+		op.dataSize = s.view().size();
+
+		out.write(reinterpret_cast<const char*>(&op), sizeof(OperationData));
+		out << s.rdbuf();
+
+		if (includeDependencies && out.good()) {
 			MaterialsManager* materialsManager = model->getContext()->getMaterialsManager();
 
 			for (uint32_t i = 0; i < pakModelData.materialsCount; i++) {
@@ -98,10 +103,35 @@ namespace Yngin::Services {
 			}
 		}
 
-		op.dataSize = s.view().size();
-
-		out.write(reinterpret_cast<const char*>(&op), sizeof(OperationData));
-		out << s.rdbuf();
 		return out.good();
+	}
+
+	bool SerializationService::Impl::validateModel(std::istream& in, const Serialization::OperationData& op) {
+		SerializedModelData header;
+
+		if (!streamCheck(in, op.headerSize)) return false;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		if (header.id == -1) return false;
+
+		switch (header.frontFace) {
+		case S_MODEL_FRONT_FACE::NONE:
+		case S_MODEL_FRONT_FACE::CCW:
+		case S_MODEL_FRONT_FACE::CW:
+			break;
+
+		default:
+			return false;
+		}
+
+		size_t totalDataSize = header.vertexSize * header.verticesCount;
+		totalDataSize += header.indexSize * header.indicesCount;
+
+		if (!streamCheck(in, totalDataSize)) return false;
+		in.seekg(totalDataSize, std::ios::cur);
+
+		if (!validateOperation(in, Operation::META)) return false;
+
+		return true;
 	}
 }
