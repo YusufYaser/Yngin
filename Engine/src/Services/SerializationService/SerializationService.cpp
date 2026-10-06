@@ -74,24 +74,24 @@ namespace Yngin::Services {
 		return false;
 	}
 
-	bool SerializationService::validate(std::istream& in) {
+	DESERIALIZATION_STATUS SerializationService::validate(std::istream& in) {
 		std::streampos originalPos = in.tellg();
 
-		bool valid = true;
-		while (valid) {
+		DESERIALIZATION_STATUS status = DESERIALIZATION_STATUS::OK;
+		while (status == DESERIALIZATION_STATUS::OK) {
 			std::streampos pos = in.tellg();
 			in.seekg(0, std::ios::end);
 			bool atEnd = pos == in.tellg();
 			in.seekg(pos);
 			if (atEnd) break;
 
-			valid = valid && impl->validateOperation(in);
+			status = impl->validateOperation(in);
 		}
 
 		in.clear();
 		in.seekg(originalPos);
 
-		return valid;
+		return status;
 	}
 
 	bool SerializationService::Impl::streamCheck(std::istream& in, size_t size) {
@@ -108,30 +108,30 @@ namespace Yngin::Services {
 		return true;
 	}
 
-	bool SerializationService::Impl::validateOperation(std::istream& in, const Operation& checkOp) {
+	DESERIALIZATION_STATUS SerializationService::Impl::validateOperation(std::istream& in, const Operation& checkOp) {
 		OperationData op;
 
-		if (!streamCheck(in, sizeof(uint16_t))) return false;
+		if (!streamCheck(in, sizeof(uint16_t))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&op.schemaVersion), sizeof(uint16_t));
 
-		if (op.schemaVersion > Serialization::schemaVersion) return false;
+		if (op.schemaVersion > Serialization::schemaVersion) return DESERIALIZATION_STATUS::UNSUPPORTED_SCHEMA_VERSION;
 
 		in.seekg(-2, std::ios::cur);
 
-		if (!streamCheck(in, sizeof(OperationData))) return false;
+		if (!streamCheck(in, sizeof(OperationData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&op), sizeof(OperationData));
 
-		if (op.headerSize > op.dataSize) return false;
+		if (op.headerSize > op.dataSize) return DESERIALIZATION_STATUS::INVALID_DATA;
 
-		if (!streamCheck(in, op.dataSize)) return false;
+		if (!streamCheck(in, op.dataSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
 
-		if (checkOp != Operation::NO_OP && op.op != checkOp) return false;
+		if (checkOp != Operation::NO_OP && op.op != checkOp) return DESERIALIZATION_STATUS::INVALID_DATA;
 
 		switch (op.op) {
 		case Operation::NO_OP:
 		{
 			in.seekg(op.dataSize, std::ios::cur);
-			return true;
+			return DESERIALIZATION_STATUS::OK;
 		}
 
 		case Operation::META:
@@ -162,9 +162,9 @@ namespace Yngin::Services {
 			return validateUIElement(in, op);
 
 		default:
-			return false;
+			return DESERIALIZATION_STATUS::INVALID_DATA;
 		}
 
-		return false;
+		return DESERIALIZATION_STATUS::INVALID_DATA;
 	}
 }

@@ -49,16 +49,17 @@ namespace Yngin::Services {
 		return out.good();
 	}
 
-	bool SerializationService::Impl::validateCamera(std::istream& in, const Serialization::OperationData& op) {
+	DESERIALIZATION_STATUS SerializationService::Impl::validateCamera(std::istream& in, const Serialization::OperationData& op) {
 		SerializedCameraData header;
 
-		if (!streamCheck(in, op.headerSize)) return false;
+		if (!streamCheck(in, op.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
-		if (header.id == -1) return false;
+		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;
 
-		if (!validateOperation(in, Operation::META)) return false;
+		DESERIALIZATION_STATUS metaStatus;
+		if ((metaStatus = validateOperation(in, Operation::META)) != DESERIALIZATION_STATUS::OK) return metaStatus;
 
-		return true;
+		return DESERIALIZATION_STATUS::OK;
 	}
 }

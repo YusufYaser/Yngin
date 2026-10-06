@@ -4,6 +4,18 @@
 
 namespace Yngin {
 	namespace Services {
+		struct DeserializationContext {
+			Scene* scene;
+		};
+
+		enum class DESERIALIZATION_STATUS : uint8_t {
+			OK = 0,
+			GENERIC_ERROR,
+			UNSUPPORTED_SCHEMA_VERSION,
+			INVALID_DATA,
+			MISSING_CONTEXT,
+		};
+
 		class SerializationService : public Service {
 		public:
 			void pushSkipMetaKeys(const std::vector<std::string>& values);
@@ -11,7 +23,7 @@ namespace Yngin {
 			void pushIgnoredMetaPrefixes(const std::vector<std::string>& values);
 			std::vector<std::string> popIgnoredMetaPrefixes();
 
-			bool validate(std::istream& in);
+			DESERIALIZATION_STATUS validate(std::istream& in);
 
 			bool serialize(std::ostream& out, const Meta& input);
 

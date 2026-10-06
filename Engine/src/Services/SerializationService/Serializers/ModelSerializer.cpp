@@ -94,13 +94,13 @@ namespace Yngin::Services {
 		return out.good();
 	}
 
-	bool SerializationService::Impl::validateModel(std::istream& in, const Serialization::OperationData& op) {
+	DESERIALIZATION_STATUS SerializationService::Impl::validateModel(std::istream& in, const Serialization::OperationData& op) {
 		SerializedModelData header;
 
-		if (!streamCheck(in, op.headerSize)) return false;
+		if (!streamCheck(in, op.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
-		if (header.id == -1) return false;
+		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;
 
 		switch (header.frontFace) {
 		case S_MODEL_FRONT_FACE::NONE:
@@ -109,17 +109,18 @@ namespace Yngin::Services {
 			break;
 
 		default:
-			return false;
+			return DESERIALIZATION_STATUS::INVALID_DATA;
 		}
 
 		size_t totalDataSize = header.vertexSize * header.verticesCount;
 		totalDataSize += header.indexSize * header.indicesCount;
 
-		if (!streamCheck(in, totalDataSize)) return false;
+		if (!streamCheck(in, totalDataSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.seekg(totalDataSize, std::ios::cur);
 
-		if (!validateOperation(in, Operation::META)) return false;
+		DESERIALIZATION_STATUS metaStatus;
+		if ((metaStatus = validateOperation(in, Operation::META)) != DESERIALIZATION_STATUS::OK) return metaStatus;
 
-		return true;
+		return DESERIALIZATION_STATUS::OK;
 	}
 }

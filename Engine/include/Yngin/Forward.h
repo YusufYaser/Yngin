@@ -62,6 +62,8 @@ namespace Yngin {
 		enum class TWEEN_FUNCTION : uint8_t;
 
 		struct TweenSettings;
+		struct DeserializationContext;
+		enum class DESERIALIZATION_STATUS : uint8_t;
 
 		class Service;
 		class Tween;

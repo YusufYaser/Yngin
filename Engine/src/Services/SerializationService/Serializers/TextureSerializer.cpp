@@ -155,13 +155,13 @@ namespace Yngin::Services {
 		return out.good();
 	}
 
-	bool SerializationService::Impl::validateTexture(std::istream& in, const Serialization::OperationData& op) {
+	DESERIALIZATION_STATUS SerializationService::Impl::validateTexture(std::istream& in, const Serialization::OperationData& op) {
 		SerializedTextureData header;
 
-		if (!streamCheck(in, op.headerSize)) return false;
+		if (!streamCheck(in, op.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
-		if (header.id == -1) return false;
+		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;
 
 		switch (header.wrap) {
 		case S_TEXTURE_WRAP::REPEAT:
@@ -169,7 +169,7 @@ namespace Yngin::Services {
 			break;
 
 		default:
-			return false;
+			return DESERIALIZATION_STATUS::INVALID_DATA;
 		}
 
 		switch (header.filterMin) {
@@ -182,7 +182,7 @@ namespace Yngin::Services {
 			break;
 
 		default:
-			return false;
+			return DESERIALIZATION_STATUS::INVALID_DATA;
 		}
 
 		switch (header.filterMag) {
@@ -191,26 +191,27 @@ namespace Yngin::Services {
 			break;
 
 		default:
-			return false;
+			return DESERIALIZATION_STATUS::INVALID_DATA;
 		}
 
 		switch (header.dataFormat) {
 		case S_TEXTURE_FORMAT::RAW:
-			if (header.rawDataHeaderSize > header.dataSize) return false;
+			if (header.rawDataHeaderSize > header.dataSize) return DESERIALIZATION_STATUS::INVALID_DATA;
 
 		case S_TEXTURE_FORMAT::PNG:
 		case S_TEXTURE_FORMAT::PATH:
 			break;
 
 		default:
-			return false;
+			return DESERIALIZATION_STATUS::INVALID_DATA;
 		}
 
-		if (!streamCheck(in, header.dataSize)) return false;
+		if (!streamCheck(in, header.dataSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.seekg(header.dataSize, std::ios::cur);
 
-		if (!validateOperation(in, Operation::META)) return false;
+		DESERIALIZATION_STATUS metaStatus;
+		if ((metaStatus = validateOperation(in, Operation::META)) != DESERIALIZATION_STATUS::OK) return metaStatus;
 
-		return true;
+		return DESERIALIZATION_STATUS::OK;
 	}
 }

@@ -186,31 +186,34 @@ namespace Yngin::Services {
 		return out.good();
 	}
 
-	bool SerializationService::Impl::validateGameObject(std::istream& in, const Serialization::OperationData& op) {
+	DESERIALIZATION_STATUS SerializationService::Impl::validateGameObject(std::istream& in, const Serialization::OperationData& op) {
 		SerializedGameObjectData header;
 
-		if (!streamCheck(in, op.headerSize)) return false;
+		if (!streamCheck(in, op.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
-		if (header.id == -1) return false;
+		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;
 
-		if (!validateOperation(in, Operation::META)) return false;
+		DESERIALIZATION_STATUS metaStatus;
+		if ((metaStatus = validateOperation(in, Operation::META)) != DESERIALIZATION_STATUS::OK) return metaStatus;
 
-		for (int i = 0; i < header.componentsCount; i++) {
-			if (!validateOperation(in, Operation::COMPONENT)) return false;
+		for (uint8_t i = 0; i < header.componentsCount; i++) {
+			DESERIALIZATION_STATUS status;
+			if ((status = validateOperation(in, Operation::COMPONENT)) != DESERIALIZATION_STATUS::OK) return status;
 		}
 
-		for (int i = 0; i < header.childrenCount; i++) {
-			if (!validateOperation(in, Operation::GAMEOBJECT)) return false;
+		for (uint32_t i = 0; i < header.childrenCount; i++) {
+			DESERIALIZATION_STATUS status;
+			if ((status = validateOperation(in, Operation::GAMEOBJECT)) != DESERIALIZATION_STATUS::OK) return status;
 		}
 
-		return true;
+		return DESERIALIZATION_STATUS::OK;
 	}
 
-	bool SerializationService::Impl::validateComponent(std::istream& in, const Serialization::OperationData& op) {
+	DESERIALIZATION_STATUS SerializationService::Impl::validateComponent(std::istream& in, const Serialization::OperationData& op) {
 		GenericComponentHeader header;
 
-		if (!streamCheck(in, op.headerSize)) return false;
+		if (!streamCheck(in, op.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
 		switch (header.type) {
@@ -219,14 +222,14 @@ namespace Yngin::Services {
 		case S_COMPONENT_TYPE::DIRECTIONAL_LIGHT:
 		case S_COMPONENT_TYPE::RIGID_BODY:
 		case S_COMPONENT_TYPE::BOX_COLLIDER:
-			if (!streamCheck(in, header.headerSize)) return false;
+			if (!streamCheck(in, header.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.seekg(header.headerSize, std::ios::cur);
 			break;
 
 		default:
-			return false;
+			return DESERIALIZATION_STATUS::INVALID_DATA;
 		}
 
-		return true;
+		return DESERIALIZATION_STATUS::OK;
 	}
 }

@@ -161,25 +161,25 @@ namespace Yngin::Services {
 		return out.good();
 	}
 
-	bool SerializationService::Impl::validateUIElement(std::istream& in, const Serialization::OperationData& op) {
+	DESERIALIZATION_STATUS SerializationService::Impl::validateUIElement(std::istream& in, const Serialization::OperationData& op) {
 		GenericUIElementData header;
 
-		if (!streamCheck(in, op.headerSize)) return false;
+		if (!streamCheck(in, op.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
-		if (header.id == -1) return false;
+		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;
 
 		switch (header.type) {
 		case S_UI_TYPE::NONE:
 		{
-			if (!streamCheck(in, header.headerSize)) return false;
+			if (!streamCheck(in, header.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.seekg(header.headerSize, std::ios::cur);
 			break;
 		}
 
 		case S_UI_TYPE::BUTTON:
 			UIButtonData buttonData;
-			if (!streamCheck(in, header.headerSize)) return false;
+			if (!streamCheck(in, header.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.read(reinterpret_cast<char*>(&buttonData), header.headerSize);
 			[[fallthrough]];
 
@@ -189,7 +189,7 @@ namespace Yngin::Services {
 			if (header.type == S_UI_TYPE::BUTTON) {
 				size = buttonData.imageDataHeaderSize;
 			}
-			if (!streamCheck(in, size)) return false;
+			if (!streamCheck(in, size)) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.seekg(size, std::ios::cur);
 
 			if (header.type != S_UI_TYPE::BUTTON) break;
@@ -204,20 +204,21 @@ namespace Yngin::Services {
 			}
 
 			UITextData textData;
-			if (!streamCheck(in, size)) return false;
+			if (!streamCheck(in, size)) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.read(reinterpret_cast<char*>(&textData), size);
 
-			if (!streamCheck(in, textData.textLength)) return false;
+			if (!streamCheck(in, textData.textLength)) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.seekg(textData.textLength, std::ios::cur);
 			break;
 		}
 
 		default:
-			return false;
+			return DESERIALIZATION_STATUS::INVALID_DATA;
 		}
 
-		if (!validateOperation(in, Operation::META)) return false;
+		DESERIALIZATION_STATUS metaStatus;
+		if ((metaStatus = validateOperation(in, Operation::META)) != DESERIALIZATION_STATUS::OK) return metaStatus;
 
-		return true;
+		return DESERIALIZATION_STATUS::OK;
 	}
 }

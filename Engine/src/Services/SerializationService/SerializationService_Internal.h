@@ -15,15 +15,15 @@ namespace Yngin::Services {
 
 		// Validators
 		bool streamCheck(std::istream& in, size_t size);
-		bool validateOperation(std::istream& in, const Serialization::Operation& checkOp = Serialization::Operation::NO_OP);
-		bool validateMeta(std::istream& in, const Serialization::OperationData& op);
-		bool validateModel(std::istream& in, const Serialization::OperationData& op);
-		bool validateMaterial(std::istream& in, const Serialization::OperationData& op);
-		bool validateTexture(std::istream& in, const Serialization::OperationData& op);
-		bool validateScript(std::istream& in, const Serialization::OperationData& op);
-		bool validateCamera(std::istream& in, const Serialization::OperationData& op);
-		bool validateGameObject(std::istream& in, const Serialization::OperationData& op);
-		bool validateComponent(std::istream& in, const Serialization::OperationData& op);
-		bool validateUIElement(std::istream& in, const Serialization::OperationData& op);
+		DESERIALIZATION_STATUS validateOperation(std::istream& in, const Serialization::Operation& checkOp = Serialization::Operation::NO_OP);
+		DESERIALIZATION_STATUS validateMeta(std::istream& in, const Serialization::OperationData& op);
+		DESERIALIZATION_STATUS validateModel(std::istream& in, const Serialization::OperationData& op);
+		DESERIALIZATION_STATUS validateMaterial(std::istream& in, const Serialization::OperationData& op);
+		DESERIALIZATION_STATUS validateTexture(std::istream& in, const Serialization::OperationData& op);
+		DESERIALIZATION_STATUS validateScript(std::istream& in, const Serialization::OperationData& op);
+		DESERIALIZATION_STATUS validateCamera(std::istream& in, const Serialization::OperationData& op);
+		DESERIALIZATION_STATUS validateGameObject(std::istream& in, const Serialization::OperationData& op);
+		DESERIALIZATION_STATUS validateComponent(std::istream& in, const Serialization::OperationData& op);
+		DESERIALIZATION_STATUS validateUIElement(std::istream& in, const Serialization::OperationData& op);
 	};
 }
