@@ -8,21 +8,21 @@
 using namespace Yngin::Services::Serialization;
 
 namespace Yngin::Services {
-	bool SerializationService::serialize(std::ostream& out, ModelsManager* input, bool includeDependencies) {
+	bool SerializationService::serialize(std::ostream& out, ModelsManager* input) {
 		input->getContext()->makeCurrent();
 		auto models = input->getModels();
 
 		std::stringstream s;
 
 		for (auto& model : models) {
-			if (!serialize(s, model, includeDependencies)) return false;
+			if (!serialize(s, model)) return false;
 		}
 
 		if (!s.view().empty()) out << s.rdbuf();
 		return out.good();
 	}
 
-	bool SerializationService::serialize(std::ostream& out, Model* model, bool includeDependencies) {
+	bool SerializationService::serialize(std::ostream& out, Model* model) {
 		if (impl->shouldSkip(model->meta)) return true;
 
 		std::stringstream s;
@@ -90,18 +90,6 @@ namespace Yngin::Services {
 
 		out.write(reinterpret_cast<const char*>(&op), sizeof(OperationData));
 		if (!s.view().empty()) out << s.rdbuf();
-
-		if (includeDependencies && out.good()) {
-			MaterialsManager* materialsManager = model->getContext()->getMaterialsManager();
-
-			for (uint32_t i = 0; i < pakModelData.materialsCount; i++) {
-				Material* material = materialsManager->getMaterial(pakModelData.defaultMaterials[i]);
-
-				if (material != nullptr) {
-					if (!serialize(s, material)) return false;
-				}
-			}
-		}
 
 		return out.good();
 	}

@@ -10,11 +10,11 @@ using namespace Yngin::Services::Serialization;
 using namespace Yngin::UI;
 
 namespace Yngin::Services {
-	bool SerializationService::serialize(std::ostream& out, UIManager* input, bool includeDependencies) {
-		return serialize(out, input->getRootElement(), -1, includeDependencies);
+	bool SerializationService::serialize(std::ostream& out, UIManager* input) {
+		return serialize(out, input->getRootElement(), -1);
 	}
 
-	bool SerializationService::serialize(std::ostream& out, UIElement* element, int childrenDepth, bool includeDependencies) {
+	bool SerializationService::serialize(std::ostream& out, UIElement* element, int childrenDepth) {
 		if (impl->shouldSkip(element->meta)) return true;
 
 		std::stringstream s;
@@ -65,15 +65,6 @@ namespace Yngin::Services {
 			UIImageData imgData{};
 			imgData.textureId = image->getTexture();
 
-			if (includeDependencies) {
-				// TODO: make sure models and textures are serialized once per one serialization command
-
-				Texture* texture = Service::impl->ctx->getTexturesManager()->getTexture(imgData.textureId);
-				if (texture != nullptr) {
-					if (!serialize(depend, texture)) return false;
-				}
-			}
-
 			s.write(reinterpret_cast<const char*>(&imgData), header.headerSize);
 
 			break;
@@ -102,15 +93,6 @@ namespace Yngin::Services {
 			s.write(reinterpret_cast<const char*>(&textData), header.headerSize);
 
 			s.write(textString.c_str(), textData.textLength);
-
-			if (includeDependencies) {
-				// TODO: make sure models and textures are serialized once per one serialization command
-
-				Texture* texture = Service::impl->ctx->getTexturesManager()->getTexture(textData.glyphId);
-				if (texture != nullptr) {
-					if (!serialize(depend, texture)) return false;
-				}
-			}
 
 			break;
 		}
@@ -154,20 +136,6 @@ namespace Yngin::Services {
 				s.write(reinterpret_cast<const char*>(&textData), buttonData.textDataHeaderSize);
 
 				s.write(textString.c_str(), textData.textLength);
-
-				if (includeDependencies) {
-					// TODO: make sure models and textures are serialized once per one serialization command
-
-					Texture* texture = Service::impl->ctx->getTexturesManager()->getTexture(imgData.textureId);
-					if (texture != nullptr) {
-						if (!serialize(depend, texture)) return false;
-					}
-
-					texture = Service::impl->ctx->getTexturesManager()->getTexture(textData.glyphId);
-					if (texture != nullptr) {
-						if (!serialize(depend, texture)) return false;
-					}
-				}
 			}
 
 			break;
@@ -183,7 +151,7 @@ namespace Yngin::Services {
 		if (!depend.view().empty()) s << depend.rdbuf();
 
 		for (auto& child : children) {
-			if (!serialize(s, child, childrenDepth - 1, includeDependencies)) return false;
+			if (!serialize(s, child, childrenDepth - 1)) return false;
 		}
 
 		op.dataSize = s.view().size();

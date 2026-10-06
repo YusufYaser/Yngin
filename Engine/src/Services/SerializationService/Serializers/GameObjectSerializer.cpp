@@ -12,11 +12,11 @@
 using namespace Yngin::Services::Serialization;
 
 namespace Yngin::Services {
-	bool SerializationService::serialize(std::ostream& out, GameObjectsManager* input, bool includeComponentDependencies) {
-		return serialize(out, input->getRootGameObject(), -1, includeComponentDependencies);
+	bool SerializationService::serialize(std::ostream& out, GameObjectsManager* input) {
+		return serialize(out, input->getRootGameObject(), -1);
 	}
 
-	bool SerializationService::serialize(std::ostream& out, GameObject* obj, int childrenDepth, bool includeComponentDependencies) {
+	bool SerializationService::serialize(std::ostream& out, GameObject* obj, int childrenDepth) {
 		if (impl->shouldSkip(obj->meta)) return true;
 
 		std::stringstream s;
@@ -43,15 +43,13 @@ namespace Yngin::Services {
 		}
 
 		std::vector<Components::Component*> components{};
-		if (includeComponentDependencies) {
-			components.push_back((Components::Component*)obj->getComponent<Components::Mesh>());
-			components.push_back((Components::Component*)obj->getComponent<Components::BoxCollider>());
-			components.push_back((Components::Component*)obj->getComponent<Components::RigidBody>());
-			components.push_back((Components::Component*)obj->getComponent<Components::PointLight>());
-			components.push_back((Components::Component*)obj->getComponent<Components::DirectionalLight>());
+		components.push_back((Components::Component*)obj->getComponent<Components::Mesh>());
+		components.push_back((Components::Component*)obj->getComponent<Components::BoxCollider>());
+		components.push_back((Components::Component*)obj->getComponent<Components::RigidBody>());
+		components.push_back((Components::Component*)obj->getComponent<Components::PointLight>());
+		components.push_back((Components::Component*)obj->getComponent<Components::DirectionalLight>());
 
-			std::erase(components, nullptr);
-		}
+		std::erase(components, nullptr);
 		header.componentsCount = components.size();
 
 		s.write(reinterpret_cast<const char*>(&header), op.headerSize);
@@ -59,11 +57,11 @@ namespace Yngin::Services {
 		if (!serialize(s, obj->meta)) return false;
 
 		for (auto& component : components) {
-			if (!serialize(s, component, includeComponentDependencies)) return false;
+			if (!serialize(s, component)) return false;
 		}
 
 		for (auto& child : children) {
-			if (!serialize(s, child, childrenDepth - 1, includeComponentDependencies)) return false;
+			if (!serialize(s, child, childrenDepth - 1)) return false;
 		}
 
 		op.dataSize = s.view().size();
@@ -73,7 +71,7 @@ namespace Yngin::Services {
 		return out.good();
 	}
 
-	bool SerializationService::serialize(std::ostream& out, Components::Component* comp, bool includeDependencies) {
+	bool SerializationService::serialize(std::ostream& out, Components::Component* comp) {
 		std::stringstream s;
 		std::stringstream depend;
 
@@ -97,20 +95,6 @@ namespace Yngin::Services {
 			meshData.modelId = mesh->getModel();
 			meshData.textureId = mesh->getTexture();
 			meshData.color = mesh->getColor();
-
-			if (includeDependencies) {
-				// TODO: make sure models and textures are serialized once per one serialization command
-
-				Model* model = Service::impl->ctx->getModelsManager()->getModel(meshData.modelId);
-				if (model != nullptr) {
-					if (!serialize(depend, model)) return false;
-				}
-
-				Texture* texture = Service::impl->ctx->getTexturesManager()->getTexture(meshData.textureId);
-				if (texture != nullptr) {
-					if (!serialize(depend, texture)) return false;
-				}
-			}
 
 			for (int i = 0; i < 256; i++) {
 				meshData.materials[i] = mesh->getMaterial(i);
