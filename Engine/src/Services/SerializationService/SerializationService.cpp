@@ -76,6 +76,9 @@ namespace Yngin::Services {
 
 	DESERIALIZATION_STATUS SerializationService::validate(std::istream& in) {
 		std::streampos originalPos = in.tellg();
+		if (originalPos == std::streampos(-1)) {
+			return DESERIALIZATION_STATUS::STREAM_ERROR;
+		}
 
 		DESERIALIZATION_STATUS status = DESERIALIZATION_STATUS::OK;
 		while (status == DESERIALIZATION_STATUS::OK) {
@@ -94,7 +97,8 @@ namespace Yngin::Services {
 		return status;
 	}
 
-	bool SerializationService::Impl::streamCheck(std::istream& in, size_t size) {
+	bool SerializationService::Impl::streamCheck(std::istream& in, size_t size, size_t structSize) {
+		if (structSize != -1 && size > structSize) return false;
 		if (!in.good()) return false;
 
 		std::streampos cur = in.tellg();
@@ -111,19 +115,19 @@ namespace Yngin::Services {
 	DESERIALIZATION_STATUS SerializationService::Impl::validateOperation(std::istream& in, const Operation& checkOp) {
 		OperationData op;
 
-		if (!streamCheck(in, sizeof(uint16_t))) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, sizeof(uint16_t), sizeof(uint16_t))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&op.schemaVersion), sizeof(uint16_t));
 
 		if (op.schemaVersion > Serialization::schemaVersion) return DESERIALIZATION_STATUS::UNSUPPORTED_SCHEMA_VERSION;
 
 		in.seekg(-2, std::ios::cur);
 
-		if (!streamCheck(in, sizeof(OperationData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, sizeof(OperationData), sizeof(OperationData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&op), sizeof(OperationData));
 
 		if (op.headerSize > op.dataSize) return DESERIALIZATION_STATUS::INVALID_DATA;
 
-		if (!streamCheck(in, op.dataSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, op.dataSize, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
 
 		if (checkOp != Operation::NO_OP && op.op != checkOp) return DESERIALIZATION_STATUS::INVALID_DATA;
 

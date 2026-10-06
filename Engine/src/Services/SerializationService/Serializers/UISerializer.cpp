@@ -164,7 +164,7 @@ namespace Yngin::Services {
 	DESERIALIZATION_STATUS SerializationService::Impl::validateUIElement(std::istream& in, const Serialization::OperationData& op) {
 		GenericUIElementData header;
 
-		if (!streamCheck(in, op.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, op.headerSize, sizeof(GenericUIElementData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
 		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;
@@ -172,14 +172,14 @@ namespace Yngin::Services {
 		switch (header.type) {
 		case S_UI_TYPE::NONE:
 		{
-			if (!streamCheck(in, header.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
+			if (!streamCheck(in, header.headerSize, sizeof(GenericUIElementData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.seekg(header.headerSize, std::ios::cur);
 			break;
 		}
 
 		case S_UI_TYPE::BUTTON:
 			UIButtonData buttonData;
-			if (!streamCheck(in, header.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
+			if (!streamCheck(in, header.headerSize, sizeof(UIButtonData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.read(reinterpret_cast<char*>(&buttonData), header.headerSize);
 			[[fallthrough]];
 
@@ -189,7 +189,7 @@ namespace Yngin::Services {
 			if (header.type == S_UI_TYPE::BUTTON) {
 				size = buttonData.imageDataHeaderSize;
 			}
-			if (!streamCheck(in, size)) return DESERIALIZATION_STATUS::INVALID_DATA;
+			if (!streamCheck(in, size, sizeof(UIImageData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.seekg(size, std::ios::cur);
 
 			if (header.type != S_UI_TYPE::BUTTON) break;
@@ -204,10 +204,10 @@ namespace Yngin::Services {
 			}
 
 			UITextData textData;
-			if (!streamCheck(in, size)) return DESERIALIZATION_STATUS::INVALID_DATA;
+			if (!streamCheck(in, size, sizeof(UITextData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.read(reinterpret_cast<char*>(&textData), size);
 
-			if (!streamCheck(in, textData.textLength)) return DESERIALIZATION_STATUS::INVALID_DATA;
+			if (!streamCheck(in, textData.textLength, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.seekg(textData.textLength, std::ios::cur);
 			break;
 		}

@@ -189,7 +189,7 @@ namespace Yngin::Services {
 	DESERIALIZATION_STATUS SerializationService::Impl::validateGameObject(std::istream& in, const Serialization::OperationData& op) {
 		SerializedGameObjectData header;
 
-		if (!streamCheck(in, op.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, op.headerSize, sizeof(SerializedGameObjectData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
 		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;
@@ -213,16 +213,32 @@ namespace Yngin::Services {
 	DESERIALIZATION_STATUS SerializationService::Impl::validateComponent(std::istream& in, const Serialization::OperationData& op) {
 		GenericComponentHeader header;
 
-		if (!streamCheck(in, op.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, op.headerSize, sizeof(GenericComponentHeader))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
 		switch (header.type) {
 		case S_COMPONENT_TYPE::MESH:
+			if (!streamCheck(in, header.headerSize, sizeof(MeshComponentData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.seekg(header.headerSize, std::ios::cur);
+			break;
+
 		case S_COMPONENT_TYPE::POINT_LIGHT:
+			if (!streamCheck(in, header.headerSize, sizeof(PointLightData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.seekg(header.headerSize, std::ios::cur);
+			break;
+
 		case S_COMPONENT_TYPE::DIRECTIONAL_LIGHT:
+			if (!streamCheck(in, header.headerSize, sizeof(DirectionalLightData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.seekg(header.headerSize, std::ios::cur);
+			break;
+
 		case S_COMPONENT_TYPE::RIGID_BODY:
+			if (!streamCheck(in, header.headerSize, sizeof(RigidBodyData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.seekg(header.headerSize, std::ios::cur);
+			break;
+
 		case S_COMPONENT_TYPE::BOX_COLLIDER:
-			if (!streamCheck(in, header.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
+			if (!streamCheck(in, header.headerSize, sizeof(BoxColliderData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.seekg(header.headerSize, std::ios::cur);
 			break;
 

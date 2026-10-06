@@ -14,6 +14,7 @@ namespace Yngin {
 			UNSUPPORTED_SCHEMA_VERSION,
 			INVALID_DATA,
 			MISSING_CONTEXT,
+			STREAM_ERROR,
 		};
 
 		class SerializationService : public Service {

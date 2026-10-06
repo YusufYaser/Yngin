@@ -158,7 +158,7 @@ namespace Yngin::Services {
 	DESERIALIZATION_STATUS SerializationService::Impl::validateTexture(std::istream& in, const Serialization::OperationData& op) {
 		SerializedTextureData header;
 
-		if (!streamCheck(in, op.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, op.headerSize, sizeof(SerializedTextureData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
 		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;
@@ -206,7 +206,7 @@ namespace Yngin::Services {
 			return DESERIALIZATION_STATUS::INVALID_DATA;
 		}
 
-		if (!streamCheck(in, header.dataSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, header.dataSize, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.seekg(header.dataSize, std::ios::cur);
 
 		DESERIALIZATION_STATUS metaStatus;

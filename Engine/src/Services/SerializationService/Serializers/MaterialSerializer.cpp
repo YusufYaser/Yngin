@@ -53,7 +53,7 @@ namespace Yngin::Services {
 	DESERIALIZATION_STATUS SerializationService::Impl::validateMaterial(std::istream& in, const Serialization::OperationData& op) {
 		SerializedMaterialData header;
 
-		if (!streamCheck(in, op.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, op.headerSize, sizeof(SerializedMaterialData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
 		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;

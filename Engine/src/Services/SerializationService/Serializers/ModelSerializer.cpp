@@ -97,7 +97,7 @@ namespace Yngin::Services {
 	DESERIALIZATION_STATUS SerializationService::Impl::validateModel(std::istream& in, const Serialization::OperationData& op) {
 		SerializedModelData header;
 
-		if (!streamCheck(in, op.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, op.headerSize, sizeof(SerializedModelData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
 		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;
@@ -115,7 +115,7 @@ namespace Yngin::Services {
 		size_t totalDataSize = header.vertexSize * header.verticesCount;
 		totalDataSize += header.indexSize * header.indicesCount;
 
-		if (!streamCheck(in, totalDataSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, totalDataSize, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.seekg(totalDataSize, std::ios::cur);
 
 		DESERIALIZATION_STATUS metaStatus;

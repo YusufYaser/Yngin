@@ -59,12 +59,12 @@ namespace Yngin::Services {
 	DESERIALIZATION_STATUS SerializationService::Impl::validateScript(std::istream& in, const Serialization::OperationData& op) {
 		SerializedScriptData header;
 
-		if (!streamCheck(in, op.headerSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, op.headerSize, sizeof(SerializedScriptData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
 		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;
 
-		if (!streamCheck(in, header.dataSize)) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, header.dataSize, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.seekg(header.dataSize, std::ios::cur);
 
 		DESERIALIZATION_STATUS metaStatus;

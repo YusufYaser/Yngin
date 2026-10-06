@@ -14,7 +14,7 @@ namespace Yngin::Services {
 
 
 		// Validators
-		bool streamCheck(std::istream& in, size_t size);
+		bool streamCheck(std::istream& in, size_t size, size_t structSize);
 		DESERIALIZATION_STATUS validateOperation(std::istream& in, const Serialization::Operation& checkOp = Serialization::Operation::NO_OP);
 		DESERIALIZATION_STATUS validateMeta(std::istream& in, const Serialization::OperationData& op);
 		DESERIALIZATION_STATUS validateModel(std::istream& in, const Serialization::OperationData& op);
