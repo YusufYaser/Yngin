@@ -68,6 +68,7 @@ namespace Yngin {
 		friend class Script;
 		friend class ScenesManager;
 		friend class GameFiles::Loaders;
+		friend class Services::SerializationService;
 
 		ScriptsManager(Context* ctx);
 		~ScriptsManager();

@@ -51,7 +51,7 @@ namespace Yngin::Services {
 	}
 
 	DESERIALIZATION_STATUS SerializationService::Impl::validateMaterial(std::istream& in, const Serialization::OperationData& op) {
-		SerializedMaterialData header;
+		SerializedMaterialData header{};
 
 		if (!streamCheck(in, op.headerSize, sizeof(SerializedMaterialData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
@@ -60,6 +60,36 @@ namespace Yngin::Services {
 
 		DESERIALIZATION_STATUS metaStatus;
 		if ((metaStatus = validateOperation(in, Operation::META)) != DESERIALIZATION_STATUS::OK) return metaStatus;
+
+		return DESERIALIZATION_STATUS::OK;
+	}
+
+	DESERIALIZATION_STATUS SerializationService::Impl::deserializeMaterial(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx) {
+		SerializedMaterialData header{};
+
+		if (!streamCheck(in, op.headerSize, sizeof(SerializedMaterialData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		if (ctx->getMaterialsManager()->getMaterial(header.id)) {
+			if (!dsctx.user.overrideConflictingId) {
+				// Skip the operation data in case we ignore conflicting id errors
+				if (streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+				in.seekg(op.dataSize - op.headerSize, std::ios::cur);
+				return DESERIALIZATION_STATUS::CONFLICTING_ID;
+			}
+		}
+
+		Material* material = ctx->getMaterialsManager()->createMaterial(header.id, dsctx.user.overrideConflictingId);
+		if (material == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+		material->setAmbientColor(header.ambientColor);
+		material->setDiffuseColor(header.diffuseColor);
+		material->setSpecularColor(header.specularColor);
+		material->setSpecularComponent(header.specularComponent);
+
+		dsctx.meta = &material->meta;
+		DESERIALIZATION_STATUS metaStatus = deserializeOperation(in, dsctx, Operation::META);
+		dsctx.meta = nullptr;
+		if (metaStatus != DESERIALIZATION_STATUS::OK) return metaStatus;
 
 		return DESERIALIZATION_STATUS::OK;
 	}

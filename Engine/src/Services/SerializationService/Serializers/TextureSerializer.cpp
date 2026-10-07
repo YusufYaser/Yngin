@@ -5,6 +5,7 @@
 #include <sstream>
 #include <glad/glad.h>
 #include <stb/stb_image_write.h>
+#include <stb/stb_image.h>
 
 using namespace Yngin::Services::Serialization;
 
@@ -156,9 +157,9 @@ namespace Yngin::Services {
 	}
 
 	DESERIALIZATION_STATUS SerializationService::Impl::validateTexture(std::istream& in, const Serialization::OperationData& op) {
-		SerializedTextureData header;
+		SerializedTextureData header{};
 
-		if (!streamCheck(in, op.headerSize, sizeof(SerializedTextureData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, op.headerSize, sizeof(header))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
 		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;
@@ -211,6 +212,136 @@ namespace Yngin::Services {
 
 		DESERIALIZATION_STATUS metaStatus;
 		if ((metaStatus = validateOperation(in, Operation::META)) != DESERIALIZATION_STATUS::OK) return metaStatus;
+
+		return DESERIALIZATION_STATUS::OK;
+	}
+
+	DESERIALIZATION_STATUS SerializationService::Impl::deserializeTexture(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx) {
+		SerializedTextureData header{};
+
+		if (!streamCheck(in, op.headerSize, sizeof(header))) return DESERIALIZATION_STATUS::INVALID_DATA;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		if (ctx->getTexturesManager()->getTexture(header.id)) {
+			if (!dsctx.user.overrideConflictingId) {
+				// Skip the operation data in case we ignore conflicting id errors
+				if (streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+				in.seekg(op.dataSize - op.headerSize, std::ios::cur);
+				return DESERIALIZATION_STATUS::CONFLICTING_ID;
+			}
+		}
+
+		TextureSettings settings{};
+
+		switch (header.wrap) {
+		case S_TEXTURE_WRAP::REPEAT:
+			settings.wrap = TEXTURE_WRAP::REPEAT;
+			break;
+
+		case S_TEXTURE_WRAP::CLAMP:
+			settings.wrap = TEXTURE_WRAP::CLAMP;
+			break;
+
+		default:
+			return DESERIALIZATION_STATUS::INVALID_DATA;
+		}
+
+		switch (header.filterMin) {
+		case S_TEXTURE_FILTER::NEAREST:
+			settings.filterMin = TEXTURE_FILTER::NEAREST;
+			break;
+
+		case S_TEXTURE_FILTER::LINEAR:
+			settings.filterMin = TEXTURE_FILTER::LINEAR;
+			break;
+
+		case S_TEXTURE_FILTER::NEAREST_MIPMAP_NEAREST:
+			settings.filterMin = TEXTURE_FILTER::NEAREST_MIPMAP_NEAREST;
+			break;
+
+		case S_TEXTURE_FILTER::LINEAR_MIPMAP_NEAREST:
+			settings.filterMin = TEXTURE_FILTER::LINEAR_MIPMAP_NEAREST;
+			break;
+
+		case S_TEXTURE_FILTER::NEAREST_MIPMAP_LINEAR:
+			settings.filterMin = TEXTURE_FILTER::NEAREST_MIPMAP_LINEAR;
+			break;
+
+		case S_TEXTURE_FILTER::LINEAR_MIPMAP_LINEAR:
+			settings.filterMin = TEXTURE_FILTER::LINEAR_MIPMAP_LINEAR;
+			break;
+
+		default:
+			return DESERIALIZATION_STATUS::INVALID_DATA;
+		}
+
+		switch (header.filterMag) {
+		case S_TEXTURE_FILTER::NEAREST:
+			settings.filterMag = TEXTURE_FILTER::NEAREST;
+			break;
+
+		case S_TEXTURE_FILTER::LINEAR:
+			settings.filterMag = TEXTURE_FILTER::LINEAR;
+			break;
+
+		default:
+			return DESERIALIZATION_STATUS::INVALID_DATA;
+		}
+
+		Texture* tex = nullptr;
+
+		if (header.dataFormat == S_TEXTURE_FORMAT::RAW) {
+			if (header.rawDataHeaderSize > header.dataSize) return DESERIALIZATION_STATUS::INVALID_DATA;
+
+			TextureRawDataHeader rawHdr{};
+			if (!streamCheck(in, header.rawDataHeaderSize, sizeof(rawHdr))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(&rawHdr), header.rawDataHeaderSize);
+
+			TextureData data{};
+			data.width = rawHdr.width;
+			data.height = rawHdr.height;
+			data.numCh = rawHdr.numCh;
+
+			std::vector<char> bytes(header.dataSize - header.rawDataHeaderSize);
+			if (!streamCheck(in, header.dataSize - header.rawDataHeaderSize, bytes.size())) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(bytes.data()), header.dataSize - header.rawDataHeaderSize);
+
+			data.bytes = bytes.data();
+
+			tex = ctx->getTexturesManager()->createTexture(data, settings, header.id, dsctx.user.overrideConflictingId);
+		} else if (header.dataFormat == S_TEXTURE_FORMAT::PNG) {
+			std::vector<char> pngBytes(header.dataSize);
+			if (!streamCheck(in, header.dataSize, pngBytes.size())) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(pngBytes.data()), header.dataSize);
+
+			TextureData data{};
+			unsigned char* rawBytes = stbi_load_from_memory((const stbi_uc*)pngBytes.data(), int(pngBytes.size()), &data.width, &data.height, &data.numCh, 0);
+			if (!rawBytes) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+
+			data.bytes = (const char*)rawBytes;
+
+			tex = ctx->getTexturesManager()->createTexture(data, settings, header.id, dsctx.user.overrideConflictingId);
+
+			stbi_image_free(rawBytes);
+
+		} else if (header.dataFormat == S_TEXTURE_FORMAT::PATH) {
+			if (!dsctx.user.allowLoadingTexturesFromDevice) return DESERIALIZATION_STATUS::PERMISSION_ERROR;
+
+			std::vector<char> bytes(header.dataSize);
+			if (!streamCheck(in, header.dataSize, bytes.size())) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(bytes.data()), header.dataSize);
+
+			tex = ctx->getTexturesManager()->createTexture(bytes.data(), settings, header.id, dsctx.user.overrideConflictingId);
+		} else {
+			return DESERIALIZATION_STATUS::INVALID_DATA;
+		}
+
+		if (tex == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+
+		dsctx.meta = &tex->meta;
+		DESERIALIZATION_STATUS metaStatus = deserializeOperation(in, dsctx, Operation::META);
+		dsctx.meta = nullptr;
+		if (metaStatus != DESERIALIZATION_STATUS::OK) return metaStatus;
 
 		return DESERIALIZATION_STATUS::OK;
 	}

@@ -95,7 +95,7 @@ namespace Yngin::Services {
 	}
 
 	DESERIALIZATION_STATUS SerializationService::Impl::validateModel(std::istream& in, const Serialization::OperationData& op) {
-		SerializedModelData header;
+		SerializedModelData header{};
 
 		if (!streamCheck(in, op.headerSize, sizeof(SerializedModelData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
@@ -120,6 +120,73 @@ namespace Yngin::Services {
 
 		DESERIALIZATION_STATUS metaStatus;
 		if ((metaStatus = validateOperation(in, Operation::META)) != DESERIALIZATION_STATUS::OK) return metaStatus;
+
+		return DESERIALIZATION_STATUS::OK;
+	}
+
+	DESERIALIZATION_STATUS SerializationService::Impl::deserializeModel(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx) {
+		SerializedModelData header{};
+
+		if (!streamCheck(in, op.headerSize, sizeof(SerializedModelData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		if (ctx->getModelsManager()->getModel(header.id)) {
+			if (!dsctx.user.overrideConflictingId) {
+				// Skip the operation data in case we ignore conflicting id errors
+				if (streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+				in.seekg(op.dataSize - op.headerSize, std::ios::cur);
+				return DESERIALIZATION_STATUS::CONFLICTING_ID;
+			}
+		}
+
+		ModelData data{};
+
+		switch (header.frontFace) {
+		case S_MODEL_FRONT_FACE::NONE:
+			data.frontFace = MODEL_FRONT_FACE::NONE;
+			break;
+
+		case S_MODEL_FRONT_FACE::CCW:
+			data.frontFace = MODEL_FRONT_FACE::CCW;
+			break;
+
+		case S_MODEL_FRONT_FACE::CW:
+			data.frontFace = MODEL_FRONT_FACE::CW;
+			break;
+
+		default:
+			return DESERIALIZATION_STATUS::INVALID_DATA;
+		}
+
+		for (uint32_t i = 0; i < header.verticesCount; i++) {
+			ModelVertexData vertexData{};
+			if (!streamCheck(in, header.vertexSize, sizeof(vertexData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(&vertexData), header.vertexSize);
+
+			Vertex v{};
+			v.pos = vertexData.position;
+			v.normal = vertexData.normal;
+			v.texCoord = vertexData.texCoord;
+			v.matId = vertexData.material;
+
+			data.vertices.push_back(v);
+		}
+
+		for (uint32_t i = 0; i < header.indicesCount; i++) {
+			ModelIndexData indexData{};
+			if (!streamCheck(in, header.indexSize, sizeof(indexData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(&indexData), header.indexSize);
+
+			data.indices.push_back(indexData.index);
+		}
+
+		Model* model = ctx->getModelsManager()->createModel(data, header.id, dsctx.user.overrideConflictingId);
+		if (model == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+
+		dsctx.meta = &model->meta;
+		DESERIALIZATION_STATUS metaStatus = deserializeOperation(in, dsctx, Operation::META);
+		dsctx.meta = nullptr;
+		if (metaStatus != DESERIALIZATION_STATUS::OK) return metaStatus;
 
 		return DESERIALIZATION_STATUS::OK;
 	}

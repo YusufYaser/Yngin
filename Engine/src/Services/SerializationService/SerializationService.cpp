@@ -8,6 +8,7 @@ using namespace Yngin::Services::Serialization;
 namespace Yngin::Services {
 	SerializationService::SerializationService(Context* ctx) : Service(ctx) {
 		impl = std::make_unique<Impl>();
+		impl->ctx = ctx;
 
 		pushSkipMetaKeys({ "#NoExport" });
 		pushIgnoredMetaPrefixes({ "#" });
@@ -112,7 +113,7 @@ namespace Yngin::Services {
 		return true;
 	}
 
-	DESERIALIZATION_STATUS SerializationService::Impl::validateOperation(std::istream& in, const Operation& checkOp) {
+	DESERIALIZATION_STATUS SerializationService::Impl::validateOperation(std::istream& in, const Operation& expectedOp) {
 		OperationData op;
 
 		if (!streamCheck(in, sizeof(uint16_t), sizeof(uint16_t))) return DESERIALIZATION_STATUS::INVALID_DATA;
@@ -129,7 +130,7 @@ namespace Yngin::Services {
 
 		if (!streamCheck(in, op.dataSize, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
 
-		if (checkOp != Operation::NO_OP && op.op != checkOp) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (expectedOp != Operation::NO_OP && op.op != expectedOp) return DESERIALIZATION_STATUS::INVALID_DATA;
 
 		switch (op.op) {
 		case Operation::NO_OP:
@@ -164,6 +165,99 @@ namespace Yngin::Services {
 
 		case Operation::UI_ELEMENT:
 			return validateUIElement(in, op);
+
+		default:
+			return DESERIALIZATION_STATUS::INVALID_DATA;
+		}
+
+		return DESERIALIZATION_STATUS::INVALID_DATA;
+	}
+
+	DESERIALIZATION_STATUS SerializationService::load(std::istream& in, const DeserializationContext& deserializationContext) {
+		DESERIALIZATION_STATUS validationStatus = validate(in);
+		if (validationStatus != DESERIALIZATION_STATUS::OK) return validationStatus;
+
+		InternalDeserializationContext internalDsctx{ deserializationContext };
+		DESERIALIZATION_STATUS status = DESERIALIZATION_STATUS::OK;
+		while (status == DESERIALIZATION_STATUS::OK) {
+			std::streampos pos = in.tellg();
+			in.seekg(0, std::ios::end);
+			bool atEnd = pos == in.tellg();
+			in.seekg(pos);
+			if (atEnd) break;
+
+			status = impl->deserializeOperation(in, internalDsctx);
+			if ((deserializationContext.ignoreErrorMissingContext && status == DESERIALIZATION_STATUS::MISSING_CONTEXT)
+				|| (deserializationContext.ignoreErrorConflictingId && status == DESERIALIZATION_STATUS::CONFLICTING_ID)) {
+				status = DESERIALIZATION_STATUS::OK;
+			}
+		}
+
+		return status;
+	}
+
+	DESERIALIZATION_STATUS SerializationService::Impl::deserializeOperation(std::istream& in, InternalDeserializationContext& dsctx, const Serialization::Operation& expectedOp) {
+		OperationData op;
+
+		in.read(reinterpret_cast<char*>(&op.schemaVersion), sizeof(uint16_t));
+
+		if (op.schemaVersion > Serialization::schemaVersion) return DESERIALIZATION_STATUS::UNSUPPORTED_SCHEMA_VERSION;
+
+		in.seekg(-2, std::ios::cur);
+
+		in.read(reinterpret_cast<char*>(&op), sizeof(OperationData));
+
+		if (op.headerSize > op.dataSize) return DESERIALIZATION_STATUS::INVALID_DATA;
+
+		if (!streamCheck(in, op.dataSize, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
+
+		if (expectedOp != Operation::NO_OP && op.op != expectedOp) return DESERIALIZATION_STATUS::INVALID_DATA;
+
+		switch (op.op) {
+		case Operation::NO_OP:
+		{
+			in.seekg(op.dataSize, std::ios::cur);
+			return DESERIALIZATION_STATUS::OK;
+		}
+
+		case Operation::META:
+			return deserializeMeta(in, op, dsctx);
+
+		case Operation::MODEL:
+			return deserializeModel(in, op, dsctx);
+
+		case Operation::MATERIAL:
+			return deserializeMaterial(in, op, dsctx);
+
+		case Operation::TEXTURE:
+			return deserializeTexture(in, op, dsctx);
+
+		case Operation::SCRIPT:
+			return deserializeScript(in, op, dsctx);
+
+		case Operation::CAMERA:
+			return deserializeCamera(in, op, dsctx);
+
+		case Operation::GAMEOBJECT:
+		{
+			in.seekg(op.dataSize, std::ios::cur);
+			return DESERIALIZATION_STATUS::OK;
+		}
+		//return deserializeGameObject(in, op, dsctx);
+
+		case Operation::COMPONENT:
+		{
+			in.seekg(op.dataSize, std::ios::cur);
+			return DESERIALIZATION_STATUS::OK;
+		}
+		//return deserializeComponent(in, op, dsctx);
+
+		case Operation::UI_ELEMENT:
+		{
+			in.seekg(op.dataSize, std::ios::cur);
+			return DESERIALIZATION_STATUS::OK;
+		}
+		//return deserializeUIElement(in, op, dsctx);
 
 		default:
 			return DESERIALIZATION_STATUS::INVALID_DATA;

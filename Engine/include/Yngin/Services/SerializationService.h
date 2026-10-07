@@ -6,6 +6,10 @@ namespace Yngin {
 	namespace Services {
 		struct DeserializationContext {
 			Scene* scene;
+			bool allowLoadingTexturesFromDevice;
+			bool ignoreErrorMissingContext;
+			bool ignoreErrorConflictingId;
+			bool overrideConflictingId;
 		};
 
 		enum class DESERIALIZATION_STATUS : uint8_t {
@@ -15,6 +19,8 @@ namespace Yngin {
 			INVALID_DATA,
 			MISSING_CONTEXT,
 			STREAM_ERROR,
+			CONFLICTING_ID,
+			PERMISSION_ERROR,
 		};
 
 		class SerializationService : public Service {
@@ -25,11 +31,12 @@ namespace Yngin {
 			std::vector<std::string> popIgnoredMetaPrefixes();
 
 			DESERIALIZATION_STATUS validate(std::istream& in);
+			DESERIALIZATION_STATUS load(std::istream& in, const DeserializationContext& deserializationContext);
 
 			bool serialize(std::ostream& out, const Meta& input);
 
 			bool serialize(std::ostream& out, ModelsManager* input);
-			bool serialize(std::ostream& out, Model* inpu);
+			bool serialize(std::ostream& out, Model* input);
 
 			bool serialize(std::ostream& out, MaterialsManager* input);
 			bool serialize(std::ostream& out, Material* input);

@@ -80,13 +80,13 @@ namespace Yngin::Services {
 	}
 
 	DESERIALIZATION_STATUS SerializationService::Impl::validateMeta(std::istream& in, const Serialization::OperationData& op) {
-		SerializedMetasHeader header;
+		SerializedMetasHeader header{};
 
 		if (!streamCheck(in, op.headerSize, sizeof(SerializedMetasHeader))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
 		for (int i = 0; i < header.metasCount; i++) {
-			SerializedMetaInfo info;
+			SerializedMetaInfo info{};
 
 			if (!streamCheck(in, header.unitInfoDataSize, sizeof(SerializedMetaInfo))) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.read(reinterpret_cast<char*>(&info), header.unitInfoDataSize);
@@ -101,6 +101,66 @@ namespace Yngin::Services {
 				if (!streamCheck(in, info.dataSize, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
 				in.seekg(info.dataSize, std::ios::cur);
 
+				break;
+			}
+
+			default: // including a pointer meta
+				return DESERIALIZATION_STATUS::INVALID_DATA;
+			}
+		}
+
+		return DESERIALIZATION_STATUS::OK;
+	}
+
+	DESERIALIZATION_STATUS SerializationService::Impl::deserializeMeta(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx) {
+		if (dsctx.meta == nullptr) {
+			// Skip the operation data in case we ignore missing context errors
+			if (!streamCheck(in, op.dataSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+			in.seekg(op.dataSize, std::ios::cur);
+			return DESERIALIZATION_STATUS::MISSING_CONTEXT;
+		}
+
+		SerializedMetasHeader header{};
+
+		if (!streamCheck(in, op.headerSize, sizeof(SerializedMetasHeader))) return DESERIALIZATION_STATUS::INVALID_DATA;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		for (int i = 0; i < header.metasCount; i++) {
+			SerializedMetaInfo info{};
+
+			if (!streamCheck(in, header.unitInfoDataSize, sizeof(SerializedMetaInfo))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(&info), header.unitInfoDataSize);
+
+			if (!streamCheck(in, info.keySize, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
+			std::vector<unsigned char> keyBuffer(info.keySize);
+			in.read(reinterpret_cast<char*>(keyBuffer.data()), info.keySize);
+
+			switch (info.type) {
+			case S_META_TYPE::INT32:
+			{
+				uint32_t u32 = 0;
+
+				if (!streamCheck(in, info.dataSize, sizeof(u32))) return DESERIALIZATION_STATUS::INVALID_DATA;
+				in.read(reinterpret_cast<char*>(&u32), info.dataSize);
+
+				dsctx.meta->setMeta(std::string(keyBuffer.begin(), keyBuffer.end()), int(u32));
+				break;
+			}
+			case S_META_TYPE::FLOAT:
+			{
+				float f = 0.0f;
+				if (!streamCheck(in, info.dataSize, sizeof(f))) return DESERIALIZATION_STATUS::INVALID_DATA;
+				in.read(reinterpret_cast<char*>(&f), info.dataSize);
+				dsctx.meta->setMeta(std::string(keyBuffer.begin(), keyBuffer.end()), f);
+				break;
+			}
+
+			case S_META_TYPE::STRING:
+			{
+				if (!streamCheck(in, info.dataSize, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
+				std::vector<unsigned char> dataBuffer(info.dataSize);
+				in.read(reinterpret_cast<char*>(dataBuffer.data()), info.dataSize);
+				dsctx.meta->setMeta(std::string(keyBuffer.begin(), keyBuffer.end()), std::string(dataBuffer.begin(), dataBuffer.end()));
 				break;
 			}
 
