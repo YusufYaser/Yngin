@@ -113,7 +113,7 @@ namespace Yngin::Services {
 	}
 
 	DESERIALIZATION_STATUS SerializationService::Impl::deserializeMeta(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx) {
-		if (dsctx.meta == nullptr) {
+		if (dsctx.meta.empty() || dsctx.meta.top() == nullptr) {
 			// Skip the operation data in case we ignore missing context errors
 			if (!streamCheck(in, op.dataSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 			in.seekg(op.dataSize, std::ios::cur);
@@ -124,6 +124,8 @@ namespace Yngin::Services {
 
 		if (!streamCheck(in, op.headerSize, sizeof(SerializedMetasHeader))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		Meta* meta = dsctx.meta.top();
 
 		for (int i = 0; i < header.metasCount; i++) {
 			SerializedMetaInfo info{};
@@ -143,7 +145,7 @@ namespace Yngin::Services {
 				if (!streamCheck(in, info.dataSize, sizeof(u32))) return DESERIALIZATION_STATUS::INVALID_DATA;
 				in.read(reinterpret_cast<char*>(&u32), info.dataSize);
 
-				dsctx.meta->setMeta(std::string(keyBuffer.begin(), keyBuffer.end()), int(u32));
+				meta->setMeta(std::string(keyBuffer.begin(), keyBuffer.end()), int(u32));
 				break;
 			}
 			case S_META_TYPE::FLOAT:
@@ -151,7 +153,7 @@ namespace Yngin::Services {
 				float f = 0.0f;
 				if (!streamCheck(in, info.dataSize, sizeof(f))) return DESERIALIZATION_STATUS::INVALID_DATA;
 				in.read(reinterpret_cast<char*>(&f), info.dataSize);
-				dsctx.meta->setMeta(std::string(keyBuffer.begin(), keyBuffer.end()), f);
+				meta->setMeta(std::string(keyBuffer.begin(), keyBuffer.end()), f);
 				break;
 			}
 
@@ -160,7 +162,7 @@ namespace Yngin::Services {
 				if (!streamCheck(in, info.dataSize, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
 				std::vector<unsigned char> dataBuffer(info.dataSize);
 				in.read(reinterpret_cast<char*>(dataBuffer.data()), info.dataSize);
-				dsctx.meta->setMeta(std::string(keyBuffer.begin(), keyBuffer.end()), std::string(dataBuffer.begin(), dataBuffer.end()));
+				meta->setMeta(std::string(keyBuffer.begin(), keyBuffer.end()), std::string(dataBuffer.begin(), dataBuffer.end()));
 				break;
 			}
 

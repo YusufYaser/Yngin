@@ -65,13 +65,13 @@ namespace Yngin::Services {
 	}
 
 	DESERIALIZATION_STATUS SerializationService::Impl::deserializeCamera(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx) {
-		Scene* scene = dsctx.user.scene;
-		if (scene == nullptr || scene->getContext() != ctx) {
+		if (dsctx.scene.empty() || dsctx.scene.top() == nullptr || dsctx.scene.top()->getContext() != ctx) {
 			// Skip the operation data in case we ignore missing context errors
 			if (!streamCheck(in, op.dataSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 			in.seekg(op.dataSize, std::ios::cur);
 			return DESERIALIZATION_STATUS::MISSING_CONTEXT;
 		}
+		Scene* scene = dsctx.scene.top();
 
 		SerializedCameraData header{};
 
@@ -95,9 +95,9 @@ namespace Yngin::Services {
 		camera->setFov(header.fov);
 		camera->setWeight(header.weight);
 
-		dsctx.meta = &camera->meta;
+		dsctx.meta.push(&camera->meta);
 		DESERIALIZATION_STATUS metaStatus = deserializeOperation(in, dsctx, Operation::META);
-		dsctx.meta = nullptr;
+		dsctx.meta.pop();
 		if (metaStatus != DESERIALIZATION_STATUS::OK) return metaStatus;
 
 		return DESERIALIZATION_STATUS::OK;

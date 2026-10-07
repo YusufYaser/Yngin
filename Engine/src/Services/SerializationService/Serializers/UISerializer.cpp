@@ -162,12 +162,14 @@ namespace Yngin::Services {
 	}
 
 	DESERIALIZATION_STATUS SerializationService::Impl::validateUIElement(std::istream& in, const Serialization::OperationData& op) {
-		GenericUIElementData header;
+		GenericUIElementData header{};
 
-		if (!streamCheck(in, op.headerSize, sizeof(GenericUIElementData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, op.headerSize, sizeof(header))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
 		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;
+
+		UIButtonData buttonData{};
 
 		switch (header.type) {
 		case S_UI_TYPE::NONE:
@@ -178,8 +180,7 @@ namespace Yngin::Services {
 		}
 
 		case S_UI_TYPE::BUTTON:
-			UIButtonData buttonData;
-			if (!streamCheck(in, header.headerSize, sizeof(UIButtonData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			if (!streamCheck(in, header.headerSize, sizeof(buttonData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.read(reinterpret_cast<char*>(&buttonData), header.headerSize);
 			[[fallthrough]];
 
@@ -218,6 +219,147 @@ namespace Yngin::Services {
 
 		DESERIALIZATION_STATUS metaStatus;
 		if ((metaStatus = validateOperation(in, Operation::META)) != DESERIALIZATION_STATUS::OK) return metaStatus;
+
+		for (uint32_t i = 0; i < header.childrenCount; i++) {
+			DESERIALIZATION_STATUS status;
+			if ((status = validateOperation(in, Operation::UI_ELEMENT)) != DESERIALIZATION_STATUS::OK) return status;
+		}
+
+		return DESERIALIZATION_STATUS::OK;
+	}
+
+	DESERIALIZATION_STATUS SerializationService::Impl::deserializeUIElement(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx) {
+		if (dsctx.UIManager.empty() || dsctx.UIManager.top() == nullptr || dsctx.UIManager.top()->getContext() != ctx) {
+			// Skip the operation data in case we ignore missing context errors
+			if (!streamCheck(in, op.dataSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+			in.seekg(op.dataSize, std::ios::cur);
+			return DESERIALIZATION_STATUS::MISSING_CONTEXT;
+		}
+
+		UIManager* mgr = dsctx.UIManager.top();
+
+		GenericUIElementData header{};
+
+		if (!streamCheck(in, op.headerSize, sizeof(header))) return DESERIALIZATION_STATUS::INVALID_DATA;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		UIElement* element = nullptr;
+
+		UIButtonData buttonData{};
+
+		switch (header.type) {
+		case S_UI_TYPE::NONE:
+		{
+			if (!streamCheck(in, header.headerSize, sizeof(GenericUIElementData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.seekg(header.headerSize, std::ios::cur);
+
+			if (header.id == 0) {
+				element = mgr->getRootElement();
+			} else {
+				element = mgr->getElement(header.id);
+			}
+			break;
+		}
+
+		case S_UI_TYPE::BUTTON:
+		{
+			if (!streamCheck(in, header.headerSize, sizeof(buttonData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(&buttonData), header.headerSize);
+
+			Button* button = mgr->getRootElement()->createChild<Button>(header.id, dsctx.user.overrideConflictingId);
+
+			element = button;
+			if (element == nullptr) break;
+
+			button->setHoverColor(buttonData.hoverColor);
+			button->setClickColor(buttonData.clickColor);
+
+			[[fallthrough]];
+		}
+
+		case S_UI_TYPE::IMAGE:
+		{
+			size_t size = header.headerSize;
+			if (header.type == S_UI_TYPE::BUTTON) {
+				size = buttonData.imageDataHeaderSize;
+			}
+			UIImageData imgData{};
+			if (!streamCheck(in, size, sizeof(imgData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(&imgData), size);
+
+			Image* image = nullptr;
+			if (header.type == S_UI_TYPE::BUTTON) {
+				Button* button = dynamic_cast<Button*>(element);
+				image = button->getImage();
+			} else {
+				image = mgr->getRootElement()->createChild<Image>(header.id, dsctx.user.overrideConflictingId);
+			}
+
+			element = image;
+			if (element == nullptr) break;
+
+			image->setTexture(imgData.textureId);
+
+			if (header.type != S_UI_TYPE::BUTTON) break;
+			[[fallthrough]];
+		}
+
+		case S_UI_TYPE::TEXT:
+		{
+			size_t size = header.headerSize;
+			if (header.type == S_UI_TYPE::BUTTON) {
+				size = buttonData.textDataHeaderSize;
+			}
+
+			UITextData textData{};
+			if (!streamCheck(in, size, sizeof(textData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(&textData), size);
+
+			Text* text = nullptr;
+			if (header.type == S_UI_TYPE::BUTTON) {
+				Button* button = dynamic_cast<Button*>(element);
+				text = button->getTextElement();
+			} else {
+				text = mgr->getRootElement()->createChild<Text>(header.id, dsctx.user.overrideConflictingId);
+			}
+
+			element = text;
+			if (element == nullptr) break;
+
+			if (!streamCheck(in, textData.textLength, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
+			std::vector<char> textBuffer(textData.textLength);
+			in.read(textBuffer.data(), textData.textLength);
+
+			text->setText(std::string(textBuffer.data(), textData.textLength));
+			text->setGlyph(textData.glyphId);
+			text->setSpacing(textData.spacing);
+			text->setTextCentered(glm::ivec2(textData.centered[0], textData.centered[1]));
+
+			break;
+		}
+
+		default:
+			return DESERIALIZATION_STATUS::INVALID_DATA;
+		}
+
+		if (element == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+
+		if (header.id != 0) element->setParent(header.parent);
+		element->setPosition(header.position);
+		element->setSize(header.size);
+		element->setCrop(header.crop);
+		element->setColor(header.color);
+		element->setPivot(header.pivot);
+
+		dsctx.meta.push(&element->meta);
+		DESERIALIZATION_STATUS metaStatus = deserializeOperation(in, dsctx, Operation::META);
+		dsctx.meta.pop();
+		if (metaStatus != DESERIALIZATION_STATUS::OK) return metaStatus;
+
+		for (uint32_t i = 0; i < header.childrenCount; i++) {
+			DESERIALIZATION_STATUS status;
+			if ((status = deserializeOperation(in, dsctx, Operation::UI_ELEMENT)) != DESERIALIZATION_STATUS::OK) return status;
+		}
 
 		return DESERIALIZATION_STATUS::OK;
 	}

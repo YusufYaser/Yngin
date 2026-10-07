@@ -10,6 +10,7 @@
 #include <Yngin/Core/Scenes.h>
 
 using namespace Yngin::Services::Serialization;
+using namespace Yngin::Components;
 
 namespace Yngin::Services {
 	bool SerializationService::serialize(std::ostream& out, GameObjectsManager* input) {
@@ -69,6 +70,81 @@ namespace Yngin::Services {
 		out.write(reinterpret_cast<const char*>(&op), sizeof(OperationData));
 		if (!s.view().empty()) out << s.rdbuf();
 		return out.good();
+	}
+
+	DESERIALIZATION_STATUS SerializationService::Impl::validateGameObject(std::istream& in, const Serialization::OperationData& op) {
+		SerializedGameObjectData header{};
+
+		if (!streamCheck(in, op.headerSize, sizeof(header))) return DESERIALIZATION_STATUS::INVALID_DATA;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;
+
+		DESERIALIZATION_STATUS metaStatus;
+		if ((metaStatus = validateOperation(in, Operation::META)) != DESERIALIZATION_STATUS::OK) return metaStatus;
+
+		for (uint8_t i = 0; i < header.componentsCount; i++) {
+			DESERIALIZATION_STATUS status;
+			if ((status = validateOperation(in, Operation::COMPONENT)) != DESERIALIZATION_STATUS::OK) return status;
+		}
+
+		for (uint32_t i = 0; i < header.childrenCount; i++) {
+			DESERIALIZATION_STATUS status;
+			if ((status = validateOperation(in, Operation::GAMEOBJECT)) != DESERIALIZATION_STATUS::OK) return status;
+		}
+
+		return DESERIALIZATION_STATUS::OK;
+	}
+
+	DESERIALIZATION_STATUS SerializationService::Impl::deserializeGameObject(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx) {
+		if (dsctx.scene.empty() || dsctx.scene.top() == nullptr || dsctx.scene.top()->getContext() != ctx) {
+			// Skip the operation data in case we ignore missing context errors
+			if (!streamCheck(in, op.dataSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+			in.seekg(op.dataSize, std::ios::cur);
+			return DESERIALIZATION_STATUS::MISSING_CONTEXT;
+		}
+
+		Scene* scene = dsctx.scene.top();
+
+		SerializedGameObjectData header{};
+
+		if (!streamCheck(in, op.headerSize, sizeof(header))) return DESERIALIZATION_STATUS::INVALID_DATA;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		if (!dsctx.user.overrideConflictingId && scene->getGameObjectsManager()->getGameObject(header.id)) {
+			// Skip the operation data in case we ignore conflicting id errors
+			if (streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+			in.seekg(op.dataSize - op.headerSize, std::ios::cur);
+			return DESERIALIZATION_STATUS::CONFLICTING_ID;
+		}
+
+		GameObject* obj = scene->getGameObjectsManager()->createGameObject(header.id, dsctx.user.overrideConflictingId);
+		if (obj == nullptr && header.id == 0) obj = scene->getGameObjectsManager()->getGameObject(0);
+		if (obj == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+
+		obj->setParent(header.parent);
+		obj->setPosition(header.position);
+		obj->setRotation(header.rotation);
+		obj->setScale(header.scale);
+
+		dsctx.meta.push(&obj->meta);
+		DESERIALIZATION_STATUS metaStatus = deserializeOperation(in, dsctx, Operation::META);
+		dsctx.meta.pop();
+		if (metaStatus != DESERIALIZATION_STATUS::OK) return metaStatus;
+
+		dsctx.gameObject.push(obj);
+		for (uint8_t i = 0; i < header.componentsCount; i++) {
+			DESERIALIZATION_STATUS status;
+			if ((status = deserializeOperation(in, dsctx, Operation::COMPONENT)) != DESERIALIZATION_STATUS::OK) return status;
+		}
+		dsctx.gameObject.pop();
+
+		for (uint32_t i = 0; i < header.childrenCount; i++) {
+			DESERIALIZATION_STATUS status;
+			if ((status = deserializeOperation(in, dsctx, Operation::GAMEOBJECT)) != DESERIALIZATION_STATUS::OK) return status;
+		}
+
+		return DESERIALIZATION_STATUS::OK;
 	}
 
 	bool SerializationService::serialize(std::ostream& out, Components::Component* comp) {
@@ -186,34 +262,10 @@ namespace Yngin::Services {
 		return out.good();
 	}
 
-	DESERIALIZATION_STATUS SerializationService::Impl::validateGameObject(std::istream& in, const Serialization::OperationData& op) {
-		SerializedGameObjectData header;
-
-		if (!streamCheck(in, op.headerSize, sizeof(SerializedGameObjectData))) return DESERIALIZATION_STATUS::INVALID_DATA;
-		in.read(reinterpret_cast<char*>(&header), op.headerSize);
-
-		if (header.id == -1) return DESERIALIZATION_STATUS::INVALID_DATA;
-
-		DESERIALIZATION_STATUS metaStatus;
-		if ((metaStatus = validateOperation(in, Operation::META)) != DESERIALIZATION_STATUS::OK) return metaStatus;
-
-		for (uint8_t i = 0; i < header.componentsCount; i++) {
-			DESERIALIZATION_STATUS status;
-			if ((status = validateOperation(in, Operation::COMPONENT)) != DESERIALIZATION_STATUS::OK) return status;
-		}
-
-		for (uint32_t i = 0; i < header.childrenCount; i++) {
-			DESERIALIZATION_STATUS status;
-			if ((status = validateOperation(in, Operation::GAMEOBJECT)) != DESERIALIZATION_STATUS::OK) return status;
-		}
-
-		return DESERIALIZATION_STATUS::OK;
-	}
-
 	DESERIALIZATION_STATUS SerializationService::Impl::validateComponent(std::istream& in, const Serialization::OperationData& op) {
-		GenericComponentHeader header;
+		GenericComponentHeader header{};
 
-		if (!streamCheck(in, op.headerSize, sizeof(GenericComponentHeader))) return DESERIALIZATION_STATUS::INVALID_DATA;
+		if (!streamCheck(in, op.headerSize, sizeof(header))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
 		switch (header.type) {
@@ -241,6 +293,104 @@ namespace Yngin::Services {
 			if (!streamCheck(in, header.headerSize, sizeof(BoxColliderData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.seekg(header.headerSize, std::ios::cur);
 			break;
+
+		default:
+			return DESERIALIZATION_STATUS::INVALID_DATA;
+		}
+
+		return DESERIALIZATION_STATUS::OK;
+	}
+
+	DESERIALIZATION_STATUS SerializationService::Impl::deserializeComponent(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx) {
+		if (dsctx.gameObject.empty() || dsctx.gameObject.top() == nullptr || dsctx.gameObject.top()->getContext() != ctx) {
+			// Skip the operation data in case we ignore missing context errors
+			if (!streamCheck(in, op.dataSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+			in.seekg(op.dataSize, std::ios::cur);
+			return DESERIALIZATION_STATUS::MISSING_CONTEXT;
+		}
+
+		GameObject* obj = dsctx.gameObject.top();
+
+		GenericComponentHeader header{};
+
+		if (!streamCheck(in, op.headerSize, sizeof(header))) return DESERIALIZATION_STATUS::INVALID_DATA;
+		in.read(reinterpret_cast<char*>(&header), op.headerSize);
+
+		switch (header.type) {
+		case S_COMPONENT_TYPE::MESH:
+		{
+			MeshComponentData meshData{};
+			if (!streamCheck(in, header.headerSize, sizeof(meshData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(&meshData), header.headerSize);
+
+			Mesh* mesh = obj->createComponent<Mesh>();
+			if (mesh == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+			mesh->setModel(meshData.modelId);
+			mesh->setTexture(meshData.textureId);
+			mesh->setColor(meshData.color);
+			for (int i = 0; i < 256; i++) {
+				mesh->setMaterial(i, meshData.materials[i]);
+			}
+
+			break;
+		}
+
+		case S_COMPONENT_TYPE::POINT_LIGHT:
+		{
+			PointLightData pointLightData{};
+			if (!streamCheck(in, header.headerSize, sizeof(pointLightData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(&pointLightData), header.headerSize);
+
+			PointLight* pointLight = obj->createComponent<PointLight>();
+			if (pointLight == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+			pointLight->setIntensity(pointLightData.intensity);
+			pointLight->setDistance(pointLightData.distance);
+			pointLight->setColor(pointLightData.color);
+
+			break;
+		}
+
+		case S_COMPONENT_TYPE::DIRECTIONAL_LIGHT:
+		{
+			DirectionalLightData directionalLightData{};
+			if (!streamCheck(in, header.headerSize, sizeof(directionalLightData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(&directionalLightData), header.headerSize);
+
+			DirectionalLight* directionalLight = obj->createComponent<DirectionalLight>();
+			if (directionalLight == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+			directionalLight->setIntensity(directionalLightData.intensity);
+			directionalLight->setColor(directionalLightData.color);
+
+			break;
+		}
+
+		case S_COMPONENT_TYPE::RIGID_BODY:
+		{
+			RigidBodyData rigidBodyData{};
+			if (!streamCheck(in, header.headerSize, sizeof(rigidBodyData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(&rigidBodyData), header.headerSize);
+
+			RigidBody* rigidBody = obj->createComponent<RigidBody>();
+			if (rigidBody == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+			rigidBody->setMass(rigidBodyData.mass);
+			rigidBody->setVelocity(rigidBodyData.velocity);
+
+			break;
+		}
+
+		case S_COMPONENT_TYPE::BOX_COLLIDER:
+		{
+			BoxColliderData boxColliderData{};
+			if (!streamCheck(in, header.headerSize, sizeof(boxColliderData))) return DESERIALIZATION_STATUS::INVALID_DATA;
+			in.read(reinterpret_cast<char*>(&boxColliderData), header.headerSize);
+
+			BoxCollider* boxCollider = obj->createComponent<BoxCollider>();
+			if (boxCollider == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+			boxCollider->setSize(boxColliderData.size);
+			boxCollider->setOffset(boxColliderData.offset);
+
+			break;
+		}
 
 		default:
 			return DESERIALIZATION_STATUS::INVALID_DATA;

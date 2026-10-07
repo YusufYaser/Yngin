@@ -178,6 +178,12 @@ namespace Yngin::Services {
 		if (validationStatus != DESERIALIZATION_STATUS::OK) return validationStatus;
 
 		InternalDeserializationContext internalDsctx{ deserializationContext };
+
+		internalDsctx.meta.push(deserializationContext.targetMeta);
+		internalDsctx.scene.push(deserializationContext.targetScene);
+		internalDsctx.gameObject.push(deserializationContext.targetGameObject);
+		internalDsctx.UIManager.push(deserializationContext.targetUIManager);
+
 		DESERIALIZATION_STATUS status = DESERIALIZATION_STATUS::OK;
 		while (status == DESERIALIZATION_STATUS::OK) {
 			std::streampos pos = in.tellg();
@@ -239,25 +245,13 @@ namespace Yngin::Services {
 			return deserializeCamera(in, op, dsctx);
 
 		case Operation::GAMEOBJECT:
-		{
-			in.seekg(op.dataSize, std::ios::cur);
-			return DESERIALIZATION_STATUS::OK;
-		}
-		//return deserializeGameObject(in, op, dsctx);
+			return deserializeGameObject(in, op, dsctx);
 
 		case Operation::COMPONENT:
-		{
-			in.seekg(op.dataSize, std::ios::cur);
-			return DESERIALIZATION_STATUS::OK;
-		}
-		//return deserializeComponent(in, op, dsctx);
+			return deserializeComponent(in, op, dsctx);
 
 		case Operation::UI_ELEMENT:
-		{
-			in.seekg(op.dataSize, std::ios::cur);
-			return DESERIALIZATION_STATUS::OK;
-		}
-		//return deserializeUIElement(in, op, dsctx);
+			return deserializeUIElement(in, op, dsctx);
 
 		default:
 			return DESERIALIZATION_STATUS::INVALID_DATA;

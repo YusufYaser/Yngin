@@ -5,7 +5,10 @@
 namespace Yngin {
 	namespace Services {
 		struct DeserializationContext {
-			Scene* scene;
+			Meta* targetMeta;
+			Scene* targetScene;
+			GameObject* targetGameObject;
+			UI::UIManager* targetUIManager;
 			bool allowLoadingTexturesFromDevice;
 			bool ignoreErrorMissingContext;
 			bool ignoreErrorConflictingId;

@@ -183,9 +183,9 @@ namespace Yngin::Services {
 		Model* model = ctx->getModelsManager()->createModel(data, header.id, dsctx.user.overrideConflictingId);
 		if (model == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 
-		dsctx.meta = &model->meta;
+		dsctx.meta.push(&model->meta);
 		DESERIALIZATION_STATUS metaStatus = deserializeOperation(in, dsctx, Operation::META);
-		dsctx.meta = nullptr;
+		dsctx.meta.pop();
 		if (metaStatus != DESERIALIZATION_STATUS::OK) return metaStatus;
 
 		return DESERIALIZATION_STATUS::OK;

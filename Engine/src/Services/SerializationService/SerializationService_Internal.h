@@ -2,11 +2,15 @@
 #include <Yngin/Services/SerializationService.h>
 #include <Yngin/Utils/Meta.h>
 #include "Serializers/SerializationStructs.h"
+#include <stack>
 
 namespace Yngin::Services {
 	struct InternalDeserializationContext {
 		DeserializationContext user;
-		Meta* meta;
+		std::stack<Meta*> meta;
+		std::stack<Scene*> scene;
+		std::stack<GameObject*> gameObject;
+		std::stack<UI::UIManager*> UIManager;
 	};
 
 	struct SerializationService::Impl {
@@ -33,7 +37,7 @@ namespace Yngin::Services {
 		DESERIALIZATION_STATUS validateComponent(std::istream& in, const Serialization::OperationData& op);
 		DESERIALIZATION_STATUS validateUIElement(std::istream& in, const Serialization::OperationData& op);
 
-		// Validators
+		// Deserializers
 		DESERIALIZATION_STATUS deserializeOperation(std::istream& in, InternalDeserializationContext& dsctx, const Serialization::Operation& expectedOp = Serialization::Operation::NO_OP);
 		DESERIALIZATION_STATUS deserializeMeta(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx);
 		DESERIALIZATION_STATUS deserializeModel(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx);

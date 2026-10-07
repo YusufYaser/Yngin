@@ -130,9 +130,9 @@ namespace Yngin::Services {
 			}
 		}
 
-		dsctx.meta = &script->meta;
+		dsctx.meta.push(&script->meta);
 		DESERIALIZATION_STATUS metaStatus = deserializeOperation(in, dsctx, Operation::META);
-		dsctx.meta = nullptr;
+		dsctx.meta.pop();
 		if (metaStatus != DESERIALIZATION_STATUS::OK) return metaStatus;
 
 		return DESERIALIZATION_STATUS::OK;

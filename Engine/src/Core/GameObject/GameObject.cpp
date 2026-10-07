@@ -48,6 +48,7 @@ namespace Yngin {
 	}
 
 	void GameObject::setParent(uint32_t newParentId) {
+		if (impl->id == 0) return;
 		if (impl->parent->getId() == newParentId) return;
 		GameObject* newParent = impl->scene->getGameObjectsManager()->getGameObject(newParentId);
 		if (newParent) setParent(newParent);

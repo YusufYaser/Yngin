@@ -338,9 +338,9 @@ namespace Yngin::Services {
 
 		if (tex == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 
-		dsctx.meta = &tex->meta;
+		dsctx.meta.push(&tex->meta);
 		DESERIALIZATION_STATUS metaStatus = deserializeOperation(in, dsctx, Operation::META);
-		dsctx.meta = nullptr;
+		dsctx.meta.pop();
 		if (metaStatus != DESERIALIZATION_STATUS::OK) return metaStatus;
 
 		return DESERIALIZATION_STATUS::OK;
