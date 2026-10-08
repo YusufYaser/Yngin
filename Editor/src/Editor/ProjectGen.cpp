@@ -17,7 +17,6 @@ bool Editor::generateNewProject(std::string path) {
 	fs::create_directory("temp");
 	fs::create_directory("bin");
 	fs::create_directory("data");
-	fs::create_directory("data/scenes");
 
 	Context* ctx = new Context();
 

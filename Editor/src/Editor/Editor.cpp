@@ -111,6 +111,8 @@ Editor::Editor(std::string path) {
 		mutex = CreateMutexA(NULL, TRUE, name.c_str());
 		if (mutex == nullptr) {
 			printf("CreateMutex failed: %lu\n", GetLastError());
+			showStartWindow();
+			return;
 		}
 
 		if (GetLastError() == ERROR_ALREADY_EXISTS) {
@@ -130,7 +132,6 @@ Editor::Editor(std::string path) {
 	fs::create_directory("temp");
 	fs::create_directory("bin");
 	fs::create_directory("data");
-	fs::create_directory("data/scenes");
 
 	fs::path cwd = fs::current_path();
 	projectName = cwd.filename().string();
@@ -160,52 +161,35 @@ Editor::Editor(std::string path) {
 	DwmSetWindowAttribute(glfwGetWin32Window(ctx->getWindow()->getGLFWwindow()), 20, &darkMode, sizeof(BOOL));
 #endif
 
-	{
-		std::ifstream file("data/core.pak", std::ios::binary);
-		if (file.is_open()) {
-			std::ostringstream bytes(std::ios::binary);
-			bytes << file.rdbuf();
-			file.close();
-			PakLoadSettings settings{};
-			settings.applyContextSettings = false;
-			settings.loadScripts = false;
+	activeScene = ctx->getScenesManager()->createScene(0, true);
 
-			ctx->pushLoadPakSettings(settings);
-			ctx->loadCorePak(bytes.str().c_str(), bytes.str().size());
-			ctx->popLoadPakSettings();
-			bytes.clear();
-		}
-	}
+	Services::SerializationService* serializationService = ctx->getService<Services::SerializationService>();
+	Services::DeserializationContext deserializationContext{};
+	//deserializationContext.allowLoadingTexturesFromDevice = true;
+	deserializationContext.overrideConflictingId = true;
+	deserializationContext.targetScene = activeScene;
 
 	{
-		std::ifstream file("data/resources.pak", std::ios::binary);
+		std::ifstream file("data/resources.bin", std::ios::binary);
 		if (file.is_open()) {
-			std::ostringstream bytes(std::ios::binary);
-			bytes << file.rdbuf();
+			serializationService->load(file, deserializationContext);
 			file.close();
-			ctx->loadResourcesPak(bytes.str().c_str(), bytes.str().size());
-			bytes.clear();
 		}
 	}
 
 	ctx->meta.setMeta("#IsEditor", 1);
 	ctx->setMaxFPS(0);
 
-	activeScene = ctx->getScenesManager()->createScene();
-
 	{
-		std::ifstream file("data/scenes/scene0.pak", std::ios::binary);
+		Meta sceneInfo{};
+		std::ifstream file("data/scene0.bin", std::ios::binary);
 		if (file.is_open()) {
-			std::ostringstream bytes(std::ios::binary);
-			bytes << file.rdbuf();
+			deserializationContext.targetMeta = &sceneInfo;
+			serializationService->load(file, deserializationContext);
+			deserializationContext.targetMeta = nullptr;
+			activeScene->setGravity(sceneInfo.getMetaFloat("gravity", 9.8f));
+			activeScene->setSkyboxTexture(sceneInfo.getMetaInt("skyboxTextureId", 0));
 			file.close();
-			PakLoadSettings settings{};
-			settings.loadScripts = false;
-
-			ctx->pushLoadPakSettings(settings);
-			activeScene = ctx->getScenesManager()->createScene(bytes.str().c_str(), bytes.str().size(), 0, true);
-			ctx->popLoadPakSettings();
-			bytes.clear();
 		}
 	}
 	activeScene->activate();
@@ -391,7 +375,6 @@ void Editor::saveProject() {
 
 	if (saveContext(ctx, scripts)) {
 		lastSaved = ctx->getTime();
-		printf("[Yngin Editor] Saved Project\n");
 	}
 }
 
@@ -400,48 +383,41 @@ bool Editor::saveContext(Yngin::Context* ctx, std::map<uint32_t, EditorScript> s
 
 	fs::create_directory("temp");
 	fs::create_directory("bin");
-	fs::create_directory("data/scenes");
 
-	std::ofstream core("data/core.pak", std::ios::binary);
-	std::ofstream resources("data/resources.pak", std::ios::binary);
+	std::ofstream resources("data/resources.bin", std::ios::binary);
+	std::ofstream sceneFile("data/scene0.bin", std::ios::binary);
 	std::ofstream scriptsFile("data/scripts_editor.pak", std::ios::binary);
 
-	std::map<uint32_t, std::ofstream> scenesFiles;
-
-	bool allScenesFilesOpened = true;
-
-	for (auto& scene : ctx->getScenesManager()->getScenes()) {
-		if (scene->meta.getMetaInt("#NoExport", 0) == 1) continue;
-
-		scenesFiles[scene->getId()] = std::ofstream(("data/scenes/scene" + std::to_string(scene->getId()) + ".pak").c_str(), std::ios::binary);
-
-		if (!scenesFiles[scene->getId()].is_open()) allScenesFilesOpened = false;
-	}
-
-	if (!allScenesFilesOpened || !core.is_open() || !resources.is_open() || !scriptsFile.is_open()) {
-		core.close();
+	if (!resources.is_open() || !sceneFile.is_open() || !scriptsFile.is_open()) {
 		resources.close();
+		sceneFile.close();
 		scriptsFile.close();
 
-		for (auto& [id, file] : scenesFiles) {
-			file.close();
-		}
-		scenesFiles.clear();
+		printf("[Yngin Editor] Failed to write to project files to save the project\n");
 
 		return false;
 	}
 
-	{
-		std::vector<char> bytes = ctx->generateCorePak();
-		core.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
-		core.close();
-	}
+	Services::SerializationService* serializationService = ctx->getService<Services::SerializationService>();
 
-	{
-		std::vector<char> bytes = ctx->generateResourcesPak();
-		resources.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
-		resources.close();
-	}
+	printf("[Yngin Editor] Saving Resources\n");
+	serializationService->serialize(resources, ctx->getTexturesManager(), false);
+	serializationService->serialize(resources, ctx->getMaterialsManager());
+	serializationService->serialize(resources, ctx->getModelsManager());
+
+	printf("[Yngin Editor] Saving Scene\n");
+	Scene* scene = ctx->getScenesManager()->getScene(0);
+
+	Meta sceneInfo{};
+	sceneInfo.setMeta("skyboxTextureId", (int)scene->getSkyboxTextureId());
+	sceneInfo.setMeta("gravity", scene->getGravity());
+	serializationService->serialize(sceneFile, sceneInfo);
+
+	serializationService->serialize(sceneFile, scene->getCamerasManager());
+	serializationService->serialize(sceneFile, scene->getGameObjectsManager());
+	serializationService->serialize(sceneFile, scene->getUIManager());
+
+	printf("[Yngin Editor] Saving Scripts\n");
 
 	{
 		ScriptFileHeader header{};
@@ -464,18 +440,11 @@ bool Editor::saveContext(Yngin::Context* ctx, std::map<uint32_t, EditorScript> s
 		scriptsFile.close();
 	}
 
-	{
-		for (auto& scene : ctx->getScenesManager()->getScenes()) {
-			if (scene->meta.getMetaInt("#NoExport", 0) == 1) continue;
+	resources.close();
+	sceneFile.close();
+	scriptsFile.close();
 
-			std::ofstream& file = scenesFiles[scene->getId()];
-			if (file.is_open()) {
-				std::vector<char> bytes = scene->generatePak();
-				file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
-				file.close();
-			}
-		}
-	}
+	printf("[Yngin Editor] Saved Project\n");
 
 	return true;
 }
@@ -579,49 +548,52 @@ void Editor::togglePlayMode() {
 }
 
 void Editor::setupPreviousGameState() {
-	std::ofstream file("temp/previous_game_state.pak", std::ios::binary);
+	Services::SerializationService* serializationService = ctx->getService<Services::SerializationService>();
+
+	std::ofstream file("temp/previous_game_state.bin", std::ios::binary);
 	if (file) {
-		std::vector<char> bytes = ctx->generateGamePak();
-		file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+		Scene* scene = ctx->getScenesManager()->getScene(0);
+
+		Meta sceneInfo{};
+		sceneInfo.setMeta("skyboxTextureId", (int)scene->getSkyboxTextureId());
+		sceneInfo.setMeta("gravity", scene->getGravity());
+
+		serializationService->serialize(file, ctx->getTexturesManager(), false);
+		serializationService->serialize(file, ctx->getMaterialsManager());
+		serializationService->serialize(file, ctx->getModelsManager());
+		serializationService->serialize(file, sceneInfo);
+		serializationService->serialize(file, scene->getCamerasManager());
+		serializationService->serialize(file, scene->getGameObjectsManager());
+		serializationService->serialize(file, scene->getUIManager());
 		file.close();
 	}
 }
 
 void Editor::loadPreviousGameState() {
-	std::ifstream gamePak("temp/previous_game_state.pak", std::ios::binary);
-	if (gamePak.is_open()) {
+	Services::SerializationService* serializationService = ctx->getService<Services::SerializationService>();
+
+	std::ifstream file("temp/previous_game_state.bin", std::ios::binary);
+	if (file.is_open()) {
 		uint32_t activeSceneId = activeScene->getId();
 		uint32_t editorCameraId = editorCamera->getId();
 
 		resetContext();
 
-		std::ostringstream gameBytes(std::ios::binary);
-		gameBytes << gamePak.rdbuf();
-		gamePak.close();
+		activeScene = ctx->getScenesManager()->createScene(0, true);
 
-		std::remove("temp/previous_game_state.pak");
+		Meta sceneInfo{};
 
-		Window* window = ctx->getWindow();
-		std::string title = window->getTitle();
-		glm::ivec2 pos = window->getPosition();
-		glm::ivec2 size = window->getSize();
-		bool fullscreen = window->isFullscreen();
+		Services::DeserializationContext deserializationContext{};
+		deserializationContext.overrideConflictingId = true;
+		deserializationContext.targetScene = activeScene;
+		deserializationContext.targetMeta = &sceneInfo;
 
-		PakLoadSettings settings{};
-		settings.applyContextSettings = false;
+		serializationService->load(file, deserializationContext);
+		file.close();
 
-		ctx->pushLoadPakSettings(settings);
-		ctx->loadGamePak(gameBytes.str().c_str(), gameBytes.str().size());
-		ctx->popLoadPakSettings();
+		activeScene->setGravity(sceneInfo.getMetaFloat("gravity", 9.8f));
+		activeScene->setSkyboxTexture(sceneInfo.getMetaInt("skyboxTextureId", 0));
 
-		gameBytes.clear();
-
-		window->setTitle(title.c_str());
-		window->setPosition(pos);
-		window->setSize(size);
-		window->setFullscreen(fullscreen);
-
-		activeScene = ctx->getScenesManager()->getScene(activeSceneId);
 		editorCamera = activeScene->getCamerasManager()->getCamera(editorCameraId);
 
 		activeScene->activate();
