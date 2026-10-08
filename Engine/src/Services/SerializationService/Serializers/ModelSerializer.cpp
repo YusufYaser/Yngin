@@ -180,6 +180,11 @@ namespace Yngin::Services {
 			data.indices.push_back(indexData.index);
 		}
 
+		data.materialsCount = header.materialsCount;
+		for (uint32_t i = 0; i < data.materialsCount; i++) {
+			data.defaultMaterials[i] = header.defaultMaterials[i];
+		}
+
 		Model* model = ctx->getModelsManager()->createModel(data, header.id, dsctx.user.overrideConflictingId);
 		if (model == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 
