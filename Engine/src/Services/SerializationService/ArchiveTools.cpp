@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include "ArchiveTools.h"
+#include <lz4/lz4.h>
 
 using namespace Yngin::Services::ArchiveTools;
 using namespace Yngin::Services::Serialization;
@@ -51,6 +52,7 @@ namespace Yngin::Services {
 				SerializedTextureData texHeader{};
 				in.read(reinterpret_cast<char*>(&texHeader), op.headerSize);
 
+				entry.type = ENTRY_TYPE::TEXTURE;
 				entry.id = texHeader.id;
 
 				strcpy_s(entry.slug, sizeof(entry.slug), texHeader.slug);
@@ -60,6 +62,7 @@ namespace Yngin::Services {
 				SerializedMaterialData matHeader{};
 				in.read(reinterpret_cast<char*>(&matHeader), op.headerSize);
 
+				entry.type = ENTRY_TYPE::MATERIAL;
 				entry.id = matHeader.id;
 
 				strcpy_s(entry.slug, sizeof(entry.slug), matHeader.slug);
@@ -69,6 +72,7 @@ namespace Yngin::Services {
 				SerializedModelData modelHeader{};
 				in.read(reinterpret_cast<char*>(&modelHeader), op.headerSize);
 
+				entry.type = ENTRY_TYPE::MODEL;
 				entry.id = modelHeader.id;
 
 				strcpy_s(entry.slug, sizeof(entry.slug), modelHeader.slug);
@@ -78,6 +82,7 @@ namespace Yngin::Services {
 				SerializedScriptData scriptHeader{};
 				in.read(reinterpret_cast<char*>(&scriptHeader), op.headerSize);
 
+				entry.type = ENTRY_TYPE::SCRIPT;
 				entry.id = scriptHeader.id;
 
 				strcpy_s(entry.slug, sizeof(entry.slug), scriptHeader.slug);
@@ -85,15 +90,31 @@ namespace Yngin::Services {
 				in.seekg(-static_cast<std::streamoff>(op.headerSize), std::ios::cur);
 			}
 
+			in.seekg(-static_cast<std::streamoff>(sizeof(op)), std::ios::cur);
+
 			entry.offset = data.view().size();
 
-			std::vector<char> entryData(op.dataSize);
-			in.read(entryData.data(), op.dataSize);
-			data.write(reinterpret_cast<const char*>(&op), sizeof(op));
-			data.write(entryData.data(), op.dataSize);
+			entry.uncompressedSize = sizeof(op) + op.dataSize;
 
-			entry.uncompressedSize = data.view().size() - entry.offset;
-			entry.compressedSize = entry.uncompressedSize;
+			if (entry.uncompressedSize > LZ4_MAX_INPUT_SIZE) throw std::runtime_error("Input too large");
+
+			std::vector<char> inputBuffer(entry.uncompressedSize);
+			in.read(inputBuffer.data(), entry.uncompressedSize);
+
+			int maxCompressedSize = LZ4_compressBound(entry.uncompressedSize);
+
+			std::vector<char> compressed(maxCompressedSize);
+
+			entry.compressedSize = LZ4_compress_default(
+				inputBuffer.data(),
+				compressed.data(),
+				entry.uncompressedSize,
+				maxCompressedSize
+			);
+
+			data.write(compressed.data(), entry.compressedSize);
+
+			entry.compressionType = COMPRESSION_TYPE::LZ4;
 
 			entries.push_back(entry);
 		}

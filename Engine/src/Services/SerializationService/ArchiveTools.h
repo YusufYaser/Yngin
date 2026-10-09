@@ -15,6 +15,7 @@ namespace Yngin::Services::ArchiveTools {
 
 	enum class COMPRESSION_TYPE : uint8_t {
 		NO_COMPRESSION = 0,
+		LZ4,
 	};
 
 	struct ArchiveHeader {
