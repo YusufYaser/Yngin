@@ -6,13 +6,19 @@
 #include "ArchiveTools.h"
 #include <lz4/lz4.h>
 
+#define LOGGER_NAME SerializationService
+#include "../../Internal/Logger.h"
+
 using namespace Yngin::Services::ArchiveTools;
 using namespace Yngin::Services::Serialization;
 
 namespace Yngin::Services {
 	std::vector<char> SerializationService::createArchive(std::istream& in, const CreateArchiveSettings& settings) {
 		std::streampos originalPos = in.tellg();
-		if (validate(in) != DESERIALIZATION_STATUS::OK) return {};
+		if (validate(in) != DESERIALIZATION_STATUS::OK) {
+			DEBUG("Cannot create archive from invalid serialized data");
+			return {};
+		}
 		in.seekg(originalPos);
 
 		std::stringstream s;
@@ -31,6 +37,7 @@ namespace Yngin::Services {
 
 		std::stringstream data;
 
+		DEBUG("Creating archive from serialized data");
 		while (in.good() && !in.eof()) {
 			OperationData op{};
 
@@ -43,6 +50,7 @@ namespace Yngin::Services {
 			in.read(reinterpret_cast<char*>(&op), sizeof(OperationData));
 
 			if (op.op != Operation::TEXTURE && op.op != Operation::MATERIAL && op.op != Operation::MODEL && op.op != Operation::SCRIPT) {
+				TRACE("Skipping unsupported operation: %i", (int)op.op);
 				in.seekg(op.dataSize, std::ios::cur);
 				continue;
 			}
@@ -118,6 +126,9 @@ namespace Yngin::Services {
 			entry.compressionType = COMPRESSION_TYPE::LZ4;
 
 			entries.push_back(entry);
+
+			TRACE("Added entry to archive: type=%i, id=%i, slug=%s, offset=%llu, compressedSize=%u, uncompressedSize=%llu",
+				(int)entry.type, entry.id, entry.slug, entry.offset, entry.compressedSize, entry.uncompressedSize);
 		}
 
 		header.entriesCount = entries.size();
@@ -133,6 +144,8 @@ namespace Yngin::Services {
 
 		auto archive = std::vector<char>(s.view().begin(), s.view().end());
 
+		DEBUG("Created a new archive with %i entries and total size %zu", header.entriesCount, archive.size());
+
 		return archive;
 	}
 
@@ -145,8 +158,14 @@ namespace Yngin::Services {
 
 		in.read(reinterpret_cast<char*>(&header), headerInfoSize);
 
-		if (std::memcmp(header.magic, "YNGN", 4) != 0) return false;
-		if (header.archiveVersion > ArchiveTools::archiveVersion) return false;
+		if (std::memcmp(header.magic, "YNGN", 4) != 0) {
+			DEBUG("Invalid archive magic number");
+			return false;
+		}
+		if (header.archiveVersion > ArchiveTools::archiveVersion) {
+			DEBUG("Unsupported archive version: %u", header.archiveVersion);
+			return false;
+		}
 
 		in.seekg(start);
 
@@ -166,8 +185,10 @@ namespace Yngin::Services {
 
 			in.seekg(start + static_cast<std::streampos>(entry.offset));
 
-			if (entry.compressedSize > INT_MAX || entry.uncompressedSize > LZ4_MAX_INPUT_SIZE)
+			if (entry.compressedSize > INT_MAX || entry.uncompressedSize > LZ4_MAX_INPUT_SIZE) {
+				TRACE("Skipping invalid size data: entryType=%u, entryId=%u, compressedSize=%u, uncompressedSize=%llu", (int)entry.type, entry.id, entry.compressedSize, entry.uncompressedSize);
 				continue;
+			}
 
 			std::vector<char> compressed(entry.compressedSize);
 			in.read(compressed.data(), entry.compressedSize);
@@ -192,6 +213,8 @@ namespace Yngin::Services {
 
 			good = good && (deserializationStatus == DESERIALIZATION_STATUS::OK);
 		}
+
+		DEBUG("Loaded %i entries from archive with status: %s", header.entriesCount, good ? "OK" : "ERROR");
 
 		return good;
 	}

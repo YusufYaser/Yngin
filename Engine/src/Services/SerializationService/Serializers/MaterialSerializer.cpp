@@ -4,6 +4,9 @@
 #include "SerializationStructs.h"
 #include <sstream>
 
+#define LOGGER_NAME SerializationService
+#include "../../../Internal/Logger.h"
+
 using namespace Yngin::Services::Serialization;
 
 namespace Yngin::Services {
@@ -22,7 +25,10 @@ namespace Yngin::Services {
 	}
 
 	bool SerializationService::serialize(std::ostream& out, Material* material) {
-		if (impl->shouldSkip(material->meta)) return true;
+		if (impl->shouldSkip(material->meta)) {
+			TRACE("Skipping material with id %u", material->getId());
+			return true;
+		}
 
 		std::stringstream s;
 
@@ -72,10 +78,13 @@ namespace Yngin::Services {
 
 		if (ctx->getMaterialsManager()->getMaterial(header.id)) {
 			if (!dsctx.user.overrideConflictingId) {
+				TRACE("Skipping conflicting material id: %i", header.id);
 				// Skip the operation data in case we ignore conflicting id errors
 				if (!streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 				in.seekg(op.dataSize - op.headerSize, std::ios::cur);
 				return DESERIALIZATION_STATUS::CONFLICTING_ID;
+			} else {
+				TRACE("Overriding conflicting material id: %i", header.id);
 			}
 		}
 

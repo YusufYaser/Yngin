@@ -5,6 +5,9 @@
 #include "SerializationStructs.h"
 #include <sstream>
 
+#define LOGGER_NAME SerializationService
+#include "../../../Internal/Logger.h"
+
 using namespace Yngin::Services::Serialization;
 
 namespace Yngin::Services {
@@ -23,7 +26,10 @@ namespace Yngin::Services {
 	}
 
 	bool SerializationService::serialize(std::ostream& out, Model* model) {
-		if (impl->shouldSkip(model->meta)) return true;
+		if (impl->shouldSkip(model->meta)) {
+			TRACE("Skipping model with id %u", model->getId());
+			return true;
+		}
 
 		std::stringstream s;
 
@@ -132,10 +138,13 @@ namespace Yngin::Services {
 
 		if (ctx->getModelsManager()->getModel(header.id)) {
 			if (!dsctx.user.overrideConflictingId) {
+				TRACE("Skippin conflicting model id: %i", header.id);
 				// Skip the operation data in case we ignore conflicting id errors
 				if (!streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 				in.seekg(op.dataSize - op.headerSize, std::ios::cur);
 				return DESERIALIZATION_STATUS::CONFLICTING_ID;
+			} else {
+				TRACE("Overriding conflicting model id: %i", header.id);
 			}
 		}
 

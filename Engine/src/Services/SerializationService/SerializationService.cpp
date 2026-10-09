@@ -3,6 +3,9 @@
 #include "Serializers/SerializationStructs.h"
 #include <iostream>
 
+#define LOGGER_NAME SerializationService
+#include "../../Internal/Logger.h"
+
 using namespace Yngin::Services::Serialization;
 
 namespace Yngin::Services {
@@ -114,7 +117,7 @@ namespace Yngin::Services {
 	}
 
 	DESERIALIZATION_STATUS SerializationService::Impl::validateOperation(std::istream& in, const Operation& expectedOp) {
-		OperationData op;
+		OperationData op{};
 
 		if (!streamCheck(in, sizeof(uint16_t), sizeof(uint16_t))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&op.schemaVersion), sizeof(uint16_t));
@@ -184,6 +187,10 @@ namespace Yngin::Services {
 		internalDsctx.gameObject.push(deserializationContext.targetGameObject);
 		internalDsctx.UIManager.push(deserializationContext.targetUIManager);
 
+#		ifdef _DEBUG
+		int operationCount = 0;
+#		endif
+
 		DESERIALIZATION_STATUS status = DESERIALIZATION_STATUS::OK;
 		while (status == DESERIALIZATION_STATUS::OK) {
 			std::streampos pos = in.tellg();
@@ -197,13 +204,18 @@ namespace Yngin::Services {
 				|| (deserializationContext.ignoreErrorConflictingId && status == DESERIALIZATION_STATUS::CONFLICTING_ID)) {
 				status = DESERIALIZATION_STATUS::OK;
 			}
+#		ifdef _DEBUG
+			operationCount++;
+#		endif
 		}
+
+		DEBUG("Loaded %i operations", operationCount);
 
 		return status;
 	}
 
 	DESERIALIZATION_STATUS SerializationService::Impl::deserializeOperation(std::istream& in, InternalDeserializationContext& dsctx, const Serialization::Operation& expectedOp) {
-		OperationData op;
+		OperationData op{};
 
 		in.read(reinterpret_cast<char*>(&op.schemaVersion), sizeof(uint16_t));
 
@@ -219,6 +231,7 @@ namespace Yngin::Services {
 
 		if (expectedOp != Operation::NO_OP && op.op != expectedOp) return DESERIALIZATION_STATUS::INVALID_DATA;
 
+		TRACE("Deserializing operation: op=%i, schema=%i, headerSize=%i, dataSize=%llu", (int)op.op, op.schemaVersion, op.headerSize, op.dataSize);
 		switch (op.op) {
 		case Operation::NO_OP:
 		{

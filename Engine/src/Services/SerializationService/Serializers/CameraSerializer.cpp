@@ -5,6 +5,9 @@
 #include "SerializationStructs.h"
 #include <sstream>
 
+#define LOGGER_NAME SerializationService
+#include "../../../Internal/Logger.h"
+
 using namespace Yngin::Services::Serialization;
 
 namespace Yngin::Services {
@@ -23,7 +26,10 @@ namespace Yngin::Services {
 	}
 
 	bool SerializationService::serialize(std::ostream& out, Camera* camera) {
-		if (impl->shouldSkip(camera->meta)) return true;
+		if (impl->shouldSkip(camera->meta)) {
+			TRACE("Skipping camera with id %u", camera->getId());
+			return true;
+		}
 
 		std::stringstream s;
 
@@ -47,6 +53,7 @@ namespace Yngin::Services {
 
 		out.write(reinterpret_cast<const char*>(&op), sizeof(OperationData));
 		if (!s.view().empty()) out << s.rdbuf();
+
 		return out.good();
 	}
 
@@ -66,6 +73,7 @@ namespace Yngin::Services {
 
 	DESERIALIZATION_STATUS SerializationService::Impl::deserializeCamera(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx) {
 		if (dsctx.scene.empty() || dsctx.scene.top() == nullptr || dsctx.scene.top()->getContext() != ctx) {
+			TRACE("Missing scene context for camera deserialization");
 			// Skip the operation data in case we ignore missing context errors
 			if (!streamCheck(in, op.dataSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 			in.seekg(op.dataSize, std::ios::cur);
@@ -80,10 +88,13 @@ namespace Yngin::Services {
 
 		if (scene->getCamerasManager()->getCamera(header.id)) {
 			if (!dsctx.user.overrideConflictingId) {
+				TRACE("Skipping conflicting camera id: %i", header.id);
 				// Skip the operation data in case we ignore conflicting id errors
 				if (!streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 				in.seekg(op.dataSize - op.headerSize, std::ios::cur);
 				return DESERIALIZATION_STATUS::CONFLICTING_ID;
+			} else {
+				TRACE("Overriding conflicting camera id: %i", header.id);
 			}
 		}
 
@@ -99,6 +110,8 @@ namespace Yngin::Services {
 		DESERIALIZATION_STATUS metaStatus = deserializeOperation(in, dsctx, Operation::META);
 		dsctx.meta.pop();
 		if (metaStatus != DESERIALIZATION_STATUS::OK) return metaStatus;
+
+		TRACE("Loaded camera with id %u into scene %u", camera->getId(), scene->getId());
 
 		return DESERIALIZATION_STATUS::OK;
 	}

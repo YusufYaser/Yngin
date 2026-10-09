@@ -4,6 +4,9 @@
 #include "SerializationStructs.h"
 #include <sstream>
 
+#define LOGGER_NAME SerializationService
+#include "../../../Internal/Logger.h"
+
 using namespace Yngin::Services::Serialization;
 
 namespace Yngin::Services {
@@ -35,6 +38,8 @@ namespace Yngin::Services {
 			header.metasCount++;
 			metas[key] = val;
 		}
+
+		TRACE("Deserializing %zu metas", header.metasCount);
 
 		s.write(reinterpret_cast<const char*>(&header), sizeof(SerializedMetasHeader));
 

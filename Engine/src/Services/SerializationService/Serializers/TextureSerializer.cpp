@@ -7,6 +7,9 @@
 #include <stb/stb_image_write.h>
 #include <stb/stb_image.h>
 
+#define LOGGER_NAME SerializationService
+#include "../../../Internal/Logger.h"
+
 using namespace Yngin::Services::Serialization;
 
 namespace Yngin::Services {
@@ -224,10 +227,13 @@ namespace Yngin::Services {
 
 		if (ctx->getTexturesManager()->getTexture(header.id)) {
 			if (!dsctx.user.overrideConflictingId) {
+				TRACE("Skipping conflicting texture id: %i", header.id);
 				// Skip the operation data in case we ignore conflicting id errors
 				if (!streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 				in.seekg(op.dataSize - op.headerSize, std::ios::cur);
 				return DESERIALIZATION_STATUS::CONFLICTING_ID;
+			} else {
+				TRACE("Overriding conflicting texture id: %i", header.id);
 			}
 		}
 

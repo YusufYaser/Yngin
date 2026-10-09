@@ -6,6 +6,9 @@
 #include <Yngin/Core/Scenes.h>
 #include "../../../Core/Scripting/Scripting_Internal.h"
 
+#define LOGGER_NAME SerializationService
+#include "../../../Internal/Logger.h"
+
 using namespace Yngin::Services::Serialization;
 
 namespace Yngin::Services {
@@ -24,7 +27,10 @@ namespace Yngin::Services {
 	}
 
 	bool SerializationService::serialize(std::ostream& out, Script* script) {
-		if (impl->shouldSkip(script->meta)) return true;
+		if (impl->shouldSkip(script->meta)) {
+			TRACE("Skipping script with id %u", script->getId());
+			return true;
+		}
 
 		std::stringstream s;
 
@@ -81,10 +87,13 @@ namespace Yngin::Services {
 
 		if (ctx->getScriptsManager()->getScript(header.id)) {
 			if (!dsctx.user.overrideConflictingId) {
+				TRACE("Skipping conflicting script id: %i", header.id);
 				// Skip the operation data in case we ignore conflicting id errors
 				if (!streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 				in.seekg(op.dataSize - op.headerSize, std::ios::cur);
 				return DESERIALIZATION_STATUS::CONFLICTING_ID;
+			} else {
+				TRACE("Overriding conflicting script id: %i", header.id);
 			}
 		}
 

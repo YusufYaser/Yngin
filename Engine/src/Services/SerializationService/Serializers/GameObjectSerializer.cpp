@@ -9,6 +9,9 @@
 #include <sstream>
 #include <Yngin/Core/Scenes.h>
 
+#define LOGGER_NAME SerializationService
+#include "../../../Internal/Logger.h"
+
 using namespace Yngin::Services::Serialization;
 using namespace Yngin::Components;
 
@@ -18,7 +21,10 @@ namespace Yngin::Services {
 	}
 
 	bool SerializationService::serialize(std::ostream& out, GameObject* obj, int childrenDepth) {
-		if (impl->shouldSkip(obj->meta)) return true;
+		if (impl->shouldSkip(obj->meta)) {
+			TRACE("Skipping game object with id %u", obj->getId());
+			return true;
+		}
 
 		std::stringstream s;
 
@@ -98,6 +104,7 @@ namespace Yngin::Services {
 
 	DESERIALIZATION_STATUS SerializationService::Impl::deserializeGameObject(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx) {
 		if (dsctx.scene.empty() || dsctx.scene.top() == nullptr || dsctx.scene.top()->getContext() != ctx) {
+			TRACE("Missing scene context for game object deserialization");
 			// Skip the operation data in case we ignore missing context errors
 			if (!streamCheck(in, op.dataSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 			in.seekg(op.dataSize, std::ios::cur);
@@ -112,10 +119,15 @@ namespace Yngin::Services {
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
 		if (!dsctx.user.overrideConflictingId && scene->getGameObjectsManager()->getGameObject(header.id)) {
-			// Skip the operation data in case we ignore conflicting id errors
-			if (!streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
-			in.seekg(op.dataSize - op.headerSize, std::ios::cur);
-			return DESERIALIZATION_STATUS::CONFLICTING_ID;
+			if (!dsctx.user.overrideConflictingId) {
+				TRACE("Skipping conflicting game object id: %i", header.id);
+				// Skip the operation data in case we ignore conflicting id errors
+				if (!streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+				in.seekg(op.dataSize - op.headerSize, std::ios::cur);
+				return DESERIALIZATION_STATUS::CONFLICTING_ID;
+			} else {
+				TRACE("Overriding conflicting game object id: %i", header.id);
+			}
 		}
 
 		GameObject* obj = scene->getGameObjectsManager()->createGameObject(header.id, dsctx.user.overrideConflictingId);
@@ -303,6 +315,7 @@ namespace Yngin::Services {
 
 	DESERIALIZATION_STATUS SerializationService::Impl::deserializeComponent(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx) {
 		if (dsctx.gameObject.empty() || dsctx.gameObject.top() == nullptr || dsctx.gameObject.top()->getContext() != ctx) {
+			TRACE("Missing game object context for component deserialization");
 			// Skip the operation data in case we ignore missing context errors
 			if (!streamCheck(in, op.dataSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 			in.seekg(op.dataSize, std::ios::cur);

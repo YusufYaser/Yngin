@@ -6,6 +6,9 @@
 #include <sstream>
 #include <Yngin/Rendering/Textures.h>
 
+#define LOGGER_NAME SerializationService
+#include "../../../Internal/Logger.h"
+
 using namespace Yngin::Services::Serialization;
 using namespace Yngin::UI;
 
@@ -15,7 +18,10 @@ namespace Yngin::Services {
 	}
 
 	bool SerializationService::serialize(std::ostream& out, UIElement* element, int childrenDepth) {
-		if (impl->shouldSkip(element->meta)) return true;
+		if (impl->shouldSkip(element->meta)) {
+			TRACE("Skipping UI element with id %u", element->getId());
+			return true;
+		}
 
 		std::stringstream s;
 		std::stringstream depend;
@@ -230,6 +236,7 @@ namespace Yngin::Services {
 
 	DESERIALIZATION_STATUS SerializationService::Impl::deserializeUIElement(std::istream& in, const Serialization::OperationData& op, InternalDeserializationContext& dsctx) {
 		if (dsctx.UIManager.empty() || dsctx.UIManager.top() == nullptr || dsctx.UIManager.top()->getContext() != ctx) {
+			TRACE("Missing UIManager context for UI element deserialization");
 			// Skip the operation data in case we ignore missing context errors
 			if (!streamCheck(in, op.dataSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 			in.seekg(op.dataSize, std::ios::cur);
