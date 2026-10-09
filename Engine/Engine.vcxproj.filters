@@ -1095,6 +1095,9 @@
     <ClInclude Include="src\Services\SerializationService\Serializers\SerializationStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Services\SerializationService\ArchiveTools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c">
@@ -1662,6 +1665,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Services\SerializationService\Serializers\MaterialSerializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\SerializationService\ArchiveTools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

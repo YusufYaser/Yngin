@@ -26,6 +26,10 @@ namespace Yngin {
 			PERMISSION_ERROR,
 		};
 
+		struct CreateArchiveSettings {
+
+		};
+
 		class SerializationService : public Service {
 		public:
 			void pushSkipMetaKeys(const std::vector<std::string>& values);
@@ -33,8 +37,10 @@ namespace Yngin {
 			void pushIgnoredMetaPrefixes(const std::vector<std::string>& values);
 			std::vector<std::string> popIgnoredMetaPrefixes();
 
+			std::vector<char> createArchive(std::istream& serializedData, const CreateArchiveSettings& settings = {});
+
 			DESERIALIZATION_STATUS validate(std::istream& in);
-			DESERIALIZATION_STATUS load(std::istream& in, const DeserializationContext& deserializationContext);
+			DESERIALIZATION_STATUS load(std::istream& in, const DeserializationContext& deserializationContext = {});
 
 			bool serialize(std::ostream& out, const Meta& input);
 
