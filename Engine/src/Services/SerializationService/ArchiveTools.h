@@ -36,7 +36,7 @@ namespace Yngin::Services::ArchiveTools {
 		ENTRY_TYPE type;
 		COMPRESSION_TYPE compressionType;
 		uint64_t offset;
-		uint64_t compressedSize;
+		uint32_t compressedSize;
 		uint64_t uncompressedSize;
 	};
 

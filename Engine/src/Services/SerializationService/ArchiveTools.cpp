@@ -23,6 +23,7 @@ namespace Yngin::Services {
 		header.magic[2] = 'G';
 		header.magic[3] = 'N';
 		header.archiveVersion = ArchiveTools::archiveVersion;
+		header.headerSize = sizeof(ArchiveHeader);
 
 		header.entrySize = sizeof(ArchiveEntry);
 
@@ -133,5 +134,65 @@ namespace Yngin::Services {
 		auto archive = std::vector<char>(s.view().begin(), s.view().end());
 
 		return archive;
+	}
+
+	bool SerializationService::loadArchive(std::istream& in, const DeserializationContext& deserializationContext) {
+		std::streampos start = in.tellg();
+
+		ArchiveHeader header{};
+
+		size_t headerInfoSize = sizeof(header.magic) + sizeof(header.archiveVersion) + sizeof(header.headerSize);
+
+		in.read(reinterpret_cast<char*>(&header), headerInfoSize);
+
+		if (std::memcmp(header.magic, "YNGN", 4) != 0) return false;
+		if (header.archiveVersion > ArchiveTools::archiveVersion) return false;
+
+		in.seekg(start);
+
+		in.read(reinterpret_cast<char*>(&header), header.headerSize);
+
+		if (!impl->streamCheck(in, header.totalEntriesSize, -1)) return false;
+
+		bool good = true;
+
+		std::streampos nextEntryPos = in.tellg();
+		for (int i = 0; i < header.entriesCount; i++) {
+			in.seekg(nextEntryPos);
+
+			ArchiveEntry entry{};
+			in.read(reinterpret_cast<char*>(&entry), header.entrySize);
+			nextEntryPos = in.tellg();
+
+			in.seekg(start + static_cast<std::streampos>(entry.offset));
+
+			if (entry.compressedSize > INT_MAX || entry.uncompressedSize > LZ4_MAX_INPUT_SIZE)
+				continue;
+
+			std::vector<char> compressed(entry.compressedSize);
+			in.read(compressed.data(), entry.compressedSize);
+
+			std::vector<char> uncompressed(entry.uncompressedSize);
+
+			int decompressedSize = LZ4_decompress_safe(
+				compressed.data(),
+				uncompressed.data(),
+				entry.compressedSize,
+				entry.uncompressedSize
+			);
+
+			if (entry.uncompressedSize != static_cast<uint64_t>(decompressedSize)) {
+				good = false;
+				continue;
+			}
+
+			std::stringstream dataStream(std::string(uncompressed.data(), uncompressed.size()));
+
+			auto deserializationStatus = load(dataStream, deserializationContext);
+
+			good = good && (deserializationStatus == DESERIALIZATION_STATUS::OK);
+		}
+
+		return good;
 	}
 }

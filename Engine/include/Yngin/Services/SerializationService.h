@@ -38,6 +38,7 @@ namespace Yngin {
 			std::vector<std::string> popIgnoredMetaPrefixes();
 
 			std::vector<char> createArchive(std::istream& serializedData, const CreateArchiveSettings& settings = {});
+			bool loadArchive(std::istream& archive, const DeserializationContext& deserializationContext = {});
 
 			DESERIALIZATION_STATUS validate(std::istream& in);
 			DESERIALIZATION_STATUS load(std::istream& in, const DeserializationContext& deserializationContext = {});

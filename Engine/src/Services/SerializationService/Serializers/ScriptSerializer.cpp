@@ -82,7 +82,7 @@ namespace Yngin::Services {
 		if (ctx->getScriptsManager()->getScript(header.id)) {
 			if (!dsctx.user.overrideConflictingId) {
 				// Skip the operation data in case we ignore conflicting id errors
-				if (streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+				if (!streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 				in.seekg(op.dataSize - op.headerSize, std::ios::cur);
 				return DESERIALIZATION_STATUS::CONFLICTING_ID;
 			}
