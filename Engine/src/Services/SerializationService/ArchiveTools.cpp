@@ -144,7 +144,7 @@ namespace Yngin::Services {
 
 		auto archive = std::vector<char>(s.view().begin(), s.view().end());
 
-		DEBUG("Created a new archive with %i entries and total size %zu", header.entriesCount, archive.size());
+		DEBUG("Created a new archive with %lli entries and total size %zu", header.entriesCount, archive.size());
 
 		return archive;
 	}
@@ -195,15 +195,28 @@ namespace Yngin::Services {
 
 			std::vector<char> uncompressed(entry.uncompressedSize);
 
-			int decompressedSize = LZ4_decompress_safe(
-				compressed.data(),
-				uncompressed.data(),
-				entry.compressedSize,
-				entry.uncompressedSize
-			);
+			if (entry.compressionType == COMPRESSION_TYPE::NO_COMPRESSION) {
+				if (entry.compressedSize != entry.uncompressedSize) {
+					TRACE("Skipping invalid sizes data for uncompressed entry: entryType=%u, entryId=%u, compressedSize=%u, uncompressedSize=%llu", (int)entry.type, entry.id, entry.compressedSize, entry.uncompressedSize);
+					good = false;
+					continue;
+				}
+				// copy compressed to uncompressed
+				std::memcpy(uncompressed.data(), compressed.data(), entry.compressedSize);
+			} else if (entry.compressionType == COMPRESSION_TYPE::LZ4) {
+				int decompressedSize = LZ4_decompress_safe(
+					compressed.data(),
+					uncompressed.data(),
+					entry.compressedSize,
+					entry.uncompressedSize
+				);
 
-			if (entry.uncompressedSize != static_cast<uint64_t>(decompressedSize)) {
-				good = false;
+				if (entry.uncompressedSize != static_cast<uint64_t>(decompressedSize)) {
+					good = false;
+					continue;
+				}
+			} else {
+				TRACE("Skipping unsupported compression type: %i", (int)entry.compressionType);
 				continue;
 			}
 
@@ -214,7 +227,7 @@ namespace Yngin::Services {
 			good = good && (deserializationStatus == DESERIALIZATION_STATUS::OK);
 		}
 
-		DEBUG("Loaded %i entries from archive with status: %s", header.entriesCount, good ? "OK" : "ERROR");
+		DEBUG("Loaded %lli entries from archive with status: %s", header.entriesCount, good ? "OK" : "ERROR");
 
 		return good;
 	}
