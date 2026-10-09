@@ -509,6 +509,7 @@
     <ClCompile Include="deps\vendor\Jolt\TriangleSplitter\TriangleSplitter.cpp" />
     <ClCompile Include="deps\vendor\Jolt\TriangleSplitter\TriangleSplitterBinning.cpp" />
     <ClCompile Include="deps\vendor\Jolt\TriangleSplitter\TriangleSplitterMean.cpp" />
+    <ClCompile Include="deps\vendor\lz4\lz4.c" />
     <ClCompile Include="src\GameFiles\CorePak.cpp" />
     <ClCompile Include="src\GameFiles\GamePak.cpp" />
     <ClCompile Include="src\Core\Materials\Material.cpp" />

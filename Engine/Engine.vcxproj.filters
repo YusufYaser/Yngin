@@ -1670,6 +1670,9 @@
     <ClCompile Include="src\Services\SerializationService\ArchiveTools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="deps\vendor\lz4\lz4.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="deps\vendor\Jolt\Core\FixedSizeFreeList.inl">
