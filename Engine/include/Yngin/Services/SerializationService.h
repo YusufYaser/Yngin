@@ -13,6 +13,7 @@ namespace Yngin {
 			bool ignoreErrorMissingContext;
 			bool ignoreErrorConflictingId;
 			bool overrideConflictingId;
+			bool useOriginalConflictingObject;
 		};
 
 		enum class DESERIALIZATION_STATUS : uint8_t {
@@ -39,6 +40,7 @@ namespace Yngin {
 
 			std::vector<char> createArchive(std::istream& serializedData, const CreateArchiveSettings& settings = {});
 			bool loadArchive(std::istream& archive, const DeserializationContext& deserializationContext = {});
+			uint32_t streamArchive(std::unique_ptr<std::istream>& archive, const DeserializationContext& deserializationContext = {});
 
 			DESERIALIZATION_STATUS validate(std::istream& in);
 			DESERIALIZATION_STATUS load(std::istream& in, const DeserializationContext& deserializationContext = {});
@@ -72,6 +74,9 @@ namespace Yngin {
 		private:
 			friend class Context;
 			friend struct std::default_delete<SerializationService>;
+			friend class Texture;
+			friend class Material;
+			friend class Model;
 
 			SerializationService(Context* ctx);
 			~SerializationService();

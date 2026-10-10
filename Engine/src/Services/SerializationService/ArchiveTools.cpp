@@ -5,6 +5,12 @@
 #include <sstream>
 #include "ArchiveTools.h"
 #include <lz4/lz4.h>
+#include <Yngin/Rendering/Textures.h>
+#include "../../Rendering/Textures/Textures_Internal.h"
+#include <Yngin/Core/Materials.h>
+#include "../../Core/Materials/Materials_Internal.h"
+#include <Yngin/Core/Models.h>
+#include "../../Core/Models/Models_Internal.h"
 
 #define LOGGER_NAME SerializationService
 #include "../../Internal/Logger.h"
@@ -181,54 +187,306 @@ namespace Yngin::Services {
 
 			ArchiveEntry entry{};
 			in.read(reinterpret_cast<char*>(&entry), header.entrySize);
+
+			nextEntryPos = in.tellg();
+
+			good = good && impl->loadArchiveEntry(in, start, entry, deserializationContext);
+		}
+
+		DEBUG("Loaded %lli entries from archive with status: %s", header.entriesCount, good ? "OK" : "ERROR");
+
+		return good;
+	}
+
+	bool SerializationService::Impl::loadArchiveEntry(std::istream& in, const std::streampos& start, const ArchiveEntry& entry, const DeserializationContext& deserializationContext) {
+		in.seekg(start + static_cast<std::streampos>(entry.offset));
+
+		if (!streamCheck(in, entry.compressedSize, -1)) {
+			TRACE("Skipping invalid entry data: entryType=%u, entryId=%u, compressedSize=%u", (int)entry.type, entry.id, entry.compressedSize);
+			return false;
+		}
+
+		if (entry.compressedSize > INT_MAX || entry.uncompressedSize > LZ4_MAX_INPUT_SIZE) {
+			TRACE("Skipping invalid size data: entryType=%u, entryId=%u, compressedSize=%u, uncompressedSize=%llu", (int)entry.type, entry.id, entry.compressedSize, entry.uncompressedSize);
+			return false;
+		}
+
+		std::vector<char> compressed(entry.compressedSize);
+		in.read(compressed.data(), entry.compressedSize);
+
+		std::vector<char> uncompressed(entry.uncompressedSize);
+
+		if (entry.compressionType == COMPRESSION_TYPE::NO_COMPRESSION) {
+			if (entry.compressedSize != entry.uncompressedSize) {
+				TRACE("Skipping invalid sizes data for uncompressed entry: entryType=%u, entryId=%u, compressedSize=%u, uncompressedSize=%llu", (int)entry.type, entry.id, entry.compressedSize, entry.uncompressedSize);
+				return false;
+			}
+			// copy compressed to uncompressed
+			std::memcpy(uncompressed.data(), compressed.data(), entry.compressedSize);
+		} else if (entry.compressionType == COMPRESSION_TYPE::LZ4) {
+			int decompressedSize = LZ4_decompress_safe(
+				compressed.data(),
+				uncompressed.data(),
+				entry.compressedSize,
+				entry.uncompressedSize
+			);
+
+			if (entry.uncompressedSize != static_cast<uint64_t>(decompressedSize)) {
+				return false;
+			}
+		} else {
+			TRACE("Skipping unsupported compression type: %i", (int)entry.compressionType);
+			return false;
+		}
+
+		std::stringstream dataStream(std::string(uncompressed.data(), uncompressed.size()));
+
+		auto deserializationStatus = owner->load(dataStream, deserializationContext);
+
+		return deserializationStatus == DESERIALIZATION_STATUS::OK;
+	}
+
+	uint32_t SerializationService::streamArchive(std::unique_ptr<std::istream>& archive, const DeserializationContext& userdsctx) {
+		std::istream& in = *archive;
+		std::streampos start = in.tellg();
+
+		ArchiveHeader header{};
+
+		size_t headerInfoSize = sizeof(header.magic) + sizeof(header.archiveVersion) + sizeof(header.headerSize);
+
+		in.read(reinterpret_cast<char*>(&header), headerInfoSize);
+
+		if (std::memcmp(header.magic, "YNGN", 4) != 0) {
+			DEBUG("Invalid archive magic number");
+			return 0;
+		}
+		if (header.archiveVersion > ArchiveTools::archiveVersion) {
+			DEBUG("Unsupported archive version: %u", header.archiveVersion);
+			return 0;
+		}
+
+		in.seekg(start);
+
+		in.read(reinterpret_cast<char*>(&header), header.headerSize);
+
+		if (!impl->streamCheck(in, header.totalEntriesSize, -1)) return 0;
+
+		StreamContext* streamContext = new StreamContext();
+		streamContext->archive = std::move(archive);
+		streamContext->archiveStart = start;
+		uint32_t id = impl->nextStreamId++;
+		impl->streams[id] = std::unique_ptr<StreamContext>(streamContext);
+
+		DEBUG("Creating streamable objects");
+
+		std::streampos nextEntryPos = in.tellg();
+		for (int i = 0; i < header.entriesCount; i++) {
+			in.seekg(nextEntryPos);
+
+			ArchiveEntry entry{};
+			in.read(reinterpret_cast<char*>(&entry), header.entrySize);
+
 			nextEntryPos = in.tellg();
 
 			in.seekg(start + static_cast<std::streampos>(entry.offset));
+
+			if (!impl->streamCheck(in, entry.compressedSize, -1)) {
+				TRACE("Skipping invalid entry data: entryType=%u, entryId=%u, compressedSize=%u", (int)entry.type, entry.id, entry.compressedSize);
+				continue;
+			}
 
 			if (entry.compressedSize > INT_MAX || entry.uncompressedSize > LZ4_MAX_INPUT_SIZE) {
 				TRACE("Skipping invalid size data: entryType=%u, entryId=%u, compressedSize=%u, uncompressedSize=%llu", (int)entry.type, entry.id, entry.compressedSize, entry.uncompressedSize);
 				continue;
 			}
 
-			std::vector<char> compressed(entry.compressedSize);
-			in.read(compressed.data(), entry.compressedSize);
-
-			std::vector<char> uncompressed(entry.uncompressedSize);
-
-			if (entry.compressionType == COMPRESSION_TYPE::NO_COMPRESSION) {
-				if (entry.compressedSize != entry.uncompressedSize) {
-					TRACE("Skipping invalid sizes data for uncompressed entry: entryType=%u, entryId=%u, compressedSize=%u, uncompressedSize=%llu", (int)entry.type, entry.id, entry.compressedSize, entry.uncompressedSize);
-					good = false;
-					continue;
-				}
-				// copy compressed to uncompressed
-				std::memcpy(uncompressed.data(), compressed.data(), entry.compressedSize);
-			} else if (entry.compressionType == COMPRESSION_TYPE::LZ4) {
-				int decompressedSize = LZ4_decompress_safe(
-					compressed.data(),
-					uncompressed.data(),
-					entry.compressedSize,
-					entry.uncompressedSize
-				);
-
-				if (entry.uncompressedSize != static_cast<uint64_t>(decompressedSize)) {
-					good = false;
-					continue;
-				}
-			} else {
-				TRACE("Skipping unsupported compression type: %i", (int)entry.compressionType);
+			if (entry.type != ENTRY_TYPE::TEXTURE && entry.type != ENTRY_TYPE::MATERIAL && entry.type != ENTRY_TYPE::MODEL && entry.type != ENTRY_TYPE::SCRIPT) {
+				TRACE("Skipping unsupported entry type: %i", (int)entry.type);
 				continue;
 			}
 
-			std::stringstream dataStream(std::string(uncompressed.data(), uncompressed.size()));
+			TRACE("Creating object type=%i with id=%u to be loaded on demand", (int)entry.type, entry.id);
 
-			auto deserializationStatus = load(dataStream, deserializationContext);
+			if (entry.type == ENTRY_TYPE::TEXTURE) {
+				if (!userdsctx.overrideConflictingId && impl->ctx->getTexturesManager()->getTexture(entry.id)) {
+					TRACE("Skipping texture with conflicting id=%u", entry.id);
+					continue;
+				}
 
-			good = good && (deserializationStatus == DESERIALIZATION_STATUS::OK);
+				Texture* texture = impl->ctx->getTexturesManager()->createTexture(entry.id, true);
+
+				texture->impl->loadOnDemand = true;
+				texture->impl->streamId = id;
+
+				StreamableObjectData streamable{};
+				streamable.type = StreamableObjectType::TEXTURE;
+				streamable.objectId = entry.id;
+				streamable.archiveEntry = entry;
+
+				streamContext->objects[(size_t)streamable.type][streamable.objectId] = streamable;
+			} else if (entry.type == ENTRY_TYPE::MATERIAL) {
+				if (!userdsctx.overrideConflictingId && impl->ctx->getMaterialsManager()->getMaterial(entry.id)) {
+					TRACE("Skipping material with conflicting id=%u", entry.id);
+					continue;
+				}
+
+				Material* material = impl->ctx->getMaterialsManager()->createMaterial(entry.id, true);
+
+				material->impl->loadOnDemand = true;
+				material->impl->streamId = id;
+
+				StreamableObjectData streamable{};
+				streamable.type = StreamableObjectType::MATERIAL;
+				streamable.objectId = entry.id;
+				streamable.archiveEntry = entry;
+
+				streamContext->objects[(size_t)streamable.type][streamable.objectId] = streamable;
+			} else if (entry.type == ENTRY_TYPE::MODEL) {
+				if (!userdsctx.overrideConflictingId && impl->ctx->getModelsManager()->getModel(entry.id)) {
+					TRACE("Skipping model with conflicting id=%u", entry.id);
+					continue;
+				}
+
+				Model* model = impl->ctx->getModelsManager()->createModel({}, entry.id, true);
+
+				model->impl->loadOnDemand = true;
+				model->impl->streamId = id;
+
+				StreamableObjectData streamable{};
+				streamable.type = StreamableObjectType::MODEL;
+				streamable.objectId = entry.id;
+				streamable.archiveEntry = entry;
+
+				streamContext->objects[(size_t)streamable.type][streamable.objectId] = streamable;
+			} else if (entry.type == ENTRY_TYPE::SCRIPT) {
+				TRACE("Loading script with id=%u now", entry.id);
+				bool status = impl->loadArchiveEntry(*streamContext->archive, streamContext->archiveStart, entry, userdsctx);
+				if (!status) {
+					TRACE("Failed to load script with id=%u", entry.id);
+				}
+			}
+
+			// TODO: load meta data
 		}
 
-		DEBUG("Loaded %lli entries from archive with status: %s", header.entriesCount, good ? "OK" : "ERROR");
 
-		return good;
+		return id;
+	}
+
+	bool SerializationService::Impl::notifyObjectRemoved(uint32_t streamId, const StreamableObjectType& type, uint32_t objectId) {
+		TRACE("Notifying object removed from stream: streamId=%u, type=%u, objectId=%u", streamId, (uint8_t)type, objectId);
+
+		if (type == StreamableObjectType::UNKNOWN || type >= StreamableObjectType::COUNT) {
+			return false;
+		}
+
+		auto it = streams.find(streamId);
+		if (it == streams.end()) {
+			TRACE("Stream id %u not found", streamId);
+			return false;
+		}
+
+		StreamContext* streamContext = it->second.get();
+		auto& objects = streamContext->objects[(size_t)type];
+		auto objIt = objects.find(objectId);
+		if (objIt == objects.end()) {
+			TRACE("Object id %u not found in stream %u", objectId, streamId);
+			return false;
+		}
+
+		DEBUG("Removing object from stream: streamId=%u, type=%u, objectId=%u", streamId, (uint8_t)type, objectId);
+		objects.erase(objectId);
+
+		return true;
+	}
+
+	bool SerializationService::Impl::notifyDataAccessed(uint32_t streamId, const StreamableObjectType& type, uint32_t objectId) {
+		switch (type) {
+		case StreamableObjectType::TEXTURE: {
+			Texture* obj = ctx->getTexturesManager()->getTexture(objectId);
+			if (obj && obj->impl->loadOnDemand) {
+				if (!obj->impl->dataLoadedOnDemand) {
+					obj->impl->loadOnDemand = false;
+					obj->impl->dataLoadedOnDemand = loadData(streamId, type, objectId);
+					obj->impl->loadOnDemand = true;
+				}
+				return obj->impl->dataLoadedOnDemand;
+			}
+			break;
+		}
+
+		case StreamableObjectType::MATERIAL: {
+			Material* obj = ctx->getMaterialsManager()->getMaterial(objectId);
+			if (obj && obj->impl->loadOnDemand) {
+				if (!obj->impl->dataLoadedOnDemand) {
+					obj->impl->loadOnDemand = false;
+					obj->impl->dataLoadedOnDemand = loadData(streamId, type, objectId);
+					obj->impl->loadOnDemand = true;
+				}
+				return obj->impl->dataLoadedOnDemand;
+			}
+			break;
+		}
+
+		case StreamableObjectType::MODEL: {
+			Model* obj = ctx->getModelsManager()->getModel(objectId);
+			if (obj && obj->impl->loadOnDemand) {
+				if (!obj->impl->dataLoadedOnDemand) {
+					obj->impl->loadOnDemand = false;
+					obj->impl->dataLoadedOnDemand = loadData(streamId, type, objectId);
+					obj->impl->loadOnDemand = true;
+				}
+				return obj->impl->dataLoadedOnDemand;
+			}
+			break;
+		}
+
+		default:
+			return false;
+		}
+		return true;
+	}
+
+	bool SerializationService::Impl::notifyDataModified(uint32_t streamId, const StreamableObjectType& type, uint32_t objectId) {
+		return notifyDataAccessed(streamId, type, objectId);
+	}
+
+	bool SerializationService::Impl::loadData(uint32_t streamId, const StreamableObjectType& type, uint32_t objectId) {
+		DEBUG("Requesting stream data: streamId=%u, type=%u, objectId=%u", streamId, (uint8_t)type, objectId);
+
+		if (type == StreamableObjectType::UNKNOWN || type >= StreamableObjectType::COUNT) {
+			DEBUG("Invalid streamable object type: %u", (uint8_t)type);
+			return false;
+		}
+
+		auto it = streams.find(streamId);
+		if (it == streams.end()) {
+			DEBUG("Stream id %u not found", streamId);
+			return false;
+		}
+
+		StreamContext* streamContext = it->second.get();
+		auto& objects = streamContext->objects[(size_t)type];
+		auto objIt = objects.find(objectId);
+		if (objIt == objects.end()) {
+			DEBUG("Object id %u not found in stream %u", objectId, streamId);
+			return false;
+		}
+		StreamableObjectData& streamable = objIt->second;
+
+		const ArchiveEntry& entry = streamable.archiveEntry;
+
+		DeserializationContext deserializationContext{};
+		deserializationContext.useOriginalConflictingObject = true;
+
+		bool status = loadArchiveEntry(*streamContext->archive, streamContext->archiveStart, entry, deserializationContext);
+
+		if (status) {
+			DEBUG("Successfully loaded stream data: streamId=%u, type=%u, objectId=%u", streamId, (uint8_t)type, objectId);
+		} else {
+			DEBUG("Failed to load stream data: streamId=%u, type=%u, objectId=%u", streamId, (uint8_t)type, objectId);
+		}
+
+		return status;
 	}
 }

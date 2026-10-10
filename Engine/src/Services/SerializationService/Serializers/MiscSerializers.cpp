@@ -39,7 +39,7 @@ namespace Yngin::Services {
 			metas[key] = val;
 		}
 
-		TRACE("Deserializing %zu metas", header.metasCount);
+		TRACE("Serializing %zu metas", header.metasCount);
 
 		s.write(reinterpret_cast<const char*>(&header), sizeof(SerializedMetasHeader));
 
@@ -175,6 +175,8 @@ namespace Yngin::Services {
 				return DESERIALIZATION_STATUS::INVALID_DATA;
 			}
 		}
+
+		TRACE("Deserialized %zu metas", header.metasCount);
 
 		return DESERIALIZATION_STATUS::OK;
 	}

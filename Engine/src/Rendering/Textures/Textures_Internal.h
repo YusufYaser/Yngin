@@ -17,6 +17,10 @@ namespace Yngin {
 		glm::ivec2 size = {};
 
 		TextureSettings settings;
+
+		bool loadOnDemand = false;
+		bool dataLoadedOnDemand = false;
+		uint32_t streamId = 0;
 	};
 
 	struct TexturesManager::Impl {

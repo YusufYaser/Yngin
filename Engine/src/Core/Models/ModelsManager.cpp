@@ -65,7 +65,7 @@ namespace Yngin {
 
 		if (impl->loadedModels >= MAX_MODELS) return nullptr;
 
-		Model* model = new Model(impl->ctx);
+		Model* model = new Model(impl->ctx, this);
 
 		if (id == impl->nextId) impl->nextId++;
 		model->impl->id = id;
@@ -129,6 +129,7 @@ namespace Yngin {
 	}
 
 	Model* ModelsManager::getModel(uint32_t modelId) const {
+		if (modelId == -1) return nullptr;
 		return impl->models[modelId].get();
 	}
 }

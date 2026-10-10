@@ -14,6 +14,10 @@ namespace Yngin {
 		glm::vec3 diffuseColor = glm::vec3(1.0f);
 		glm::vec3 specularColor = glm::vec3(1.0f);
 		float specularComponent = 32.0f;
+
+		bool loadOnDemand = false;
+		bool dataLoadedOnDemand = false;
+		uint32_t streamId = 0;
 	};
 
 	struct MaterialsManager::Impl {

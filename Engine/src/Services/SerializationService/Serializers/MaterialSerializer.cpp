@@ -76,19 +76,24 @@ namespace Yngin::Services {
 		if (!streamCheck(in, op.headerSize, sizeof(SerializedMaterialData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
-		if (ctx->getMaterialsManager()->getMaterial(header.id)) {
-			if (!dsctx.user.overrideConflictingId) {
+		Material* material = nullptr;
+
+		if (material = ctx->getMaterialsManager()->getMaterial(header.id)) {
+			if (dsctx.user.overrideConflictingId) {
+				TRACE("Overriding conflicting material id: %i", header.id);
+				material = nullptr;
+			} else if (dsctx.user.useOriginalConflictingObject) {
+				TRACE("Using original conflicting material id: %i", header.id);
+			} else {
 				TRACE("Skipping conflicting material id: %i", header.id);
 				// Skip the operation data in case we ignore conflicting id errors
 				if (!streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 				in.seekg(op.dataSize - op.headerSize, std::ios::cur);
 				return DESERIALIZATION_STATUS::CONFLICTING_ID;
-			} else {
-				TRACE("Overriding conflicting material id: %i", header.id);
 			}
 		}
 
-		Material* material = ctx->getMaterialsManager()->createMaterial(header.id, dsctx.user.overrideConflictingId);
+		if (material == nullptr) material = ctx->getMaterialsManager()->createMaterial(header.id, dsctx.user.overrideConflictingId);
 		if (material == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 		material->setAmbientColor(header.ambientColor);
 		material->setDiffuseColor(header.diffuseColor);

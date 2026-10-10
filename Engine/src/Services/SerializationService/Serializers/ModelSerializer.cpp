@@ -4,6 +4,7 @@
 #include "../SerializationService_Internal.h"
 #include "SerializationStructs.h"
 #include <sstream>
+#include "../../../Core/Models/Models_Internal.h"
 
 #define LOGGER_NAME SerializationService
 #include "../../../Internal/Logger.h"
@@ -136,15 +137,20 @@ namespace Yngin::Services {
 		if (!streamCheck(in, op.headerSize, sizeof(SerializedModelData))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
-		if (ctx->getModelsManager()->getModel(header.id)) {
-			if (!dsctx.user.overrideConflictingId) {
-				TRACE("Skippin conflicting model id: %i", header.id);
+		Model* model = nullptr;
+
+		if (model = ctx->getModelsManager()->getModel(header.id)) {
+			if (dsctx.user.overrideConflictingId) {
+				TRACE("Overriding conflicting model id: %i", header.id);
+				model = nullptr;
+			} else if (dsctx.user.useOriginalConflictingObject) {
+				TRACE("Using original conflicting model id: %i", header.id);
+			} else {
+				TRACE("Skipping conflicting model id: %i", header.id);
 				// Skip the operation data in case we ignore conflicting id errors
 				if (!streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 				in.seekg(op.dataSize - op.headerSize, std::ios::cur);
 				return DESERIALIZATION_STATUS::CONFLICTING_ID;
-			} else {
-				TRACE("Overriding conflicting model id: %i", header.id);
 			}
 		}
 
@@ -194,8 +200,9 @@ namespace Yngin::Services {
 			data.defaultMaterials[i] = header.defaultMaterials[i];
 		}
 
-		Model* model = ctx->getModelsManager()->createModel(data, header.id, dsctx.user.overrideConflictingId);
+		if (model == nullptr) model = ctx->getModelsManager()->createModel({}, header.id, dsctx.user.overrideConflictingId);
 		if (model == nullptr) return DESERIALIZATION_STATUS::GENERIC_ERROR;
+		model->impl->init(data);
 
 		dsctx.meta.push(&model->meta);
 		DESERIALIZATION_STATUS metaStatus = deserializeOperation(in, dsctx, Operation::META);

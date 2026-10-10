@@ -225,15 +225,20 @@ namespace Yngin::Services {
 		if (!streamCheck(in, op.headerSize, sizeof(header))) return DESERIALIZATION_STATUS::INVALID_DATA;
 		in.read(reinterpret_cast<char*>(&header), op.headerSize);
 
-		if (ctx->getTexturesManager()->getTexture(header.id)) {
-			if (!dsctx.user.overrideConflictingId) {
+		Texture* tex = nullptr;
+
+		if (tex = ctx->getTexturesManager()->getTexture(header.id)) {
+			if (dsctx.user.overrideConflictingId) {
+				TRACE("Overriding conflicting texture id: %i", header.id);
+				tex = nullptr;
+			} else if (dsctx.user.useOriginalConflictingObject) {
+				TRACE("Using original conflicting texture id: %i", header.id);
+			} else {
 				TRACE("Skipping conflicting texture id: %i", header.id);
 				// Skip the operation data in case we ignore conflicting id errors
 				if (!streamCheck(in, op.dataSize - op.headerSize, -1)) return DESERIALIZATION_STATUS::GENERIC_ERROR;
 				in.seekg(op.dataSize - op.headerSize, std::ios::cur);
 				return DESERIALIZATION_STATUS::CONFLICTING_ID;
-			} else {
-				TRACE("Overriding conflicting texture id: %i", header.id);
 			}
 		}
 
@@ -294,8 +299,6 @@ namespace Yngin::Services {
 			return DESERIALIZATION_STATUS::INVALID_DATA;
 		}
 
-		Texture* tex = nullptr;
-
 		if (header.dataFormat == S_TEXTURE_FORMAT::RAW) {
 			if (header.rawDataHeaderSize > header.dataSize) return DESERIALIZATION_STATUS::INVALID_DATA;
 
@@ -314,7 +317,9 @@ namespace Yngin::Services {
 
 			data.bytes = bytes.data();
 
-			tex = ctx->getTexturesManager()->createTexture(data, settings, header.id, dsctx.user.overrideConflictingId);
+			if (tex == nullptr) tex = ctx->getTexturesManager()->createTexture(header.id, dsctx.user.overrideConflictingId);
+			tex->setSettings(settings);
+			tex->setData(data);
 		} else if (header.dataFormat == S_TEXTURE_FORMAT::PNG) {
 			std::vector<char> pngBytes(header.dataSize);
 			if (!streamCheck(in, header.dataSize, pngBytes.size())) return DESERIALIZATION_STATUS::INVALID_DATA;
@@ -326,7 +331,9 @@ namespace Yngin::Services {
 
 			data.bytes = (const char*)rawBytes;
 
-			tex = ctx->getTexturesManager()->createTexture(data, settings, header.id, dsctx.user.overrideConflictingId);
+			if (tex == nullptr) tex = ctx->getTexturesManager()->createTexture(header.id, dsctx.user.overrideConflictingId);
+			tex->setSettings(settings);
+			tex->setData(data);
 
 			stbi_image_free(rawBytes);
 
@@ -337,7 +344,9 @@ namespace Yngin::Services {
 			if (!streamCheck(in, header.dataSize, bytes.size())) return DESERIALIZATION_STATUS::INVALID_DATA;
 			in.read(reinterpret_cast<char*>(bytes.data()), header.dataSize);
 
-			tex = ctx->getTexturesManager()->createTexture(bytes.data(), settings, header.id, dsctx.user.overrideConflictingId);
+			if (tex == nullptr) tex = ctx->getTexturesManager()->createTexture(header.id, dsctx.user.overrideConflictingId);
+			tex->setSettings(settings);
+			tex->setData(bytes.data());
 		} else {
 			return DESERIALIZATION_STATUS::INVALID_DATA;
 		}

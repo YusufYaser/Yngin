@@ -30,6 +30,8 @@ namespace Yngin {
 		void init(const ModelData& d);
 
 		Model* owner;
+		ModelsManager* mgr;
+		bool internalModel = false;
 
 		glm::vec3 center;
 		float radius;
@@ -46,6 +48,10 @@ namespace Yngin {
 		ModelData modelData;
 
 		uint32_t materials[256];
+
+		bool loadOnDemand = false;
+		bool dataLoadedOnDemand = false;
+		uint32_t streamId = 0;
 	};
 
 	struct ModelsManager::Impl {

@@ -5,18 +5,25 @@
 #include <stdexcept>
 #include "Models_Internal.h"
 #include <Yngin/Core/Materials.h>
+#include <Yngin/Services/SerializationService.h>
+#include "../../Services/SerializationService/SerializationService_Internal.h"
 
 #define LOGGER_NAME Models
 #include "../../Internal/Logger.h"
 
 namespace Yngin {
-	Model::Model(Context* ctx) {
+	Model::Model(Context* ctx, ModelsManager* mgr) {
 		impl = std::make_unique<Impl>();
 		impl->ctx = ctx;
 		impl->owner = this;
+		impl->mgr = mgr;
+		impl->internalModel = mgr == ctx->getInternalModelsManager();
 	}
 
 	Model::~Model() {
+		if (impl->ctx->getStatus() != CONTEXT_STATUS::CLEANING_UP)
+			if (!impl->internalModel) impl->ctx->getService<Services::SerializationService>()->impl->notifyObjectRemoved(impl->streamId, Services::StreamableObjectType::MATERIAL, impl->id);
+
 		impl->ctx->makeCurrent();
 
 		impl->submeshes.clear();
@@ -28,6 +35,8 @@ namespace Yngin {
 	}
 
 	void Model::Impl::init(const ModelData& d) {
+		if (!internalModel) ctx->getService<Services::SerializationService>()->impl->notifyDataModified(streamId, Services::StreamableObjectType::MODEL, id);
+
 		ctx->makeCurrent();
 
 		submeshes.clear();
@@ -130,6 +139,8 @@ namespace Yngin {
 	}
 
 	void Model::Impl::render(int instances) {
+		if (!internalModel) ctx->getService<Services::SerializationService>()->impl->notifyDataAccessed(streamId, Services::StreamableObjectType::MODEL, id);
+
 		ctx->makeCurrent();
 
 		if (modelData.frontFace == MODEL_FRONT_FACE::NONE) {
@@ -154,6 +165,8 @@ namespace Yngin {
 	}
 
 	void Model::Impl::renderWithMaterials(const uint32_t materialsMap[256], int instances) {
+		if (!internalModel) ctx->getService<Services::SerializationService>()->impl->notifyDataAccessed(streamId, Services::StreamableObjectType::MODEL, id);
+
 		ctx->makeCurrent();
 
 		if (modelData.frontFace == MODEL_FRONT_FACE::NONE) {
@@ -188,18 +201,22 @@ namespace Yngin {
 	}
 
 	const ModelData& Model::getModelData() const {
+		if (!impl->internalModel) impl->ctx->getService<Services::SerializationService>()->impl->notifyDataAccessed(impl->streamId, Services::StreamableObjectType::MODEL, impl->id);
 		return impl->modelData;
 	}
 
 	size_t Model::getSubmeshesCount() const {
+		if (!impl->internalModel) impl->ctx->getService<Services::SerializationService>()->impl->notifyDataAccessed(impl->streamId, Services::StreamableObjectType::MODEL, impl->id);
 		return impl->submeshes.size();
 	}
 
 	glm::vec3 Model::getCenter() const {
+		if (!impl->internalModel) impl->ctx->getService<Services::SerializationService>()->impl->notifyDataAccessed(impl->streamId, Services::StreamableObjectType::MODEL, impl->id);
 		return impl->center;
 	}
 
 	float Model::getRadius() const {
+		if (!impl->internalModel) impl->ctx->getService<Services::SerializationService>()->impl->notifyDataAccessed(impl->streamId, Services::StreamableObjectType::MODEL, impl->id);
 		return impl->radius;
 	}
 }

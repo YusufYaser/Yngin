@@ -61,6 +61,7 @@ namespace Yngin {
 	private:
 		friend class TexturesManager;
 		friend struct std::default_delete<Texture>;
+		friend class Services::SerializationService;
 
 		Texture(Context* ctx);
 		~Texture();

@@ -77,7 +77,7 @@ namespace Yngin {
 		float getRadius() const;
 
 	private:
-		Model(Context* ctx);
+		Model(Context* ctx, ModelsManager* mgr);
 		~Model();
 
 		friend class ModelsManager;
@@ -86,6 +86,7 @@ namespace Yngin {
 		friend class Rendering::Renderer;
 		friend class UI::Image;
 		friend class UI::Text;
+		friend class Services::SerializationService;
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;

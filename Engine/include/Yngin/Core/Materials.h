@@ -63,6 +63,7 @@ namespace Yngin {
 		friend class MaterialsManager;
 		friend struct std::default_delete<Material>;
 		friend class Context;
+		friend class Services::SerializationService;
 
 		struct Impl;
 		std::unique_ptr<Impl> impl;

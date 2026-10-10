@@ -12,6 +12,7 @@ namespace Yngin::Services {
 	SerializationService::SerializationService(Context* ctx) : Service(ctx) {
 		impl = std::make_unique<Impl>();
 		impl->ctx = ctx;
+		impl->owner = this;
 
 		pushSkipMetaKeys({ "#NoExport" });
 		pushIgnoredMetaPrefixes({ "#" });

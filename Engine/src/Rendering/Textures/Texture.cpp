@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 #include <stdexcept>
 #include <stb/stb_image.h>
+#include <Yngin/Services/SerializationService.h>
+#include "../../Services/SerializationService/SerializationService_Internal.h"
 
 #define LOGGER_NAME Textures
 #include "../../Internal/Logger.h"
@@ -42,6 +44,8 @@ namespace Yngin {
 	}
 
 	Texture::~Texture() {
+		if (impl->ctx->getStatus() != CONTEXT_STATUS::CLEANING_UP)
+			impl->ctx->getService<Services::SerializationService>()->impl->notifyObjectRemoved(impl->streamId, Services::StreamableObjectType::TEXTURE, impl->id);
 		glDeleteTextures(1, &impl->texId);
 	}
 
@@ -54,10 +58,12 @@ namespace Yngin {
 	}
 
 	uint32_t Texture::getGLid() const {
+		impl->ctx->getService<Services::SerializationService>()->impl->notifyDataAccessed(impl->streamId, Services::StreamableObjectType::TEXTURE, impl->id);
 		return impl->texId;
 	}
 
 	void Texture::activate() {
+		impl->ctx->getService<Services::SerializationService>()->impl->notifyDataAccessed(impl->streamId, Services::StreamableObjectType::TEXTURE, impl->id);
 		glBindTexture(GL_TEXTURE_2D, impl->texId);
 	}
 
@@ -70,6 +76,8 @@ namespace Yngin {
 	}
 
 	void Texture::setData(const TextureData& data, const TextureSettings& settings) {
+		// notifyDataModified will be called in setSettings, so we don't need to call it here
+
 		impl->ctx->makeCurrent();
 
 		int w = data.width;
@@ -147,6 +155,8 @@ namespace Yngin {
 	}
 
 	void Texture::setSettings(const TextureSettings& settings) {
+		impl->ctx->getService<Services::SerializationService>()->impl->notifyDataModified(impl->streamId, Services::StreamableObjectType::TEXTURE, impl->id);
+
 		Texture* active = impl->ctx->getTexturesManager()->getActive();
 
 		activate();

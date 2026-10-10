@@ -535,6 +535,9 @@ namespace Yngin::Rendering {
 			model->impl->renderWithMaterials(mimpl->materials);
 			sceneSubmeshesRendered += model->impl->submeshes.size();
 		} else {
+			// Trigger SerializationService load on demand if model isn't loaded
+			model->getRadius();
+
 			for (auto& submesh : model->impl->submeshes) {
 				// This is a temporary workaround to fix objects hidden by frustum culling not casting shadows
 				// This will be fixed in the future

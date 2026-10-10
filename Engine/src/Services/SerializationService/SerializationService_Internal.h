@@ -3,6 +3,7 @@
 #include <Yngin/Utils/Meta.h>
 #include "Serializers/SerializationStructs.h"
 #include <stack>
+#include "ArchiveTools.h"
 
 namespace Yngin::Services {
 	struct InternalDeserializationContext {
@@ -13,8 +14,29 @@ namespace Yngin::Services {
 		std::stack<UI::UIManager*> UIManager;
 	};
 
+	enum class StreamableObjectType : uint8_t {
+		UNKNOWN = 0,
+		TEXTURE,
+		MATERIAL,
+		MODEL,
+		COUNT,
+	};
+
+	struct StreamableObjectData {
+		StreamableObjectType type;
+		uint32_t objectId;
+		ArchiveTools::ArchiveEntry archiveEntry;
+	};
+
+	struct StreamContext {
+		std::unique_ptr<std::istream> archive;
+		std::streampos archiveStart;
+		std::map<uint32_t, StreamableObjectData> objects[(size_t)StreamableObjectType::COUNT];
+	};
+
 	struct SerializationService::Impl {
 		Context* ctx;
+		SerializationService* owner;
 
 		std::vector<std::vector<std::string>> skipMetaKeys;
 		std::vector<std::string> currentSkipMetaKeys;
@@ -23,6 +45,17 @@ namespace Yngin::Services {
 
 		bool shouldSkip(const Meta& meta);
 
+		uint32_t nextStreamId = 1;
+		std::map<uint32_t, std::unique_ptr<StreamContext>> streams;
+
+		bool notifyObjectRemoved(uint32_t streamId, const StreamableObjectType& type, uint32_t objectId);
+		bool notifyDataAccessed(uint32_t streamId, const StreamableObjectType& type, uint32_t objectId);
+		// This will later be used to properly unload data that hasn't been used for a while
+		// For now, we'll just pass this along to notifyDataAccessed in case the data hasn't been loaded
+		bool notifyDataModified(uint32_t streamId, const StreamableObjectType& type, uint32_t objectId);
+		bool loadData(uint32_t streamId, const StreamableObjectType& type, uint32_t objectId);
+
+		bool loadArchiveEntry(std::istream& archive, const std::streampos& start, const ArchiveTools::ArchiveEntry& entry, const DeserializationContext& userdsctx);
 
 		// Validators
 		bool streamCheck(std::istream& in, size_t size, size_t structSize);
@@ -36,6 +69,7 @@ namespace Yngin::Services {
 		DESERIALIZATION_STATUS validateGameObject(std::istream& in, const Serialization::OperationData& op);
 		DESERIALIZATION_STATUS validateComponent(std::istream& in, const Serialization::OperationData& op);
 		DESERIALIZATION_STATUS validateUIElement(std::istream& in, const Serialization::OperationData& op);
+
 
 		// Deserializers
 		DESERIALIZATION_STATUS deserializeOperation(std::istream& in, InternalDeserializationContext& dsctx, const Serialization::Operation& expectedOp = Serialization::Operation::NO_OP);
