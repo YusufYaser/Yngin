@@ -38,7 +38,9 @@ namespace Yngin::Services::Serialization {
 		INT32,
 		FLOAT,
 		STRING,
-		POINTER // pointer metas are ignored by the SerializationService but they are still included here
+		POINTER, // pointer metas are ignored by the SerializationService but they are still included here
+		ARRAY_INT32,
+		ARRAY_FLOAT,
 	};
 
 	struct SerializedMetasHeader {

@@ -70,6 +70,18 @@ namespace Yngin::Services {
 				pReal = pFloat;
 
 				metaInfo.dataSize = sizeof(*pFloat);
+			} else if (std::holds_alternative<std::vector<int>>(val)) {
+				metaInfo.type = S_META_TYPE::ARRAY_INT32;
+				auto pArray = std::get_if<std::vector<int>>(&val);
+				pReal = pArray->data();
+
+				metaInfo.dataSize = pArray->size() * sizeof(int);
+			} else if (std::holds_alternative<std::vector<float>>(val)) {
+				metaInfo.type = S_META_TYPE::ARRAY_FLOAT;
+				auto pArray = std::get_if<std::vector<float>>(&val);
+				pReal = pArray->data();
+
+				metaInfo.dataSize = pArray->size() * sizeof(float);
 			}
 
 			s.write(reinterpret_cast<const char*>(&metaInfo), header.unitInfoDataSize);
@@ -100,6 +112,8 @@ namespace Yngin::Services {
 			case S_META_TYPE::INT32:
 			case S_META_TYPE::FLOAT:
 			case S_META_TYPE::STRING:
+			case S_META_TYPE::ARRAY_INT32:
+			case S_META_TYPE::ARRAY_FLOAT:
 			{
 				if (!streamCheck(in, info.keySize, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
 				in.seekg(info.keySize, std::ios::cur);
@@ -168,6 +182,26 @@ namespace Yngin::Services {
 				std::vector<unsigned char> dataBuffer(info.dataSize);
 				in.read(reinterpret_cast<char*>(dataBuffer.data()), info.dataSize);
 				meta->setMeta(std::string(keyBuffer.begin(), keyBuffer.end()), std::string(dataBuffer.begin(), dataBuffer.end()));
+				break;
+			}
+
+			case S_META_TYPE::ARRAY_INT32:
+			{
+				if (!streamCheck(in, info.dataSize, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
+				if (info.dataSize % sizeof(int) != 0) return DESERIALIZATION_STATUS::INVALID_DATA;
+				std::vector<int> dataBuffer(info.dataSize / sizeof(int));
+				in.read(reinterpret_cast<char*>(dataBuffer.data()), info.dataSize);
+				meta->setMeta(std::string(keyBuffer.begin(), keyBuffer.end()), dataBuffer);
+				break;
+			}
+
+			case S_META_TYPE::ARRAY_FLOAT:
+			{
+				if (!streamCheck(in, info.dataSize, -1)) return DESERIALIZATION_STATUS::INVALID_DATA;
+				if (info.dataSize % sizeof(float) != 0) return DESERIALIZATION_STATUS::INVALID_DATA;
+				std::vector<float> dataBuffer(info.dataSize / sizeof(float));
+				in.read(reinterpret_cast<char*>(dataBuffer.data()), info.dataSize);
+				meta->setMeta(std::string(keyBuffer.begin(), keyBuffer.end()), dataBuffer);
 				break;
 			}
 

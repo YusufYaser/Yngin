@@ -32,6 +32,14 @@ namespace Yngin {
 		impl->metas[key] = value;
 	}
 
+	void Meta::setMeta(const std::string& key, const std::vector<int>& value) {
+		impl->metas[key] = value;
+	}
+
+	void Meta::setMeta(const std::string& key, const std::vector<float>& value) {
+		impl->metas[key] = value;
+	}
+
 	size_t Meta::getMetasCount() const {
 		return impl->metas.size();
 	}
@@ -86,6 +94,28 @@ namespace Yngin {
 		auto it = impl->metas.find(key);
 		if (it != impl->metas.end()) {
 			if (auto val = std::get_if<void*>(&it->second)) {
+				return *val;
+			}
+		}
+
+		return defaultValue;
+	}
+
+	std::vector<int> Meta::getMetaIntArray(const std::string& key, const std::vector<int>& defaultValue) const {
+		auto it = impl->metas.find(key);
+		if (it != impl->metas.end()) {
+			if (auto val = std::get_if<std::vector<int>>(&it->second)) {
+				return *val;
+			}
+		}
+
+		return defaultValue;
+	}
+
+	std::vector<float> Meta::getMetaFloatArray(const std::string& key, const std::vector<float>& defaultValue) const {
+		auto it = impl->metas.find(key);
+		if (it != impl->metas.end()) {
+			if (auto val = std::get_if<std::vector<float>>(&it->second)) {
 				return *val;
 			}
 		}

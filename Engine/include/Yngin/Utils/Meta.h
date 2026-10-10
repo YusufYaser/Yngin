@@ -13,7 +13,7 @@
 
 namespace Yngin {
 #ifdef CPP17
-	typedef std::variant<std::string, int, float, void*> MetaValue;
+	typedef std::variant<std::string, int, float, void*, std::vector<int>, std::vector<float>> MetaValue;
 #endif
 
 	class Meta {
@@ -29,6 +29,9 @@ namespace Yngin {
 		void setMeta(const std::string& key, const float& value);
 		void setMeta(const std::string& key, void* value);
 
+		void setMeta(const std::string& key, const std::vector<int>& value);
+		void setMeta(const std::string& key, const std::vector<float>& value);
+
 		size_t getMetasCount() const;
 
 #ifdef CPP17
@@ -40,6 +43,9 @@ namespace Yngin {
 		int getMetaInt(const std::string& key, const int& defaultValue = 0) const;
 		float getMetaFloat(const std::string& key, const float& defaultValue = 0) const;
 		void* getMetaPtr(const std::string& key, void* defaultValue = nullptr) const;
+
+		std::vector<int> getMetaIntArray(const std::string& key, const std::vector<int>& defaultValue = {}) const;
+		std::vector<float> getMetaFloatArray(const std::string& key, const std::vector<float>& defaultValue = {}) const;
 
 	private:
 		struct Impl;
