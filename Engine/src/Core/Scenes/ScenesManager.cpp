@@ -42,10 +42,6 @@ namespace Yngin {
 		return createScene(impl->nextId);
 	}
 
-	Scene* ScenesManager::createScene(const char* scenePakData, size_t size) {
-		return createScene(scenePakData, size, impl->nextId);
-	}
-
 	Scene* ScenesManager::createScene(uint32_t id, bool override) {
 		if (getScene(id) != nullptr) {
 			if (override) {
@@ -64,14 +60,6 @@ namespace Yngin {
 		DEBUG("Created scene %d", id);
 
 		scene->impl->init();
-
-		return scene;
-	}
-
-	Scene* ScenesManager::createScene(const char* scenePakData, size_t size, uint32_t id, bool override) {
-		Scene* scene = createScene(id, override);
-
-		scene->impl->loadPak(scenePakData, size);
 
 		return scene;
 	}

@@ -17,17 +17,13 @@ namespace Yngin {
 		size_t getScenesCount() const;
 
 		Scene* createScene();
-		Scene* createScene(const char* scenePakData, size_t size);
 		Scene* createScene(uint32_t id, bool override = false);
-		Scene* createScene(const char* scenePakData, size_t size, uint32_t id, bool override = false);
 		void deleteScene(uint32_t sceneId);
 		void deleteScene(Scene* scene);
 
 		Scene* getActive() const;
 		void setActive(uint32_t sceneId);
 		void setActive(Scene* scene);
-
-		static bool validateScenePak(const char* scenePakData, size_t size);
 
 	private:
 		friend class Context;
@@ -63,8 +59,6 @@ namespace Yngin {
 
 		float getGravity();
 		void setGravity(float gravity);
-
-		std::vector<char> generatePak();
 
 	private:
 		friend class ScenesManager;

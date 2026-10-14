@@ -103,26 +103,6 @@ namespace Yngin {
 		template <typename T>
 		T* getService() const;
 
-		void pushLoadPakSettings(const PakLoadSettings& settings);
-		void popLoadPakSettings();
-		PakLoadSettings getCurrentLoadPakSettings() const;
-
-		void pushGenPakSettings(const PakGenSettings& settings);
-		void popGenPakSettings();
-		PakGenSettings getCurrentGenPakSettings() const;
-
-		static bool validateGamePak(const char* gamePakData, size_t size);
-		void loadGamePak(const char* gamePakData, size_t size);
-		std::vector<char> generateGamePak();
-
-		static bool validateCorePak(const char* corePakData, size_t size);
-		void loadCorePak(const char* corePakData, size_t size);
-		std::vector<char> generateCorePak();
-
-		static bool validateResourcesPak(const char* resourcesPakData, size_t size);
-		void loadResourcesPak(const char* resourcesPakData, size_t size);
-		std::vector<char> generateResourcesPak();
-
 	private:
 		void cleanup();
 

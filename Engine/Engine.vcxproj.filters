@@ -159,25 +159,10 @@
     <ClInclude Include="src\Rendering\Renderer\Renderer_Internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameFiles\ScenePak.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameFiles\ResourcesPak.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Yngin\Core\Scripting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Scripting\Scripting_Internal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameFiles\GameFiles.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameFiles\CorePak.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameFiles\GamePak.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Yngin\Forward.h">
@@ -1196,12 +1181,6 @@
     <ClCompile Include="src\Rendering\Renderer\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameFiles\ScenePak.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameFiles\ResourcesPak.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Core\Scripting\Scripting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1214,18 +1193,6 @@
     <ClCompile Include="src\Core\Scripting\Binding\YnginTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameFiles\PakGenerators.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameFiles\PakLoaders.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameFiles\CorePak.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameFiles\GamePak.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Utils\Meta.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1233,9 +1200,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Materials\Material.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameFiles\PakValidators.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="deps\vendor\Jolt\AABBTree\AABBTreeBuilder.cpp">
