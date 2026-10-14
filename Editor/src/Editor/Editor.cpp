@@ -464,7 +464,9 @@ bool Editor::exportGame(std::string exportPath) {
 		fs::rename(exportPath + "/Runtime.exe", exportPath + "/" + projectName + ".exe");
 	} catch (const fs::filesystem_error& e) {
 		printf("[Yngin Editor] Error while copying Runtime files: %s\n", e.what());
+#ifndef _DEBUG
 		return false;
+#endif
 	}
 
 	setupPreviousGameState();
@@ -473,46 +475,75 @@ bool Editor::exportGame(std::string exportPath) {
 
 	loadScripts();
 
-	ctx->getScriptsManager()->createScript(std::format(R"LUA(
-if Yngin.Context.meta:getMetaInt("#IsEditor", 0) == 1 then
-	return
-end
+	Meta manifest{};
+	manifest.setMeta("name", gameSettings.name);
+	manifest.setMeta("windowWidth", gameSettings.windowWidth);
+	manifest.setMeta("windowHeight", gameSettings.windowHeight);
+	manifest.setMeta("fullscreen", gameSettings.fullscreen);
+	manifest.setMeta("scenes", std::vector<int>{0});
+	manifest.setMeta("defaultScene", 0);
 
-function onReady()
-	Yngin.ScenesManager:setActive({})
-	
-	Yngin.ScriptsManager:deleteScript(Script.ID)
-end
-)LUA", 0).c_str());
+	Services::SerializationService* serializationService = ctx->getService<Services::SerializationService>();
 
-	{
-		std::ofstream file("game.pak", std::ios::binary);
-		if (file) {
-			PakGenSettings settings{};
-
-			settings.ignoredMetaPrefixes = { "Editor." };
-			settings.forceContextSettings = true;
-
-			ContextSettings ctxSettings{};
-			memcpy_s(ctxSettings.windowSettings.title, 32, gameSettings.name.c_str(), 32);
-			ctxSettings.windowSettings.title[31] = '\0';
-			ctxSettings.windowSettings.size = { gameSettings.windowWidth, gameSettings.windowHeight };
-			ctxSettings.windowSettings.fullScreen = gameSettings.fullscreen;
-			settings.forcedContextSettings = ctxSettings;
-
-			ctx->pushGenPakSettings(settings);
-			std::vector<char> bytes = ctx->generateGamePak();
-			ctx->popGenPakSettings();
-
-			file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
-			file.close();
-		} else {
-			printf("[Yngin Editor] Error while creating game.pak file\n");
-			fs::current_path(path);
-			loadPreviousGameState();
-			return false;
-		}
+	std::ofstream manifestFile("manifest.bin", std::ios::binary);
+	if (!manifestFile) {
+		printf("[Yngin Editor] Error while creating the manifest.bin file\n");
+		fs::current_path(path);
+		loadPreviousGameState();
+		return false;
 	}
+
+	std::ofstream resources("resources.pak", std::ios::binary);
+	if (!resources) {
+		printf("[Yngin Editor] Error while creating the resources.pak file\n");
+		fs::current_path(path);
+		loadPreviousGameState();
+		manifestFile.close();
+		return false;
+	}
+
+	std::ofstream sceneFile("scene0.bin", std::ios::binary);
+	if (!sceneFile) {
+		printf("[Yngin Editor] Error while creating the scene0.bin file\n");
+		fs::current_path(path);
+		loadPreviousGameState();
+		manifestFile.close();
+		resources.close();
+		return false;
+	}
+
+	serializationService->serialize(manifestFile, manifest);
+
+	std::stringstream serializedResources;
+
+	serializationService->serialize(serializedResources, ctx->getTexturesManager(), false);
+	serializationService->serialize(serializedResources, ctx->getMaterialsManager());
+	serializationService->serialize(serializedResources, ctx->getModelsManager());
+	for (auto& script : ctx->getScriptsManager()->getScripts()) {
+		if (script->getScene() != nullptr) continue;
+		serializationService->serialize(serializedResources, script);
+	}
+
+	serializedResources.seekg(0);
+	auto resourcesArchive = serializationService->createArchive(serializedResources);
+	resources.write(resourcesArchive.data(), resourcesArchive.size());
+
+	Scene* scene = ctx->getScenesManager()->getScene(0);
+	Meta sceneInfo{};
+	sceneInfo.setMeta("skyboxTextureId", (int)scene->getSkyboxTextureId());
+	sceneInfo.setMeta("gravity", scene->getGravity());
+	serializationService->serialize(sceneFile, sceneInfo);
+	serializationService->serialize(sceneFile, scene->getCamerasManager());
+	serializationService->serialize(sceneFile, scene->getGameObjectsManager());
+	serializationService->serialize(sceneFile, scene->getUIManager());
+	for (auto& script : ctx->getScriptsManager()->getScripts()) {
+		if (script->getScene() != scene) continue;
+		serializationService->serialize(sceneFile, script);
+	}
+
+	manifestFile.close();
+	resources.close();
+	sceneFile.close();
 
 	fs::current_path(path);
 	loadPreviousGameState();

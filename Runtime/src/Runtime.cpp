@@ -3,8 +3,10 @@
 #include <Yngin/Core/Scenes.h>
 #include <Yngin/Core/InputSystem.h>
 #include <Yngin/Rendering/Cameras.h>
+#include <Yngin/Services/SerializationService.h>
 #include <fstream>
 #include <sstream>
+#include <format>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -13,7 +15,7 @@
 using namespace Yngin;
 
 void error(const char* text) {
-	printf("%s\n", text);
+	printf("[Yngin Runtime] %s\n", text);
 #ifdef _WIN32
 	MessageBoxA(NULL, text, "Yngin Runtime", MB_ICONERROR | MB_OK);
 #endif
@@ -21,7 +23,7 @@ void error(const char* text) {
 
 int main() {
 #ifdef _WIN32
-	bool consoleShown = false;
+	bool consoleShown = true;
 
 	if (AllocConsole()) {
 		FILE* fDummy;
@@ -29,8 +31,10 @@ int main() {
 		freopen_s(&fDummy, "CONOUT$", "w", stderr);
 		freopen_s(&fDummy, "CONIN$", "r", stdin);
 	}
-
+#ifndef _DEBUG
 	ShowWindow(GetConsoleWindow(), SW_HIDE);
+	consoleShown = false;
+#endif
 #endif
 
 	Yngin::initializeYngin();
@@ -40,29 +44,10 @@ int main() {
 		return 1;
 	}
 
-	std::ifstream gamePak("game.pak", std::ios::binary);
-	if (!gamePak.is_open()) {
-		error("Failed to open game.pak");
-		Yngin::terminateYngin();
-		return 1;
-	}
-
-	std::ostringstream gameBytes(std::ios::binary);
-	gameBytes << gamePak.rdbuf();
-	gamePak.close();
-
-	if (!Context::validateGamePak(gameBytes.str().c_str(), gameBytes.str().size())) {
-		error("The game.pak file is corrupted or there's a version mismatch between the game.pak and the runtime executable");
-		gameBytes.clear();
-		terminateYngin();
-		return 1;
-	}
-
 	std::unique_ptr<Context> ctx(Context::createContext());
 
-	if (ctx == nullptr || ctx->getStatus() != CONTEXT_STATUS::WAITING_FOR_READY) {
+	if (!ctx || ctx->getStatus() != CONTEXT_STATUS::WAITING_FOR_READY) {
 		error("Failed to create a Yngin context");
-		gameBytes.clear();
 
 		ctx.reset();
 
@@ -70,11 +55,103 @@ int main() {
 		return 1;
 	}
 
-	ctx->loadGamePak(gameBytes.str().c_str(), gameBytes.str().size());
-	gameBytes.clear();
+	Services::SerializationService* serializationService = ctx->getService<Services::SerializationService>();
+
+	std::ifstream manifestFile("manifest.bin", std::ios::binary);
+	if (!manifestFile) {
+		error("Failed to open manifest.bin");
+		ctx.reset();
+		Yngin::terminateYngin();
+		return 1;
+	}
+
+	Meta manifest{};
+
+	{
+		Services::DeserializationContext deserializationContext{};
+		deserializationContext.targetMeta = &manifest;
+		if (serializationService->load(manifestFile, deserializationContext) != Services::DESERIALIZATION_STATUS::OK) {
+			error("Corrupted game manifest");
+			ctx.reset();
+			Yngin::terminateYngin();
+			return 1;
+		}
+	}
+
+	glm::ivec2 windowSize = { manifest.getMetaInt("windowWidth", 800), manifest.getMetaInt("windowHeight", 600) };
+	std::string windowTitle = manifest.getMetaString("name", "Yngin Game");
+	bool fullscreen = manifest.getMetaInt("fullscreen", 0) != 0;
+	std::vector<int> scenes = manifest.getMetaIntArray("scenes", {});
 
 	Window* window = ctx->getWindow();
+	window->setTitle(windowTitle.c_str());
+	window->setSize(windowSize);
+	window->setFullscreen(fullscreen);
 	window->setPositionCentered();
+
+	if (scenes.size() == 0) {
+		error("Invalid game manifest data");
+		ctx.reset();
+		Yngin::terminateYngin();
+		return 1;
+	}
+
+	for (auto& sceneId : scenes) {
+		std::string fileName = std::format("scene{}.bin", sceneId);
+		std::ifstream sceneFile(fileName, std::ios::binary);
+		if (!sceneFile) {
+			error(std::format("Failed to open scene file: {}", fileName).c_str());
+			ctx.reset();
+			Yngin::terminateYngin();
+			return 1;
+		}
+
+		Meta sceneInfo{};
+
+		Scene* scene = ctx->getScenesManager()->createScene(sceneId, true);
+		Services::DeserializationContext deserializationContext{};
+		deserializationContext.overrideConflictingId = true;
+		deserializationContext.targetScene = scene;
+		deserializationContext.targetMeta = &sceneInfo;
+		deserializationContext.targetUIManager = scene->getUIManager();
+		if (serializationService->load(sceneFile, deserializationContext) != Services::DESERIALIZATION_STATUS::OK) {
+			error(std::format("Failed to load scene file: {}", fileName).c_str());
+			ctx.reset();
+			Yngin::terminateYngin();
+			return 1;
+		}
+
+		scene->setGravity(sceneInfo.getMetaFloat("gravity", 9.8f));
+		scene->setSkyboxTexture(sceneInfo.getMetaInt("skyboxTextureId", 0));
+	}
+
+	uint32_t defaultSceneId = manifest.getMetaInt("defaultScene", -1);
+	ctx->getScenesManager()->setActive(defaultSceneId);
+	if (ctx->getScenesManager()->getActive() == nullptr) {
+		error("Invalid game manifest data");
+		ctx.reset();
+		Yngin::terminateYngin();
+		return 1;
+	}
+
+	{
+		auto resourcesFile = std::make_unique<std::ifstream>("resources.pak", std::ios::binary);
+		if (!resourcesFile || !resourcesFile.get()) {
+			error("Failed to open resources.pak");
+			ctx.reset();
+			Yngin::terminateYngin();
+			return 1;
+		}
+
+		std::unique_ptr<std::istream> stream = std::move(resourcesFile);
+
+		if (serializationService->streamArchive(stream, {}) == 0) {
+			error("Corrupted game resources");
+			ctx.reset();
+			Yngin::terminateYngin();
+			return 1;
+		}
+	}
 
 	InputSystem* input = ctx->getInputSystem();
 
