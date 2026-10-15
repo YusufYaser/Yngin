@@ -121,7 +121,9 @@ int main() {
 			return 1;
 		}
 
-		scene->setGravity(sceneInfo.getMetaFloat("gravity", 9.8f));
+		auto gravity = sceneInfo.getMetaFloatArray("gravity", { 0, 0, -9.8 });
+		glm::vec3 gravityVec = { gravity[0], gravity[1], gravity[2] };
+		scene->setGravity(gravityVec);
 		scene->setSkyboxTexture(sceneInfo.getMetaInt("skyboxTextureId", 0));
 	}
 

@@ -57,8 +57,8 @@ namespace Yngin {
 		LightSettings getLightSettings() const;
 		void setLightSettings(const LightSettings& lightSettings);
 
-		float getGravity();
-		void setGravity(float gravity);
+		glm::vec3 getGravity();
+		void setGravity(glm::vec3 gravity);
 
 	private:
 		friend class ScenesManager;

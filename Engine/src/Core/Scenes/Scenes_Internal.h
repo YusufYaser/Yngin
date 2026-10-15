@@ -22,7 +22,7 @@ namespace Yngin {
 
 		LightSettings lightSettings;
 
-		float gravity = 9.8f;
+		glm::vec3 gravity = { 0, 0, -9.8f };
 
 		void loadPak(const char* scenePakData, size_t size);
 	};

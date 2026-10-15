@@ -48,13 +48,19 @@ void PropertiesWindow::showSceneProps(uint32_t id) {
 		scene->setLightSettings(light);
 	}
 
-	ImGui::Text("Gravity");
-	ImGui::SameLine(100);
 	{
-		float v = scene->getGravity();
+		ImGui::Text("Gravity");
 
-		ImGui::InputFloat("##SceneGravity", &v, 1.0f, 2.0f);
+		glm::vec3 v = scene->getGravity();
 
+		ImGui::SetNextItemWidth(90.0f);
+		ImGui::InputFloat("##GravityX", &v.x, 0.1f, 1.0f, "%.2f");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(90.0f);
+		ImGui::InputFloat("##GravityY", &v.y, 0.1f, 1.0f, "%.2f");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(90.0f);
+		ImGui::InputFloat("##GravityZ", &v.z, 0.1f, 1.0f, "%.2f");
 		scene->setGravity(v);
 	}
 }

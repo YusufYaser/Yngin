@@ -158,7 +158,8 @@ namespace Yngin {
 
 			currentScene = scene;
 
-			jphPhysicsSystem->SetGravity(JPH::Vec3(0.0f, 0.0f, -scene->getGravity()));
+			glm::vec3 gravity = scene->getGravity();
+			jphPhysicsSystem->SetGravity(JPH::Vec3(gravity.x, gravity.y, gravity.z));
 
 			for (auto& [id, gameObject] : scene->getGameObjectsManager()->impl->gameObjects) {
 				sync(gameObject);
@@ -289,6 +290,9 @@ namespace Yngin {
 			if (currentScene == nullptr) return;
 			if (!simulationEnabled) return;
 			if (scene->getContext() != ctx) return;
+
+			glm::vec3 gravity = scene->getGravity();
+			jphPhysicsSystem->SetGravity(JPH::Vec3(gravity.x, gravity.y, gravity.z));
 
 			jphPhysicsSystem->Update(ctx->getDeltaTime(), 1, jphTempAllocator, jphJobSystem);
 

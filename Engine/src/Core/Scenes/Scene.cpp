@@ -66,11 +66,11 @@ namespace Yngin {
 		impl->lightSettings = lightSettings;
 	}
 
-	float Scene::getGravity() {
+	glm::vec3 Scene::getGravity() {
 		return impl->gravity;
 	}
 
-	void Scene::setGravity(float gravity) {
+	void Scene::setGravity(glm::vec3 gravity) {
 		impl->gravity = gravity;
 	}
 }

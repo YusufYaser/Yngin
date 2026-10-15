@@ -187,7 +187,9 @@ Editor::Editor(std::string path) {
 			deserializationContext.targetMeta = &sceneInfo;
 			serializationService->load(file, deserializationContext);
 			deserializationContext.targetMeta = nullptr;
-			activeScene->setGravity(sceneInfo.getMetaFloat("gravity", 9.8f));
+			auto gravity = sceneInfo.getMetaFloatArray("gravity", { 0, 0, -9.8 });
+			glm::vec3 gravityVec = { gravity[0], gravity[1], gravity[2] };
+			activeScene->setGravity(gravityVec);
 			activeScene->setSkyboxTexture(sceneInfo.getMetaInt("skyboxTextureId", 0));
 			file.close();
 		}
@@ -410,7 +412,11 @@ bool Editor::saveContext(Yngin::Context* ctx, std::map<uint32_t, EditorScript> s
 
 	Meta sceneInfo{};
 	sceneInfo.setMeta("skyboxTextureId", (int)scene->getSkyboxTextureId());
-	sceneInfo.setMeta("gravity", scene->getGravity());
+	std::vector<float> gravity(3);
+	gravity[0] = scene->getGravity().x;
+	gravity[1] = scene->getGravity().y;
+	gravity[2] = scene->getGravity().z;
+	sceneInfo.setMeta("gravity", gravity);
 	serializationService->serialize(sceneFile, sceneInfo);
 
 	serializationService->serialize(sceneFile, scene->getCamerasManager());
@@ -531,7 +537,11 @@ bool Editor::exportGame(std::string exportPath) {
 	Scene* scene = ctx->getScenesManager()->getScene(0);
 	Meta sceneInfo{};
 	sceneInfo.setMeta("skyboxTextureId", (int)scene->getSkyboxTextureId());
-	sceneInfo.setMeta("gravity", scene->getGravity());
+	std::vector<float> gravity(3);
+	gravity[0] = scene->getGravity().x;
+	gravity[1] = scene->getGravity().y;
+	gravity[2] = scene->getGravity().z;
+	sceneInfo.setMeta("gravity", gravity);
 	serializationService->serialize(sceneFile, sceneInfo);
 	serializationService->serialize(sceneFile, scene->getCamerasManager());
 	serializationService->serialize(sceneFile, scene->getGameObjectsManager());
@@ -587,7 +597,11 @@ void Editor::setupPreviousGameState() {
 
 		Meta sceneInfo{};
 		sceneInfo.setMeta("skyboxTextureId", (int)scene->getSkyboxTextureId());
-		sceneInfo.setMeta("gravity", scene->getGravity());
+		std::vector<float> gravity(3);
+		gravity[0] = scene->getGravity().x;
+		gravity[1] = scene->getGravity().y;
+		gravity[2] = scene->getGravity().z;
+		sceneInfo.setMeta("gravity", gravity);
 
 		serializationService->serialize(file, ctx->getTexturesManager(), false);
 		serializationService->serialize(file, ctx->getMaterialsManager());
@@ -622,7 +636,9 @@ void Editor::loadPreviousGameState() {
 		serializationService->load(file, deserializationContext);
 		file.close();
 
-		activeScene->setGravity(sceneInfo.getMetaFloat("gravity", 9.8f));
+		auto gravity = sceneInfo.getMetaFloatArray("gravity", { 0, 0, -9.8 });
+		glm::vec3 gravityVec = { gravity[0], gravity[1], gravity[2] };
+		activeScene->setGravity(gravityVec);
 		activeScene->setSkyboxTexture(sceneInfo.getMetaInt("skyboxTextureId", 0));
 
 		editorCamera = activeScene->getCamerasManager()->getCamera(editorCameraId);
