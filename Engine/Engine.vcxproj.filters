@@ -1083,6 +1083,24 @@
     <ClInclude Include="src\Services\SerializationService\ArchiveTools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="deps\vendor\lz4\xxhash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\vendor\lz4\lz4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\vendor\lz4\lz4file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\vendor\lz4\lz4frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\vendor\lz4\lz4frame_static.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\vendor\lz4\lz4hc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\implementations\glad.c">
@@ -1635,6 +1653,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="deps\vendor\lz4\lz4.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\vendor\lz4\lz4file.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\vendor\lz4\lz4frame.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\vendor\lz4\lz4hc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\vendor\lz4\xxhash.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -36,3 +36,4 @@ Thanks to the [Open Source](https://opensource.org/) community for the libraries
 - Thanks to [ImGuiColorTextEdit](https://github.com/BalazsJako/ImGuiColorTextEdit) for providing the text editor for editing scripts
 - Thanks to [ImPlot](https://github.com/epezent/implot) for providing the tools to implement the resource usage graphs
 - Thanks to [Font Awesome](https://fontawesome.com/) for providing the icons in the editor and [IconFontCppHeaders](https://github.com/juliettef/IconFontCppHeaders) for the header file
+- Thanks to [LZ4](https://github.com/lz4/lz4) for providing the compression algorithm

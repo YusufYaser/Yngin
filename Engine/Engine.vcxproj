@@ -303,6 +303,12 @@
     <ClInclude Include="deps\vendor\Jolt\TriangleSplitter\TriangleSplitter.h" />
     <ClInclude Include="deps\vendor\Jolt\TriangleSplitter\TriangleSplitterBinning.h" />
     <ClInclude Include="deps\vendor\Jolt\TriangleSplitter\TriangleSplitterMean.h" />
+    <ClInclude Include="deps\vendor\lz4\lz4.h" />
+    <ClInclude Include="deps\vendor\lz4\lz4file.h" />
+    <ClInclude Include="deps\vendor\lz4\lz4frame.h" />
+    <ClInclude Include="deps\vendor\lz4\lz4frame_static.h" />
+    <ClInclude Include="deps\vendor\lz4\lz4hc.h" />
+    <ClInclude Include="deps\vendor\lz4\xxhash.h" />
     <ClInclude Include="include\Yngin\Components\Collider.h" />
     <ClInclude Include="include\Yngin\Components\Light.h" />
     <ClInclude Include="include\Yngin\Components\RigidBody.h" />
@@ -505,6 +511,10 @@
     <ClCompile Include="deps\vendor\Jolt\TriangleSplitter\TriangleSplitterBinning.cpp" />
     <ClCompile Include="deps\vendor\Jolt\TriangleSplitter\TriangleSplitterMean.cpp" />
     <ClCompile Include="deps\vendor\lz4\lz4.c" />
+    <ClCompile Include="deps\vendor\lz4\lz4file.c" />
+    <ClCompile Include="deps\vendor\lz4\lz4frame.c" />
+    <ClCompile Include="deps\vendor\lz4\lz4hc.c" />
+    <ClCompile Include="deps\vendor\lz4\xxhash.c" />
     <ClCompile Include="src\Core\Materials\Material.cpp" />
     <ClCompile Include="src\Core\Materials\MaterialsManager.cpp" />
     <ClCompile Include="src\Components\Collider.cpp" />
