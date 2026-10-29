@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
 }
 
 #ifdef _WIN32
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
-	return main(0, 0);
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
+	return main(__argc, __argv);
 }
 #endif

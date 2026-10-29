@@ -21,7 +21,7 @@ void error(const char* text) {
 #endif
 }
 
-int main() {
+int main(int argc, char* argv[]) {
 #ifdef _WIN32
 	bool consoleShown = true;
 
@@ -179,7 +179,7 @@ int main() {
 }
 
 #ifdef _WIN32
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
-	return main();
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
+	return main(__argc, __argv);
 }
 #endif
